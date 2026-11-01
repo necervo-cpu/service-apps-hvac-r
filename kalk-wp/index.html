@@ -315,8 +315,8 @@ function pruefung(v, S){
 function teamText(nT, nH){
   return `${nT} Servicetechniker` + (nH ? ` + ${nH} ${nH === 1 ? 'Helfer / Azubi' : 'Helfer / Azubis'}` : '');
 }
-/* Richtzeiten = Arbeitszeit eines Technikers. Mehrere Techniker teilen sich die Arbeit (kürzerer Einsatz),
-   Helfer begleiten den ganzen Einsatz und werden für die Einsatzdauer berechnet. */
+/* Richtzeiten = Einsatzdauer vor Ort. Jeder Servicetechniker und jeder Helfer ist den ganzen Einsatz dabei
+   und wird für die volle Dauer berechnet (2 Techniker = doppelte Lohnkosten Techniker). */
 function calc(p){
   const v = p.values, S = p.stamm, q = qtys(v), pr = pruefung(v, S);
   const nT = Math.max(1, Math.round(n0(v.anzTech)) || 1), nH = Math.max(0, Math.round(n0(v.anzHelfer)));
@@ -331,12 +331,12 @@ function calc(p){
   pausch(C.erschwernisLabel, v.erschwernis);
   if(n0(v.sonderPreis) > 0 || String(v.sonderText || '').trim()) material.push({label:String(v.sonderText || '').trim() || 'Sonderposition', menge:'1 Pauschale', preis:n0(v.sonderPreis), betrag:round(n0(v.sonderPreis), 2)});
   const minRicht = leistung.reduce((a, x) => a + x.min, 0);
-  const dauer = minRicht / nT;
-  const lohnTech = round(minRicht / 60 * S.satz_tech, 2), lohnHelfer = round(dauer / 60 * nH * S.satz_helfer, 2);
+  const dauer = minRicht, minTech = minRicht * nT;
+  const lohnTech = round(minTech / 60 * S.satz_tech, 2), lohnHelfer = round(dauer / 60 * nH * S.satz_helfer, 2);
   const lohn = round(lohnTech + lohnHelfer, 2);
   const mat = round(material.reduce((a, x) => a + x.betrag, 0), 2);
   const netto = round(lohn + mat, 2), mwst = round(netto * S.mwst / 100, 2), brutto = round(netto + mwst, 2);
-  return {S, q, pr, nT, nH, team:teamText(nT, nH), leistung, material, minRicht, dauer, lohnTech, lohnHelfer, lohn, mat, netto, mwst, brutto};
+  return {S, q, pr, nT, nH, team:teamText(nT, nH), leistung, material, minRicht, minTech, dauer, lohnTech, lohnHelfer, lohn, mat, netto, mwst, brutto};
 }
 
 /* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
@@ -344,7 +344,7 @@ function buildReport(p){
   const v = p.values, k = calc(p), S = k.S, pa = v.pauschal === 'Ja', pr = k.pr;
   const tiles = [{cls:'primary', lab:'Gesamtpreis brutto', val:eur(k.brutto), sub:`Netto ${eur(k.netto)} zzgl. ${fmtNum(S.mwst)} % MwSt.`}];
   tiles.push(pa ? {lab:'Team vor Ort', val:`${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`, sub:k.team}
-                : {lab:'Arbeitszeit gesamt', val:hrs(k.minRicht + k.dauer * k.nH), sub:`Einsatz vor Ort ca. ${hrs(k.dauer)} · ${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`});
+                : {lab:'Arbeitszeit gesamt', val:hrs(k.minTech + k.dauer * k.nH), sub:`Einsatz vor Ort ca. ${hrs(k.dauer)} · ${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`});
   tiles.push(pr.state === 'pflicht' ? {cls:'warn', lab:'Dichtheitsprüfung', val:`alle ${pr.monate} Monate`, sub:`Pflicht · ${de(pr.co2, 2)} t CO₂-Äq. je Kreis`}
     : pr.state === 'r290' ? {cls:'warn', lab:'Sicherheitsprüfung', val:'R290 jährlich', sub:'Dichtheits- & Sicherheitsprüfung (A3)'}
     : pr.state === 'frei' ? {cls:'ok', lab:'Dichtheitsprüfung', val:'keine Pflicht', sub:pr.km === 'R290' || /290/.test(pr.km) ? 'natürliches Kältemittel' : `${de(pr.co2, 2)} t CO₂-Äq. je Kreis (Grenze ${pr.grenze} t)`}
@@ -369,7 +369,7 @@ function buildReport(p){
   const kosten = {head:['Kostenaufstellung', 'Betrag'], cls:['', 'num'], widths:['75%', '25%'], rows:[]};
   if(pa) kosten.rows.push({cells:['Pauschalpreis netto (Arbeitszeit, Material, Anfahrt und Nebenleistungen)', eur(k.netto)], cls:'sum'});
   else {
-    kosten.rows.push({cells:[`Lohnkosten Servicetechniker (${hrs(k.minRicht)} × ${eur(S.satz_tech)})`, eur(k.lohnTech)]});
+    kosten.rows.push({cells:[`Lohnkosten Servicetechniker (${k.nT > 1 ? k.nT + ' × ' : ''}${hrs(k.dauer)} × ${eur(S.satz_tech)})`, eur(k.lohnTech)]});
     if(k.nH) kosten.rows.push({cells:[`Lohnkosten Helfer / Azubi (${k.nH} × ${hrs(k.dauer)} × ${eur(S.satz_helfer)})`, eur(k.lohnHelfer)]});
     kosten.rows.push({cells:['Material, Anfahrt & Nebenleistungen', eur(k.mat)]});
     kosten.rows.push({cells:['Nettobetrag gesamt', eur(k.netto)], cls:'sum'});
@@ -389,7 +389,7 @@ function buildCols(p){
   const f = id => FIELDS.find(x => x.id === id);
   ['projekt', 'datum', 'kunde', 'standort', 'bearbeiter'].forEach(id => { const x = f(id); add(x.col, v[id] || '', x.type === 'date' && v[id] ? 'date' : ''); });
   add('Netto (€)', k.netto); add('MwSt (€)', k.mwst); add('Brutto (€)', k.brutto);
-  add('Arbeitszeit Techniker (h)', round(k.minRicht / 60, 2)); add('Einsatzdauer vor Ort (h)', round(k.dauer / 60, 2));
+  add('Arbeitszeit Techniker (h)', round(k.minTech / 60, 2)); add('Einsatzdauer vor Ort (h)', round(k.dauer / 60, 2));
   add('Lohnkosten netto (€)', k.lohn); add('Material & Nebenkosten netto (€)', k.mat);
   add('CO₂-Äquivalent je Kreis (t)', k.pr.km && isN(v.gwp) && k.pr.menge ? k.pr.co2 : ''); add('Prüfpflicht F-Gase', k.pr.km ? k.pr.text : '');
   FIELDS.slice(5).forEach(x => { const val = v[x.id]; add(x.col, val === '' || val == null ? '' : x.type === 'num' && isN(val) ? num(val) : String(val)); });
@@ -426,7 +426,7 @@ function updateNet(){
 function live(){
   const p = cur(); if(!p) return;
   const k = calc(p);
-  $('#sumbar').innerHTML = `<div><small>Arbeitszeit</small><span>${hrs(k.minRicht)}</span></div><div><small>Netto</small><span>${eur(k.netto)}</span></div><div class="gold"><small>Brutto</small><span>${eur(k.brutto)}</span></div>`;
+  $('#sumbar').innerHTML = `<div><small>Arbeitszeit</small><span>${hrs(k.minTech + k.dauer * k.nH)}</span></div><div><small>Netto</small><span>${eur(k.netto)}</span></div><div class="gold"><small>Brutto</small><span>${eur(k.brutto)}</span></div>`;
   document.querySelectorAll('input[data-f]').forEach(el => {
     if(el === document.activeElement || el.dataset.other) return;
     const x = p.values[el.dataset.f] ?? '';
@@ -526,7 +526,7 @@ const Views = {
       <h2>So wird gerechnet</h2>
       <div class="card"><ul class="list" style="margin:0;padding-left:20px">
         <li><b>Arbeitszeit:</b> Anzahl × Richtzeit je Gerät (Stammdaten), plus Dichtheitsprüfung je Kältekreis, wenn sie Pflicht ist.</li>
-        <li><b>Team:</b> Die Richtzeiten gelten für einen Techniker. Mehrere Techniker teilen sich die Arbeit, der Einsatz wird kürzer. Helfer / Azubis sind den ganzen Einsatz dabei und werden für die Einsatzdauer berechnet.</li>
+        <li><b>Team:</b> Die Richtzeiten ergeben die Einsatzdauer vor Ort. Jeder Servicetechniker und jeder Helfer / Azubi ist den ganzen Einsatz dabei und wird für die volle Einsatzdauer berechnet – 2 Techniker kosten also doppelt so viel Lohn wie einer.</li>
         <li><b>Material:</b> Reinigungsmittel usw. werden aus den Gerätezahlen vorgeschlagen. Sobald du einen Wert selbst änderst, bleibt er stehen („von Hand“), bis du „wieder automatisch“ antippst.</li>
         <li><b>F-Gase (EU 2024/573):</b> Prüfpflicht ab 5 t CO₂-Äquivalent je Kreis, bei hermetisch geschlossenen Anlagen ab 10 t. Intervall 12 / 6 / 3 Monate ab 5 / 50 / 500 t, mit Leckage-Erkennungssystem doppelt so lang.</li>
         <li><b>Preis:</b> Lohn + Material + Anfahrt + Erschwernis + Sonderposition = netto, zzgl. ${fmtNum(S.mwst)} % MwSt.</li>
@@ -685,7 +685,7 @@ const Pages = [
 ];
 function resultHtml(p, k){
   return `<table><tbody>
-    <tr><td>Arbeitszeit Techniker</td><td class="num">${de(k.minRicht, 0)} Min (${hrs(k.minRicht)})</td></tr>
+    <tr><td>Arbeitszeit Techniker${k.nT > 1 ? ` (${k.nT} × ${hrs(k.dauer)})` : ''}</td><td class="num">${de(k.minTech, 0)} Min (${hrs(k.minTech)})</td></tr>
     <tr><td>Einsatzdauer vor Ort · ${esc(k.team)}</td><td class="num">${hrs(k.dauer)}</td></tr>
     <tr><td>Lohnkosten netto</td><td class="num">${eur(k.lohn)}</td></tr>
     <tr><td>Material, Anfahrt & Nebenleistungen netto</td><td class="num">${eur(k.mat)}</td></tr>

@@ -10,8 +10,9 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 
+// Nur eigene alte Versionen löschen – andere Apps unter derselben Adresse behalten ihren Offline-Speicher.
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k.startsWith(CACHE.replace(/\d+$/, ''))).map(k => caches.delete(k)))));
   self.clients.claim();
 });
 
