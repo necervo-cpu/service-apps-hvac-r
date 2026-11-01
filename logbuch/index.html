@@ -86,6 +86,10 @@ th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04
 .kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
 .kv div{font-size:15px}.kv b{font-weight:600;color:var(--muted);font-size:13px;display:block}
 @media(max-width:640px){.kv{grid-template-columns:1fr}}
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+@media(max-width:640px){.sigs{grid-template-columns:1fr}}
+.sigwrap{border:2px dashed #c4ccd8;border-radius:12px;background:#fff;margin-bottom:8px}
+canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
 a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
 input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
@@ -195,6 +199,12 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .report .sign b{font-size:7pt;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
 .report .sign .space{display:block;height:30mm}
 .report .sign .cap{border-top:1px solid var(--ink-2);padding-top:1.2mm;font-size:7pt;color:var(--ink-3)}
+.report .sigbox{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:3mm}
+.report .sigbox .img{height:17mm;border-bottom:1px solid var(--ink-2);display:flex;align-items:flex-end}
+.report .sigbox img{max-height:16mm;max-width:100%}
+.report .sigbox .cap{font-size:7pt;color:var(--ink-3);padding-top:1.2mm}
+.report td.sigc img{display:block;height:11mm;max-width:100%}
+.report td.sigc .small{display:block}
 /* ===== Ende Bericht-CSS ===== */
 @media print{
   header,.noprint,#toast{display:none!important}
@@ -310,7 +320,7 @@ const STAMM = {
         calc:intervalOf, note:() => 'nach Art. 5 VO (EU) 2024/573 aus CO₂-Äquivalent, Leckage-Erkennung und hermetisch'}
     ]},
     {title:'Dichtheitsprüfung vor Erstinbetriebnahme', pdfTitle:'Dichtheitsprüfung vor Erstinbetriebnahme', short:'Erst-IBN',
-      kind:'check', prefix:'Erst-IBN ', fields:[
+      kind:'check', prefix:'Erst-IBN ', sign:true, fields:[
       yn('iAufz', 'Erst-IBN Aufzeichnungen vollständig', 'Aufzeichnungen auf Vollständigkeit geprüft', {group:'Aufzeichnungen', allYes:true}),
       yn('iVerb', 'Erst-IBN Verbindungen', 'Verbindungen', {group:'Systematische Prüfung der Einrichtung', allYes:true}),
       yn('iVent', 'Erst-IBN Ventile und Leitungen', 'Ventile und Leitungen', {group:'Systematische Prüfung der Einrichtung', allYes:true}),
@@ -332,7 +342,8 @@ const STAMM = {
       yn('iMang', 'Erst-IBN Mängel festgestellt', 'Mängel festgestellt (wenn ja, siehe Zusatzbericht)', {group:'Mängel & Prüfer', good:['Nein'], bad:['Ja']}),
       {id:'iDat', col:'Erst-IBN Prüfdatum', label:'Datum der Prüfung', type:'date', group:'Mängel & Prüfer'},
       {id:'iSk', col:'Erst-IBN Sachkundiger', label:'Sachkundiger', type:'text', group:'Mängel & Prüfer', init:() => settings.techniker},
-      {id:'iZert', col:'Erst-IBN Zertifikatsnummer', label:'Zertifikatsnummer', type:'text', group:'Mängel & Prüfer', init:() => settings.zert}
+      {id:'iZert', col:'Erst-IBN Zertifikatsnummer', label:'Zertifikatsnummer', type:'text', group:'Mängel & Prüfer', init:() => settings.zert},
+      {id:'iBetr', col:'Erst-IBN Name Betreiber', label:'Name Betreiber', type:'text', sigName:true}
     ]},
     {title:'Abschluss', short:'Abschluss', final:true, fields:[
       {id:'bem', col:'Bemerkungen', label:'Bemerkungen zur Anlage', type:'longtext', wide:true, hint:'z. B. Zugang, Besonderheiten, frühere Papier-Logbücher'}
@@ -372,7 +383,9 @@ const EINTRAG = {
       {id:'mass', col:'Maßnahmen zur Behebung', label:'Maßnahmen zur Behebung', type:'longtext'},
       {id:'erg', col:'Zusätzliche Ergänzung', label:'Zusätzliche Ergänzung durch Anlagenprüfer', type:'longtext'}
     ]},
-    {title:'Eintrag speichern', short:'Speichern', final:true, fields:[]}
+    {title:'Eintrag speichern', short:'Speichern', final:true, sign:true, fields:[
+      {id:'betr', col:'Name Betreiber', label:'Name Betreiber', type:'text', sigName:true}
+    ]}
   ]
 };
 [STAMM, EINTRAG].forEach(t => {
@@ -470,6 +483,7 @@ function entryCols(e){
   });
   return out;
 }
+const sigsOf = o => ({sk:safeImg((o.sig || {}).sk), betr:safeImg((o.sig || {}).betr)});
 function buildReport(p){
   const v = p.values, s = summary(p);
   // Zahlen ohne Einheit – die Einheit steht schon in der Beschriftung, z. B. „Füllgewicht (kg)“
@@ -484,8 +498,9 @@ function buildReport(p){
     sections:STAMM.pages.filter(pg => !pg.header && !pg.final).map(pg => ({
       title:pg.pdfTitle || pg.title, kind:pg.kind || 'grid',
       rows:pg.fields.filter(f => !(pg.kind === 'check' && f.type === 'yesno')).map(row),
-      checks:pg.kind === 'check' ? pg.fields.filter(f => f.type === 'yesno').map(row) : []})),
-    entries:doneEntries(p).map(entryCols), fg:v.fm || '',
+      checks:pg.kind === 'check' ? pg.fields.filter(f => f.type === 'yesno').map(row) : [],
+      sign:pg.sign ? sigsOf(p) : null})),
+    entries:doneEntries(p).map(e => Object.assign(entryCols(e), {_sig:sigsOf(e)})), fg:v.fm || '',
     remark:v.bem || '', hinweis:HINWEIS, id:v.projekt || p.id, stand:new Date().toISOString()
   };
 }
@@ -511,6 +526,7 @@ function go(name, params){ view = Object.assign({name}, params || {}); render();
 function render(){
   app.innerHTML = (Views[view.name] || Views.home)();
   if(view.name === 'report') showReport();
+  initSigs();
   updateNet();
 }
 /* Bericht seitenweise (A4) anzeigen – auf schmalen Bildschirmen verkleinert */
@@ -608,8 +624,9 @@ const Views = {
         ${pg.btn ? `<button class="btn small" data-act="${pg.btn.act}">${esc(pg.btn.label)}</button>` : ''}
         ${allYes ? '<button class="btn small" data-act="allyes">Offene Prüfpunkte auf Ja</button>' : ''}</div></div>
       ${pg.hint ? `<p class="pagehint">${esc(pg.hint)}</p>` : ''}
-      ${pg.fields.length ? `<div class="card">${fieldsHtml(pg, c)}</div>` : ''}
+      ${pg.fields.some(f => !f.sigName) ? `<div class="card">${fieldsHtml(pg, c)}</div>` : ''}
       ${pg.final ? finalHtml(c) : ''}
+      ${pg.sign ? sigHtml(c) : ''}
       <div class="err" id="pageerr"></div>
       <div class="navbar">
         <button class="btn" data-act="prev" ${i === 0 ? 'disabled' : ''}>← Zurück</button>
@@ -710,7 +727,7 @@ function bookCard(p){
 /* Felder einer Seite mit Zwischenüberschriften (group) */
 function fieldsHtml(pg, c){
   let g = null;
-  return pg.fields.filter(f => isVis(f, c.obj.values)).map(f => {
+  return pg.fields.filter(f => isVis(f, c.obj.values) && !f.sigName).map(f => {
     let h = '';
     if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; }
     return h + fieldHtml(f, c);
@@ -750,6 +767,69 @@ function autoNote(f, c){
   return c.obj.values['_m_' + f.id]
     ? '<span class="autonote man">von Hand eingetragen – Feld leeren, um wieder automatisch zu berechnen</span>'
     : 'automatisch: ' + esc(f.note ? f.note(c.obj.values, c.L) : '');
+}
+
+/* ---------- Unterschriften (Erstprüfung und jeder Eintrag): obj.sig = Bilder, obj.sigF = Datei-IDs in Google Drive ---------- */
+function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
+const sigOwner = () => view.eid || 'book';
+function sigHtml(c){
+  const v = c.obj.values, nameF = c.tpl.pages[c.obj.page].fields.find(f => f.sigName), sk = view.eid ? v.sk : v.iSk;
+  return `<h2>Unterschriften</h2><div class="card"><div class="sigs">
+    <div><label>Unterschrift Sachkundiger${sk ? ' (' + esc(sk) + ')' : ''}</label>
+      <div class="sigwrap"><canvas class="sig" data-sig="sk"></canvas></div>
+      <button class="btn small" data-act="sigclear" data-sig="sk">Unterschrift löschen</button></div>
+    <div><label>Unterschrift Betreiber (optional)</label>
+      <div class="sigwrap"><canvas class="sig" data-sig="betr"></canvas></div>
+      ${nameF ? `<input id="in-${nameF.id}" data-f="${nameF.id}" value="${esc(v[nameF.id] || '')}" placeholder="Name des Betreibers / Vertreters" autocomplete="off" style="margin-bottom:8px">` : ''}
+      <button class="btn small" data-act="sigclear" data-sig="betr">Unterschrift löschen</button></div>
+  </div></div>`;
+}
+function initSig(canvas, obj){
+  const key = canvas.dataset.sig;
+  const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = ctx.fillStyle = '#0b1f3a';
+  const src = safeImg((obj.sig || {})[key]);
+  if(src){ const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0, r.width, r.height); img.src = src; }
+  let drawing = false, last = null;
+  const pt = e => { const b = canvas.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  canvas.addEventListener('pointerdown', e => {
+    e.preventDefault(); drawing = true; last = pt(e); canvas.setPointerCapture(e.pointerId);
+    ctx.beginPath(); ctx.arc(last[0], last[1], 1.1, 0, Math.PI * 2); ctx.fill();
+  });
+  canvas.addEventListener('pointermove', e => {
+    if(!drawing) return;
+    const q = pt(e); ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); last = q;
+  });
+  const end = () => {
+    if(!drawing) return; drawing = false;
+    const out = document.createElement('canvas');
+    out.width = Math.round(r.width); out.height = Math.round(r.height);
+    out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
+    obj.sig = obj.sig || {}; obj.sig[key] = out.toDataURL('image/png');
+    if(obj.sigF) delete obj.sigF[key];   // geändert → beim Übertragen neu hochladen
+    save();
+  };
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', end);
+}
+function initSigs(){
+  const c = view.name === 'wizard' && ctx();
+  if(c && c.tpl.pages[c.obj.page].sign) document.querySelectorAll('canvas.sig').forEach(cv => initSig(cv, c.obj));
+}
+/* Antwort vom Sheet: Datei-IDs merken, Bilder von anderen Geräten übernehmen (angefangene Einträge bleiben unberührt) */
+function applySigs(p, files, data){
+  const objs = {book:p};
+  p.entries.filter(e => e.status !== 'draft').forEach(e => { objs[e.id] = e; });
+  Object.values(objs).forEach(o => { o.sigF = {}; });
+  Object.keys(files || {}).forEach(key => {
+    const [owner, k] = key.split('.'), o = objs[owner];
+    if(!o) return;
+    o.sigF[k] = files[key];
+    if(safeImg((data || {})[key])){ o.sig = o.sig || {}; o.sig[k] = data[key]; }
+  });
 }
 
 function finalHtml(c){
@@ -809,6 +889,7 @@ function reportParts(r){
   const COL = {ok:'#1e7a46', bad:'#b42318', warn:'#8a5a00', no:'#9a9999'};
   const icon = (k, cls, px) => RICON[k].replace('<svg ', `<svg width="${px}" height="${px}" `).replace(/currentColor/g, COL[cls]);
   const pill = (cls, ic, text) => `<span class="pill ${cls}">${icon(ic, cls, 10)}${esc(text)}</span>`;
+  const img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
   const st = r.status || {}, sh = r.short || {};
   const firmLines = String(r.firma || '').split('\n').map(s => s.trim()).filter(Boolean);
   const stand = r.stand ? new Date(r.stand).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}) : '';
@@ -854,10 +935,15 @@ function reportParts(r){
       const sign = [];
       (s.rows || []).forEach(x => {
         if(x.label.startsWith('Direkt ')){ if(x.value) items[2].push(`<div class="citem">${icon('no', 'no', 12)}<span class="t">${esc(x.label.slice(7))}: ${esc(x.value)}</span></div>`); }
-        else sign.push(`<span>${esc(x.label)} <b>${esc(x.value || '—')}</b></span>`);
+        else if(x.label !== 'Name Betreiber') sign.push(`<span>${esc(x.label)} <b>${esc(x.value || '—')}</b></span>`);
       });
+      // gezeichnete Unterschriften der Erstprüfung
+      const sg = s.sign || {}, cap = (who, name) => `<div class="cap">${esc(who)}${name ? ' · ' + esc(name) : ''}</div>`;
+      const sigBox = img(sg.sk) || img(sg.betr) ? `<div class="sigbox">
+        <div><div class="img">${img(sg.sk)}</div>${cap('Unterschrift Sachkundiger', val(s, 'Sachkundiger'))}</div>
+        <div><div class="img">${img(sg.betr)}</div>${cap('Unterschrift Betreiber', val(s, 'Name Betreiber'))}</div></div>` : '';
       blocks.push({html:`<div class="sec">${h2(s.title)}<div class="checks">${groups.map((g, k) => `<div class="cgroup"><h4>${up(g[0])}</h4>${items[k].join('') || '<div class="none">—</div>'}</div>`).join('')}</div>
-        ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}</div>`});
+        ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}${sigBox}</div>`});
     } else {
       blocks.push({html:`<div class="sec">${h2(s.title)}<dl class="kv">${(s.rows || []).map(x =>
         `<div><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'}">${esc(x.value || '—')}</dd></div>`).join('')}</dl></div>`});
@@ -885,6 +971,15 @@ function reportParts(r){
         `<span>${y}: ${fmt(years[y])} kg ${fg > 0 ? `<span class="pill warn">${String(Math.round(years[y] / fg * 1000) / 10).replace('.', ',')} %</span>` : ''}</span>`).join('')}</div>`});
     }
   });
+
+  // Unterschriften zu den Einträgen (nur unterschriebene Termine)
+  const signed = es.filter(e => e._sig && (img(e._sig.sk) || img(e._sig.betr)));
+  if(signed.length) blocks.push({split:true, html:`<div class="sec">${h2('Unterschriften zu den Einträgen')}<table>
+    <colgroup><col style="width:14%"><col><col></colgroup>
+    <thead><tr><th>${up('Datum')}</th><th>${up('Sachkundiger')}</th><th>${up('Betreiber')}</th></tr></thead>
+    <tbody>${signed.map(e => `<tr><td class="date">${esc(e['Datum'] || '—')}</td>
+      <td class="sigc">${img(e._sig.sk)}<span class="small">${esc(e['Sachkundiger'] || '')}</span></td>
+      <td class="sigc">${img(e._sig.betr)}<span class="small">${esc(e['Name Betreiber'] || '')}</span></td></tr>`).join('')}</tbody></table></div>`});
 
   if(r.remark) blocks.push({html:`<div class="note"><b>${up('Bemerkungen zur Anlage')}</b>${nl(r.remark)}</div>`});
   if(r.hinweis && r.hinweis.length) blocks.push({html:`<div class="legal">${r.hinweis.map(t => {
@@ -1041,9 +1136,17 @@ async function syncAll(silent){
         recompute(p, STAMM);
         const es = doneEntries(p);
         es.forEach(e => recompute(e, EINTRAG, p.values));
+        // Unterschriften: nur neue/geänderte Bilder hochladen; „have“ = Bilder, die dieses Gerät schon hat
+        const sigs = {}, have = [];
+        [['book', p], ...es.map(e => [e.id, e])].forEach(([owner, o]) => Object.keys(o.sig || {}).forEach(k => {
+          if(!safeImg(o.sig[k])) return;
+          have.push(owner + '.' + k);
+          if(!(o.sigF || {})[k]) sigs[owner + '.' + k] = o.sig[k];
+        }));
         const j = await api('upsert', {
           protocol:{id:p.id, templateId:STAMM.id, values:p.values, entries:es.map(plainEntry), deleted:p.deleted || [],
-                    kundeName:betrText(p.values), completedAt:p.completedAt, sourceKey:p.sourceKey || '', pdf:await pdfBase64(p)},
+                    kundeName:betrText(p.values), completedAt:p.completedAt, sourceKey:p.sourceKey || '', pdf:await pdfBase64(p),
+                    sigs, sigDel:p.sigDel || [], sigHave:have},
           cols:buildCols(STAMM, p.values).concat(summaryCols(p)),
           ecols:Object.fromEntries(es.map(e => [e.id, buildCols(EINTRAG, e.values)]))
         });
@@ -1054,6 +1157,7 @@ async function syncAll(silent){
         p.entries = p.entries.filter(e => e.status === 'draft' || !del.has(e.id));
         const extra = (j.entries || []).filter(e => !known.has(e.id) && !del.has(e.id));
         if(extra.length){ extra.forEach(e => p.entries.push(Object.assign({page:0, status:'done'}, e))); p.synced = false; }
+        applySigs(p, j.sigFiles, j.sigData); p.sigDel = [];
         save(); okCount++;
       }catch(e){ err = e; break; }
     }
@@ -1149,6 +1253,13 @@ const Actions = {
     const c = ctx();
     c.obj.values[d.f] = c.obj.values[d.f] === d.v ? '' : d.v;   // erneutes Tippen wählt wieder ab
     recompute(c.obj, c.tpl, c.L); save(); render();
+  },
+  sigclear(d){
+    const c = ctx(), o = c.obj;
+    if(o.sig) delete o.sig[d.sig];
+    // schon in Google Drive → dort beim nächsten Übertragen löschen
+    if(o.sigF && o.sigF[d.sig]){ c.p.sigDel = (c.p.sigDel || []).concat(sigOwner() + '.' + d.sig); delete o.sigF[d.sig]; }
+    save(); render();
   },
   allyes(){
     const c = ctx();
@@ -1250,6 +1361,7 @@ const Actions = {
       if(j.values){
         p = {id:j.appId, templateId:STAMM.id, values:j.values, deleted:j.deleted || [], sourceKey:'',
              entries:(j.entries || []).map(e => Object.assign({page:0, status:'done'}, e))};
+        applySigs(p, j.sigFiles, j.sigData);
       } else {
         // alte / von Hand angelegte Zeile ohne App-Daten
         const values = valuesFromCols(STAMM, j.cols);
@@ -1343,6 +1455,11 @@ app.addEventListener('change', e => {
     };
     r.readAsText(el.files[0]);
   }
+});
+let lastW = window.innerWidth;
+window.addEventListener('resize', () => {   // Drehen des Geräts: Unterschriftsfelder neu aufbauen
+  if(window.innerWidth !== lastW && document.querySelector('canvas.sig')) render();
+  lastW = window.innerWidth;
 });
 window.addEventListener('online', () => { updateNet(); syncAll(true); });
 window.addEventListener('offline', updateNet);
