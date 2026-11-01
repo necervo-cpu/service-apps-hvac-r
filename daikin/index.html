@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Daikin Multi">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Daikin Multisplit-Auslegung</title>
+<script src="lib/html2canvas.min.js" defer></script>
+<script src="lib/jspdf.umd.min.js" defer></script>
+<script src="daten.js"></script>
+<script src="engine.js"></script>
+<style>
+:root{--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e8e5dc;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-dark:#c4b53e;--gold-text:#8b7a1b;--cream:#faf9f5;--ok:#1e8e4e;--bad:#c62828;--na:#7d838c;--warn:#b26a00;--ctl:#fff;--selbg:#fbf8e4;--bdg:#eef1f5;--okbg:#e3f4ea;--okbd:#b6e0c6;--okfg:#14532d;--wbg:#fff3e0;--wbd:#ffd59a;--wfg:#6d4300;--ebg:#fdeaea;--ebd:#f1b5b5;--efg:#7a1414;--hbg:#fff8d6;--hfg:#4a3f00}
+:root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#383530;--cream:#26241c;--gold-text:#DCCC4B;--ok:#4cc27f;--bad:#ef7070;--warn:#f0a53a;--ctl:#2a2a2a;--selbg:#3a3516;--bdg:#2f3338;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--wbg:#3a2a10;--wbd:#7a5518;--wfg:#ffd9a0;--ebg:#3a1818;--ebd:#7a2c2c;--efg:#ffc4c4;--hbg:#3a3516;--hfg:#f3e9a8}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#383530;--cream:#26241c;--gold-text:#DCCC4B;--ok:#4cc27f;--bad:#ef7070;--warn:#f0a53a;--ctl:#2a2a2a;--selbg:#3a3516;--bdg:#2f3338;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--wbg:#3a2a10;--wbd:#7a5518;--wfg:#ffd9a0;--ebg:#3a1818;--ebd:#7a2c2c;--efg:#ffc4c4;--hbg:#3a3516;--hfg:#f3e9a8}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;border-bottom:3px solid var(--gold);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:12px}
+header h1{font-size:19px;margin:0;flex:1;cursor:pointer}
+.net{font-size:13px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.18);white-space:nowrap}
+.net.off{background:#c62828}
+main{max-width:940px;margin:0 auto;padding:16px 16px calc(48px + env(safe-area-inset-bottom))}
+.btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--ctl);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-weight:600;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1a1a}
+.btn.danger{color:var(--bad)}
+.btn.small{min-height:38px;padding:6px 12px;font-size:15px}
+.btn:disabled{opacity:.45}
+header .btn{min-height:38px;padding:4px 12px;background:rgba(255,255,255,.12);border-color:transparent;color:#fff;font-size:15px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 6px}
+label{display:block;font-size:15px;color:var(--ink);margin:0 0 6px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--ctl);color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+.badge{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--bdg);color:var(--muted)}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--ebg);color:var(--bad)}.badge.warn{background:var(--wbg);color:var(--warn)}
+.muted{color:var(--muted)}
+.hinweis{background:var(--hbg);border-bottom:1px solid var(--gold-dark);color:var(--hfg);font-size:14px;line-height:1.35;padding:8px 16px}
+.warnbox{background:var(--wbg);border:1px solid var(--wbd);color:var(--wfg);padding:12px 14px;border-radius:12px;margin:12px 0}
+.errbox{background:var(--ebg);border:1px solid var(--ebd);color:var(--efg);padding:12px 14px;border-radius:12px;margin:12px 0}
+.okbox{background:var(--okbg);border:1px solid var(--okbd);color:var(--okfg);padding:12px 14px;border-radius:12px;margin:12px 0}
+.warnbox ul,.errbox ul{margin:4px 0 0;padding-left:20px}
+.pagetitle{font-size:26px;font-weight:700;margin:2px 0 4px;line-height:1.2}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 16px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+.fhint{font-size:13px;color:var(--muted);margin-top:4px}
+.roomhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.roomhead b{font-size:18px}
+.pick{margin-top:10px;padding:10px 12px;background:var(--cream);border:1px solid var(--line);border-radius:10px;font-size:15px}
+table{width:100%;border-collapse:collapse}
+td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
+th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.oduline{display:flex;gap:10px;align-items:flex-start;padding:12px;border:2px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer;background:var(--ctl)}
+.oduline.sel{border-color:var(--gold);background:var(--selbg)}
+.oduline .why{font-size:14px;color:var(--bad);margin-top:4px}
+.oduline b{font-size:18px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:#1c2430;color:#fff;padding:12px 18px;border-radius:12px;transition:.25s;z-index:20;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Bericht (gleiches Design wie WP-Service-App) */
+.report{background:#fff;color:#111;padding:28px;border:1px solid var(--line);border-radius:6px;font-size:12px;line-height:1.35}
+.report h1{font-size:19px;margin:2px 0;letter-spacing:.02em}
+.report .rhead{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #DCCC4B;padding-bottom:8px;margin-bottom:10px;gap:12px}
+.report .firma{font-weight:700;color:#8b7a1b}
+.report .rres{font-weight:700;padding:5px 10px;border-radius:6px;border:2px solid;text-align:right;font-size:13px}
+.report .rres small{font-weight:400}
+.report .rres.ok{color:#1e8e4e}.report .rres.bad{color:#c62828}
+.report .rsec{background:#1a1a1a;color:#DCCC4B;font-weight:700;padding:4px 8px;margin-top:12px;font-size:12px}
+.report table.rgrid td,.report table.rgrid th{border:1px solid #e8e5dc;padding:4px 6px;font-size:11px;color:#111;text-transform:none;letter-spacing:0}
+.report table.rgrid th{background:#f8f7f4;font-weight:700}
+.report table.rgrid td.l{background:#f8f7f4;color:#333;width:17%}
+.report .ev.ok{color:#1e8e4e;font-weight:700}.report .ev.bad{color:#c62828;font-weight:700}.report .ev.warn{color:#b26a00;font-weight:700}
+.report .box{border:1px solid #e8e5dc;padding:7px 9px;margin-top:10px}
+.report .box ul{margin:4px 0 0;padding-left:18px}
+.report .sigs{display:flex;gap:30px;margin-top:22px}
+.report .sigs>div{flex:1}
+.report .sigspace{height:64px}
+.report .sigline{border-top:1px solid #333;padding-top:3px;font-size:11px}
+.report .rfoot{margin-top:16px;font-size:9px;color:#777}
+</style>
+</head>
+<body>
+<header><h1 id="ttl">Daikin Multisplit-Auslegung</h1><span class="net" id="net">online</span><button class="btn" id="btnset">Einstellungen</button></header>
+<div class="hinweis"><b>Hinweis:</b> Dies ist eine Kombinationshilfe zur ersten Prüfung. Die endgültige Kalkulation muss vor Angebot, Bestellung und Ausführung anhand der Daikin-Unterlagen geprüft werden.</div>
+<main id="app"></main>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ====== Konfiguration ====== */
+const DEFAULT_SHEET_ID = '1SPjSEq0iHAORUKdgtEzh-2wsSQhVEPdDNKNGawYTpg0';   // Google-Sheet-ID der Datenbank (Daikin Multisplit Datenbank)
+const TABS = ['Aussengeraete', 'Anschluesse', 'Innengeraete', 'Kombination', 'Raumtypen', 'Zuschlaege', 'Einstellungen'];
+const KEY = { settings: 'dk.settings', projects: 'dk.projects', data: 'dk.data' };
+
+/* ====== Hilfen ====== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+             set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const fmt = (n, d = 1) => n == null ? '—' : Number(n).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: d });
+const fmtDate = s => { if (!s) return ''; const m = String(s).match(/^(\d{4})-(\d\d)-(\d\d)/); return m ? `${m[3]}.${m[2]}.${m[1]}` : s; };
+const today = () => new Date().toISOString().slice(0, 10);
+function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 3800); }
+const E = window.Engine;
+
+/* ====== Zustand ====== */
+let settings = Object.assign({ sheetId: DEFAULT_SHEET_ID, firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
+if (!settings.sheetId) settings.sheetId = DEFAULT_SHEET_ID;
+try{ const g = localStorage.getItem('muther-theme'); if (g) settings.theme = g; }catch(e){}   // Darstellung gilt für alle Apps gemeinsam
+function applyTheme(){
+  try{ localStorage.setItem('muther-theme', settings.theme || 'auto'); }catch(e){}
+  const t = settings.theme === 'hell' ? 'light' : settings.theme === 'dunkel' ? 'dark' : '';
+  if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+}
+applyTheme();
+let projects = LS.get(KEY.projects, []);
+let view = { name: 'list' };
+let DB = null, dataInfo = '';
+let lastPdf = null;
+
+function newRoom(){ return { id: uid(), name: '', raumtyp: DB.raumtypen[0] ? DB.raumtypen[0].name : '', zuschlag: DB.zuschlaege[0] ? DB.zuschlaege[0].name : '',
+  flaeche: '', bedarf: '', typ: 'Wandgerät', serie: DB.ig.some(x => x.serie === 'Perfera' && x.typ === 'Wandgerät') ? 'Perfera' : '', modell: '', rohr: '', hoehe: '' }; }
+function newProject(){ return { id: uid(), nr: '', datum: today(), kunde: '', bearbeiter: settings.bearbeiter || '', bemerkung: '', odu: '', rooms: [newRoom(), newRoom()] }; }
+const cur = () => projects.find(p => p.id === view.id);
+const saveProjects = () => LS.set(KEY.projects, projects);
+
+/* ====== Daten laden (Google Sheet → Zwischenspeicher → Ersatzdaten) ====== */
+function parseCsv(t){
+  const rows = []; let r = [], f = '', q = false;
+  for (let i = 0; i < t.length; i++){
+    const c = t[i];
+    if (q){ if (c === '"'){ if (t[i + 1] === '"'){ f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { r.push(f); f = ''; }
+    else if (c === '\n') { r.push(f); rows.push(r); r = []; f = ''; }
+    else if (c !== '\r') f += c;
+  }
+  if (f !== '' || r.length){ r.push(f); rows.push(r); }
+  const head = (rows.shift() || []).map(h => h.trim());
+  return rows.filter(x => x.some(v => v !== '')).map(x => Object.fromEntries(head.map((h, i) => [h, x[i] == null ? '' : x[i]])));
+}
+async function fetchSheet(id){
+  const D = {};
+  for (const tab of TABS){
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`);
+    if (!res.ok) throw new Error('Tabellenblatt „' + tab + '“ nicht lesbar');
+    D[tab] = parseCsv(await res.text());
+  }
+  if (!D.Aussengeraete.length || !D.Innengeraete.length) throw new Error('Sheet enthält keine Daten – ist es für „Jeder mit dem Link“ freigegeben?');
+  return D;
+}
+function loadLocal(){
+  const cache = LS.get(KEY.data, null);
+  if (cache && cache.D){ DB = E.normalize(cache.D); dataInfo = 'Google Sheet, Stand ' + new Date(cache.at).toLocaleString('de-DE'); }
+  else { DB = E.normalize(window.DATEN_SEED); dataInfo = 'Ersatzdaten in der App (Google Sheet noch nicht geladen)'; }
+}
+async function loadData(force){
+  if (!DB) loadLocal();
+  if (settings.sheetId && navigator.onLine){
+    try{
+      const D = await fetchSheet(settings.sheetId);
+      DB = E.normalize(D); const at = new Date().toISOString();
+      LS.set(KEY.data, { at, D }); dataInfo = 'Google Sheet, Stand ' + new Date(at).toLocaleString('de-DE');
+      if (force) toast('Daten aus dem Google Sheet aktualisiert.');
+    }catch(e){ if (force) toast('Sheet nicht erreichbar: ' + e.message + ' – es werden die gespeicherten Daten genutzt.'); }
+  } else if (force) toast(settings.sheetId ? 'Offline – gespeicherte Daten werden genutzt.' : 'Bitte zuerst die Sheet-ID eintragen.');
+}
+
+/* ====== Ansicht ====== */
+function go(name, extra){ view = Object.assign({ name }, extra); render(); window.scrollTo(0, 0); }
+function render(){
+  const y = window.scrollY;
+  $('#app').innerHTML = view.name === 'list' ? vList() : view.name === 'edit' ? vEdit() : vSettings();
+  if (view.name === 'edit') refreshResults();
+  window.scrollTo(0, y);
+}
+function vList(){
+  return `<div class="pagetitle">Auslegungen</div>
+  <p class="muted">Multisplit-Kombinationen (R32) prüfen – nur Kombinationen, die Daikin freigibt, werden als „freigegeben“ angezeigt.</p>
+  <div class="row"><button class="btn primary" data-act="new">+ Neue Auslegung</button></div>
+  <h2>Gespeichert auf diesem Gerät</h2>
+  ${projects.length ? `<div class="card"><table><tbody>${projects.map(p => `<tr>
+    <td><b>${esc(p.nr || 'ohne Projektnummer')}</b>${p.kunde ? ' · ' + esc(p.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc(fmtDate(p.datum))} · ${p.rooms.length} Räume</span></td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn small primary" data-act="open" data-id="${p.id}">Öffnen</button>
+    <button class="btn small danger" data-act="del" data-id="${p.id}">Löschen</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Noch keine Auslegung gespeichert.</p>'}
+  <p class="muted" style="font-size:14px;margin-top:24px">Datenstand: ${esc(dataInfo)}</p>`;
+}
+function vSettings(){
+  return `<div class="pagetitle">Einstellungen</div>
+  <div class="card">
+    <div><label>Firmenname (für das PDF)</label><input id="s_firma" value="${esc(settings.firma)}"></div><br>
+    <div><label>Bearbeiter (vorbelegt bei neuer Auslegung)</label><input id="s_bear" value="${esc(settings.bearbeiter)}"></div><br>
+    <div><label>Google-Sheet-ID der Datenbank</label><input id="s_sheet" value="${esc(settings.sheetId)}" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <div class="fhint">Der lange Text zwischen „/d/“ und „/edit“ in der Sheet-Adresse. Das Sheet muss für „Jeder mit dem Link: Betrachter“ freigegeben sein.</div></div>
+  </div>
+  <div class="card"><label>Darstellung</label><select id="s_theme">${[['auto', 'Automatisch (wie Gerät)'], ['hell', 'Hell'], ['dunkel', 'Dunkel']].map(o => opt(o[0], settings.theme || 'auto', o[1])).join('')}</select>
+    <div class="fhint">Das PDF bleibt immer hell.</div></div>
+  <p class="muted">Datenstand: ${esc(dataInfo)}</p>
+  <div class="row"><button class="btn primary" data-act="saveset">Speichern &amp; Daten laden</button><button class="btn" data-act="back">Zurück</button></div>`;
+}
+
+function opt(v, sel, label){ return `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(label == null ? v : label)}</option>`; }
+function roomCard(r, i){
+  const typen = [...new Set(DB.ig.map(x => x.typ))];
+  const serien = [...new Set(DB.ig.filter(x => x.typ === r.typ).map(x => x.serie))];
+  const modelle = DB.ig.filter(x => x.typ === r.typ && (!r.serie || x.serie === r.serie)).sort((a, b) => a.klasse - b.klasse);
+  const p = cur();
+  return `<div class="card" data-room="${i}">
+    <div class="roomhead"><b>Raum ${i + 1}</b>${p.rooms.length > 1 ? `<button class="btn small danger" data-act="delroom" data-i="${i}">Entfernen</button>` : ''}</div>
+    <div class="grid3">
+      <div><label>Raumname</label><input data-f="name" value="${esc(r.name)}" placeholder="z. B. Wohnzimmer"></div>
+      <div><label>Raumtyp</label><select data-f="raumtyp">${DB.raumtypen.map(x => opt(x.name, r.raumtyp)).join('')}</select></div>
+      <div><label>Lage / Zuschlag</label><select data-f="zuschlag">${DB.zuschlaege.map(x => opt(x.name, r.zuschlag)).join('')}</select></div>
+      <div><label>Fläche (m²)</label><input data-f="flaeche" inputmode="decimal" value="${esc(r.flaeche)}" placeholder="z. B. 25"></div>
+      <div><label>Kühlbedarf (kW)</label><input data-f="bedarf" inputmode="decimal" value="${esc(r.bedarf)}" placeholder="automatisch"><div class="fhint" id="bh${i}"></div></div>
+      <div><label>Gerätetyp</label><select data-f="typ">${typen.map(x => opt(x, r.typ)).join('')}</select></div>
+      <div><label>Serie</label><select data-f="serie"><option value="">beliebig</option>${serien.map(x => opt(x, r.serie)).join('')}</select></div>
+      <div><label>Modell</label><select data-f="modell"><option value="">Automatisch (passend zum Bedarf)</option>${modelle.map(x => opt(x.modell, r.modell, `${x.modell} · ${fmt(x.kw)} kW`)).join('')}</select></div>
+      <div></div>
+      <div><label>Rohrlänge zum Außengerät (m)</label><input data-f="rohr" inputmode="decimal" value="${esc(r.rohr)}" placeholder="einfache Länge"></div>
+      <div><label>Höhe Innengerät zum Außengerät (m)</label><div class="row" style="flex-wrap:nowrap"><input data-f="hoehe" inputmode="decimal" value="${esc(r.hoehe)}" placeholder="0 = gleiche Ebene"><button type="button" class="btn" data-act="sign" style="flex:none;min-width:64px" aria-label="Vorzeichen wechseln">+ / −</button></div><div class="fhint">+ = Innengerät höher, − = tiefer als Außengerät</div></div>
+    </div>
+    <div class="pick" id="pick${i}"></div>
+  </div>`;
+}
+function vEdit(){
+  const p = cur();
+  return `<div class="row between"><div class="pagetitle">Auslegung</div><button class="btn" data-act="back">Übersicht</button></div>
+  <div class="card"><div class="grid2">
+    <div><label>Projektnummer</label><input data-p="nr" value="${esc(p.nr)}" placeholder="z. B. 2026-0123"></div>
+    <div><label>Datum</label><input type="date" data-p="datum" value="${esc(p.datum)}"></div>
+    <div><label>Kunde / Objekt</label><input data-p="kunde" value="${esc(p.kunde)}"></div>
+    <div><label>Bearbeiter</label><input data-p="bearbeiter" value="${esc(p.bearbeiter)}"></div>
+  </div></div>
+  <h2>Räume &amp; Innengeräte</h2>
+  ${p.rooms.map(roomCard).join('')}
+  <div class="row"><button class="btn" data-act="addroom"${p.rooms.length >= 5 ? ' disabled' : ''}>+ Raum hinzufügen</button></div>
+  <h2>Ergebnis</h2>
+  <div id="results"></div>
+  <div class="card"><label>Bemerkungen (kommen ins PDF)</label><textarea data-p="bemerkung">${esc(p.bemerkung)}</textarea></div>
+  <div class="row" id="pdfbar"></div>`;
+}
+
+/* ====== Ergebnis ====== */
+let EV = null;
+function evaluate(){ const p = cur(); EV = E.evaluateAll(p.rooms, DB); return EV; }
+function selected(){
+  const p = cur(); if (!EV) evaluate();
+  return (p.odu && EV.all.find(x => x.odu.id === p.odu)) || EV.best || null;
+}
+function refreshHints(){
+  const p = cur();
+  p.rooms.forEach((r, i) => {
+    const b = E.bedarfKw(r, DB), bh = $('#bh' + i);
+    if (bh) bh.textContent = b == null ? 'Fläche eintragen oder Bedarf selbst angeben' : (E.num(r.bedarf) != null ? 'manuell' : `berechnet aus Fläche · ${fmt(b)} kW`);
+    const u = E.pickUnit(r, DB), pk = $('#pick' + i);
+    if (pk) pk.innerHTML = u ? `Gewählt: <b>${esc(u.modell)}</b> · Klasse ${u.klasse} · ${fmt(u.kwK != null ? u.kwK : u.kw)} kW kühlen${u.kwH != null ? ' / ' + fmt(u.kwH) + ' kW heizen' : ''} (Nenn)${b != null && (u.kwK != null ? u.kwK : u.kw) + 1e-9 < b ? ` <span class="badge warn">kleiner als Bedarf ${fmt(b)} kW</span>` : ''}` : '<span class="muted">Noch kein Gerät – Fläche/Bedarf oder Modell wählen.</span>';
+  });
+}
+function refreshResults(){
+  const p = cur(); evaluate(); refreshHints();
+  const sel = selected(), box = $('#results'); if (!box) return;
+  let h = '';
+  if (!EV.best) h += `<div class="errbox"><b>Keine freigegebene Kombination gefunden.</b> Details unten bei den einzelnen Außengeräten.</div>`;
+  else h += `<div class="okbox" style="background:var(--selbg);border-color:var(--gold);color:var(--ink)"><span class="badge" style="background:var(--gold);color:#1a1a1a">Empfehlung</span>
+    <div style="font-size:20px;margin:6px 0"><b>${esc(EV.best.odu.id)}</b> <span class="muted" style="font-size:15px">${fmt(EV.best.odu.kuehlen_kw)} kW kühlen / ${fmt(EV.best.odu.heizen_kw)} kW heizen</span></div>
+    <ul style="margin:0;padding-left:20px">${EV.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul>
+    ${EV.alt ? `<div style="margin-top:8px"><b>Alternative: ${esc(EV.alt.x.odu.id)}</b> – ${esc(EV.alt.why)}.</div>` : ''}
+    <div class="fhint">Die Empfehlung ist eine Bewertung dieser App (Deckung des Bedarfs, geringe Größe, wenig Kältemittel) – freigegeben sind alle als „freigegeben“ markierten Geräte.</div></div>`;
+  h += EV.all.map(x => {
+    const isSel = sel && sel.odu.id === x.odu.id;
+    return `<div class="oduline${isSel ? ' sel' : ''}" data-act="pickodu" data-id="${esc(x.odu.id)}">
+      <div style="flex:1"><b>${esc(x.odu.id)}</b> <span class="muted">${fmt(x.odu.kuehlen_kw)} / ${fmt(x.odu.heizen_kw)} kW · max. ${x.odu.ig_max} Räume · bis ${fmt(x.odu.summe_max_kw)} kW Summe</span>
+      ${x.ok ? '' : `<div class="why">${esc(x.errs[0])}${x.errs.length > 1 ? ` (+${x.errs.length - 1} weitere)` : ''}</div>`}</div>
+      <span style="text-align:right">${x.empfohlen ? '<span class="badge" style="background:var(--gold);color:#1a1a1a">Empfehlung</span><br>' : (EV.alt && EV.alt.x.odu.id === x.odu.id ? '<span class="badge warn">Alternative</span><br>' : '')}<span class="badge ${x.ok ? 'ok' : 'bad'}">${x.ok ? 'freigegeben' : 'nicht freigegeben'}</span></span></div>`;
+  }).join('');
+  if (sel) h += detailHtml(sel);
+  box.innerHTML = h;
+  const bar = $('#pdfbar');
+  if (bar) bar.innerHTML = sel && sel.ok
+    ? `<button class="btn primary" data-act="makepdf">PDF erstellen</button>${pdfBarHtml()}`
+    : `<span class="muted">PDF gibt es nur für eine freigegebene Kombination.</span>`;
+}
+function uniq(a){ return [...new Set(a)]; }
+function detailHtml(x){
+  const o = x.odu;
+  let h = `<h2>Details ${esc(o.id)}</h2>`;
+  if (x.errs.length) h += `<div class="errbox"><b>Nicht freigegeben:</b><ul>${x.errs.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
+  else h += `<div class="okbox"><b>Freigegeben</b> – alle geprüften Daikin-Vorgaben sind eingehalten.</div>`;
+  if (x.warns.length) h += `<div class="warnbox"><b>Hinweise:</b><ul>${uniq(x.warns).map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
+  h += `<div class="card" style="overflow-x:auto"><table><thead><tr><th>Raum</th><th>Gerät</th><th>kühlen / heizen kW</th><th>Anschluss</th><th>Rohr</th><th>Höhe</th><th>Min.-Fläche</th></tr></thead><tbody>${x.rows.map(r => `<tr>
+    <td>${r.i + 1}${r.room.name ? ' · ' + esc(r.room.name) : ''}</td><td>${r.unit ? esc(r.unit.modell) : '—'}</td><td>${r.unit ? fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw) + ' / ' + (r.unit.kwH != null ? fmt(r.unit.kwH) : '—') : '—'}</td>
+    <td>${r.asg ? `${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? '<br><span class="muted">Red. ' + esc(r.asg.red) + '</span>' : ''}` : '—'}</td>
+    <td>${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}</td><td>${r.hoehe ? fmt(r.hoehe) + ' m' : '—'}</td><td>${r.amin ? fmt(Math.ceil(r.amin * 10) / 10) + ' m²' : 'keine'}</td></tr>`).join('')}</tbody></table></div>`;
+  h += `<div class="card"><table><tbody>
+    <tr><td>Summe Innengeräte</td><td><b>${fmt(x.sum)} kW</b> (max. ${fmt(x.sumMax)} kW)</td></tr>
+    <tr><td>Rohrlänge gesamt</td><td><b>${x.total != null ? fmt(x.total) + ' m' : '—'}</b> (max. ${fmt(o.rohr_gesamt_max_m)} m, je Raum ${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m)</td></tr>
+    <tr><td>Zusätzliches Kältemittel</td><td><b>${x.extra != null ? fmt(x.extra) + ' kg' : '—'}</b> (ab ${fmt(o.nachfuell_ab_m)} m Flüssigkeitsleitung, ${fmt(o.nachfuell_kg_je_m * 1000, 0)} g/m)</td></tr>
+    <tr><td>Kältemittel gesamt (R32)</td><td><b>${x.charge != null ? fmt(x.charge, 2) + ' kg' : '—'}</b> (Werk ${fmt(o.werk_kg, 2)} kg${o.fuell_max_kg != null ? ', max. ' + fmt(o.fuell_max_kg) + ' kg' : ''})</td></tr>
+    <tr><td>Stromaufnahme (Außengerät)</td><td><b>${o.strom_a != null ? fmt(o.strom_a) + ' A' : '—'}</b> (1~ 50 Hz 220–240 V)</td></tr>
+    <tr><td>Absicherung (empf. Hauptschalter)</td><td><b>${o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : '—'}</b> · Netzleitung 3-adrig min. ${fmt(o.netzleitung_min_mm2)} mm² · Verbindungsleitung 4-adrig min. ${fmt(o.verbindungsleitung_min_mm2)} mm²</td></tr>
+    </tbody></table></div>`;
+  return h;
+}
+
+/* ====== PDF ====== */
+const pdfName = s => String(s || 'ohne-Projektnummer').replace(/[\/\\:*?"<>|]+/g, '-').trim();
+const isStandalone = () => !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+function pdfBarHtml(){
+  if (!lastPdf || lastPdf.id !== view.id) return '';
+  return `<button class="btn primary" data-act="sharepdf">Teilen / Drucken</button>${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+}
+function gasDia(r){
+  const u = r.unit, a = r.asg; if (!u || !a) return null;
+  if (a.red) return (u.klasse <= 35 || (u.klasse === 42 && u.k42)) ? 9.5 : (u.klasse <= 60 ? 12.7 : 15.9);
+  return a.port.gas_mm;
+}
+function reportHtml(p, x){
+  const o = x.odu, firma = settings.firma;
+  const grid = rows => `<table class="rgrid">${rows.map(r => `<tr>${r.map(c => `<td class="l">${esc(c[0])}</td><td class="ev ${c[2] || ''}">${esc(c[1] || '—')}</td>`).join('')}</tr>`).join('')}</table>`;
+  const reds = uniq(x.rows.filter(r => r.asg && r.asg.red).map(r => r.asg.red));
+  return `<div class="report">
+    <div class="rhead"><div>${firma ? `<div class="firma">${esc(firma)}</div>` : ''}<h1>Multisplit-Auslegung (Daikin R32)</h1></div>
+      <div class="rres ok">Kombination freigegeben: Ja<br><small>Außengerät: ${esc(o.id)}${x.empfohlen ? ' (Empfehlung)' : ''}</small></div></div>
+    ${grid([[['Projektnummer', p.nr], ['Datum', fmtDate(p.datum)]], [['Kunde / Objekt', p.kunde], ['Bearbeiter', p.bearbeiter]]])}
+    <div class="rsec">1. Außengerät ${esc(o.id)}</div>
+    ${grid([[['Nennleistung kühlen', fmt(o.kuehlen_kw) + ' kW'], ['Nennleistung heizen', fmt(o.heizen_kw) + ' kW']],
+      [['Summe Innengeräte', `${fmt(x.sum)} kW (max. ${fmt(x.sumMax)} kW)`], ['Anzahl Innengeräte', `${x.rows.length} (zulässig ${o.ig_min}–${o.ig_max})`]],
+      [['Rohr je Raum', `${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m`], ['Rohr gesamt max.', fmt(o.rohr_gesamt_max_m) + ' m']],
+      [['Höhe AG höher / niedriger', `${fmt(o.hoehe_ag_oben_m)} m / ${fmt(o.hoehe_ag_unten_m)} m`], ['Höhe IG–IG', `${fmt(o.hoehe_ig_ig_m)} m / ${fmt(o.hoehe_ig_ig_unten_m)} m`]]])}
+    <div class="rsec">2. Räume und Innengeräte</div>
+    <table class="rgrid"><tr><th>Nr.</th><th>Raum</th><th>Fläche</th><th>Bedarf</th><th>Innengerät</th><th>Kl.</th><th>kühlen / heizen</th><th>Anschluss</th><th>Gas-Ø</th><th>Rohr</th><th>Höhe</th></tr>
+    ${x.rows.map(r => { const b = E.bedarfKw(r.room, DB); return `<tr><td>${r.i + 1}</td><td>${esc(r.room.name || '—')}</td><td>${r.room.flaeche ? esc(r.room.flaeche) + ' m²' : '—'}</td><td>${b != null ? fmt(b) + ' kW' : '—'}</td>
+      <td><b>${esc(r.unit.modell)}</b></td><td>${r.unit.klasse}</td><td>${fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw)} / ${r.unit.kwH != null ? fmt(r.unit.kwH) : '—'} kW</td><td>${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? ' + Red. ' + esc(r.asg.red) : ''}</td>
+      <td>Ø${fmt(gasDia(r))}</td><td>${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}</td><td>${r.hoehe ? fmt(r.hoehe) + ' m' : '0 m'}</td></tr>`; }).join('')}</table>
+    <div class="rsec">3. Leitungen und Kältemittel</div>
+    ${grid([[['Rohrlänge gesamt', x.total != null ? fmt(x.total) + ' m' : '—'], ['Flüssigkeitsleitung', 'Ø6,35 mm je Innengerät']],
+      [['Zusätzliches R32', x.extra != null ? fmt(x.extra) + ' kg (ab ' + fmt(o.nachfuell_ab_m) + ' m, ' + fmt(o.nachfuell_kg_je_m * 1000, 0) + ' g/m)' : '—'], ['R32 gesamt', x.charge != null ? fmt(x.charge, 2) + ' kg (Werk ' + fmt(o.werk_kg, 2) + ' kg)' : '—']]])}
+    <div class="rsec">4. Elektrischer Anschluss</div>
+    ${grid([[['Stromversorgung', '1~ / 50 Hz / 220–240 V'], ['Stromaufnahme Außengerät', o.strom_a != null ? fmt(o.strom_a) + ' A' : '']],
+      [['Absicherung (empf. Hauptschalter)', o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : ''], ['FI-Schutzschalter', 'immer; nach örtlichen Vorschriften']],
+      [['Netzleitung', '3-adrig, min. ' + fmt(o.netzleitung_min_mm2) + ' mm² (nach Stromstärke)'], ['Verbindungsleitung je Raum', '4-adrig, min. ' + fmt(o.verbindungsleitung_min_mm2) + ' mm² (harmonisiert, doppelt isoliert)']]])}
+    <div class="rsec">5. Zubehör / Montagehinweise</div>
+    <div class="box" style="margin-top:0">${reds.length ? `<b>Reduzierstücke (Daikin-Nr.):</b> ${reds.map(esc).join(', ')} <span style="color:#777">(${esc(E.REDUZIERER_INFO)})</span><br>` : 'Keine Reduzierstücke erforderlich.<br>'}
+    Kürzeste Rohrlänge je Raum ${fmt(o.rohr_raum_min_m)} m · Rohre getrennt isolieren · R32: Mindestfläche je Raum beachten.<br>
+    <b>R32-Mindestfläche je Raum:</b> ${x.rows.map(r => `Raum ${r.i + 1}: ${r.amin ? fmt(Math.ceil(r.amin * 10) / 10) + ' m²' : 'keine Anforderung'}`).join(' · ')}</div>
+    ${x.warns.length ? `<div class="box"><b>Auffälligkeiten / Hinweise:</b><ul>${uniq(x.warns).map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+    <div class="box"><b>Bemerkungen:</b><br>${p.bemerkung ? esc(p.bemerkung).replace(/\n/g, '<br>') : '—'}</div>
+    <div class="box"><b>Wichtiger Hinweis:</b> Dieses Dokument ist das Ergebnis einer Kombinationshilfe zur ersten Prüfung. Die endgültige Kalkulation muss vor Angebot, Bestellung und Ausführung anhand der Daikin-Unterlagen geprüft werden.</div>
+    <div class="rfoot">Geprüft nach: ${esc(o.quelle)}. Datenstand: ${esc(dataInfo)}. Die Auslegung ersetzt weder Heizlast-/Kühllastberechnung noch die Installationsanleitung des Herstellers.</div>
+  </div>`;
+}
+async function reportToPdf(src){
+  const W = 760, scale = 2, mmW = 190, mmH = 277;
+  const box = document.createElement('div');
+  box.style.cssText = `position:fixed;left:-10000px;top:0;width:${W}px;background:#fff`;
+  const clone = src.cloneNode(true);
+  clone.style.border = '0'; clone.style.padding = '0'; clone.style.borderRadius = '0';
+  box.appendChild(clone); document.body.appendChild(box);
+  try{
+    const canvas = await html2canvas(clone, { scale, backgroundColor: '#ffffff', windowWidth: W, logging: false });
+    const top0 = clone.getBoundingClientRect().top;
+    const breaks = [...clone.querySelectorAll('tr, .rsec, .box, .sigs, .rfoot')]
+      .filter(e => !(e.tagName === 'TR' && !e.previousElementSibling && e.closest('table').previousElementSibling?.classList.contains('rsec')))
+      .map(e => e.getBoundingClientRect().top - top0).filter(y => y > 0).sort((a, b) => a - b);
+    const H = canvas.height / scale, pagePx = mmH * W / mmW;
+    const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    let start = 0, first = true;
+    while (start < H - 1){
+      let end = start + pagePx;
+      if (end < H){ const c = breaks.filter(y => y > start + 80 && y <= end); if (c.length) end = c[c.length - 1]; } else end = H;
+      const sy = Math.round(start * scale), sh = Math.round((end - start) * scale);
+      const part = document.createElement('canvas'); part.width = canvas.width; part.height = sh;
+      const ctx = part.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, part.width, sh);
+      ctx.drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
+      if (!first) pdf.addPage(); first = false;
+      pdf.addImage(part.toDataURL('image/jpeg', 0.85), 'JPEG', 10, 10, mmW, (end - start) * mmW / W);
+      start = end;
+    }
+    return pdf.output('blob');
+  } finally { box.remove(); }
+}
+
+/* ====== Aktionen ====== */
+const Act = {
+  new(){ const p = newProject(); projects.unshift(p); saveProjects(); go('edit', { id: p.id }); },
+  open(d){ go('edit', { id: d.id }); },
+  del(d){ const p = projects.find(x => x.id === d.id); if (p && confirm('Auslegung „' + (p.nr || 'ohne Projektnummer') + '“ löschen?')){ projects = projects.filter(x => x.id !== d.id); saveProjects(); render(); } },
+  back(){ go('list'); },
+  addroom(){ const p = cur(); if (p.rooms.length < 5){ p.rooms.push(newRoom()); saveProjects(); render(); } },
+  sign(d, btn){
+    const inp = btn.parentElement.querySelector('input'), card = btn.closest('[data-room]'), p = cur(); if (!inp || !card || !p) return;
+    let v = inp.value.trim().replace('−', '-');
+    v = v.startsWith('-') ? v.slice(1) : (v === '' ? '-' : '-' + v.replace(/^\+/, ''));
+    inp.value = v; p.rooms[+card.dataset.room].hoehe = v; lastPdf = null; saveProjects(); refreshResults(); inp.focus();
+  },
+  delroom(d){ const p = cur(); p.rooms.splice(+d.i, 1); saveProjects(); render(); },
+  pickodu(d){ const p = cur(); p.odu = (p.odu === d.id ? '' : d.id); saveProjects(); lastPdf = null; refreshResults(); },
+  async makepdf(d, btn){
+    if (!window.jspdf || !window.html2canvas){ toast('PDF-Modul nicht geladen – App einmal online neu starten.'); return; }
+    const p = cur(), x = selected(); if (!x || !x.ok) return;
+    btn.disabled = true; btn.textContent = 'PDF wird erstellt …';
+    try{
+      const holder = document.createElement('div'); holder.innerHTML = reportHtml(p, x);
+      const blob = await reportToPdf(holder.firstElementChild);
+      if (lastPdf) URL.revokeObjectURL(lastPdf.url);
+      lastPdf = { id: p.id, file: new File([blob], pdfName(p.nr) + '.pdf', { type: 'application/pdf' }), url: URL.createObjectURL(blob) };
+      refreshResults(); toast('PDF fertig – jetzt „Teilen / Drucken“ antippen.');
+    }catch(e){ toast('PDF konnte nicht erstellt werden: ' + e.message); btn.disabled = false; btn.textContent = 'PDF erstellen'; }
+  },
+  async sharepdf(){
+    if (!lastPdf) return; const files = [lastPdf.file];
+    if (navigator.canShare && navigator.canShare({ files })){
+      try{ await navigator.share({ files, title: lastPdf.file.name }); } catch (e){ if (e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message); }
+    } else window.open(lastPdf.url, '_blank');
+  },
+  async saveset(){
+    settings.theme = $('#s_theme').value; applyTheme(); settings.firma = $('#s_firma').value.trim(); settings.bearbeiter = $('#s_bear').value.trim();
+    const id = $('#s_sheet').value.trim(); const m = id.match(/\/d\/([A-Za-z0-9_-]+)/); settings.sheetId = m ? m[1] : id;
+    LS.set(KEY.settings, settings); toast('Lade Daten …'); await loadData(true); go('list');
+  }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || !Act[el.dataset.act]) return;
+  Act[el.dataset.act](el.dataset, el);
+});
+$('#btnset').onclick = () => go('settings');
+$('#ttl').onclick = () => go('list');
+
+/* Eingaben: Texte/Zahlen aktualisieren nur das Ergebnis, Auswahlfelder zeichnen neu */
+document.addEventListener('input', e => {
+  const t = e.target, p = view.name === 'edit' ? cur() : null; if (!p) return;
+  if (t.dataset.p){ p[t.dataset.p] = t.value; lastPdf = null; saveProjects(); return; }
+  const card = t.closest('[data-room]'); if (!card || !t.dataset.f || t.tagName === 'SELECT') return;
+  p.rooms[+card.dataset.room][t.dataset.f] = t.value; lastPdf = null; saveProjects(); refreshResults();
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 's_theme'){ settings.theme = e.target.value; LS.set(KEY.settings, settings); applyTheme(); return; }
+  const t = e.target, p = view.name === 'edit' ? cur() : null; if (!p) return;
+  const card = t.closest('[data-room]'); if (!card || !t.dataset.f || t.tagName !== 'SELECT') return;
+  const r = p.rooms[+card.dataset.room], f = t.dataset.f; r[f] = t.value; lastPdf = null;
+  if (f === 'typ'){ const s = [...new Set(DB.ig.filter(x => x.typ === r.typ).map(x => x.serie))]; r.serie = s.includes('Perfera') ? 'Perfera' : (s[0] || ''); r.modell = ''; }
+  if (f === 'serie') r.modell = '';
+  saveProjects(); render();
+});
+window.addEventListener('online', () => { $('#net').textContent = 'online'; $('#net').classList.remove('off'); });
+window.addEventListener('offline', () => { $('#net').textContent = 'offline'; $('#net').classList.add('off'); });
+if (!navigator.onLine){ $('#net').textContent = 'offline'; $('#net').classList.add('off'); }
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+loadLocal(); render();
+loadData(false).then(() => { if (view.name === 'list') render(); });
+</script>
+</body>
+</html>

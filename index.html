@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <title>Protokoll-Apps</title>
-<style>body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f8f7f4;color:#1a1a1a}
-header{background:#1a1a1a;color:#fff;padding:16px 20px;border-bottom:3px solid #DCCC4B;font-weight:700;font-size:20px}
-main{max-width:600px;margin:0 auto;padding:16px 20px}a{display:block;background:#fff;border:1px solid #e4e1d8;border-radius:14px;padding:16px 18px;margin:10px 0;color:#1a1a1a;text-decoration:none;font-weight:600;font-size:18px}
-a span{display:block;font-weight:400;font-size:14px;color:#706F6F}p{color:#706F6F;font-size:14px}</style></head>
-<body><header>Protokoll-Apps</header><main>
+<style>:root{--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a}}
+.themebtn{appearance:none;-webkit-appearance:none;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:99px;font:inherit;font-size:13px;font-weight:600;padding:4px 10px;min-height:30px;cursor:pointer;white-space:nowrap}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--pri);color:#fff;padding:16px 20px;border-bottom:3px solid #DCCC4B;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+main{max-width:600px;margin:0 auto;padding:16px 20px}a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:10px 0;color:var(--ink);text-decoration:none;font-weight:600;font-size:18px}
+a span{display:block;font-weight:400;font-size:14px;color:var(--muted)}p{color:var(--muted);font-size:14px}</style></head>
+<body><header><span>Protokoll-Apps</span><button type="button" class="themebtn" id="themebtn">◐ Auto</button></header><main>
 <p>App antippen und in Safari über „Teilen → Zum Home-Bildschirm“ installieren.</p>
 <a href="logbuch/">Anlagenlogbuch<span>Logbuch für Kälteanlagen</span></a>
 <a href="wp/">WP-Service<span>Wartung Wärmepumpe</span></a>
@@ -14,4 +21,6 @@ a span{display:block;font-weight:400;font-size:14px;color:#706F6F}p{color:#706F6
 <a href="klima/">Klima-Wartung<span>Wartung kältetechnischer Anlagen</span></a>
 <a href="kalk-klima/">Kalkulation Klima<span>Service- &amp; Wartungskalkulation Klimaanlagen</span></a>
 <a href="kalk-wp/">Kalkulation Wärmepumpe<span>Service- &amp; Wartungskalkulation Wärmepumpen</span></a>
-</main></body></html>
+<a href="daikin/">Daikin Multisplit<span>Kombinationshilfe R32 Multisplit-Auslegung</span></a>
+</main><script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:'◐ Auto',hell:'☀ Hell',dunkel:'☾ Dunkel'};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t];b.setAttribute('aria-label','Darstellung: '+L[t]);}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
+</body></html>
