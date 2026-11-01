@@ -88,6 +88,28 @@ a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline
 input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:.25s;z-index:20;max-width:90vw;text-align:center;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== Handy-Layout ===== */
+/* iPhone: Datumsfeld nimmt sonst nicht die volle Breite ein */
+@supports(-webkit-touch-callout:none){input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:50px;text-align:left}}
+/* Schmale Bildschirme (iPhone hochkant): kompakter Kopf, Tabellen als Karten, Zurück/Weiter unten fest */
+@media(max-width:600px){
+  header{padding-left:12px;padding-right:12px;gap:8px}
+  header h1{font-size:16px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .net{font-size:12px;padding:2px 8px}
+  main{padding-left:12px;padding-right:12px}
+  .card{padding:12px 14px;border-radius:14px}
+  .pagetitle{font-size:22px}
+  .card>table thead{display:none}
+  .card>table,.card>table tbody,.card>table tr,.card>table td{display:block;width:100%}
+  .card>table tr{padding:10px 0;border-bottom:1px solid var(--line)}
+  .card>table tr:last-child{border-bottom:0}
+  .card>table td{border:0;padding:2px 0;text-align:left!important;white-space:normal!important}
+  .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
+  .navbar{position:sticky;bottom:0;z-index:4;background:var(--bg);margin:20px -12px 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .navbar .btn{min-height:52px;font-size:17px}
+  #toast{bottom:calc(96px + env(safe-area-inset-bottom))}
+}
+/* ===== Ende Handy-Layout ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
   src:url(lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
