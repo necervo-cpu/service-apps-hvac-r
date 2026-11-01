@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Kalkulation</title>
+<script src="config.js"></script>
+<script src="lib/html2canvas.min.js" defer></script>
+<script src="lib/jspdf.umd.min.js" defer></script>
+<style>
+/* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
+   Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
+:root{--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-soft:#faf6dc;
+  --ok:#1e7a46;--bad:#b42318;--na:#8a8989;--warn:#8a5a00}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--gold)}
+header h1{font-size:19px;margin:0;flex:1;cursor:pointer}
+.net{font-size:13px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.14);white-space:nowrap}
+.net.off{background:var(--bad)}
+main{max-width:940px;margin:0 auto;padding:16px 16px calc(48px + env(safe-area-inset-bottom))}
+body.has-sum main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-weight:600;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--gold);border-color:var(--pri2);color:var(--ink)}
+.btn.danger{color:var(--bad)}
+.btn.small{min-height:38px;padding:6px 12px;font-size:15px}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 6px}
+label{display:block;font-size:15px;color:var(--ink);margin:0 0 6px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+.badge{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:#eceae3;color:var(--ink)}
+.badge.ok{background:#e6f4ec;color:var(--ok)}.badge.bad{background:#fdecea;color:var(--bad)}.badge.warn{background:#fdf3d6;color:var(--warn)}
+.muted{color:var(--muted)}
+.warnbox{background:var(--gold-soft);border:1px solid #e6d98a;border-left:5px solid var(--gold);color:#4a3d00;padding:12px 14px;border-radius:12px;margin:12px 0}
+.progress{height:8px;background:#eceae3;border-radius:99px;overflow:hidden;margin:8px 0 14px}
+.progress>div{height:100%;background:var(--gold);transition:width .2s}
+.pagetitle{font-size:26px;font-weight:700;margin:2px 0 4px;line-height:1.2}
+/* Felder */
+.field{padding:14px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.fhint{font-size:14px;color:var(--muted);margin:-3px 0 6px;font-weight:400}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.frow label{margin:0}
+.seg{display:flex;gap:6px;flex-shrink:0}
+.seg .btn{min-width:92px;min-height:52px}
+.seg .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.opts .btn{min-height:46px}
+.opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+/* Zahlenfeld mit − / + */
+.step{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.step .btn{width:52px;min-height:52px;padding:0;font-size:26px;line-height:1}
+.step input{width:110px;text-align:right;font-size:21px;padding:10px}
+.step .unit{min-width:44px;color:var(--muted);font-weight:600;font-size:15px}
+.inunit{display:flex;align-items:center;gap:10px}
+.inunit input{max-width:220px;font-size:21px}
+.inunit .unit{color:var(--muted);font-weight:600}
+.auto{font-size:14px;color:var(--muted);margin-top:6px}
+.auto b{color:var(--ok);font-weight:600}
+.auto .man{color:var(--warn);font-weight:600}
+@media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}.step{justify-content:flex-end}}
+.navbar{display:flex;gap:12px;margin-top:20px}
+.navbar .btn{flex:1;min-height:60px;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:24px}
+.chip{height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:14px;cursor:pointer;padding:0 10px;color:var(--ink)}
+.chip.done{background:#e6f4ec;border-color:#b6dcc4;color:var(--ok)}
+.chip.cur{outline:3px solid var(--gold);outline-offset:1px}
+table{width:100%;border-collapse:collapse}
+td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
+th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;white-space:nowrap}
+tr.tot td{font-weight:700;font-size:19px;border-top:2px solid var(--gold);border-bottom:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
+a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
+/* F-Gase-Status */
+.fgas{border-radius:12px;padding:12px 14px;margin-top:4px;border:1px solid var(--line);background:#f4f3ef}
+.fgas.warn{background:#fdf3d6;border-color:#ecd28a;color:#5a3d00}
+.fgas.ok{background:#e6f4ec;border-color:#b6dcc4;color:#14532d}
+.fgas b{display:block;font-size:18px}
+/* Ergebnisleiste unten */
+#sumbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--pri);color:#fff;border-top:3px solid var(--gold);
+  padding:9px 16px calc(9px + env(safe-area-inset-bottom));display:none;justify-content:center;gap:28px;flex-wrap:wrap}
+body.has-sum #sumbar{display:flex}
+#sumbar div{display:flex;flex-direction:column;align-items:flex-start}
+#sumbar small{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#bdbbb4}
+#sumbar span{font-size:20px;font-weight:700}
+#sumbar .gold span{color:var(--gold)}
+.list li{margin:6px 0}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:.25s;z-index:20;max-width:90vw;text-align:center;pointer-events:none;border:1px solid #444}
+body.has-sum #toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
+  src:url(lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
+  src:url(lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+.sheetwrap{background:#e9e7e1;border-radius:12px;padding:16px 0 1px;overflow:hidden}
+/* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
+.report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
+  --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
+  color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.report *{box-sizing:border-box}
+.report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
+  display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
+.report.flat .page{box-shadow:none;margin:0}
+.report .page-body{flex:1;min-height:0;overflow:hidden}
+.report .pfoot{display:flex;justify-content:space-between;gap:4mm;border-top:1px solid var(--line);padding-top:2.5mm;margin-top:4mm;font-size:7pt;color:var(--ink-3)}
+.report .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;padding-bottom:4mm;border-bottom:2.5px solid var(--gold)}
+.report .firm b{display:block;font-size:10pt;color:var(--ink)}
+.report .firm span{display:block;font-size:7.6pt;color:var(--ink-2)}
+.report .doc{text-align:right;flex-shrink:0}
+.report .doc .kicker{font-size:7pt;letter-spacing:.12em;color:var(--ink-3)}
+.report .doc h1{margin:.5mm 0 1mm;font-size:17pt;line-height:1.1;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.report .doc .meta{font-size:7.8pt;color:var(--ink-2)}
+.report .doc .meta b{color:var(--ink)}
+.report .head.small{padding-bottom:2.5mm}
+.report .head.small .doc h1{font-size:11pt}
+.report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
+.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
+.report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
+.report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
+.report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
+.report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
+.report .tile.ok{border-color:var(--ok);border-left:1.2mm solid var(--ok);background:var(--ok-bg)}.report .tile.ok .val{color:var(--ok)}
+.report .tile.warn{border-color:#d9b65a;border-left:1.2mm solid #c98a00;background:var(--warn-bg)}.report .tile.warn .val{color:var(--warn)}
+.report .sec{margin-top:4mm}
+.report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
+  padding-bottom:1.2mm;border-bottom:1px solid var(--line)}
+.report .sec h2 .no{display:inline-flex;align-items:center;justify-content:center;width:5mm;height:5mm;border-radius:1mm;background:var(--gold);color:var(--ink);font-size:7.4pt}
+.report dl.kv{display:grid;grid-template-columns:repeat(4,1fr);margin:0;column-gap:4mm}
+.report dl.kv div{padding:1.5mm 0;border-bottom:1px solid var(--line-soft);min-width:0}
+.report dl.kv div.wide{grid-column:1/-1}
+.report dl.kv dt{font-size:6.8pt;color:var(--ink-3);letter-spacing:.06em}
+.report dl.kv dd{margin:.3mm 0 0;font-size:8.8pt;font-weight:500;overflow-wrap:anywhere}
+.report dl.kv dd.empty{color:#9a9999;font-weight:400}
+.report table{width:100%;border-collapse:collapse;table-layout:fixed}
+.report th{font-size:6.8pt;letter-spacing:.06em;color:var(--ink-2);text-align:left;font-weight:600;
+  background:var(--head-bg);padding:1.6mm 2mm;border-bottom:1.5px solid var(--gold)}
+.report td{padding:1.4mm 2mm;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:8.3pt;overflow-wrap:anywhere}
+.report tbody tr:nth-child(even) td{background:var(--zebra)}
+.report td.num,.report th.num{text-align:right}
+.report tr.sum td{font-weight:600}
+.report tr.tot td{font-weight:700;font-size:10pt;background:var(--gold-soft);border-top:1.5px solid var(--gold);border-bottom:1.5px solid var(--gold)}
+.report .none{font-size:7.8pt;color:var(--ink-3);font-style:italic;padding:.5mm 0}
+.report .note{border:1px solid var(--line);border-left:1mm solid var(--gold);border-radius:1mm;padding:2.5mm 3mm;margin-top:4.5mm;font-size:8.4pt}
+.report .note b{display:block;font-size:7pt;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.8mm}
+.report .legal{margin-top:4mm;font-size:6.9pt;color:var(--ink-2);line-height:1.4}
+.report .legal p{margin:0 0 1.2mm}
+.report .legal b{color:var(--ink)}
+/* ===== Ende Bericht-CSS ===== */
+@media print{
+  header,.noprint,#toast,#sumbar{display:none!important}
+  html,body{background:#fff}
+  main{max-width:none;padding:0}
+  .sheetwrap{background:none;padding:0;border-radius:0}
+  .report{zoom:1!important}
+  .report .page{box-shadow:none;margin:0;break-after:page}
+  @page{size:A4;margin:0}
+}
+</style>
+</head>
+<body>
+<header><h1 data-act="home" id="apptitle">Kalkulation</h1><span id="net" class="net"></span></header>
+<main id="app"></main>
+<div id="sumbar"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const C = window.CFG;
+document.title = C.appName;
+document.getElementById('apptitle').textContent = C.header;
+
+/* =====================================================================
+   Felder einer Kalkulation. col = exakter Spaltenname im Blatt "Kalkulationen".
+   Geräte und Material kommen aus config.js.
+   ===================================================================== */
+const POS = C.geraete.map(g => Object.assign({grp:'geraet'}, g)).concat(C.material.map(m => Object.assign({grp:'material'}, m)));
+const POSBY = Object.fromEntries(POS.map(x => [x.id, x]));
+const FIELDS = [
+  {id:'projekt',    col:'Projektnummer'},
+  {id:'datum',      col:'Datum', type:'date'},
+  {id:'kunde',      col:'Kunde'},
+  {id:'standort',   col:'Objekt / Standort'},
+  {id:'bearbeiter', col:'Erstellt von'},
+  {id:'anzTech',    col:'Anzahl Servicetechniker', type:'num'},
+  {id:'anzHelfer',  col:'Anzahl Helfer / Azubis', type:'num'},
+  ...POS.map(x => ({id:x.id, col:(x.grp === 'geraet' ? 'Anzahl ' : 'Menge ') + x.label + (x.grp === 'material' ? ` (${x.unit})` : ''), type:'num'})),
+  {id:'km',         col:'Kältemittel'},
+  {id:'gwp',        col:'GWP', type:'num'},
+  {id:'menge',      col:'Füllmenge je Kreis (kg)', type:'num'},
+  {id:'kreise',     col:'Anzahl Kältekreise', type:'num'},
+  {id:'herm',       col:'Hermetisch geschlossen'},
+  {id:'leck',       col:'Leckage-Erkennungssystem'},
+  {id:'anfahrt',    col:'Anfahrtspauschale (€)', type:'num'},
+  {id:'erschwernis',col:'Steigtechnik / Erschwernis (€)', type:'num'},
+  {id:'sonderText', col:'Sonderposition'},
+  {id:'sonderPreis',col:'Sonderposition (€)', type:'num'},
+  {id:'pauschal',   col:'Pauschalangebot'},
+  {id:'bem',        col:'Bemerkungen'}
+];
+const PAGES = [
+  {short:'Projekt',     title:'Projekt & Team'},
+  {short:'Anlage',      title:C.geraeteTitle},
+  {short:'Kältemittel', title:'Kältemittel & F-Gase-Prüfung'},
+  {short:'Material',    title:'Material, Anfahrt & Sonstiges'},
+  {short:'Ergebnis',    title:'Ergebnis & Abschluss'}
+];
+
+/* ---------- Speicher ---------- */
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ toast('Speichern fehlgeschlagen – Speicher voll? Übertragene Kalkulationen löschen.'); return false; } }
+};
+const K = name => C.ls + '.' + name;
+let settings = Object.assign({url:'', token:'', firma:'', techniker:''}, LS.get(K('settings'), {}));
+let calcs    = LS.get(K('calcs'), []);
+let dbCache  = LS.get(K('db'), {at:null, list:[]});
+let stammCache = LS.get(K('stamm'), {at:null, values:{}});
+const save = () => LS.set(K('calcs'), calcs);
+
+/* ---------- Helfer ---------- */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10); }
+function today(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE'); }
+function fmtDateTime(s){ if(!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('de-DE', {dateStyle:'short', timeStyle:'short'}); }
+function num(v){ return typeof v === 'number' ? v : Number(String(v ?? '').trim().replace(/\s/g, '').replace(',', '.')); }
+function isN(v){ return v !== '' && v != null && !isNaN(num(v)); }
+function n0(v){ return isN(v) ? num(v) : 0; }
+function round(n, d){ const f = Math.pow(10, d); return Math.round(n * f) / f; }
+function fmtNum(n){ return String(n).replace('.', ','); }
+function de(n, d){ return Number(n || 0).toLocaleString('de-DE', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function eur(n){ return de(n, 2) + ' €'; }
+function hrs(min){ return de(min / 60, 2) + ' h'; }
+function qtyText(n, unit){ return fmtNum(round(n, 2)) + (unit ? ' ' + unit : ''); }
+let toastTimer;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500); }
+
+/* ---------- Stammdaten (zentral im Google Sheet, hier zwischengespeichert) ---------- */
+function stammNow(){
+  const S = {};
+  C.stamm.forEach(s => {
+    const x = stammCache.values[s.key];
+    S[s.key] = typeof s.def === 'number' ? (isN(x) ? num(x) : s.def) : (x != null && String(x).trim() !== '' ? String(x) : s.def);
+  });
+  return S;
+}
+async function loadStamm(silent){
+  if(!settings.url || !navigator.onLine) return false;
+  try{
+    const j = await api('stamm');
+    stammCache = {at:new Date().toISOString(), values:j.values || {}};
+    LS.set(K('stamm'), stammCache);
+    if(!silent) toast('Stammdaten aus dem Google Sheet geladen.');
+    return true;
+  }catch(e){ if(!silent) toast('Stammdaten konnten nicht geladen werden: ' + e.message); return false; }
+}
+
+/* ---------- Rechnen ---------- */
+function qtys(v){ return Object.fromEntries(POS.map(x => [x.id, n0(v[x.id])])); }
+/* Automatische Vorschläge (Reinigungsmittel, GWP …) – nur solange der Wert nicht von Hand geändert wurde */
+function applyAutos(p){
+  const S = p.stamm, v = p.values, man = p.manual || (p.manual = {});
+  POS.filter(x => x.auto).forEach(x => {
+    if(man[x.id]) return;
+    const a = round(Math.max(0, x.auto(qtys(v), S)), 2);
+    v[x.id] = a ? fmtNum(a) : '';
+  });
+  if(!man.gwp){ const g = C.kaeltemittel[v.km]; v.gwp = g != null ? String(g) : ''; }
+  if(C.hermAuto && !man.herm) v.herm = C.hermAuto(qtys(v));
+}
+/* F-Gase-Verordnung (EU) 2024/573, Art. 5: Prüfpflicht ab 5 t CO₂-Äq. (hermetisch geschlossen ab 10 t);
+   Intervalle 12 / 6 / 3 Monate ab 5 / 50 / 500 t – mit Leckage-Erkennungssystem doppelt so lang. */
+function pruefung(v, S){
+  const km = String(v.km || '').trim(), gwp = n0(v.gwp), kreise = Math.max(1, Math.round(n0(v.kreise)) || 1);
+  const menge = n0(v.menge), co2 = round(menge * gwp / 1000, 2);
+  const herm = v.herm === 'Ja', leck = v.leck === 'Ja', grenze = herm ? 10 : 5;
+  const out = {km, gwp, kreise, menge, co2, herm, leck, grenze, state:'leer', monate:0, min:0, text:'Kältemittel nicht angegeben'};
+  if(!km) return out;
+  if(/^R ?290/i.test(km) || (isN(v.gwp) && gwp < 150 && /propan|r ?290/i.test(km))){
+    if(C.r290Key){
+      return Object.assign(out, {state:'r290', min:S[C.r290Key] * kreise,
+        text:'R290 (Propan, A3): jährliche Sicherheits- und Dichtheitsprüfung (Schutzbereich, Lecksuche mit Ex-geschütztem Gerät)'});
+    }
+    return Object.assign(out, {state:'frei', text:'Natürliches Kältemittel (R290): keine Prüfpflicht nach F-Gase-Verordnung'});
+  }
+  if(!isN(v.gwp)) return Object.assign(out, {state:'leer', text:'GWP-Wert für dieses Kältemittel eintragen'});
+  if(!menge) return Object.assign(out, {state:'leer', text:'Füllmenge je Kältekreis eintragen'});
+  const m = co2 >= 500 ? 3 : co2 >= 50 ? 6 : co2 >= grenze ? 12 : 0;
+  if(!m) return Object.assign(out, {state:'frei', text:`Keine Prüfpflicht: ${de(co2, 2)} t CO₂-Äq. je Kreis (Grenze ${grenze} t${herm ? ', hermetisch geschlossen' : ''})`});
+  const monate = leck ? m * 2 : m;
+  return Object.assign(out, {state:'pflicht', monate, min:S.t_dicht * kreise,
+    text:`Dichtheitsprüfung Pflicht alle ${monate} Monate: ${de(co2, 2)} t CO₂-Äq. je Kreis${leck ? ' (mit Leckage-Erkennungssystem)' : ''}`});
+}
+function teamText(nT, nH){
+  return `${nT} Servicetechniker` + (nH ? ` + ${nH} ${nH === 1 ? 'Helfer / Azubi' : 'Helfer / Azubis'}` : '');
+}
+/* Richtzeiten = Arbeitszeit eines Technikers. Mehrere Techniker teilen sich die Arbeit (kürzerer Einsatz),
+   Helfer begleiten den ganzen Einsatz und werden für die Einsatzdauer berechnet. */
+function calc(p){
+  const v = p.values, S = p.stamm, q = qtys(v), pr = pruefung(v, S);
+  const nT = Math.max(1, Math.round(n0(v.anzTech)) || 1), nH = Math.max(0, Math.round(n0(v.anzHelfer)));
+  const leistung = C.geraete.filter(g => q[g.id] > 0).map(g => ({kat:g.kat, label:g.label, menge:qtyText(q[g.id], g.unit), umfang:g.umfang, min:q[g.id] * S[g.t]}));
+  if(pr.state === 'pflicht') leistung.push({kat:'Gesetzliche Prüfung', label:'Dichtheitsprüfung nach F-Gase-Verordnung (EU) 2024/573 inkl. Protokoll',
+    menge:pr.kreise === 1 ? '1 Kreis' : pr.kreise + ' Kreise', umfang:`Prüfintervall alle ${pr.monate} Monate`, min:pr.min});
+  if(pr.state === 'r290') leistung.push({kat:'Sicherheit (A3)', label:'R290 Dichtheits- & Sicherheitsprüfung inkl. Protokoll',
+    menge:pr.kreise === 1 ? '1 Kreis' : pr.kreise + ' Kreise', umfang:'Schutzbereich, Lecksuche mit Ex-geschütztem Gerät, Sicherheitseinrichtungen', min:pr.min});
+  const material = C.material.filter(m => q[m.id] > 0).map(m => ({label:m.label, menge:qtyText(q[m.id], m.unit), preis:S[m.price], betrag:round(q[m.id] * S[m.price], 2)}));
+  const pausch = (label, x) => { if(n0(x) > 0) material.push({label, menge:'1 Pauschale', preis:n0(x), betrag:round(n0(x), 2)}); };
+  pausch('Anfahrtspauschale (An- und Abfahrt zum Objekt)', v.anfahrt);
+  pausch(C.erschwernisLabel, v.erschwernis);
+  if(n0(v.sonderPreis) > 0 || String(v.sonderText || '').trim()) material.push({label:String(v.sonderText || '').trim() || 'Sonderposition', menge:'1 Pauschale', preis:n0(v.sonderPreis), betrag:round(n0(v.sonderPreis), 2)});
+  const minRicht = leistung.reduce((a, x) => a + x.min, 0);
+  const dauer = minRicht / nT;
+  const lohnTech = round(minRicht / 60 * S.satz_tech, 2), lohnHelfer = round(dauer / 60 * nH * S.satz_helfer, 2);
+  const lohn = round(lohnTech + lohnHelfer, 2);
+  const mat = round(material.reduce((a, x) => a + x.betrag, 0), 2);
+  const netto = round(lohn + mat, 2), mwst = round(netto * S.mwst / 100, 2), brutto = round(netto + mwst, 2);
+  return {S, q, pr, nT, nH, team:teamText(nT, nH), leistung, material, minRicht, dauer, lohnTech, lohnHelfer, lohn, mat, netto, mwst, brutto};
+}
+
+/* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
+function buildReport(p){
+  const v = p.values, k = calc(p), S = k.S, pa = v.pauschal === 'Ja', pr = k.pr;
+  const tiles = [{cls:'primary', lab:'Gesamtpreis brutto', val:eur(k.brutto), sub:`Netto ${eur(k.netto)} zzgl. ${fmtNum(S.mwst)} % MwSt.`}];
+  tiles.push(pa ? {lab:'Team vor Ort', val:`${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`, sub:k.team}
+                : {lab:'Arbeitszeit gesamt', val:hrs(k.minRicht + k.dauer * k.nH), sub:`Einsatz vor Ort ca. ${hrs(k.dauer)} · ${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`});
+  tiles.push(pr.state === 'pflicht' ? {cls:'warn', lab:'Dichtheitsprüfung', val:`alle ${pr.monate} Monate`, sub:`Pflicht · ${de(pr.co2, 2)} t CO₂-Äq. je Kreis`}
+    : pr.state === 'r290' ? {cls:'warn', lab:'Sicherheitsprüfung', val:'R290 jährlich', sub:'Dichtheits- & Sicherheitsprüfung (A3)'}
+    : pr.state === 'frei' ? {cls:'ok', lab:'Dichtheitsprüfung', val:'keine Pflicht', sub:pr.km === 'R290' || /290/.test(pr.km) ? 'natürliches Kältemittel' : `${de(pr.co2, 2)} t CO₂-Äq. je Kreis (Grenze ${pr.grenze} t)`}
+    : {lab:'Dichtheitsprüfung', val:'—', sub:pr.text});
+  const projekt = [{label:'Kunde', value:v.kunde}, {label:'Objekt / Standort', value:v.standort}, {label:'Team vor Ort', value:k.team}, {label:'Erstellt von', value:v.bearbeiter}];
+  const leistung = pa
+    ? {head:['Pos.', 'Komponente / Leistung', 'Menge', 'Leistungsumfang'], cls:['', '', 'num', ''], widths:['7%', '41%', '12%', '40%'],
+       rows:k.leistung.map((x, i) => ({cells:[String(i + 1), x.label, x.menge, x.umfang]}))}
+    : {head:['Pos.', 'Komponente / Leistung', 'Menge', 'Leistungsumfang', 'Zeit'], cls:['', '', 'num', '', 'num'], widths:['6%', '38%', '11%', '35%', '10%'],
+       rows:k.leistung.map((x, i) => ({cells:[String(i + 1), x.label, x.menge, x.umfang, de(x.min, 0) + ' Min']}))};
+  const material = pa
+    ? {head:['Pos.', 'Material / Nebenleistung', 'Menge', 'Abrechnung'], cls:['', '', 'num', ''], widths:['7%', '51%', '16%', '26%'],
+       rows:k.material.map((x, i) => ({cells:[String(i + 1), x.label, x.menge, 'im Pauschalpreis enthalten']}))}
+    : {head:['Pos.', 'Material / Nebenleistung', 'Menge', 'Einzelpreis', 'Betrag netto'], cls:['', '', 'num', 'num', 'num'], widths:['6%', '46%', '16%', '16%', '16%'],
+       rows:k.material.map((x, i) => ({cells:[String(i + 1), x.label, x.menge, eur(x.preis), eur(x.betrag)]}))};
+  const km = pr.km ? [
+    {label:'Kältemittel', value:pr.km + (isN(v.gwp) ? ` · GWP ${fmtNum(v.gwp)}` : '')},
+    {label:'Füllmenge', value:(isN(v.menge) ? fmtNum(v.menge) + ' kg' : '—') + ` × ${pr.kreise} ${pr.kreise === 1 ? 'Kreis' : 'Kreise'}`},
+    {label:'CO₂-Äquivalent je Kreis', value:isN(v.gwp) && pr.menge ? de(pr.co2, 2) + ' t' : ''},
+    {label:'Hermetisch / Leckage-Erk.', value:`${v.herm || 'Nein'} / ${v.leck || 'Nein'}`},
+    {label:'Prüfpflicht', value:pr.text, wide:true}] : [];
+  const kosten = {head:['Kostenaufstellung', 'Betrag'], cls:['', 'num'], widths:['75%', '25%'], rows:[]};
+  if(pa) kosten.rows.push({cells:['Pauschalpreis netto (Arbeitszeit, Material, Anfahrt und Nebenleistungen)', eur(k.netto)], cls:'sum'});
+  else {
+    kosten.rows.push({cells:[`Lohnkosten Servicetechniker (${hrs(k.minRicht)} × ${eur(S.satz_tech)})`, eur(k.lohnTech)]});
+    if(k.nH) kosten.rows.push({cells:[`Lohnkosten Helfer / Azubi (${k.nH} × ${hrs(k.dauer)} × ${eur(S.satz_helfer)})`, eur(k.lohnHelfer)]});
+    kosten.rows.push({cells:['Material, Anfahrt & Nebenleistungen', eur(k.mat)]});
+    kosten.rows.push({cells:['Nettobetrag gesamt', eur(k.netto)], cls:'sum'});
+  }
+  kosten.rows.push({cells:[`zzgl. ${fmtNum(S.mwst)} % MwSt.`, eur(k.mwst)]});
+  kosten.rows.push({cells:['Gesamtpreis brutto', eur(k.brutto)], cls:'tot'});
+  return {
+    kicker: pa ? 'ANGEBOT' : 'KALKULATION', title: C.pdfTitle, firma: settings.firma || '', id: v.projekt || '', datum: fmtDate(v.datum),
+    kunde: v.kunde || '', tiles, projekt, leistung, material, km, kosten, remark: v.bem || '', hinweis: pa ? S.text_angebot : S.text_intern
+  };
+}
+/* Spaltenwerte fürs Google Sheet */
+function buildCols(p){
+  const v = p.values, k = calc(p);
+  const out = [];
+  const add = (col, x, kind) => out.push([col, x, kind || '']);
+  const f = id => FIELDS.find(x => x.id === id);
+  ['projekt', 'datum', 'kunde', 'standort', 'bearbeiter'].forEach(id => { const x = f(id); add(x.col, v[id] || '', x.type === 'date' && v[id] ? 'date' : ''); });
+  add('Netto (€)', k.netto); add('MwSt (€)', k.mwst); add('Brutto (€)', k.brutto);
+  add('Arbeitszeit Techniker (h)', round(k.minRicht / 60, 2)); add('Einsatzdauer vor Ort (h)', round(k.dauer / 60, 2));
+  add('Lohnkosten netto (€)', k.lohn); add('Material & Nebenkosten netto (€)', k.mat);
+  add('CO₂-Äquivalent je Kreis (t)', k.pr.km && isN(v.gwp) && k.pr.menge ? k.pr.co2 : ''); add('Prüfpflicht F-Gase', k.pr.km ? k.pr.text : '');
+  FIELDS.slice(5).forEach(x => { const val = v[x.id]; add(x.col, val === '' || val == null ? '' : x.type === 'num' && isN(val) ? num(val) : String(val)); });
+  return out;
+}
+
+/* ---------- Navigation ---------- */
+let view = {name:'home'};
+function go(name, params){ view = Object.assign({name}, params || {}); render(); window.scrollTo(0, 0); }
+function cur(){ return calcs.find(p => p.id === view.id); }
+function render(){
+  app.innerHTML = (Views[view.name] || Views.home)();
+  const wiz = view.name === 'wizard' && cur();
+  document.body.classList.toggle('has-sum', !!wiz);
+  if(wiz) live();
+  if(view.name === 'report') showReport();
+  updateNet();
+}
+async function showReport(){
+  const host = $('#sheet'), r = reportForView();
+  if(!host || !r) return;
+  await reportFontsReady();
+  if(!host.isConnected) return;
+  layoutReport(r, host);
+  host.style.zoom = Math.min(1, (host.parentElement.clientWidth - 8) / host.querySelector('.page').offsetWidth);
+}
+function updateNet(){
+  const n = calcs.filter(p => p.status === 'done' && !p.synced).length;
+  const el = $('#net');
+  el.className = 'net' + (navigator.onLine ? '' : ' off');
+  el.textContent = (navigator.onLine ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
+}
+/* Ergebnisleiste, F-Gase-Status und Automatik-Werte aktualisieren, ohne das Eingabefeld neu aufzubauen */
+function live(){
+  const p = cur(); if(!p) return;
+  const k = calc(p);
+  $('#sumbar').innerHTML = `<div><small>Arbeitszeit</small><span>${hrs(k.minRicht)}</span></div><div><small>Netto</small><span>${eur(k.netto)}</span></div><div class="gold"><small>Brutto</small><span>${eur(k.brutto)}</span></div>`;
+  document.querySelectorAll('input[data-f]').forEach(el => {
+    if(el === document.activeElement || el.dataset.other) return;
+    const x = p.values[el.dataset.f] ?? '';
+    if(el.value !== x) el.value = x;
+  });
+  document.querySelectorAll('.auto[data-hint]').forEach(el => {
+    const h = autoLine(p, el.id.slice(5), el.dataset.hint);
+    if(el.innerHTML !== h) el.innerHTML = h;
+  });
+  const fb = $('#fgasbox'); if(fb) fb.outerHTML = fgasHtml(k.pr);
+  const rs = $('#result'); if(rs) rs.innerHTML = resultHtml(p, k);
+}
+
+/* ---------- Ansichten ---------- */
+const Views = {
+  home(){
+    const drafts = calcs.filter(p => p.status === 'draft');
+    const done = calcs.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
+    const pending = done.filter(p => !p.synced).length;
+    return `
+      <div class="row">
+        <button class="btn primary" data-act="new">+ Neue Kalkulation</button>
+        <button class="btn" data-act="sync">Synchronisieren${pending ? ` (${pending})` : ''}</button>
+        <button class="btn" data-act="db">Datenbank / PDF</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" data-act="fragen">Fragen an den Kunden</button>
+        <button class="btn" data-act="info">Info</button>
+        <button class="btn" data-act="settings">Einstellungen</button>
+      </div>
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten. Unter <b>Einstellungen</b> die Web-App-URL eintragen.</div>' : ''}
+      <h2>Offene Kalkulationen</h2>
+      ${drafts.length ? drafts.map(calcCard).join('') : '<p class="muted">Keine offenen Kalkulationen.</p>'}
+      <h2>Abgeschlossen</h2>
+      ${done.length ? done.map(calcCard).join('') : '<p class="muted">Noch keine abgeschlossenen Kalkulationen.</p>'}`;
+  },
+
+  wizard(){
+    const p = cur();
+    if(!p) return '<p>Kalkulation nicht gefunden.</p>';
+    const i = p.page, n = PAGES.length, last = i === n - 1;
+    return `
+      <div class="row between"><span class="muted">Schritt ${i + 1} von ${n} · ${esc(p.values.projekt || 'ohne Projektnummer')}</span><button class="btn small" data-act="home">Pause</button></div>
+      <div class="progress"><div style="width:${Math.round((i + 1) / n * 100)}%"></div></div>
+      <div class="pagetitle">${esc(PAGES[i].title)}</div>
+      ${Pages[i](p)}
+      <div class="navbar">
+        <button class="btn" data-act="prev" ${i === 0 ? 'disabled' : ''}>← Zurück</button>
+        ${last ? '<button class="btn primary" data-act="finish">Abschließen ✓</button>' : '<button class="btn primary" data-act="next">Weiter →</button>'}
+      </div>
+      <div class="chips">${PAGES.map((x, k) => `<button class="chip ${pageDone(p, k) ? 'done' : ''} ${k === i ? 'cur' : ''}" data-act="jump" data-i="${k}">${k + 1} ${esc(x.short)}</button>`).join('')}</div>`;
+  },
+
+  report(){
+    const r = reportForView();
+    if(!r) return '<p>Kalkulation nicht gefunden.</p>';
+    const p = !view.db && calcs.find(x => x.id === view.id);
+    return `
+      <div class="row noprint" style="margin-bottom:12px">
+        <button class="btn" data-act="${view.db ? 'db' : 'home'}">← Zurück</button>
+        <button class="btn primary" data-act="makepdf">PDF erstellen</button>
+        <span id="pdfbar" class="row">${pdfBarHtml()}</span>
+        ${!isStandalone() ? '<button class="btn" data-act="print">Drucken</button>' : ''}
+        ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
+        ${p ? `<button class="btn" data-act="reopen" data-id="${p.id}">Bearbeiten</button>` : ''}
+        ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
+      </div>
+      <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen / Drucken“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
+      <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
+  },
+
+  db(){
+    return `
+      <div class="row">
+        <button class="btn" data-act="home">← Zurück</button>
+        <button class="btn primary" data-act="dbload">Aus Google Sheet laden</button>
+      </div>
+      <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen einer Kalkulation wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
+      <input id="dbsearch" type="search" placeholder="Suchen: Projekt-Nr., Kunde, Standort, Datum …" value="${esc(view.q || '')}">
+      <div id="dblist">${dbList()}</div>`;
+  },
+
+  fragen(){
+    return `
+      <div class="row"><button class="btn" data-act="home">← Zurück</button></div>
+      <div class="pagetitle" style="margin-top:14px">Fragen an den Kunden</div>
+      <p class="muted">Gesprächsleitfaden für Telefon oder Mail – damit alle Angaben für eine genaue Kalkulation vorliegen.</p>
+      ${C.fragen.map((g, i) => `<h2>${i + 1}. ${esc(g.h)}</h2><div class="card"><ul class="list" style="margin:0;padding-left:20px">${g.items.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('')}`;
+  },
+
+  info(){
+    const S = stammNow();
+    return `
+      <div class="row"><button class="btn" data-act="home">← Zurück</button></div>
+      <div class="pagetitle" style="margin-top:14px">Info & Anleitung</div>
+      <h2>Zweck</h2><div class="card">${esc(C.zweck)}</div>
+      <h2>So wird gerechnet</h2>
+      <div class="card"><ul class="list" style="margin:0;padding-left:20px">
+        <li><b>Arbeitszeit:</b> Anzahl × Richtzeit je Gerät (Stammdaten), plus Dichtheitsprüfung je Kältekreis, wenn sie Pflicht ist.</li>
+        <li><b>Team:</b> Die Richtzeiten gelten für einen Techniker. Mehrere Techniker teilen sich die Arbeit, der Einsatz wird kürzer. Helfer / Azubis sind den ganzen Einsatz dabei und werden für die Einsatzdauer berechnet.</li>
+        <li><b>Material:</b> Reinigungsmittel usw. werden aus den Gerätezahlen vorgeschlagen. Sobald du einen Wert selbst änderst, bleibt er stehen („von Hand“), bis du „wieder automatisch“ antippst.</li>
+        <li><b>F-Gase (EU 2024/573):</b> Prüfpflicht ab 5 t CO₂-Äquivalent je Kreis, bei hermetisch geschlossenen Anlagen ab 10 t. Intervall 12 / 6 / 3 Monate ab 5 / 50 / 500 t, mit Leckage-Erkennungssystem doppelt so lang.</li>
+        <li><b>Preis:</b> Lohn + Material + Anfahrt + Erschwernis + Sonderposition = netto, zzgl. ${fmtNum(S.mwst)} % MwSt.</li>
+      </ul></div>
+      <h2>Stammdaten</h2>
+      <div class="card">Stundensätze, Richtzeiten und Preise stehen im Google Sheet im Blatt <b>„Stammdaten“</b> und gelten für alle Geräte. Ändern lassen sie sich dort oder in der App unter <b>Einstellungen → Stammdaten → Im Sheet speichern</b>. Jede Kalkulation merkt sich die Werte, mit denen sie begonnen wurde. Ändern sich die Stammdaten später, zeigt die Seite „Ergebnis“ einen Knopf zum Übernehmen.</div>
+      <h2>PDF</h2>
+      <div class="card">Auf der Seite „Ergebnis“ lässt sich <b>Pauschalangebot</b> einschalten: Dann blendet das PDF Arbeitszeiten und Einzelpreise aus und heißt „Angebot“. Ohne Schalter entsteht die interne Kalkulation mit allen Zeiten und Preisen.</div>
+      <p class="muted" style="text-align:right;font-size:14px">Entwickelt für die Praxis · © C. Geuther</p>`;
+  },
+
+  settings(){
+    const S = stammNow();
+    return `
+      <div class="row"><button class="btn" data-act="home">← Zurück</button></div>
+      <h2>Google-Sheet-Verbindung</h2>
+      <div class="card">
+        <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
+        <input id="s_url" value="${esc(settings.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocorrect="off">
+        <label style="margin-top:14px">Token (muss mit TOKEN im Apps Script übereinstimmen)</label>
+        <input id="s_token" value="${esc(settings.token)}" autocapitalize="off" autocorrect="off">
+      </div>
+      <h2>Allgemein</h2>
+      <div class="card">
+        <label>Firmenkopf im PDF (mehrzeilig möglich)</label><textarea id="s_firma" style="min-height:110px" placeholder="z. B. Firmenname&#10;Straße&#10;PLZ Ort · Telefon">${esc(settings.firma)}</textarea>
+        <label style="margin-top:14px">Erstellt von (Vorbelegung)</label><input id="s_tech" value="${esc(settings.techniker)}" placeholder="z. B. C. Geuther">
+      </div>
+      <div class="row"><button class="btn primary" data-act="savesettings">Speichern</button><button class="btn" data-act="ping">Speichern &amp; Verbindung testen</button></div>
+      <h2>Stammdaten</h2>
+      <div class="card">
+        <p class="muted" style="margin-top:0">${stammCache.at ? `Aus dem Google Sheet (Blatt „Stammdaten“), Stand ${fmtDateTime(stammCache.at)}.` : 'Noch nicht aus dem Google Sheet geladen – es gelten die Standardwerte.'}
+          Änderungen hier gelten nach „Im Sheet speichern“ für alle Geräte (Internet nötig). Angefangene Kalkulationen behalten ihre Werte, bis man sie auf der Seite „Ergebnis“ übernimmt.</p>
+        ${C.stamm.map(s => typeof s.def === 'number'
+          ? `<div class="field"><div class="frow"><label for="st-${s.key}" style="font-weight:500">${esc(s.label)}</label>
+              <div class="inunit" style="flex-shrink:0"><input id="st-${s.key}" data-stamm="${s.key}" inputmode="decimal" autocomplete="off" value="${esc(fmtNum(S[s.key]))}" style="width:130px;text-align:right;font-size:19px"><span class="unit" style="min-width:90px">${esc(s.unit)}</span></div></div></div>`
+          : `<div class="field"><label for="st-${s.key}" style="font-weight:500">${esc(s.label)}</label><textarea id="st-${s.key}" data-stamm="${s.key}">${esc(S[s.key])}</textarea></div>`).join('')}
+        <div class="err" id="stammerr"></div>
+        <div class="row"><button class="btn primary" data-act="stammsave">Im Sheet speichern</button><button class="btn" data-act="stammload">Stammdaten aus Sheet laden</button></div>
+      </div>
+      <h2>Datensicherung</h2>
+      <div class="card">
+        <p class="muted" style="margin-top:0">Sichert alle Kalkulationen der App als JSON-Datei.</p>
+        <div class="row">
+          <button class="btn" data-act="backup">Backup exportieren</button>
+          <label class="btn" style="margin:0;font-size:17px">Backup importieren<input type="file" id="s_import" accept=".json,application/json" hidden></label>
+        </div>
+      </div>`;
+  }
+};
+
+function calcCard(p){
+  const v = p.values, k = calc(p);
+  const badges = p.status === 'draft'
+    ? `<span class="badge warn">Schritt ${p.page + 1}/${PAGES.length}</span>`
+    : `${v.pauschal === 'Ja' ? '<span class="badge">Angebot</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+  return `
+    <div class="card">
+      <div class="row between">
+        <div><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? ' · ' + esc(v.kunde) : ''}<br>
+          <span class="muted">${esc([fmtDate(v.datum), v.standort, 'brutto ' + eur(k.brutto)].filter(Boolean).join(' · '))}</span></div>
+        <div>${badges}</div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        ${p.status === 'draft'
+          ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
+          : `<button class="btn small primary" data-act="report" data-id="${p.id}">Ansehen / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}
+        <button class="btn small" data-act="copy" data-id="${p.id}">Kopieren</button>
+        <button class="btn small danger" data-act="del" data-id="${p.id}">Löschen</button>
+      </div>
+    </div>`;
+}
+
+/* ---------- Eingabefelder ---------- */
+function textField(p, id, label, ph, hint){
+  return `<div class="field"><label for="in-${id}">${esc(label)}</label>${hint ? `<div class="fhint">${esc(hint)}</div>` : ''}
+    <input id="in-${id}" data-f="${id}" value="${esc(p.values[id] ?? '')}" placeholder="${esc(ph || '')}" autocomplete="off"></div>`;
+}
+function stepField(p, id, label, unit, opt){
+  opt = opt || {};
+  const autoTxt = opt.autoHint ? `<div class="auto" id="auto-${id}" data-hint="${esc(opt.autoHint)}">${autoLine(p, id, opt.autoHint)}</div>` : '';
+  return `<div class="field"><div class="frow"><div><label for="in-${id}">${esc(label)}</label>${opt.hint ? `<div class="fhint" style="margin:0">${esc(opt.hint)}</div>` : ''}</div>
+    <div class="step"><button class="btn" data-act="step" data-f="${id}" data-d="-1" aria-label="weniger">−</button>
+      <input id="in-${id}" data-f="${id}" inputmode="decimal" autocomplete="off" value="${esc(p.values[id] ?? '')}" placeholder="${esc(opt.ph ?? '0')}">
+      <button class="btn" data-act="step" data-f="${id}" data-d="1" aria-label="mehr">+</button><span class="unit">${esc(unit || '')}</span></div></div>${autoTxt}</div>`;
+}
+function autoLine(p, id, hint){
+  return p.manual && p.manual[id]
+    ? `<span class="man">von Hand geändert</span> · Vorschlag: ${esc(hint)} · <a class="jump" data-act="unauto" data-f="${id}">wieder automatisch</a>`
+    : `<b>automatisch</b> · ${esc(hint)}`;
+}
+function segField(p, id, label, hint, opts){
+  const x = p.values[id] || '';
+  return `<div class="field"><div class="frow"><div><label>${esc(label)}</label>${hint ? `<div class="fhint" style="margin:0">${esc(hint)}</div>` : ''}</div>
+    <div class="seg">${(opts || ['Ja', 'Nein']).map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div></div></div>`;
+}
+function fgasHtml(pr){
+  const cls = pr.state === 'pflicht' || pr.state === 'r290' ? 'warn' : pr.state === 'frei' ? 'ok' : '';
+  const head = pr.state === 'pflicht' ? `Dichtheitsprüfung Pflicht – alle ${pr.monate} Monate` : pr.state === 'r290' ? 'R290-Sicherheitsprüfung wird eingerechnet'
+    : pr.state === 'frei' ? 'Keine Prüfpflicht' : 'Noch nicht berechenbar';
+  const co2 = pr.km && pr.menge && pr.gwp ? `CO₂-Äquivalent je Kreis: <b style="display:inline;font-size:inherit">${de(pr.co2, 2)} t</b> · ` : '';
+  return `<div class="fgas ${cls}" id="fgasbox"><b>${esc(head)}</b>${co2}${esc(pr.text)}${pr.min ? ` · ${de(pr.min, 0)} Min eingerechnet` : ''}</div>`;
+}
+const Pages = [
+  p => `<div class="card">
+      ${textField(p, 'projekt', 'Projektnummer', 'z. B. 2026-0815', 'Eure Auftrags- bzw. Projektnummer – wird zum Dateinamen des PDFs')}
+      <div class="field"><label for="in-datum">Datum</label><input id="in-datum" type="date" data-f="datum" value="${esc(p.values.datum || '')}" style="max-width:260px"></div>
+      ${textField(p, 'kunde', 'Kunde / Projekt', 'Kundenname')}
+      ${textField(p, 'standort', 'Objekt / Standort', 'Straße, PLZ Ort')}
+      ${textField(p, 'bearbeiter', 'Erstellt von', 'Name')}
+    </div>
+    <h2>Team vor Ort</h2>
+    <div class="card">
+      ${stepField(p, 'anzTech', 'Anzahl Servicetechniker', 'Pers.', {ph:'1', hint:`Stundensatz ${eur(p.stamm.satz_tech)} – leer = 1 Techniker`})}
+      ${stepField(p, 'anzHelfer', 'Anzahl Helfer / Azubis', 'Pers.', {hint:`Stundensatz ${eur(p.stamm.satz_helfer)}`})}
+    </div>`,
+  p => `<div class="card">${C.geraete.map(g => stepField(p, g.id, g.label, g.unit,
+      {hint:`Richtzeit ${fmtNum(p.stamm[g.t])} Min je ${g.unit === 'Pauschale' ? 'Pauschale' : 'Stück'}`, autoHint:g.auto ? g.autoHint(p.stamm) : ''})).join('')}</div>`,
+  p => {
+    const km = p.values.km || '', list = Object.keys(C.kaeltemittel), custom = km && !list.includes(km);
+    return `<div class="card">
+      <div class="field"><label>Kältemittel</label>
+        <div class="opts">${list.map(o => `<button class="btn ${km === o ? 'sel' : ''}" data-act="set" data-f="km" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+        <input id="in-km" data-f="km" data-other="1" placeholder="oder anderes Kältemittel eintippen …" value="${custom ? esc(km) : ''}" autocomplete="off"></div>
+      ${stepField(p, 'gwp', 'GWP-Wert', '', {hint:'Treibhauspotenzial', autoHint:'aus der Kältemittel-Liste', ph:''})}
+      ${stepField(p, 'menge', 'Füllmenge je Kältekreis', 'kg', {hint:'Typenschild Außengerät / Anlagenbuch'})}
+      ${stepField(p, 'kreise', 'Anzahl Kältekreise mit dieser Füllmenge', 'Kreise', {ph:'1', hint:`Richtzeit Dichtheitsprüfung ${fmtNum(p.stamm.t_dicht)} Min je Kreis${C.r290Key ? ` · R290-Prüfung ${fmtNum(p.stamm[C.r290Key])} Min je Kreis` : ''}`})}
+      ${segField(p, 'herm', 'Hermetisch geschlossen', C.hermAuto ? 'Vorschlag: Ja bei reinen Monoblock-Geräten' : 'Herstellerangabe – Prüfgrenze dann 10 t statt 5 t')}
+      ${segField(p, 'leck', 'Leckage-Erkennungssystem vorhanden', 'Prüfintervall verdoppelt sich')}
+    </div>
+    ${fgasHtml(calc(p).pr)}`;
+  },
+  p => `<h2>Material & Reinigungsmittel</h2>
+    <div class="card">${C.material.map(m => stepField(p, m.id, m.label, m.unit,
+      {hint:`${eur(p.stamm[m.price])} je ${m.unit}`, autoHint:m.auto ? m.autoHint(p.stamm) : ''})).join('')}</div>
+    <h2>Anfahrt & Erschwernis</h2>
+    <div class="card">
+      ${stepField(p, 'anfahrt', 'Anfahrtspauschale', '€ netto', {hint:'Fixbetrag'})}
+      ${stepField(p, 'erschwernis', C.erschwernisLabel, '€ netto', {hint:'Miete / Mehraufwand'})}
+    </div>
+    <h2>Sonderposition</h2>
+    <div class="card">
+      ${textField(p, 'sonderText', 'Bezeichnung', C.sonderPh)}
+      ${stepField(p, 'sonderPreis', 'Betrag', '€ netto')}
+    </div>`,
+  p => {
+    const stale = JSON.stringify(p.stamm) !== JSON.stringify(stammNow());
+    return `
+    ${stale ? `<div class="warnbox">Die Stammdaten (Stundensätze, Richtzeiten, Preise) wurden geändert, seit diese Kalkulation begonnen wurde. <button class="btn small" data-act="stammapply" style="margin-left:6px">Neue Stammdaten übernehmen</button></div>` : ''}
+    <div class="card" id="result">${resultHtml(p, calc(p))}</div>
+    <div class="card">
+      ${segField(p, 'pauschal', 'Pauschalangebot für den Kunden', 'Ja = PDF als „Angebot“ ohne Arbeitszeiten und Einzelpreise. Nein = interne Kalkulation.')}
+      <div class="field"><label for="in-bem">Bemerkungen (erscheinen im PDF)</label><textarea id="in-bem" data-f="bem" placeholder="z. B. Hinweise zum Zugang, Termin, Ausführung">${esc(p.values.bem || '')}</textarea></div>
+    </div>
+    <div class="warnbox"><b>Wichtig:</b> Die Kalkulation ist eine Orientierungshilfe und kann Berechnungs- oder Eingabefehler enthalten. Vor Weitergabe oder Angebotslegung auf Plausibilität, Richtigkeit und Vollständigkeit prüfen.</div>`;
+  }
+];
+function resultHtml(p, k){
+  return `<table><tbody>
+    <tr><td>Arbeitszeit Techniker</td><td class="num">${de(k.minRicht, 0)} Min (${hrs(k.minRicht)})</td></tr>
+    <tr><td>Einsatzdauer vor Ort · ${esc(k.team)}</td><td class="num">${hrs(k.dauer)}</td></tr>
+    <tr><td>Lohnkosten netto</td><td class="num">${eur(k.lohn)}</td></tr>
+    <tr><td>Material, Anfahrt & Nebenleistungen netto</td><td class="num">${eur(k.mat)}</td></tr>
+    <tr><td><b>Nettobetrag gesamt</b></td><td class="num"><b>${eur(k.netto)}</b></td></tr>
+    <tr><td>zzgl. ${fmtNum(k.S.mwst)} % MwSt.</td><td class="num">${eur(k.mwst)}</td></tr>
+    <tr class="tot"><td>Gesamtpreis brutto</td><td class="num">${eur(k.brutto)}</td></tr>
+  </tbody></table>`;
+}
+function pageDone(p, i){
+  const v = p.values;
+  if(i === 0) return !!(v.projekt || v.kunde);
+  if(i === 1) return C.geraete.some(g => n0(v[g.id]) > 0);
+  if(i === 2) return !!v.km;
+  if(i === 3) return C.material.some(m => n0(v[m.id]) > 0) || n0(v.anfahrt) > 0;
+  return false;
+}
+
+/* ===== identisch in google-apps-script/PdfDialog.html ===== */
+/* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Tabellen mit Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
+   Nimmt die Bericht-Datenstruktur von buildReport() unverändert entgegen (die App speichert sie auch im Sheet). */
+function reportParts(r){
+  const nl = s => esc(s).replace(/\n/g, '<br>');
+  // Großbuchstaben im Text statt per CSS: html2canvas stürzt sonst bei „ß“ ab (wird zu „SS“, Text wird länger)
+  const up = s => esc(String(s ?? '').toUpperCase());
+  const firmLines = String(r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '').split('\n').map(s => s.trim()).filter(Boolean);
+  let n = 0;
+  const h2 = title => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span></h2>`;
+  const kv = rows => `<dl class="kv">${rows.map(x => `<div${x.wide ? ' class="wide"' : ''}><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'}">${x.value ? nl(x.value) : '—'}</dd></div>`).join('')}</dl>`;
+  const table = t => `<table><colgroup>${t.widths.map(w => `<col style="width:${w}">`).join('')}</colgroup>
+    <thead><tr>${t.head.map((h, i) => `<th class="${t.cls[i] || ''}">${up(h)}</th>`).join('')}</tr></thead>
+    <tbody>${t.rows.map(row => `<tr class="${row.cls || ''}">${row.cells.map((c, i) => `<td class="${t.cls[i] || ''}">${nl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const blocks = [];
+  blocks.push({html:`<div class="status">${(r.tiles || []).map(t => `<div class="tile ${t.cls || ''}"><div class="lab">${up(t.lab)}</div><div class="val">${esc(t.val)}</div><div class="sub">${esc(t.sub || '')}</div></div>`).join('')}</div>`});
+  blocks.push({html:`<div class="sec">${h2('Projektdaten')}${kv(r.projekt || [])}</div>`});
+  const tsec = (title, t) => t && t.rows && t.rows.length
+    ? blocks.push({split:true, html:`<div class="sec">${h2(title)}${table(t)}</div>`})
+    : blocks.push({html:`<div class="sec">${h2(title)}<div class="none">Keine Positionen</div></div>`});
+  tsec('Leistungsumfang', r.leistung);
+  tsec('Material & Nebenleistungen', r.material);
+  blocks.push({html:`<div class="sec">${h2(r.kicker === 'ANGEBOT' ? 'Preis' : 'Kostenaufstellung')}${table(r.kosten)}</div>`});
+  if(r.km && r.km.length) blocks.push({html:`<div class="sec">${h2('Kältemittel & F-Gase-Prüfung')}${kv(r.km)}</div>`});
+  if(r.remark) blocks.push({html:`<div class="note"><b>${up('Bemerkungen')}</b>${nl(r.remark)}</div>`});
+  if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Hinweis.</b> ${esc(r.hinweis)}</p></div>`});
+  const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
+  const kick = r.kicker === 'ANGEBOT' ? 'Angebot' : 'Kalkulation';
+  return {
+    blocks,
+    head:`<div class="head"><div class="firm">${firm1}${firmLines.slice(1).map(s => `<span>${esc(s)}</span>`).join('')}</div>
+      <div class="doc"><div class="kicker">${up(r.kicker)}</div><h1>${esc(r.title)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id || '—')}</b>${r.datum ? ` · <b>${esc(r.datum)}</b>` : ''}</div></div></div>`,
+    smallHead:`<div class="head small"><div class="firm">${firm1}<span>${esc(r.kunde || '')}</span></div>
+      <div class="doc"><h1>${esc(kick + ' ' + r.title)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id || '—')}</b></div></div></div>`,
+    foot:esc(kick + ' ' + r.title) + (r.datum ? ' · ' + esc(r.datum) : ''), id:esc(r.id || '')
+  };
+}
+/* Verteilt die Blöcke auf A4-Seiten. host muss im Dokument hängen (Messung der Höhen). */
+function layoutReport(r, host){
+  const b = reportParts(r), pages = [];
+  let body;
+  const el = html => { const d = document.createElement('div'); d.innerHTML = html; return d.firstElementChild; };
+  const newPage = () => {
+    const pg = el(`<section class="page"><div class="page-body">${pages.length ? b.smallHead : b.head}</div><div class="pfoot"><span>${b.foot}</span><span class="pno"></span></div></section>`);
+    host.appendChild(pg); pages.push(pg); body = pg.firstElementChild;
+  };
+  const fits = () => body.scrollHeight <= body.clientHeight + 1;
+  host.innerHTML = '';
+  newPage();
+  b.blocks.forEach(blk => {
+    const node = el(blk.html);
+    body.appendChild(node);
+    if(fits()) return;
+    node.remove();
+    if(!blk.split){ newPage(); body.appendChild(node); return; }
+    // Tabelle zeilenweise verteilen; auf der Folgeseite Überschrift „(Fortsetzung)“ und Tabellenkopf wiederholen
+    const rows = [...node.querySelectorAll('tbody > tr')];
+    const shell = cont => { const s = node.cloneNode(true); s.querySelector('tbody').innerHTML = ''; if(cont) s.querySelector('.tt').textContent += ' (Fortsetzung)'; return s; };
+    let part = shell(false), placed = 0;
+    body.appendChild(part);
+    rows.forEach(tr => {
+      part.querySelector('tbody').appendChild(tr);
+      if(fits()){ placed++; return; }
+      tr.remove();
+      if(!placed) part.remove();
+      const cont = placed > 0;
+      newPage(); part = shell(cont); body.appendChild(part);
+      part.querySelector('tbody').appendChild(tr); placed = 1;
+    });
+  });
+  pages.forEach((p, i) => { p.querySelector('.pno').innerHTML = `${b.id ? b.id + ' · ' : ''}Seite ${i + 1} von ${pages.length}`; });
+  return pages;
+}
+async function reportFontsReady(){
+  try{ await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(`${w} 10pt "Plus Jakarta Sans"`, 'Kalkulation Äß 0123 €'))); await document.fonts.ready; }catch(e){}
+}
+/* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
+async function reportPdfBlob(r){
+  await reportFontsReady();
+  const box = document.createElement('div');
+  box.className = 'report flat';
+  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:220mm;background:#fff';
+  document.body.appendChild(box);
+  try{
+    const pages = layoutReport(r, box);
+    const pdf = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+    for(let i = 0; i < pages.length; i++){
+      const canvas = await html2canvas(pages[i], {scale:2, backgroundColor:'#ffffff', logging:false});
+      if(i) pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297);
+    }
+    return pdf.output('blob');
+  } finally {
+    box.remove();
+  }
+}
+/* ===== Ende identischer Teil ===== */
+
+function reportForView(){
+  if(view.db) return view.rep;
+  const p = calcs.find(x => x.id === view.id);
+  return p ? buildReport(p) : null;
+}
+/* Dateiname = Projektnummer (wie in Google Drive) */
+function pdfName(proj){ return String(proj || 'ohne-Projektnummer').replace(/[\/\\:*?"<>|]+/g, '-').trim(); }
+function isStandalone(){ return !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches; }
+
+/* ---------- PDF-Erzeugung (offline, ohne Druckdialog – iOS druckt in Home-Bildschirm-Apps nicht) ---------- */
+let lastPdf = null;   // {key, file, url}
+const viewKey = () => view.db ? 'db:' + view.key : 'loc:' + view.id;
+function pdfBarHtml(){
+  if(!lastPdf || lastPdf.key !== viewKey()) return '';
+  return `<button class="btn primary" data-act="sharepdf">Teilen / Drucken</button>
+    ${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+}
+/* Beim Synchronisieren: dasselbe PDF erzeugen und mitschicken – landet 1:1 in Google Drive */
+async function pdfBase64(p){
+  if(!window.jspdf || !window.html2canvas) return '';
+  try{
+    const blob = await reportPdfBlob(buildReport(p));
+    const dataUrl = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+    return String(dataUrl).split(',')[1] || '';
+  }catch(e){ return ''; }
+}
+
+function dbList(){
+  const q = (view.q || '').toLowerCase().trim();
+  const list = dbCache.list
+    .filter(e => !q || [e.projekt, e.kunde, e.standort, e.bearbeiter, e.datum, fmtDate(e.datum)].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+  if(!list.length) return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
+  return `<div class="card"><table>
+    <thead><tr><th>Datum</th><th>Projekt / Kunde</th><th class="num">Brutto</th><th></th></tr></thead>
+    <tbody>${list.map(e => `<tr>
+      <td>${esc(fmtDate(e.datum))}</td>
+      <td><b>${esc(e.projekt || '—')}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.standort, e.bearbeiter, e.pauschal === 'Ja' ? 'Angebot' : ''].filter(Boolean).join(' · '))}</span></td>
+      <td class="num">${isN(e.brutto) ? eur(num(e.brutto)) : ''}</td>
+      <td style="text-align:right;white-space:nowrap">${e.pdfUrl
+        ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
+        : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
+        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+/* ---------- Google-Sheet-Schnittstelle ---------- */
+async function api(action, data){
+  if(!settings.url) throw new Error('Keine Web-App-URL in den Einstellungen.');
+  const res = await fetch(settings.url, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},   // "simple request" → kein CORS-Preflight
+    body: JSON.stringify(Object.assign({token:settings.token, action}, data || {}))
+  });
+  let j;
+  try{ j = await res.json(); }catch(e){ throw new Error('Unerwartete Antwort – ist die Web-App für „Jeder“ freigegeben?'); }
+  if(!j.ok) throw new Error(j.error || 'Unbekannter Fehler');
+  return j;
+}
+let syncing = false;
+async function syncAll(silent){
+  if(syncing) return;
+  const list = calcs.filter(p => p.status === 'done' && !p.synced);
+  if(!list.length){ if(!silent) toast('Alles ist bereits im Google Sheet.'); return; }
+  if(!settings.url){ if(!silent) toast('Bitte zuerst die Web-App-URL in den Einstellungen eintragen.'); return; }
+  if(!navigator.onLine){ if(!silent) toast('Offline – wird automatisch übertragen, sobald Internet da ist.'); return; }
+  syncing = true;
+  let okCount = 0, err = null;
+  for(const p of list){
+    try{
+      await api('upsert', {
+        protocol: {id:p.id, templateId:C.id, values:p.values, manual:p.manual || {}, stamm:p.stamm, completedAt:p.completedAt, sourceKey:p.sourceKey || '',
+                   summary:{report:buildReport(p)}, pdf:await pdfBase64(p)},
+        cols: buildCols(p)
+      });
+      p.synced = true; p.syncedAt = new Date().toISOString(); save(); okCount++;
+    }catch(e){ err = e; break; }
+  }
+  syncing = false;
+  if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
+  else if(okCount) toast(`${okCount} Kalkulation(en) ins Google Sheet übertragen.`);
+  if(view.name === 'home' || view.name === 'report') render(); else updateNet();
+}
+
+/* ---------- Aktionen ---------- */
+function newCalc(values, stamm){
+  const p = {id:uid(), templateId:C.id, values, manual:{}, stamm:stamm || stammNow(), page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
+  applyAutos(p);
+  calcs.unshift(p); save();
+  return p;
+}
+const Actions = {
+  home(){ go('home'); },
+  settings(){ go('settings'); },
+  fragen(){ go('fragen'); },
+  info(){ go('info'); },
+  db(){ go('db', {q:view.q}); },
+  sync(){ syncAll(false); },
+
+  new(){
+    const values = Object.fromEntries(FIELDS.map(f => [f.id, '']));
+    values.datum = today(); values.bearbeiter = settings.techniker || ''; values.pauschal = 'Nein';
+    go('wizard', {id:newCalc(values).id});
+  },
+  copy(d){
+    const src = calcs.find(x => x.id === d.id);
+    const values = Object.assign({}, src.values, {projekt:'', datum:today(), bearbeiter:settings.techniker || src.values.bearbeiter || ''});
+    const p = newCalc(values);
+    p.manual = Object.assign({}, src.manual || {}); save();
+    toast('Kopie angelegt – bitte Projektnummer und Kunde anpassen.');
+    go('wizard', {id:p.id});
+  },
+  resume(d){ go('wizard', {id:d.id}); },
+  report(d){ go('report', {id:d.id}); },
+  reopen(d){
+    const p = calcs.find(x => x.id === d.id);
+    if(p.synced && !confirm('Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird die Zeile im Sheet aktualisiert.')) return;
+    p.status = 'draft'; p.synced = false; p.page = PAGES.length - 1; save();
+    go('wizard', {id:p.id});
+  },
+  del(d){
+    const p = calcs.find(x => x.id === d.id);
+    const msg = p.synced ? 'Kalkulation aus der App entfernen? (Sie bleibt im Google Sheet erhalten.)'
+      : p.status === 'done' ? 'ACHTUNG: Diese Kalkulation ist noch NICHT im Google Sheet. Wirklich endgültig löschen?' : 'Entwurf löschen?';
+    if(!confirm(msg)) return;
+    calcs = calcs.filter(x => x.id !== d.id); save(); render();
+  },
+
+  set(d){
+    const p = cur();
+    p.values[d.f] = p.values[d.f] === d.v ? '' : d.v;   // erneutes Tippen wählt ab
+    if(d.f === 'herm') p.manual.herm = true;
+    if(d.f === 'pauschal' && !p.values.pauschal) p.values.pauschal = 'Nein';
+    applyAutos(p); save(); render();
+  },
+  step(d){
+    const p = cur(), pos = POSBY[d.f];
+    const st = (pos && pos.step) || (['anfahrt', 'erschwernis', 'sonderPreis'].includes(d.f) ? 10 : d.f === 'menge' ? 0.1 : 1);
+    const x = round(Math.max(0, n0(p.values[d.f]) + Number(d.d) * st), 2);
+    p.values[d.f] = x ? fmtNum(x) : '';
+    if((pos && pos.auto) || d.f === 'gwp') p.manual[d.f] = true;
+    applyAutos(p); save(); render();
+  },
+  unauto(d){ const p = cur(); delete p.manual[d.f]; applyAutos(p); save(); render(); },
+  stammapply(){ const p = cur(); p.stamm = stammNow(); applyAutos(p); save(); render(); toast('Aktuelle Stammdaten übernommen.'); },
+  next(){ const p = cur(); if(p.page < PAGES.length - 1){ p.page++; save(); render(); window.scrollTo(0, 0); } },
+  prev(){ const p = cur(); if(p.page > 0){ p.page--; save(); render(); window.scrollTo(0, 0); } },
+  jump(d){ const p = cur(); p.page = Number(d.i); save(); render(); window.scrollTo(0, 0); },
+  finish(){
+    const p = cur();
+    applyAutos(p);
+    p.status = 'done'; p.completedAt = new Date().toISOString(); p.synced = false;
+    save();
+    go('report', {id:p.id});
+    syncAll(true);
+  },
+
+  async makepdf(d, btn){
+    if(!window.jspdf || !window.html2canvas){ toast('PDF-Modul nicht geladen – App einmal online neu starten.'); return; }
+    const r = reportForView();
+    const name = pdfName(r.id) + '.pdf';
+    btn.disabled = true; btn.textContent = 'PDF wird erstellt …';
+    try{
+      const blob = await reportPdfBlob(r);
+      if(lastPdf) URL.revokeObjectURL(lastPdf.url);
+      lastPdf = {key:viewKey(), file:new File([blob], name, {type:'application/pdf'}), url:URL.createObjectURL(blob)};
+      const bar = $('#pdfbar'); if(bar) bar.innerHTML = pdfBarHtml();
+      toast('PDF fertig – jetzt „Teilen / Drucken“ antippen.');
+    }catch(e){ toast('PDF konnte nicht erstellt werden: ' + e.message); }
+    finally{ btn.disabled = false; btn.textContent = 'PDF erstellen'; }
+  },
+  async sharepdf(){
+    if(!lastPdf) return;
+    const files = [lastPdf.file];
+    if(navigator.canShare && navigator.canShare({files})){
+      try{ await navigator.share({files, title:lastPdf.file.name}); }
+      catch(e){ if(e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message); }
+    } else {
+      window.open(lastPdf.url, '_blank');
+    }
+  },
+  print(){
+    const r = reportForView();
+    const old = document.title;
+    document.title = pdfName(r.id);
+    window.print();
+    setTimeout(() => { document.title = old; }, 1500);
+  },
+
+  async dbload(){
+    if(!navigator.onLine){ toast('Offline – zeige gespeicherten Stand.'); return; }
+    try{
+      toast('Lade Daten …');
+      const j = await api('list');
+      dbCache = {at:new Date().toISOString(), list:j.list};
+      LS.set(K('db'), dbCache);
+      toast(`${j.list.length} Einträge geladen.`);
+      render();
+    }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
+  },
+  async dbreport(d){
+    if(!navigator.onLine){ toast('Zum Öffnen einer Kalkulation aus dem Sheet wird Internet benötigt.'); return; }
+    try{ toast('Lade Kalkulation …'); const j = await api('get', {key:d.key}); go('report', {db:true, rep:j.report, key:d.key, q:view.q}); }
+    catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
+  },
+  async dbedit(d){
+    if(!navigator.onLine){ toast('Zum Laden aus dem Sheet wird Internet benötigt.'); return; }
+    try{
+      toast('Lade Kalkulation …');
+      const j = await api('load', {key:d.key});
+      const local = j.appId && calcs.find(x => x.id === j.appId);
+      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus dem Sheet ersetzen?')) return;
+      if(local && local.status === 'draft' && !confirm('Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus dem Sheet ersetzen?')) return;
+      const values = {};
+      FIELDS.forEach(f => {
+        let x = j.values ? j.values[f.id] : j.cols[f.col];
+        if(x == null) x = '';
+        if(typeof x === 'number') x = fmtNum(x);
+        values[f.id] = String(x);
+      });
+      if(j.values) POS.forEach(x => { if(j.values[x.id] != null) values[x.id] = String(j.values[x.id]); });
+      const p = {id:j.appId || uid(), templateId:C.id, values, manual:j.manual || Object.fromEntries(POS.filter(x => x.auto).map(x => [x.id, true])),
+                 stamm:Object.assign(stammNow(), j.stamm || {}), sourceKey:d.key, page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
+      if(!j.values) p.manual.gwp = true;
+      calcs = calcs.filter(x => x.id !== p.id);
+      calcs.unshift(p); save();
+      toast('Geladen – nach dem Bearbeiten erneut abschließen.');
+      go('wizard', {id:p.id});
+    }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
+  },
+  async drivepdf(){
+    try{
+      toast('PDF wird in Google Drive erstellt …');
+      const blob = await reportPdfBlob(reportForView());
+      const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
+      const j = await api('savepdf', {key:view.key, pdf:b64});
+      const e = dbCache.list.find(x => x.key === view.key); if(e){ e.pdfUrl = j.url; LS.set(K('db'), dbCache); }
+      toast('PDF in Google Drive gespeichert.');
+      window.open(j.url, '_blank');
+    }catch(e){ toast('Fehler: ' + e.message); }
+  },
+
+  savesettings(d){
+    settings.url = $('#s_url').value.trim();
+    settings.token = $('#s_token').value.trim();
+    settings.firma = $('#s_firma').value.trim();
+    settings.techniker = $('#s_tech').value.trim();
+    LS.set(K('settings'), settings);
+    if(d !== 'silent') toast('Gespeichert.');
+  },
+  async ping(){
+    Actions.savesettings('silent');
+    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); await loadStamm(true); render(); syncAll(true); }
+    catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
+  },
+  async stammload(){ if(await loadStamm(false)) render(); },
+  async stammsave(d, btn){
+    const err = $('#stammerr'), values = {}, bad = [];
+    document.querySelectorAll('[data-stamm]').forEach(el => {
+      const s = C.stamm.find(x => x.key === el.dataset.stamm), raw = el.value.trim();
+      el.style.borderColor = '';
+      if(typeof s.def === 'number'){
+        if(!isN(raw) || num(raw) < 0){ bad.push(s.label); el.style.borderColor = 'var(--bad)'; return; }
+        values[s.key] = {value:num(raw), label:s.label, unit:s.unit};
+      } else if(raw) values[s.key] = {value:raw, label:s.label, unit:s.unit};
+    });
+    if(bad.length){ err.textContent = 'Bitte eine gültige Zahl eintragen: ' + bad.join(', '); return; }
+    err.textContent = '';
+    if(!settings.url){ toast('Bitte zuerst die Web-App-URL eintragen und speichern.'); return; }
+    if(!navigator.onLine){ toast('Offline – Stammdaten können nur mit Internet gespeichert werden.'); return; }
+    btn.disabled = true; btn.textContent = 'Wird gespeichert …';
+    try{
+      const j = await api('setstamm', {values});
+      stammCache = {at:new Date().toISOString(), values:j.values || {}};
+      LS.set(K('stamm'), stammCache);
+      toast('Stammdaten im Google Sheet gespeichert ✓');
+      render();
+    }catch(e){ toast('Speichern fehlgeschlagen: ' + e.message); btn.disabled = false; btn.textContent = 'Im Sheet speichern'; }
+  },
+  backup(){
+    const data = JSON.stringify({app:C.id, exportedAt:new Date().toISOString(), calcs}, null, 1);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+    a.download = `${C.id}-backup-${today()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+};
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if(!b || b.disabled) return;
+  const fn = Actions[b.dataset.act];
+  if(fn){ e.preventDefault(); fn(b.dataset, b); }
+});
+app.addEventListener('input', e => {
+  const el = e.target;
+  if(el.dataset.f && view.name === 'wizard'){
+    const p = cur(), id = el.dataset.f;
+    p.values[id] = el.value;
+    if((POSBY[id] && POSBY[id].auto) || id === 'gwp') p.manual[id] = true;
+    if(el.dataset.other) document.querySelectorAll('[data-act=set][data-f="km"]').forEach(b => b.classList.toggle('sel', b.dataset.v === el.value));
+    applyAutos(p); save(); live();
+  } else if(el.id === 'dbsearch'){
+    view.q = el.value; $('#dblist').innerHTML = dbList();
+  }
+});
+app.addEventListener('change', e => {
+  const el = e.target;
+  if(el.id === 's_import' && el.files[0]){
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const d = JSON.parse(r.result);
+        if(!Array.isArray(d.calcs)) throw new Error('Keine gültige Backup-Datei');
+        const byId = new Map(calcs.map(p => [p.id, p]));
+        d.calcs.forEach(p => byId.set(p.id, p));
+        calcs = [...byId.values()]; save();
+        toast(`Backup importiert: ${d.calcs.length} Kalkulationen.`);
+      }catch(err){ toast('Import fehlgeschlagen: ' + err.message); }
+    };
+    r.readAsText(el.files[0]);
+  }
+});
+window.addEventListener('online', () => { updateNet(); loadStamm(true); syncAll(true); });
+window.addEventListener('offline', updateNet);
+
+/* ---------- Start ---------- */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+render();
+loadStamm(true).then(ok => { if(ok && view.name !== 'wizard') render(); });
+syncAll(true);
+</script>
+</body>
+</html>
