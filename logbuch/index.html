@@ -194,11 +194,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .report .legal{margin-top:4mm;display:grid;grid-template-columns:1fr;gap:1.4mm;font-size:6.9pt;color:var(--ink-2);line-height:1.4}
 .report .legal p{margin:0}
 .report .legal b{color:var(--ink)}
-.report .sign{display:grid;grid-template-columns:1fr 1fr;gap:12mm;margin-top:7mm}
-.report .sign>div{display:flex;flex-direction:column}
-.report .sign b{font-size:7pt;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
-.report .sign .space{display:block;height:30mm}
-.report .sign .cap{border-top:1px solid var(--ink-2);padding-top:1.2mm;font-size:7pt;color:var(--ink-3)}
 .report .sigbox{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:3mm}
 .report .sigbox .img{height:17mm;border-bottom:1px solid var(--ink-2);display:flex;align-items:flex-end}
 .report .sigbox img{max-height:16mm;max-width:100%}
@@ -986,10 +981,6 @@ function reportParts(r){
     const k = t.indexOf(': ');
     return `<p>${k > 0 && k < 80 ? `<b>${esc(t.slice(0, k))}.</b> ${esc(t.slice(k + 2))}` : esc(t)}</p>`;
   }).join('')}</div>`});
-  // Platz für Unterschrift und Firmenstempel (wird auf Papier ausgefüllt)
-  blocks.push({html:`<div class="sign">
-    <div><b>${up('Sachkundiger')}</b><span class="space"></span><span class="cap">Ort, Datum · Unterschrift / Stempel</span></div>
-    <div><b>${up('Betreiber')}</b><span class="space"></span><span class="cap">Ort, Datum · Unterschrift (Logbuch erhalten)</span></div></div>`});
 
   const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   return {
