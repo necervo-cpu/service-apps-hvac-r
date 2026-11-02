@@ -14,13 +14,13 @@ main{max-width:600px;margin:0 auto;padding:16px 20px}a{display:block;background:
 a span{display:block;font-weight:400;font-size:14px;color:var(--muted)}p{color:var(--muted);font-size:14px}</style></head>
 <body><header><span>Protokoll-Apps</span><button type="button" class="themebtn" id="themebtn">◐ Auto</button></header><main>
 <p>App antippen und in Safari über „Teilen → Zum Home-Bildschirm“ installieren.</p>
-<a href="logbuch/">Anlagenlogbuch<span>Logbuch für Kälteanlagen</span></a>
-<a href="wp/">WP-Service<span>Wartung Wärmepumpe</span></a>
-<a href="ibn/">Split-Klima IBN<span>Inbetriebnahme Split-Klima</span></a>
-<a href="kwl/">RLT / KWL<span>Wartung Lüftungsanlagen</span></a>
-<a href="klima/">Klima-Wartung<span>Wartung kältetechnischer Anlagen</span></a>
-<a href="kalk-klima/">Kalkulation Klima<span>Service- &amp; Wartungskalkulation Klimaanlagen</span></a>
-<a href="kalk-wp/">Kalkulation Wärmepumpe<span>Service- &amp; Wartungskalkulation Wärmepumpen</span></a>
-<a href="daikin/">Daikin Multisplit<span>Kombinationshilfe R32 Multisplit-Auslegung</span></a>
+<a href="anlagenlogbuch/">Anlagenlogbuch<span>Logbuch für Kälteanlagen</span></a>
+<a href="service-waermepumpe/">Service Wärmepumpe<span>Wartungsprotokoll Wärmepumpen</span></a>
+<a href="service-inbetriebnahme-split-klimaanlage/">Service Inbetriebnahme Split-Klimaanlage<span>Inbetriebnahmeprotokoll Split-Klimaanlagen</span></a>
+<a href="service-rlt-kwl-anlagen/">Service RLT- &amp; KWL-Anlagen<span>Wartung Lüftungsanlagen</span></a>
+<a href="service-klimaanlagenwartung/">Service Klimaanlagenwartung<span>Wartung kältetechnischer Anlagen</span></a>
+<a href="kalkulation-service-klimaanlage/">Kalkulation Service Klimaanlage<span>Service- und Wartungskalkulation Klimaanlagen</span></a>
+<a href="kalkulation-service-waermepumpe/">Kalkulation Service Wärmepumpe<span>Service- und Wartungskalkulation Wärmepumpen</span></a>
+<a href="auslegungstool-daikin-split-klimaanlage/">Auslegungstool Daikin Split-Klimaanlage<span>Kombinationshilfe für R32-Multisplit-Anlagen</span></a>
 </main><script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:'◐ Auto',hell:'☀ Hell',dunkel:'☾ Dunkel'};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t];b.setAttribute('aria-label','Darstellung: '+L[t]);}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
 </body></html>
