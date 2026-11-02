@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Daikin Multi">
+<meta name="apple-mobile-web-app-title" content="Daikin-Tool">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a1a1a">
 <meta name="color-scheme" content="light dark">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Daikin Multisplit-Auslegung</title>
+<title>Auslegungstool Daikin Split-Klimaanlage</title>
 <script src="lib/html2canvas.min.js" defer></script>
 <script src="lib/jspdf.umd.min.js" defer></script>
 <script src="daten.js"></script>
@@ -94,15 +94,13 @@ th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04
 </style>
 </head>
 <body>
-<header><h1 id="ttl">Daikin Multisplit-Auslegung</h1><span class="net" id="net">online</span><button class="btn" id="btnset">Einstellungen</button></header>
+<header><h1 id="ttl">Auslegungstool Daikin Split-Klimaanlage</h1><span class="net" id="net">online</span><button class="btn" id="btnset">Einstellungen</button></header>
 <div class="hinweis"><b>Hinweis:</b> Dies ist eine Kombinationshilfe zur ersten Prüfung. Die endgültige Kalkulation muss vor Angebot, Bestellung und Ausführung anhand der Daikin-Unterlagen geprüft werden.</div>
 <main id="app"></main>
 <div id="toast"></div>
 <script>
 'use strict';
 /* ====== Konfiguration ====== */
-const DEFAULT_SHEET_ID = '1SPjSEq0iHAORUKdgtEzh-2wsSQhVEPdDNKNGawYTpg0';   // Google-Sheet-ID der Datenbank (Daikin Multisplit Datenbank)
-const TABS = ['Aussengeraete', 'Anschluesse', 'Innengeraete', 'Kombination', 'Raumtypen', 'Zuschlaege', 'Einstellungen'];
 const KEY = { settings: 'dk.settings', projects: 'dk.projects', data: 'dk.data' };
 
 /* ====== Hilfen ====== */
@@ -118,8 +116,8 @@ function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('sh
 const E = window.Engine;
 
 /* ====== Zustand ====== */
-let settings = Object.assign({ sheetId: DEFAULT_SHEET_ID, firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
-if (!settings.sheetId) settings.sheetId = DEFAULT_SHEET_ID;
+let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
+delete settings.sheetId;
 try{ const g = localStorage.getItem('muther-theme'); if (g) settings.theme = g; }catch(e){}   // Darstellung gilt für alle Apps gemeinsam
 function applyTheme(){
   try{ localStorage.setItem('muther-theme', settings.theme || 'auto'); }catch(e){}
@@ -138,46 +136,12 @@ function newProject(){ return { id: uid(), nr: '', datum: today(), kunde: '', be
 const cur = () => projects.find(p => p.id === view.id);
 const saveProjects = () => LS.set(KEY.projects, projects);
 
-/* ====== Daten laden (Google Sheet → Zwischenspeicher → Ersatzdaten) ====== */
-function parseCsv(t){
-  const rows = []; let r = [], f = '', q = false;
-  for (let i = 0; i < t.length; i++){
-    const c = t[i];
-    if (q){ if (c === '"'){ if (t[i + 1] === '"'){ f += '"'; i++; } else q = false; } else f += c; }
-    else if (c === '"') q = true;
-    else if (c === ',') { r.push(f); f = ''; }
-    else if (c === '\n') { r.push(f); rows.push(r); r = []; f = ''; }
-    else if (c !== '\r') f += c;
-  }
-  if (f !== '' || r.length){ r.push(f); rows.push(r); }
-  const head = (rows.shift() || []).map(h => h.trim());
-  return rows.filter(x => x.some(v => v !== '')).map(x => Object.fromEntries(head.map((h, i) => [h, x[i] == null ? '' : x[i]])));
-}
-async function fetchSheet(id){
-  const D = {};
-  for (const tab of TABS){
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`);
-    if (!res.ok) throw new Error('Tabellenblatt „' + tab + '“ nicht lesbar');
-    D[tab] = parseCsv(await res.text());
-  }
-  if (!D.Aussengeraete.length || !D.Innengeraete.length) throw new Error('Sheet enthält keine Daten – ist es für „Jeder mit dem Link“ freigegeben?');
-  return D;
-}
-function loadLocal(){
-  const cache = LS.get(KEY.data, null);
-  if (cache && cache.D){ DB = E.normalize(cache.D); dataInfo = 'Google Sheet, Stand ' + new Date(cache.at).toLocaleString('de-DE'); }
-  else { DB = E.normalize(window.DATEN_SEED); dataInfo = 'Ersatzdaten in der App (Google Sheet noch nicht geladen)'; }
-}
-async function loadData(force){
-  if (!DB) loadLocal();
-  if (settings.sheetId && navigator.onLine){
-    try{
-      const D = await fetchSheet(settings.sheetId);
-      DB = E.normalize(D); const at = new Date().toISOString();
-      LS.set(KEY.data, { at, D }); dataInfo = 'Google Sheet, Stand ' + new Date(at).toLocaleString('de-DE');
-      if (force) toast('Daten aus dem Google Sheet aktualisiert.');
-    }catch(e){ if (force) toast('Sheet nicht erreichbar: ' + e.message + ' – es werden die gespeicherten Daten genutzt.'); }
-  } else if (force) toast(settings.sheetId ? 'Offline – gespeicherte Daten werden genutzt.' : 'Bitte zuerst die Sheet-ID eintragen.');
+/* ====== Daten laden ======
+   Alle Daikin-Werte stecken in daten.js (erzeugt aus daten/*.csv). Kein Google Sheet: neue Daikin-Werte kommen per App-Update. */
+function loadData(){
+  try{ localStorage.removeItem(KEY.data); }catch(e){}   // Zwischenspeicher aus der früheren Google-Sheet-Anbindung
+  DB = E.normalize(window.DATEN_SEED);
+  dataInfo = DB.ein.datenstand || 'Daikin-Daten in der App';
 }
 
 /* ====== Ansicht ====== */
@@ -203,14 +167,12 @@ function vSettings(){
   return `<div class="pagetitle">Einstellungen</div>
   <div class="card">
     <div><label>Firmenname (für das PDF)</label><input id="s_firma" value="${esc(settings.firma)}"></div><br>
-    <div><label>Bearbeiter (vorbelegt bei neuer Auslegung)</label><input id="s_bear" value="${esc(settings.bearbeiter)}"></div><br>
-    <div><label>Google-Sheet-ID der Datenbank</label><input id="s_sheet" value="${esc(settings.sheetId)}" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <div class="fhint">Der lange Text zwischen „/d/“ und „/edit“ in der Sheet-Adresse. Das Sheet muss für „Jeder mit dem Link: Betrachter“ freigegeben sein.</div></div>
+    <div><label>Bearbeiter (vorbelegt bei neuer Auslegung)</label><input id="s_bear" value="${esc(settings.bearbeiter)}"></div>
   </div>
   <div class="card"><label>Darstellung</label><select id="s_theme">${[['auto', 'Automatisch (wie Gerät)'], ['hell', 'Hell'], ['dunkel', 'Dunkel']].map(o => opt(o[0], settings.theme || 'auto', o[1])).join('')}</select>
     <div class="fhint">Das PDF bleibt immer hell.</div></div>
   <p class="muted">Datenstand: ${esc(dataInfo)}</p>
-  <div class="row"><button class="btn primary" data-act="saveset">Speichern &amp; Daten laden</button><button class="btn" data-act="back">Zurück</button></div>`;
+  <div class="row"><button class="btn primary" data-act="saveset">Speichern</button><button class="btn" data-act="back">Zurück</button></div>`;
 }
 
 function opt(v, sel, label){ return `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(label == null ? v : label)}</option>`; }
@@ -302,10 +264,11 @@ function detailHtml(x){
   if (x.errs.length) h += `<div class="errbox"><b>Nicht freigegeben:</b><ul>${x.errs.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
   else h += `<div class="okbox"><b>Freigegeben</b> – alle geprüften Daikin-Vorgaben sind eingehalten.</div>`;
   if (x.warns.length) h += `<div class="warnbox"><b>Hinweise:</b><ul>${uniq(x.warns).map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
-  h += `<div class="card" style="overflow-x:auto"><table><thead><tr><th>Raum</th><th>Gerät</th><th>kühlen / heizen kW</th><th>Anschluss</th><th>Rohr</th><th>Höhe</th><th>Min.-Fläche</th></tr></thead><tbody>${x.rows.map(r => `<tr>
-    <td>${r.i + 1}${r.room.name ? ' · ' + esc(r.room.name) : ''}</td><td>${r.unit ? esc(r.unit.modell) : '—'}</td><td>${r.unit ? fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw) + ' / ' + (r.unit.kwH != null ? fmt(r.unit.kwH) : '—') : '—'}</td>
+  h += `<div class="card" style="overflow-x:auto"><table><thead><tr><th>Raum</th><th>Gerät</th><th>Einzel kühlen / heizen kW</th><th>Multi kühlen / heizen kW</th><th>Anschluss</th><th>Rohr</th><th>Höhe</th><th>Min.-Fläche</th></tr></thead><tbody>${x.rows.map(r => `<tr>
+    <td>${r.i + 1}${r.room.name ? ' · ' + esc(r.room.name) : ''}</td><td>${r.unit ? esc(r.unit.modell) : '—'}</td><td>${r.unit ? fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw) + ' / ' + (r.unit.kwH != null ? fmt(r.unit.kwH) : '—') : '—'}</td><td>${r.mk != null ? '<b>' + fmt(r.mk, 2) + ' / ' + fmt(r.mh, 2) + '</b>' : '—'}</td>
     <td>${r.asg ? `${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? '<br><span class="muted">Red. ' + esc(r.asg.red) + '</span>' : ''}` : '—'}</td>
-    <td>${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}</td><td>${r.hoehe ? fmt(r.hoehe) + ' m' : '—'}</td><td>${r.amin ? fmt(Math.ceil(r.amin * 10) / 10) + ' m²' : 'keine'}</td></tr>`).join('')}</tbody></table></div>`;
+    <td>${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}</td><td>${r.hoehe ? fmt(r.hoehe) + ' m' : '—'}</td><td>${r.amin ? fmt(Math.ceil(r.amin * 10) / 10) + ' m²' : 'keine'}</td></tr>`).join('')}</tbody></table>
+    ${x.multi ? `<div class="fhint">Multi = Leistung je Raum, wenn alle Innengeräte gleichzeitig laufen (Nennwert). Quelle: ${esc(x.multi.quelle)}.${x.multi.vorl ? ' <b>Werte dieser Kombination laut Daikin vorläufig.</b>' : ''}</div>` : ''}</div>`;
   h += `<div class="card"><table><tbody>
     <tr><td>Summe Innengeräte</td><td><b>${fmt(x.sum)} kW</b> (max. ${fmt(x.sumMax)} kW)</td></tr>
     <tr><td>Rohrlänge gesamt</td><td><b>${x.total != null ? fmt(x.total) + ' m' : '—'}</b> (max. ${fmt(o.rohr_gesamt_max_m)} m, je Raum ${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m)</td></tr>
@@ -343,10 +306,11 @@ function reportHtml(p, x){
       [['Rohr je Raum', `${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m`], ['Rohr gesamt max.', fmt(o.rohr_gesamt_max_m) + ' m']],
       [['Höhe AG höher / niedriger', `${fmt(o.hoehe_ag_oben_m)} m / ${fmt(o.hoehe_ag_unten_m)} m`], ['Höhe IG–IG', `${fmt(o.hoehe_ig_ig_m)} m / ${fmt(o.hoehe_ig_ig_unten_m)} m`]]])}
     <div class="rsec">2. Räume und Innengeräte</div>
-    <table class="rgrid"><tr><th>Nr.</th><th>Raum</th><th>Fläche</th><th>Bedarf</th><th>Innengerät</th><th>Kl.</th><th>kühlen / heizen</th><th>Anschluss</th><th>Gas-Ø</th><th>Rohr</th><th>Höhe</th></tr>
+    <table class="rgrid"><tr><th>Nr.</th><th>Raum</th><th>Fläche</th><th>Bedarf</th><th>Innengerät</th><th>Kl.</th><th>Einzel kühl. / heiz.</th><th>Multi kühl. / heiz.</th><th>Anschluss</th><th>Gas-Ø</th><th>Rohr</th><th>Höhe</th></tr>
     ${x.rows.map(r => { const b = E.bedarfKw(r.room, DB); return `<tr><td>${r.i + 1}</td><td>${esc(r.room.name || '—')}</td><td>${r.room.flaeche ? esc(r.room.flaeche) + ' m²' : '—'}</td><td>${b != null ? fmt(b) + ' kW' : '—'}</td>
-      <td><b>${esc(r.unit.modell)}</b></td><td>${r.unit.klasse}</td><td>${fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw)} / ${r.unit.kwH != null ? fmt(r.unit.kwH) : '—'} kW</td><td>${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? ' + Red. ' + esc(r.asg.red) : ''}</td>
+      <td><b>${esc(r.unit.modell)}</b></td><td>${r.unit.klasse}</td><td>${fmt(r.unit.kwK != null ? r.unit.kwK : r.unit.kw)} / ${r.unit.kwH != null ? fmt(r.unit.kwH) : '—'} kW</td><td>${r.mk != null ? '<b>' + fmt(r.mk, 2) + ' / ' + fmt(r.mh, 2) + ' kW</b>' : '—'}</td><td>${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? ' + Red. ' + esc(r.asg.red) : ''}</td>
       <td>Ø${fmt(gasDia(r))}</td><td>${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}</td><td>${r.hoehe ? fmt(r.hoehe) + ' m' : '0 m'}</td></tr>`; }).join('')}</table>
+    ${x.multi ? `<div style="font-size:10px;color:#555;margin-top:3px">Multi = Leistung je Raum bei gleichzeitigem Betrieb aller Innengeräte (Nennwert). Quelle: ${esc(x.multi.quelle)}.${x.multi.vorl ? ' Werte dieser Kombination laut Daikin vorläufig.' : ''}</div>` : ''}
     <div class="rsec">3. Leitungen und Kältemittel</div>
     ${grid([[['Rohrlänge gesamt', x.total != null ? fmt(x.total) + ' m' : '—'], ['Flüssigkeitsleitung', 'Ø6,35 mm je Innengerät']],
       [['Zusätzliches R32', x.extra != null ? fmt(x.extra) + ' kg (ab ' + fmt(o.nachfuell_ab_m) + ' m, ' + fmt(o.nachfuell_kg_je_m * 1000, 0) + ' g/m)' : '—'], ['R32 gesamt', x.charge != null ? fmt(x.charge, 2) + ' kg (Werk ' + fmt(o.werk_kg, 2) + ' kg)' : '—']]])}
@@ -428,10 +392,9 @@ const Act = {
       try{ await navigator.share({ files, title: lastPdf.file.name }); } catch (e){ if (e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message); }
     } else window.open(lastPdf.url, '_blank');
   },
-  async saveset(){
+  saveset(){
     settings.theme = $('#s_theme').value; applyTheme(); settings.firma = $('#s_firma').value.trim(); settings.bearbeiter = $('#s_bear').value.trim();
-    const id = $('#s_sheet').value.trim(); const m = id.match(/\/d\/([A-Za-z0-9_-]+)/); settings.sheetId = m ? m[1] : id;
-    LS.set(KEY.settings, settings); toast('Lade Daten …'); await loadData(true); go('list');
+    LS.set(KEY.settings, settings); toast('Einstellungen gespeichert.'); go('list');
   }
 };
 document.addEventListener('click', e => {
@@ -462,8 +425,7 @@ window.addEventListener('offline', () => { $('#net').textContent = 'offline'; $(
 if (!navigator.onLine){ $('#net').textContent = 'offline'; $('#net').classList.add('off'); }
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-loadLocal(); render();
-loadData(false).then(() => { if (view.name === 'list') render(); });
+loadData(); render();
 </script>
 </body>
 </html>

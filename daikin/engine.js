@@ -40,8 +40,16 @@
       komb[m] = new Set(odus.filter(o => String(r[o] || '').trim().toLowerCase() === 'x'));
     });
     const ein = {}; (D.Einstellungen || []).forEach(r => ein[r.schluessel] = r.wert);
+    // Leistung je Raum im Multi-Betrieb (Daikin-Kombinationstabellen), Schlüssel: Außengerät|Klassen aufsteigend, z. B. 2MXM40A|20+35
+    const multi = {};
+    (D.Multileistung || []).forEach(r => {
+      const id = String(r.aussengeraet || '').trim(), kb = String(r.kombination || '').trim(); if (!id || !kb) return;
+      const col = p => 'abcde'.split('').map(x => num(r[p + x])).filter(v => v != null);
+      multi[id + '|' + kb] = { k: col('kuehlen_'), h: col('heizen_'), kNom: num(r.kuehlen_nom_kw), kMax: num(r.kuehlen_max_kw),
+        hNom: num(r.heizen_nom_kw), hMax: num(r.heizen_max_kw), vorl: String(r.vorlaeufig).trim() === '1', quelle: r.quelle || '' };
+    });
     return {
-      odu, ports, ig, komb, ein,
+      odu, ports, ig, komb, ein, multi,
       raumtypen: (D.Raumtypen || []).map(r => ({ name: r.raumtyp, w: num(r.kuehllast_w_je_m2) })),
       zuschlaege: (D.Zuschlaege || []).map(r => ({ name: r.bezeichnung, f: num(r.faktor) }))
     };
@@ -172,12 +180,30 @@
     }
     out.total = total; out.extra = extra; out.charge = charge;
 
+    // Leistung je Raum im Multi-Betrieb laut Daikin-Kombinationstabelle. Steht die Klassen-Kombination dort nicht, ist sie nicht freigegeben.
+    let ml = null;
+    if (units.length && units.length === n) {
+      const cls = units.map(u => u.klasse).sort((a, b) => a - b);
+      ml = DB.multi[odu.id + '|' + cls.join('+')] || null;
+      if (ml && ml.k.length === n) ml = Object.assign({}, ml, { pos: units.map(u => cls.indexOf(u.klasse)) });
+      else {
+        if (Object.keys(DB.multi).some(k => k.startsWith(odu.id + '|')))
+          errs.push(`Kombination ${cls.map(c => de(c / 10)).join(' + ')} ist in der Daikin-Kombinationstabelle für ${odu.id} nicht enthalten.`);
+        ml = null;
+      }
+    }
+    out.multi = ml;
+
     // 6) R32-Mindestfläche je Raum (Innengeräte ohne Leckagesensor)
     const mA = charge != null ? charge : odu.werk_kg;
     act.forEach((a, i) => {
       const amin = a.unit ? minFlaeche(mA, a.unit.montage) : null;
       const f = num(a.room.flaeche);
-      out.rows.push({ i, room: a.room, unit: a.unit, asg: asg ? asg[units.indexOf(a.unit)] : null, amin, laenge: L[i], hoehe: H[i] });
+      const ui = a.unit ? act.slice(0, i).filter(x => x.unit).length : -1, mk = ml && ui >= 0 ? ml.k[ml.pos[ui]] : null, mh = ml && ui >= 0 ? ml.h[ml.pos[ui]] : null;
+      out.rows.push({ i, room: a.room, unit: a.unit, asg: asg ? asg[ui] : null, amin, laenge: L[i], hoehe: H[i], mk, mh });
+      const need = bedarfKw(a.room, DB);
+      if (mk != null && need != null && mk + 1e-9 < need)
+        warns.push(`Raum ${i + 1}${a.room.name ? ' (' + a.room.name + ')' : ''}: im Multi-Betrieb nur ${de(mk)} kW Kühlleistung – Bedarf ${de(need)} kW.`);
       if (a.unit && amin && f != null && f < amin - 1e-9)
         errs.push(`Raum ${i + 1}${a.room.name ? ' (' + a.room.name + ')' : ''}: Fläche ${f} m² < R32-Mindestfläche ${Math.ceil(amin * 10) / 10} m² (${a.unit.montage}gerät, Füllmenge ${r1(mA)} kg).`);
       else if (a.unit && amin && f == null) warns.push(`Raum ${i + 1}: Fläche fehlt – R32-Mindestfläche ${Math.ceil(amin * 10) / 10} m² nicht geprüft.`);

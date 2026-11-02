@@ -1,6 +1,6 @@
-﻿{
-  "name": "Daikin Multisplit-Auslegung",
-  "short_name": "Daikin Multi",
+{
+  "name": "Auslegungstool Daikin Split-Klimaanlage",
+  "short_name": "Daikin-Tool",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

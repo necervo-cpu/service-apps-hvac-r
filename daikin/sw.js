@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html/engine.js/daten.js die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
-const CACHE = 'daikin-multi-v15';
+const CACHE = 'daikin-multi-v21';
 const ASSETS = ['./', './index.html', './engine.js', './daten.js', './manifest.json', './icon-180.png', './icon-512.png',
                 './lib/jspdf.umd.min.js', './lib/html2canvas.min.js'];
 
