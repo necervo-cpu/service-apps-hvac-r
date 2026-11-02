@@ -12,30 +12,41 @@
 <script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
 <title>Anlagenlogbuch</title>
 <script src="lib/html2canvas.min.js" defer></script>
 <script src="lib/jspdf.umd.min.js" defer></script>
 <style>
 /* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
    Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
-:root{--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-soft:#faf6dc;
+:root{--t-fast:150ms;--t-med:260ms;--t-exit:180ms;--out:cubic-bezier(.2,.8,.2,1);--in:cubic-bezier(.4,0,1,1);--flash:rgba(220,204,75,.5);--gold-dark:#c4b53e;--gold-text:#8b7a1b;--hbg:#fff8d6;--hfg:#4a3f00;--ebd:#f1b5b5;--efg:#7a1414;--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-soft:#faf6dc;
   --ok:#1e7a46;--bad:#b42318;--na:#8a8989;--warn:#8a5a00;--ctl:#fff;--bdg:#eceae3;--okbg:#e6f4ec;--okbd:#b6dcc4;--okfg:#14532d;--ebg:#fdecea;--wbg:#fdf3d6;--wbd:#e6d98a;--wfg:#4a3d00;--calc:#eef2f7;--sheet:#e9e7e1;--k1:#f4f3ef;--fwbd:#ecd28a;--fwfg:#5a3d00}
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}}
 :root[data-theme=dark] .opts .btn.sel,:root[data-theme=dark] .seg .btn.sel.neutral{border-color:var(--gold)}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .opts .btn.sel,:root:not([data-theme=light]) .seg .btn.sel.neutral{border-color:var(--gold)}}
-.themebtn{appearance:none;-webkit-appearance:none;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:99px;font:inherit;font-size:13px;font-weight:600;padding:4px 10px;min-height:30px;cursor:pointer;white-space:nowrap}
+:root[data-theme=dark]{--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}}
+.themebtn{font-size:18px;line-height:1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--gold)}
-header h1{font-size:19px;margin:0;flex:1;cursor:pointer}
-.net{font-size:13px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.14);white-space:nowrap}
-.net.off{background:var(--bad)}
-main{max-width:940px;margin:0 auto;padding:16px 16px calc(48px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;border-bottom:3px solid var(--gold);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;font-weight:700;font-size:17px;flex:none}
+header .tt{flex:1;min-width:0;line-height:1.2;cursor:pointer}header .tt h1{display:block;font-size:16px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header .tt span{display:block;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{appearance:none;-webkit-appearance:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);border:0;display:grid;place-items:center;color:#fff;flex:none;padding:0;cursor:pointer;font:inherit}
+.ib{transition:transform var(--t-fast) var(--out),background var(--t-fast)}.ib:active{transform:scale(.94);background:rgba(255,255,255,.22)}
+.ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.net{display:inline-flex;align-items:center;font-size:12px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18);white-space:nowrap;flex:none}
+.net .nd{width:8px;height:8px;border-radius:50%;background:#4cc27f;margin-right:5px;flex:none}
+.net.off{background:var(--bad)}.net.off .nd{background:#fff}
+/* Seitenübergang: seitlich verschobene Seite darf keinen waagerechten Bildlauf erzeugen */
+.stage{overflow-x:hidden;overflow-x:clip}
+main{max-width:940px;margin:0 auto;padding:10px 16px calc(48px + env(safe-area-inset-bottom))}
 .btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--ctl);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-weight:600;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
-.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--gold);border-color:var(--pri2);color:var(--ink)}
+.btn{position:relative;transition:transform var(--t-fast) var(--out),filter var(--t-fast)}
+.btn:active{transform:scale(.97);filter:brightness(.96)}
+.btn.primary{background:var(--gold);border-color:var(--pri2);color:#1a1a1a}
 .btn.danger{color:var(--bad)}
 .btn.small{min-height:38px;padding:6px 12px;font-size:15px}
 .btn:disabled{opacity:.45}
@@ -50,8 +61,24 @@ textarea{min-height:90px;resize:vertical}
 .badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--ebg);color:var(--bad)}.badge.warn{background:var(--wbg);color:var(--warn)}
 .muted{color:var(--muted)}
 .warnbox{background:var(--gold-soft);border:1px solid var(--wbd);border-left:5px solid var(--gold);color:var(--wfg);padding:12px 14px;border-radius:12px;margin:12px 0}
-.progress{height:8px;background:var(--bdg);border-radius:99px;overflow:hidden;margin:8px 0 14px}
-.progress>div{height:100%;background:var(--gold);transition:width .2s}
+.progress{height:8px;background:var(--bdg);border-radius:99px;overflow:hidden;margin:8px 0 10px}
+.progress>div{height:100%;background:var(--gold);transition:width var(--t-med) var(--out)}
+.info{display:flex;gap:8px;align-items:center;background:var(--hbg);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:8px 12px;font-size:12.5px;line-height:1.3;color:var(--ink)}
+.errbox{background:var(--ebg);border:1px solid var(--ebd);color:var(--efg);padding:12px 14px;border-radius:12px;margin:12px 0}
+.okbox{background:var(--okbg);border:1px solid var(--okbd);color:var(--okfg);padding:12px 14px;border-radius:12px;margin:12px 0}
+/* Schrittanzeige (Kopfbereich unter dem Header, bleibt beim Schrittwechsel stehen) */
+#stepwrap{max-width:940px;margin:0 auto;padding:12px 16px 0}
+#stepwrap[hidden]{display:none}
+.steplab{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted)}
+.steplab>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.steplab b{color:var(--ink)}
+.steps{display:flex;gap:4px;margin:0 0 6px}
+.steps>*{flex:1;min-width:0;text-align:center;font:inherit;font-size:13px;font-weight:600;padding:9px 0;min-height:38px;border-radius:10px;border:1px solid var(--line);color:var(--muted);background:var(--card);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;appearance:none;-webkit-appearance:none}
+.steps button{transition:transform var(--t-fast) var(--out)}.steps button:active{transform:scale(.97)}
+.steps .done{background:var(--okbg);border-color:var(--okbd);color:var(--ok)}
+.steps .on{background:var(--pri);color:#fff;border-color:var(--pri)}
+:root[data-theme=dark] .steps .on{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .steps .on{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}}
+@media(max-width:700px){.steps .sl{display:none}}
 .pagetitle{font-size:26px;font-weight:700;margin:2px 0 4px;line-height:1.2}
 .pagehint{color:var(--muted);margin:0 0 6px}
 /* Felder */
@@ -81,12 +108,6 @@ textarea{min-height:90px;resize:vertical}
 .autonote{font-size:13px;color:var(--muted);margin-top:6px}
 .autonote.man{color:var(--warn)}
 @media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
-.navbar{display:flex;gap:12px;margin-top:20px}
-.navbar .btn{flex:1;min-height:60px;font-size:18px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:24px}
-.chip{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--ctl);font:inherit;font-weight:600;font-size:14px;cursor:pointer;padding:0 10px;color:var(--ink)}
-.chip.done{background:var(--okbg);border-color:var(--okbd);color:var(--ok)}
-.chip.cur{outline:3px solid var(--gold);outline-offset:1px}
 table{width:100%;border-collapse:collapse}
 td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -100,17 +121,52 @@ canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
 a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
 input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:.25s;z-index:20;max-width:90vw;text-align:center;pointer-events:none}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out);z-index:20;max-width:90vw;text-align:center;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Feste Leiste unten (Zurück / Weiter / Speichern / PDF) */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+.bar[hidden]{display:none}
+.bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
+.bar .btn{flex:1;min-height:52px;border-radius:13px;font-weight:700;font-size:15px}
+.bar .btn.primary{border-color:var(--gold-dark)}
+body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+/* PDF-Knopf mit Fortschritt */
+.bar .btn.pdfb{overflow:hidden}
+.pdfb .fill{position:absolute;inset:0;background:rgba(0,0,0,.14);transform:scaleX(0);transform-origin:left;transition:transform 220ms linear;pointer-events:none}
+.pdfb .l1,.pdfb .l2,.pdfb .lr{display:flex;align-items:center;gap:6px;position:relative;transition:opacity var(--t-fast),transform var(--t-fast) var(--out)}
+.pdfb .l2,.pdfb .lr{position:absolute;opacity:0;transform:translateY(8px)}
+.pdfb.run .l1,.pdfb.done .l1{opacity:0;transform:translateY(-8px)}
+.pdfb.run .lr{opacity:1;transform:none}.pdfb.done .lr{opacity:0}
+.pdfb.done .l2{opacity:1;transform:none}
+.bar .btn.pdfb.done{background:#1e8e4e;border-color:#1e8e4e;color:#fff}
+.pdfb.done .fill{opacity:0}
+/* Wert wechselt: kurzes Aufleuchten */
+.flash{animation:flash 900ms var(--out)}
+@keyframes flash{from{background-color:var(--flash)}}
+/* Seitenwechsel zwischen den Schritten */
+.pg-out-fwd{animation:pgoutf var(--t-exit) var(--in) forwards}.pg-out-back{animation:pgoutb var(--t-exit) var(--in) forwards}
+.pg-in-fwd{animation:pginf var(--t-med) var(--out) both}.pg-in-back{animation:pginb var(--t-med) var(--out) both}
+@keyframes pgoutf{to{transform:translateX(-22%);opacity:0}}@keyframes pgoutb{to{transform:translateX(22%);opacity:0}}
+@keyframes pginf{from{transform:translateX(100%);opacity:0}}@keyframes pginb{from{transform:translateX(-100%);opacity:0}}
+/* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
+.entering .stag{opacity:0;transform:translateY(12px);animation:up var(--t-med) var(--out) forwards;animation-delay:calc(var(--i)*70ms + 120ms)}
+@keyframes up{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.001ms!important;transition-delay:0ms!important;animation-duration:.001ms!important;animation-delay:0ms!important}.entering .stag{opacity:1;transform:none}}
 /* ===== Handy-Layout ===== */
-/* iPhone: Datumsfeld nimmt sonst nicht die volle Breite ein */
-@supports(-webkit-touch-callout:none){input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:50px;text-align:left}}
-/* Schmale Bildschirme (iPhone hochkant): kompakter Kopf, Tabellen als Karten, Zurück/Weiter unten fest */
+/* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;min-height:50px;height:50px;text-align:left;margin:0}
+input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0;margin:0}
+input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
+/* Schmale Bildschirme (iPhone hochkant): Status kompakt, Tabellen als Karten */
+@media(max-width:480px){
+  .net:not(.off) .nt,.net:not(.off) .sep,.net .nl{display:none}
+  .net:not(.off) .nd{margin-right:0}.net:not(.off) .np{margin-left:5px}
+  .ib{width:40px;height:40px}header{gap:8px}header .tt h1{font-size:15px}
+}
 @media(max-width:600px){
-  header{padding-left:12px;padding-right:12px;gap:8px}
-  header h1{font-size:15px;line-height:1.2;min-width:0;overflow-wrap:anywhere}   /* langer App-Name darf auf 2 Zeilen umbrechen */
-  .net{font-size:12px;padding:2px 8px}
-  main{padding-left:12px;padding-right:12px}
+  header{padding-left:12px;padding-right:12px}
+  main,#stepwrap{padding-left:12px;padding-right:12px}
   .card{padding:12px 14px;border-radius:14px}
   .pagetitle{font-size:22px}
   .card>table thead{display:none}
@@ -119,9 +175,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
   .card>table tr:last-child{border-bottom:0}
   .card>table td{border:0;padding:2px 0;text-align:left!important;white-space:normal!important}
   .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
-  .navbar{position:sticky;bottom:0;z-index:4;background:var(--bg);margin:20px -12px 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
-  .navbar .btn{min-height:52px;font-size:17px}
-  #toast{bottom:calc(96px + env(safe-area-inset-bottom))}
 }
 /* ===== Ende Handy-Layout ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
@@ -209,9 +262,10 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .report td.sigc .small{display:block}
 /* ===== Ende Bericht-CSS ===== */
 @media print{
-  header,.noprint,#toast{display:none!important}
+  header,.noprint,#toast,.bar,#stepwrap{display:none!important}
   html,body{background:#fff}
-  main{max-width:none;padding:0}
+  main{max-width:none;padding:0!important}
+  .stage{overflow:visible}
   .sheetwrap{background:none;padding:0;border-radius:0}
   .report{zoom:1!important}
   .report .page{box-shadow:none;margin:0;break-after:page}
@@ -220,8 +274,12 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 </style>
 </head>
 <body>
-<header><h1 data-act="home">Anlagenlogbuch</h1><span id="net" class="net"></span><button type="button" class="themebtn" id="themebtn">◐ Auto</button></header>
-<main id="app"></main>
+<header><div class="logo">L</div><div class="tt" id="ttl" data-act="home"><h1>Anlagenlogbuch</h1><span id="hsub">Logbücher</span></div><span id="net" class="net"></span>
+<button type="button" class="ib themebtn" id="themebtn" aria-label="Darstellung wechseln"></button>
+<button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></header>
+<div id="stepwrap" hidden></div>
+<div class="stage"><main id="app"></main></div>
+<div class="bar" id="bar" hidden></div>
 <div id="toast"></div>
 
 <script>
@@ -421,6 +479,11 @@ function fmtNum(n){ return String(n).replace('.', ','); }
 const isVis = (f, v) => !f.show || f.show(v);
 let toastTimer;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500); }
+/* Bewegung reduzieren (Systemeinstellung) und kurzes Aufleuchten eines geänderten Werts */
+const RM = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+function flash(el){ if(!el || RM()) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+let calcSeen = {};   // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
+function calcTouch(id, text, el, quiet){ const k = view.id + ':' + (view.eid || '') + ':' + id; if(!quiet && k in calcSeen && calcSeen[k] !== text) flash(el); calcSeen[k] = text; }
 const doneEntries = p => p.entries.filter(e => e.status === 'done').sort((a, b) => String(a.values.datum).localeCompare(String(b.values.datum)));
 
 /* ---------- Bearbeitungs-Kontext: Stammdaten oder ein Eintrag eines Logbuchs ---------- */
@@ -524,12 +587,113 @@ function summaryCols(p){
 
 /* ---------- Navigation ---------- */
 let view = {name:'home'};
-function go(name, params){ view = Object.assign({name}, params || {}); render(); window.scrollTo(0, 0); }
+let enterNext = false, enterT = null, navBusy = false, pdfBusy = null, pdfProg = 0, pdfTick = null, hsubAnim = null;
+function go(name, params){
+  const was = view.name;
+  view = Object.assign({name}, params || {});
+  if(name === 'wizard' && was !== 'wizard') calcSeen = {};
+  enterNext = name === 'wizard';   // Karten beim Betreten gestaffelt einblenden
+  render(); window.scrollTo(0, 0);
+}
 function render(){
+  const enter = enterNext; enterNext = false;
   app.innerHTML = (Views[view.name] || Views.home)();
+  if(!navBusy){   // Klassen nur zurücksetzen, wenn gerade kein Seitenübergang läuft
+    app.className = enter && !RM() ? 'entering' : '';
+    clearTimeout(enterT);
+    if(enter) enterT = setTimeout(() => { if(!navBusy) app.classList.remove('entering'); }, 900);
+  }
+  setHeader(true);
   if(view.name === 'report') showReport();
   initSigs();
+  touchAutos();
+  setSteps(); setBar();
   updateNet();
+}
+/* Auto-Felder der aktuellen Seite: Werte merken (Aufleuchten erst bei späterer Änderung) */
+function touchAutos(){
+  const c = view.name === 'wizard' && ctx(); if(!c) return;
+  c.tpl.pages[c.obj.page].fields.filter(f => f.type === 'auto').forEach(f => { const el = $('#in-' + f.id); if(el) calcTouch(f.id, el.value, el); });
+}
+/* Kopf: Unterzeile = Logbuch-Nr. · Betreiber (im Formular / Logbuch / Bericht), sonst Bereichsname */
+function hsubText(){
+  const p = ['wizard', 'book'].includes(view.name) || (view.name === 'report' && !view.db) ? book() : null;
+  if(p){
+    const eP = view.name === 'wizard' && view.eid ? p.entries.find(x => x.id === view.eid) : null;
+    return (p.values.projekt || 'ohne Logbuch-Nr.') + (betrText(p.values) ? ' · ' + betrText(p.values) : '') + (eP ? ' · Eintrag ' + (fmtDate(eP.values.datum) || 'neu') : '');
+  }
+  if(view.name === 'report' && view.db && view.rep) return view.rep.id || 'Logbuch';
+  return view.name === 'settings' ? 'Einstellungen' : view.name === 'db' ? 'Datenbank / alle Logbücher' : 'Logbücher';
+}
+function setHeader(animate){
+  const hs = $('#hsub'), t = hsubText();
+  if(hsubAnim){ hsubAnim.cancel(); hsubAnim = null; }
+  const changed = hs.textContent !== t;
+  hs.textContent = t;
+  if(animate && changed && !RM() && hs.animate) hsubAnim = hs.animate([{opacity:0, transform:'translateY(6px)'}, {opacity:.75, transform:'none'}], {duration:260, easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+/* Schrittanzeige: bleibt beim Schrittwechsel im DOM stehen (Balken gleitet, Punkte wechseln nur die Klasse) */
+function setSteps(){
+  const w = $('#stepwrap'), c = view.name === 'wizard' ? ctx() : null;
+  if(!c){ w.hidden = true; w.dataset.pid = ''; return; }
+  const pages = c.tpl.pages, n = pages.length, i = c.obj.page, key = view.id + ':' + (view.eid || ''), fresh = w.dataset.pid !== key;
+  if(fresh){
+    w.dataset.pid = key;
+    w.innerHTML = `<div class="steplab"><span id="stlab"></span><button class="btn small" data-act="pause">Pause</button></div>
+      <div class="progress"><div id="stbar" style="width:0"></div></div>
+      <div class="steps">${pages.map((x, k) => `<button type="button" data-act="jump" data-i="${k}" aria-label="Schritt ${k + 1}: ${esc(x.title)}">${k + 1}<span class="sl"> ${esc(x.short)}</span></button>`).join('')}</div>`;
+  }
+  const wasHidden = w.hidden; w.hidden = false;
+  if(fresh || wasHidden) void w.offsetWidth;
+  $('#stlab').innerHTML = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
+  $('#stbar').style.width = Math.round((i + 1) / n * 100) + '%';
+  w.querySelectorAll('.steps button').forEach((b, k) => {
+    b.classList.toggle('done', k !== i && pageDone(c, k) && !pages[k].final);
+    b.classList.toggle('on', k === i);
+    if(k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+}
+/* Feste Leiste unten */
+function barHtml(){
+  if(view.name === 'wizard'){
+    const c = ctx(); if(!c) return '';
+    const i = c.obj.page, pg = c.tpl.pages[i];
+    return `<div><button class="btn" data-act="prev"${i === 0 ? ' disabled' : ''}>← Zurück</button>${pg.final ? `<button class="btn primary" data-act="finish">${view.eid ? 'Eintrag speichern ✓' : 'Logbuch speichern ✓'}</button>` : '<button class="btn primary" data-act="next">Weiter →</button>'}</div>`;
+  }
+  if(view.name === 'report' && reportForView()){
+    const run = pdfBusy === viewKey();
+    return `<div><button class="btn" style="flex:.6" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+  }
+  return '';
+}
+function setBar(){
+  const b = $('#bar'), h = barHtml();
+  b.innerHTML = h; b.hidden = !h; document.body.classList.toggle('hasbar', !!h);
+}
+/* Schrittwechsel: alte Seite gleitet weg (0,18 s), Zustand ändern + neu zeichnen, neue Seite gleitet herein (0,26 s).
+   Doppeltipp während des Übergangs wird ignoriert (navBusy). Animation-Klassen werden danach vollständig entfernt
+   (wichtig für die Unterschrift-Felder: Koordinaten werden live per getBoundingClientRect gelesen). */
+function stepTo(dir, change){
+  if(navBusy) return;
+  const vid = view.id, veid = view.eid;
+  if(RM() || !app.animate){ change(); render(); window.scrollTo(0, 0); return; }
+  navBusy = true;
+  app.className = 'pg-out-' + dir;
+  setTimeout(() => {
+    let ok = false;
+    try{
+      if(view.name !== 'wizard' || view.id !== vid || view.eid !== veid){ app.className = ''; return; }
+      change(); render(); window.scrollTo(0, 0);
+      const cls = 'pg-in-' + dir + ' entering';
+      clearTimeout(enterT);
+      app.className = cls;
+      ok = true;
+      setTimeout(() => { navBusy = false; }, 300);
+      setTimeout(() => { if(app.className === cls) app.className = ''; }, 900);
+    } finally {
+      if(!ok){ navBusy = false; if(/pg-/.test(app.className)) app.className = ''; }   // Fehler oder Abbruch: App bleibt bedienbar
+    }
+  }, 180);
 }
 /* Bericht seitenweise (A4) anzeigen – auf schmalen Bildschirmen verkleinert */
 async function showReport(){
@@ -543,8 +707,10 @@ async function showReport(){
 function updateNet(){
   const n = books.filter(p => p.status === 'done' && !p.synced).length;
   const el = $('#net');
-  el.className = 'net' + (navigator.onLine ? '' : ' off');
-  el.textContent = (navigator.onLine ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
+  const on = navigator.onLine;
+  el.className = 'net' + (on ? '' : ' off');
+  el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl"> ausstehend</span>` : ''}`;
+  el.title = (on ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
 }
 const anlageText = v => [v.typ, v.sn && 'S/N ' + v.sn].filter(Boolean).join(' · ');
 const betrText = v => v.bFirma || v.bName || '';
@@ -616,25 +782,17 @@ const Views = {
   wizard(){
     const c = ctx();
     if(!c) return '<p>Nicht gefunden.</p>';
-    const pages = c.tpl.pages, i = c.obj.page, pg = pages[i], n = pages.length;
+    const pg = c.tpl.pages[c.obj.page];
     const allYes = pg.fields.some(f => f.allYes && !c.obj.values[f.id]);
-    const what = view.eid ? `Eintrag ${fmtDate(c.obj.values.datum)}` : 'Anlagendaten';
     return `
-      <div class="row between"><span class="muted">${esc(c.p.values.projekt || '')} · ${esc(what)} · Schritt ${i + 1} von ${n}</span><button class="btn small" data-act="pause">Pause</button></div>
-      <div class="progress"><div style="width:${Math.round((i + 1) / n * 100)}%"></div></div>
-      <div class="row between"><div class="pagetitle">${esc(pg.title)}</div><div class="row">
+      <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div><div class="row">
         ${pg.btn ? `<button class="btn small" data-act="${pg.btn.act}">${esc(pg.btn.label)}</button>` : ''}
         ${allYes ? '<button class="btn small" data-act="allyes">Offene Prüfpunkte auf Ja</button>' : ''}</div></div>
-      ${pg.hint ? `<p class="pagehint">${esc(pg.hint)}</p>` : ''}
-      ${pg.fields.some(f => !f.sigName) ? `<div class="card">${fieldsHtml(pg, c)}</div>` : ''}
+      ${pg.hint ? `<p class="pagehint stag" style="--i:0">${esc(pg.hint)}</p>` : ''}
+      ${pg.fields.some(f => !f.sigName) ? `<div class="card stag" style="--i:1">${fieldsHtml(pg, c)}</div>` : ''}
       ${pg.final ? finalHtml(c) : ''}
       ${pg.sign ? sigHtml(c) : ''}
-      <div class="err" id="pageerr"></div>
-      <div class="navbar">
-        <button class="btn" data-act="prev" ${i === 0 ? 'disabled' : ''}>← Zurück</button>
-        ${pg.final ? `<button class="btn primary" data-act="finish">${view.eid ? 'Eintrag speichern ✓' : 'Logbuch speichern ✓'}</button>` : `<button class="btn primary" data-act="next">Weiter →</button>`}
-      </div>
-      <div class="chips">${pages.map((x, k) => `<button class="chip ${pageDone(c, k) && !x.final ? 'done' : ''} ${k === i ? 'cur' : ''}" data-act="jump" data-i="${k}">${k + 1} ${esc(x.short)}</button>`).join('')}</div>`;
+      <div class="err" id="pageerr"></div>`;
   },
 
   report(){
@@ -643,14 +801,12 @@ const Views = {
     const p = !view.db && book();
     return `
       <div class="row noprint" style="margin-bottom:12px">
-        <button class="btn" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">← Zurück</button>
-        <button class="btn primary" data-act="makepdf">PDF erstellen</button>
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
         ${!isStandalone() ? '<button class="btn" data-act="print">Drucken</button>' : ''}
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
         ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
       </div>
-      <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen / Drucken“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
+      <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
   },
 
@@ -776,7 +932,7 @@ function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg
 const sigOwner = () => view.eid || 'book';
 function sigHtml(c){
   const v = c.obj.values, nameF = c.tpl.pages[c.obj.page].fields.find(f => f.sigName), sk = view.eid ? v.sk : v.iSk;
-  return `<h2>Unterschriften</h2><div class="card"><div class="sigs">
+  return `<h2>Unterschriften</h2><div class="card stag" style="--i:3"><div class="sigs">
     <div><label>Unterschrift Sachkundiger${sk ? ' (' + esc(sk) + ')' : ''}</label>
       <div class="sigwrap"><canvas class="sig" data-sig="sk"></canvas></div>
       <button class="btn small" data-act="sigclear" data-sig="sk">Unterschrift löschen</button></div>
@@ -836,13 +992,13 @@ function applySigs(p, files, data){
 
 function finalHtml(c){
   const missing = c.tpl.pages.slice(0, -1).map((pg, k) => [k, pageErrors(c, k)]).filter(x => x[1].length);
-  const warn = missing.length ? `<div class="warnbox"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing.map(([k, errs]) =>
+  const warn = missing.length ? `<div class="warnbox stag" style="--i:2"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing.map(([k, errs]) =>
     `<li><a class="jump" data-act="jump" data-i="${k}">${esc(c.tpl.pages[k].title)}</a>: ${errs.map(e => esc(e[0].label)).join(', ')}</li>`).join('')}</ul></div>` : '';
   if(!view.eid) return warn;
   // Übersicht: in welche Tabellen des Logbuchs dieser Eintrag kommt
   const ec = entryCols(c.obj);
   const tabs = LISTS.filter(l => l.need.some(k => ec[k])).map(l => l.title);
-  return `${warn}<div class="card"><b>Dieser Eintrag erscheint im Logbuch unter:</b>
+  return `${warn}<div class="card stag" style="--i:3"><b>Dieser Eintrag erscheint im Logbuch unter:</b>
     ${tabs.length ? `<ul>${tabs.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '<p class="muted">Noch nichts ausgefüllt – bitte mindestens Dichtheitsprüfung, Wartung, Kältemittel, Mangel oder Ergänzung eintragen.</p>'}
     ${c.obj.values.dicht === 'nicht erfüllt' ? '<div class="warnbox" style="margin-bottom:0">Dichtheitsanforderung nicht erfüllt: Undichtigkeit beheben und die Reparatur mit einer erneuten Dichtheitsprüfung (in der Regel innerhalb eines Monats) als eigenen Eintrag dokumentieren.</div>' : ''}</div>`;
 }
@@ -1076,8 +1232,7 @@ const viewKey = () => view.db ? 'db:' + view.key : 'loc:' + view.id;
 function pdfBarHtml(){
   if(!lastPdf || lastPdf.key !== viewKey()) return '';
   // „Öffnen“ nur im normalen Browser – in der Home-Bildschirm-App gäbe es keinen Weg zurück
-  return `<button class="btn primary" data-act="sharepdf">Teilen / Drucken</button>
-    ${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+  return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
 }
 const blobB64 = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = rej; fr.readAsDataURL(blob); });
 /* Beim Synchronisieren: dasselbe PDF erzeugen und mitschicken – landet 1:1 in Google Drive */
@@ -1273,14 +1428,18 @@ const Actions = {
     const c = ctx();
     if(pageErrors(c, c.obj.page).length){
       view.tried = true; render();
-      $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.';
+      $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.'; toast('Bitte die markierten Felder prüfen.');
       const first = document.querySelector('.field.err'); if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
       return;
     }
-    c.obj.page++; save(); view.tried = false; render(); window.scrollTo(0, 0);
+    stepTo('fwd', () => { c.obj.page++; save(); view.tried = false; });
   },
-  prev(){ const c = ctx(); if(c.obj.page > 0){ c.obj.page--; save(); view.tried = false; render(); window.scrollTo(0, 0); } },
-  jump(d){ const c = ctx(); c.obj.page = Number(d.i); save(); view.tried = true; render(); window.scrollTo(0, 0); },
+  prev(){ const c = ctx(); if(c.obj.page > 0) stepTo('back', () => { c.obj.page--; save(); view.tried = false; }); },
+  jump(d){
+    const c = ctx(), t = Number(d.i);
+    if(t === c.obj.page){ view.tried = true; render(); window.scrollTo(0, 0); return; }
+    stepTo(t > c.obj.page ? 'fwd' : 'back', () => { c.obj.page = t; save(); view.tried = true; });
+  },
   finish(){
     const c = ctx();
     recompute(c.obj, c.tpl, c.L);
@@ -1294,24 +1453,43 @@ const Actions = {
     if(!view.eid) c.p.entries.forEach(e => { if(e.status === 'done') recompute(e, EINTRAG, c.p.values); });   // z. B. neues Prüfintervall
     c.p.synced = false;
     save();
+    const wasEntry = !!view.eid;
     go('book', {id:c.p.id});
-    toast(view.eid ? 'Eintrag gespeichert.' : 'Logbuch gespeichert.');
+    toast(wasEntry ? 'Eintrag gespeichert.' : 'Logbuch gespeichert.');
     syncAll(true);
   },
 
   async makepdf(d, btn){
     if(!window.jspdf || !window.html2canvas){ toast('PDF-Modul nicht geladen – App einmal online neu starten.'); return; }
+    if(btn && btn.classList.contains('done')) return;   // Doppelstart verhindern
     const r = reportForView();
-    const name = pdfName(r.id) + '.pdf';
-    btn.disabled = true; btn.textContent = 'PDF wird erstellt …';
+    if(!r) return;
+    const name = pdfName(r.id) + '.pdf', key = viewKey();
+    if(pdfBusy){ toast(pdfBusy !== key ? 'Es wird gerade ein anderes PDF erstellt …' : 'PDF wird noch erstellt …'); return; }   // gleicher Bericht: Doppelstart still verhindern
+    const cb = () => $('#bar .pdfb');   // immer der aktuell im DOM befindliche Knopf (die Leiste wird bei Neuzeichnen neu gebaut)
+    const setP = v => { pdfProg = v; const f = viewKey() === key ? $('#bar .pdfb .fill') : null; if(f) f.style.transform = 'scaleX(' + v + ')'; };
+    pdfBusy = key; setP(.05); { const b = cb(); if(b) b.classList.add('run'); }
+    // Fortschritt ist geschätzt (der gemeinsame PDF-Code meldet keinen): nähert sich 92 %, springt bei Fertigstellung auf 100 %
+    pdfTick = setInterval(() => setP(pdfProg + (.92 - pdfProg) * .07), 250);
     try{
       const blob = await reportPdfBlob(r);
+      clearInterval(pdfTick); setP(1);
+      await new Promise(res => setTimeout(res, RM() ? 0 : 240));
       if(lastPdf) URL.revokeObjectURL(lastPdf.url);
-      lastPdf = {key:viewKey(), file:new File([blob], name, {type:'application/pdf'}), url:URL.createObjectURL(blob)};
-      const bar = $('#pdfbar'); if(bar) bar.innerHTML = pdfBarHtml();
-      toast('PDF fertig – jetzt „Teilen / Drucken“ antippen.');
+      lastPdf = {key, file:new File([blob], name, {type:'application/pdf'}), url:URL.createObjectURL(blob)};
+      pdfBusy = null;
+      if(view.name === 'report' && viewKey() === key){
+        const bar = $('#pdfbar'); if(bar) bar.innerHTML = pdfBarHtml();
+        setBar();   // baut Leiste neu auf (mit Teilen-Knopf) -> neuen Knopf in den Fertig-Zustand setzen
+        const nb = cb();
+        if(nb){ nb.classList.remove('run'); nb.classList.add('done'); setTimeout(() => nb.classList.remove('done'), 2600); }
+      }
+      toast('PDF fertig – jetzt „Teilen“ antippen.');
     }catch(e){ toast('PDF konnte nicht erstellt werden: ' + e.message); }
-    finally{ btn.disabled = false; btn.textContent = 'PDF erstellen'; }
+    finally{
+      clearInterval(pdfTick); pdfBusy = null; pdfProg = 0;
+      const b = cb(); if(b && !b.classList.contains('done')){ b.classList.remove('run'); setP(0); }
+    }
   },
   async sharepdf(){
     if(!lastPdf) return;
@@ -1415,7 +1593,7 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if(!b || b.disabled) return;
   const fn = Actions[b.dataset.act];
-  if(fn){ e.preventDefault(); fn(b.dataset, b); }
+  if(fn){ e.preventDefault(); if(navBusy) return; fn(b.dataset, b); }   // während eines Seitenübergangs Tipps ignorieren
 });
 app.addEventListener('input', e => {
   const el = e.target;
@@ -1424,10 +1602,12 @@ app.addEventListener('input', e => {
     v[f.id] = el.value;
     if(f.type === 'auto') v['_m_' + f.id] = el.value !== '';
     recompute(c.obj, c.tpl, c.L); save();
+    setHeader(false);   // Kopf-Unterzeile mitführen (kein Neuzeichnen)
+    if(f.type === 'auto') calcTouch(f.id, el.value, el, true);
     // abhängige Auto-Felder dieser Seite live nachführen (nicht das Feld, in dem gerade getippt wird)
     c.tpl.pages[c.obj.page].fields.filter(a => a.type === 'auto').forEach(a => {
       const ie = $('#in-' + a.id), ne = $('#note-' + a.id);
-      if(ie && ie !== el) ie.value = v[a.id] || '';
+      if(ie && ie !== el){ ie.value = v[a.id] || ''; calcTouch(a.id, ie.value, ie); }
       if(ne) ne.innerHTML = autoNote(a, c);
     });
   } else if(el.id === 'dbsearch'){
@@ -1468,6 +1648,6 @@ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().c
 render();
 syncAll(true);
 </script>
-<script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:'◐ Auto',hell:'☀ Hell',dunkel:'☾ Dunkel'};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t];b.setAttribute('aria-label','Darstellung: '+L[t]);}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
+<script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:['◐','Auto'],hell:['☀','Hell'],dunkel:['☾','Dunkel']};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t][0];b.title='Darstellung: '+L[t][1];b.setAttribute('aria-label','Darstellung: '+L[t][1]+' (tippen zum Wechseln)');}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
 </body>
 </html>
