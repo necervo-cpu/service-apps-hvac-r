@@ -181,7 +181,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
 .report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
   --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .report *{box-sizing:border-box}
 .report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
   display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
@@ -207,6 +207,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
+.report .tile .pill{margin-left:-2mm;display:inline-block}
+.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
 .report .pill.ok{color:var(--ok);background:var(--ok-bg)}.report .pill.bad{color:var(--bad);background:var(--bad-bg)}.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
 .report .sec{margin-top:4.5mm}
 .report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
@@ -348,9 +350,11 @@ const TEMPLATE = {
     ]},
     {title:'Elektrik, Schutzorgane & Absicherung', pdfTitle:'Elektrisches System & Sicherheitseinrichtungen', short:'Elektrik', fields:[
       {id:'uAg', col:'Netzspannung Außeneinheit (V)', label:'Netzspannung Außeneinheit', pdf:'Netzspannung AG', type:'number', unit:'V', req:true, min:195, max:440, ph:'230'},
+      {id:'uAgSt', col:'Netzspannung Außeneinheit Steuerstrom (V)', label:'Netzspannung Außeneinheit Steuerstrom', pdf:'Netzspannung AG Steuerstrom', type:'number', unit:'V', min:0, max:440, ph:'230', hint:'EVU-Sperre / Steuerstrom; leer lassen, wenn nicht vorhanden'},
       {id:'uIg', col:'Netzspannung Inneneinheit (V)', label:'Netzspannung Inneneinheit', pdf:'Netzspannung IG', type:'number', unit:'V', req:true, min:195, max:440, ph:'230'},
       {id:'uHs', col:'Netzspannung Heizstab (V)', label:'Netzspannung Heizstab', type:'number', unit:'V', min:0, max:440, ph:'400', hint:'0, falls kein Heizstab verbaut'},
       {id:'fAg', col:'Absicherung Außeneinheit (A)', label:'Absicherung Außeneinheit', pdf:'Sicherung AG', type:'text', req:true, ph:'z. B. B16'},
+      {id:'fAgSt', col:'Absicherung Außeneinheit Steuerstrom (A)', label:'Absicherung Außeneinheit Steuerstrom', pdf:'Sicherung AG Steuerstrom', type:'text', ph:'z. B. B10'},
       {id:'fIg', col:'Absicherung Inneneinheit (A)', label:'Absicherung Inneneinheit', pdf:'Sicherung IG', type:'text', req:true, ph:'z. B. B16'},
       {id:'fHs', col:'Absicherung Heizstab (A)', label:'Absicherung Heizstab', pdf:'Sicherung Heizstab', type:'text', ph:'z. B. B16', hint:'Leer lassen, wenn kein Heizstab verbaut ist'},
       {id:'rcd', col:'RCD-Typ / FI-Schutz', label:'RCD-Typ / FI-Schutz', pdf:'RCD-Schutz', type:'select',
@@ -393,6 +397,9 @@ const TEMPLATE = {
       {id:'tEin', col:'Lufteinlasstemperatur (°C)', label:'Lufteinlasstemperatur', type:'number', unit:'°C', req:true, min:-30, max:50, ph:'15'},
       {id:'tAus', col:'Luftauslasstemperatur (°C)', label:'Luftauslasstemperatur', type:'number', unit:'°C', req:true, min:-35, max:45, ph:'10'},
       {id:'dT', label:'Luft-Spreizung ΔT', type:'calc', unit:'K', calc:v => isN(v.tEin) && isN(v.tAus) ? round(num(v.tEin) - num(v.tAus), 1) : ''},
+      {id:'tVl', col:'Vorlauftemperatur (°C)', label:'Vorlauftemperatur', type:'number', unit:'°C', min:0, max:80, ph:'35'},
+      {id:'tRl', col:'Rücklauftemperatur (°C)', label:'Rücklauftemperatur', type:'number', unit:'°C', min:0, max:80, ph:'30'},
+      {id:'dTw', col:'Spreizung VL-RL (K)', label:'Spreizung VL–RL', type:'calc', unit:'K', calc:v => isN(v.tVl) && isN(v.tRl) ? round(num(v.tVl) - num(v.tRl), 1) : ''},
       {id:'i1', col:'Betriebsstrom L1 (A)', label:'Stromaufnahme L1', type:'number', unit:'A', req:true, min:0, max:32, hint:'Strommesszange, Kompressor unter Volllast'},
       {id:'i2', col:'Betriebsstrom L2 (A)', label:'Stromaufnahme L2', type:'number', unit:'A', min:0, max:32, hint:'0 A bei 1-phasiger Versorgung'},
       {id:'i3', col:'Betriebsstrom L3 (A)', label:'Stromaufnahme L3', type:'number', unit:'A', min:0, max:32, hint:'0 A bei 1-phasiger Versorgung'}
@@ -495,7 +502,7 @@ function buildReport(p){
     title: TEMPLATE.title, firma: settings.firma || '',
     header: rowsOf(TEMPLATE.pages[0]),
     sections: TEMPLATE.pages.filter(pg => !pg.header && !pg.final).map(pg => ({title:pg.pdfTitle || pg.title, kind:pg.kind || 'grid', rows:rowsOf(pg)})),
-    defects: defects(p), success: v.erfolg || '', betrieb: v.betrieb || '', remark: v.bem || '',
+    defects: defects(p), dpv: v.dpv || '', co2: isN(v.co2) ? num(v.co2) : '', success: v.erfolg || '', betrieb: v.betrieb || '', remark: v.bem || '',
     techniker: v.monteur || '', kundeName: p.kundeName || '', id: v.projekt || p.id, completedAt: p.completedAt || ''
   };
 }
@@ -787,12 +794,6 @@ function finalHtml(p){
           <div class="sigwrap"><canvas class="sig" data-sig="tech"></canvas></div>
           <button class="btn small" data-act="sigclear" data-sig="tech">Unterschrift löschen</button>
         </div>
-        <div>
-          <label>Unterschrift Kunde (optional)</label>
-          <div class="sigwrap"><canvas class="sig" data-sig="kunde"></canvas></div>
-          <input data-kname="1" placeholder="Name des Kunden" value="${esc(p.kundeName || '')}" style="margin-bottom:8px">
-          <button class="btn small" data-act="sigclear" data-sig="kunde">Unterschrift löschen</button>
-        </div>
       </div>
     </div>`;
 }
@@ -833,18 +834,30 @@ function reportParts(r){
     return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(x.value || '—')}</span></div>`; }).join('')}</div>` : '';
   const blocks = [];
 
-  // Kacheln: Ergebnis · Auffälligkeiten · Nächste Wartung (bzw. Datum)
+  // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
   const res = String(r.success || ''), good = res === 'Ja' || res === 'i.O.', bad = !!res && !good;
   const subs = String(r.subline || (r.betrieb ? 'Betriebszustand: ' + r.betrieb : '')).split(' · ').filter(Boolean);
-  const next = subs.find(s => /^Nächste Wartung:/.test(s)), other = subs.filter(s => s !== next);
   const defects = r.defects || [];
+  // Datum für die Kacheln einheitlich TT.MM.JJJJ (Eingang: „31.8.2026“, „31.08.2026“ oder „2026-08-31“)
+  const p2 = x => String(x).padStart(2, '0');
+  const dm = String(stand || '').match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) || String(stand || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const y0 = dm ? +(dm[1].length === 4 ? dm[1] : dm[3]) : 0, mo0 = dm ? +dm[2] - 1 : 0, d0 = dm ? +(dm[1].length === 4 ? dm[3] : dm[1]) : 0;
+  const tileDate = dm ? `${p2(d0)}.${p2(mo0 + 1)}.${y0}` : (stand || '');
+  // Nächste Wartung: Dichtheitsprüfung vorgeschrieben → Intervall nach CO₂-Äquivalent (ab 5 t [hermetisch 10 t] 12 Monate, ab 50 t 6, ab 500 t 3), sonst Wartungsdatum + 12 Monate
+  const nextDue = (() => {
+    if(!dm) return {date:'', sub:''};
+    const co2 = parseFloat(String(r.co2 ?? '').replace(',', '.')), dp = r.dpv === 'Ja';
+    if(dp && !(co2 > 0)) return {date:'', sub:'CO₂-Äquivalent fehlt'};
+    const months = dp ? (co2 >= 500 ? 3 : co2 >= 50 ? 6 : 12) : 12;
+    const t = mo0 + months, y = y0 + Math.floor(t / 12), mo = t % 12;
+    const d = Math.min(d0, new Date(y, mo + 1, 0).getDate());
+    return {date:`${p2(d)}.${p2(mo + 1)}.${y}`, sub: dp ? `Dichtheitsprüfung alle ${months} Monate` : 'jährliche Wartung'};
+  })();
   blocks.push({html:`<div class="status">
     <div class="tile ${good ? 'ok' : bad ? 'bad' : ''}"><div class="lab">${up(r.resultLabel || 'Wartung erfolgreich')}</div><div class="val">${esc(res || '—')}</div>
-      <div class="sub">${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}</div></div>
-    <div class="tile"><div class="lab">${up('Auffälligkeiten')}</div><div class="val">${defects.length}</div><div class="sub">${esc(defects.length ? defects[0] + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '') : 'keine')}</div></div>
-    <div class="tile primary">${next
-      ? `<div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(next.replace(/^Nächste Wartung:\s*/, ''))}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`
-      : `<div class="lab">${up('Datum')}</div><div class="val">${esc(datum || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`}</div>
+      <div class="sub">${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}</div></div>
+    <div class="tile"><div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(nextDue.date || '—')}</div><div class="sub">${esc(nextDue.sub)}</div></div>
+    <div class="tile primary"><div class="lab">${up('Wartungsdatum')}</div><div class="val">${esc(tileDate || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div></div>
   </div>`});
 
   // Auftrags- und Anlagendaten
@@ -869,9 +882,11 @@ function reportParts(r){
   blocks.push({html:`<div class="note"><b>${up(r.remarkLabel || 'Bemerkungen / Mängel')}</b>${r.remark ? nl(r.remark) : '—'}</div>`});
   if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Betreiberhinweis.</b> ${esc(r.hinweis)}</p></div>`});
   const sig = r.sig || {}, img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
+  // Kundenblock nur, wenn ein altes Protokoll bereits eine Kundenunterschrift enthält
+  const kImg = img(sig.kunde);
   blocks.push({html:`<div class="sign">
-    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>
-    <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div></div>`});
+    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>${kImg
+      ? `<div><b>${up('Kunde / Betreiber')}</b><span class="space">${kImg}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div>` : ''}</div>`});
 
   const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
@@ -921,7 +936,7 @@ function layoutReport(r, host){
   return pages;
 }
 async function reportFontsReady(){
-  try{ await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(`${w} 10pt "Plus Jakarta Sans"`, 'Wartung Äß 0123'))); await document.fonts.ready; }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
 }
 /* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
 async function reportPdfBlob(r){
@@ -1291,8 +1306,6 @@ app.addEventListener('input', e => {
       ce.textContent = t; calcTouch(c.id, t, ce);
       if(c.note) $('#note-' + c.id).textContent = c.note(p.values);
     });
-  } else if(el.dataset.kname){
-    cur().kundeName = el.value; save();
   } else if(el.id === 'dbsearch'){
     view.q = el.value; $('#dblist').innerHTML = dbList();
   }

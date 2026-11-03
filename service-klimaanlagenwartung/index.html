@@ -198,7 +198,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
 .report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
   --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .report *{box-sizing:border-box}
 .report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
   display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
@@ -224,6 +224,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
+.report .tile .pill{margin-left:-2mm;display:inline-block}
+.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
 .report .pill.ok{color:var(--ok);background:var(--ok-bg)}.report .pill.bad{color:var(--bad);background:var(--bad-bg)}.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
 .report .sec{margin-top:4.5mm}
 .report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
@@ -493,6 +495,25 @@ let calcSeen = {};   // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei ec
 function calcTouch(id, text, el){ const k = view.id + ':' + id; if(k in calcSeen && calcSeen[k] !== text) flash(el); calcSeen[k] = text; }
 
 /* ---------- Werte, Prüfung, Bewertung ---------- */
+/* „Nächste Wartung fällig“ vorbelegen (Datum + 12 Monate; Dichtheitsprüfung ab 5 t: 12/6/3 Monate). Nur solange das Feld leer ist oder noch den letzten Vorschlag enthält. */
+function nextDueOf(v){   // Datum, '' (kein Datum) oder null (Dichtheitsprüfung, aber CO₂-Äquivalent fehlt → kein Vorschlag möglich)
+  const m = String(v.datum || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return '';
+  const fg = String(v.fgas || '').trim();
+  if(!isN(v.co2) && (fg === 'i.O.' || fg === 'n.i.O.')) return null;
+  const co2 = isN(v.co2) ? num(v.co2) : 0, months = co2 >= 500 ? 3 : co2 >= 50 ? 6 : 12;
+  const t = +m[2] - 1 + months, y = +m[1] + Math.floor(t / 12), mo = t % 12;
+  const d = Math.min(+m[3], new Date(y, mo + 1, 0).getDate()), p2 = x => String(x).padStart(2, '0');
+  return `${p2(d)}.${p2(mo + 1)}.${y}`;
+}
+/* p.nextAuto: letzter Vorschlag; null = Nutzer hat das Feld selbst geleert (dann nicht mehr vorbelegen). Eigene Werte bleiben immer unberührt. */
+function autoNext(p){
+  const v = p.values, cur = String(v.next || '');
+  if(cur === '' ? p.nextAuto === null : cur !== p.nextAuto) return;
+  const n = nextDueOf(v);
+  if(n){ v.next = n; p.nextAuto = n; }
+  else if(cur !== ''){ v.next = ''; p.nextAuto = ''; }   // Vorschlag veraltet und nicht mehr berechenbar → entfernen
+}
 function recompute(p){ ALL_FIELDS.forEach(f => { if(f.type === 'calc') p.values[f.id] = f.calc(p.values); }); }
 function display(f, x){
   if(x === '' || x == null) return '';
@@ -565,7 +586,7 @@ function buildReport(p){
     header: rowsOf(TEMPLATE.pages[0].fields),
     sections: TEMPLATE.pages.filter(pg => !pg.header && !pg.final).flatMap(pg => pg.evap
       ? Array.from({length:vaCount(v)}, (_, k) => section(pg, DEV_FIELDS[k + 1], devTitle(v, k + 1))) : [section(pg)]),
-    defects: defects(p), resultLabel: 'Gesamtergebnis Wartung', success: v.erg || '',
+    defects: defects(p), co2: isN(v.co2) ? num(v.co2) : '', fgas: v.fgas || '', resultLabel: 'Gesamtergebnis Wartung', success: v.erg || '',
     subline: [v.ftest && 'Funktionstest: ' + v.ftest, v.next && 'Nächste Wartung: ' + v.next].filter(Boolean).join(' · '),
     hinweis: HINWEIS, remark: v.bem || '', remarkLabel: 'Festgestellte Mängel & Bemerkungen',
     techniker: v.monteur || '', kundeName: p.kundeName || '', id: v.projekt || p.id, completedAt: p.completedAt || ''
@@ -913,12 +934,6 @@ function finalHtml(p){
           <div class="sigwrap"><canvas class="sig" data-sig="tech"></canvas></div>
           <button class="btn small" data-act="sigclear" data-sig="tech">Unterschrift löschen</button>
         </div>
-        <div>
-          <label>Unterschrift Kunde (optional)</label>
-          <div class="sigwrap"><canvas class="sig" data-sig="kunde"></canvas></div>
-          <input data-kname="1" placeholder="Name des Kunden" value="${esc(p.kundeName || '')}" style="margin-bottom:8px">
-          <button class="btn small" data-act="sigclear" data-sig="kunde">Unterschrift löschen</button>
-        </div>
       </div>
     </div>`;
 }
@@ -961,18 +976,35 @@ function reportParts(r){
     return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(shown(x.value) || '—')}</span></div>`; }).join('')}</div>` : '';
   const blocks = [];
 
-  // Kacheln: Ergebnis · Auffälligkeiten · Nächste Wartung (bzw. Datum)
+  // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
   const res = String(r.success || ''), good = res === 'Ja' || res === 'i.O.', bad = !!res && !good;
   const subs = String(r.subline || (r.betrieb ? 'Betriebszustand: ' + r.betrieb : '')).split(' · ').filter(Boolean);
   const next = subs.find(s => /^Nächste Wartung:/.test(s)), other = subs.filter(s => s !== next);
   const defects = r.defects || [];
+  // Kachel-Datum einheitlich TT.MM.JJJJ (Eingaben wie 31.8.2026 oder ISO); Fußzeile/Unterschrift nutzen weiter `stand`
+  const p2 = x => String(x).padStart(2, '0');
+  const dateOf = x => { const q = String(x || '').trim(), m = q.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) || q.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (m[1].length === 4 ? `${p2(m[3])}.${p2(m[2])}.${m[1]}` : `${p2(m[1])}.${p2(m[2])}.${m[3]}`) : q; };
+  const tileDate = dateOf(stand);
+  // Nächste Wartung: ausgefülltes Feld „Nächste Wartung fällig“, sonst berechnet. Dichtheitsprüfung ab 5 t CO₂-Äquivalent → Intervall 12 Monate (ab 50 t 6, ab 500 t 3), sonst Wartungsdatum + 12 Monate
+  const nextDue = (() => {
+    const set = next ? next.replace(/^Nächste Wartung:\s*/, '').trim() : '';
+    const co2 = parseFloat(String(r.co2 ?? '').replace(',', '.')), dp = co2 >= 5;
+    if(set) return {date:dateOf(set), sub: dp ? 'Dichtheitsprüfung vorgeschrieben (ab 5 t)' : ''};
+    if(!(co2 >= 0) && /^(n\.i\.O\.|i\.O\.)$/.test(String(r.fgas || '').trim())) return {date:'', sub:'CO₂-Äquivalent fehlt'};   // Dichtheitsprüfung durchgeführt (= vorgeschrieben), Intervall aber nicht bestimmbar
+    const m = String(stand || '').match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) || String(stand || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return {date:'', sub:''};
+    const iso = m[1].length === 4, y0 = +(iso ? m[1] : m[3]), mo0 = +m[2] - 1, d0 = +(iso ? m[3] : m[1]);
+    const months = dp ? (co2 >= 500 ? 3 : co2 >= 50 ? 6 : 12) : 12;
+    const t = mo0 + months, y = y0 + Math.floor(t / 12), mo = t % 12;
+    const d = Math.min(d0, new Date(y, mo + 1, 0).getDate());
+    return {date:`${p2(d)}.${p2(mo + 1)}.${y}`, sub: dp ? `Dichtheitsprüfung alle ${months} Monate` : 'jährliche Wartung'};
+  })();
   blocks.push({html:`<div class="status">
     <div class="tile ${good ? 'ok' : bad ? 'bad' : ''}"><div class="lab">${up(r.resultLabel || 'Wartung erfolgreich')}</div><div class="val">${esc(shown(res) || '—')}</div>
       <div class="sub">${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}</div></div>
-    <div class="tile"><div class="lab">${up('Auffälligkeiten')}</div><div class="val">${defects.length}</div><div class="sub">${esc(defects.length ? dshown(defects[0]) + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '') : 'keine')}</div></div>
-    <div class="tile primary">${next
-      ? `<div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(next.replace(/^Nächste Wartung:\s*/, ''))}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`
-      : `<div class="lab">${up('Datum')}</div><div class="val">${esc(datum || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`}</div>
+    <div class="tile"><div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(nextDue.date || '—')}</div><div class="sub">${esc(nextDue.sub)}</div></div>
+    <div class="tile primary"><div class="lab">${up('Wartungsdatum')}</div><div class="val">${esc(tileDate || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div></div>
   </div>`});
 
   // Auftrags- und Anlagendaten
@@ -998,8 +1030,8 @@ function reportParts(r){
   if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Betreiberhinweis.</b> ${esc(r.hinweis)}</p></div>`});
   const sig = r.sig || {}, img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
   blocks.push({html:`<div class="sign">
-    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>
-    <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div></div>`});
+    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>${img(sig.kunde) ? `
+    <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div>` : ''}</div>`});
 
   const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
@@ -1049,7 +1081,7 @@ function layoutReport(r, host){
   return pages;
 }
 async function reportFontsReady(){
-  try{ await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(`${w} 10pt "Plus Jakarta Sans"`, 'Wartung Äß 0123'))); await document.fonts.ready; }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
 }
 /* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
 async function reportPdfBlob(r){
@@ -1266,7 +1298,7 @@ const Actions = {
     const values = {};
     ALL_FIELDS.forEach(f => { values[f.id] = f.init != null ? (typeof f.init === 'function' ? f.init() : f.init) : ''; });
     const p = {id:uid(), templateId:TEMPLATE.id, values, sig:{}, kundeName:'', page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
-    recompute(p);
+    recompute(p); autoNext(p);
     protocols.unshift(p); save();
     go('wizard', {id:p.id});
   },
@@ -1289,7 +1321,7 @@ const Actions = {
   set(d){
     const p = cur(), f = FIELD[d.f];
     p.values[d.f] = p.values[d.f] === d.v && !isRequired(f, p) ? '' : d.v;   // erneutes Tippen wählt wieder ab
-    recompute(p); save();
+    recompute(p); if(f.id !== 'next') autoNext(p); save();
     if(f.dev) vSync(p, f.dev); else render();   // Verdampfer-Karten: nur Knöpfe und Statusmarke ändern
   },
   togglev(d, el){   // Karte auf-/zuklappen: nur Klasse umschalten (keine Neuzeichnung, Eingaben behalten den Fokus)
@@ -1305,7 +1337,7 @@ const Actions = {
   allok(){
     const p = cur();
     TEMPLATE.pages[p.page].fields.forEach(f => { if(f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]) p.values[f.id] = 'i.O.'; });
-    save(); render();
+    autoNext(p); save(); render();
   },
   next(){
     const p = cur();
@@ -1475,7 +1507,8 @@ app.addEventListener('input', e => {
   if(el.dataset.f && view.name === 'wizard'){
     const p = cur(), f = FIELD[el.dataset.f];
     p.values[f.id] = el.value;
-    recompute(p); save();
+    if(f.id === 'next' && el.value === '') p.nextAuto = null;   // Nutzer leert das Feld bewusst → nicht wieder vorbelegen
+    recompute(p); if(f.id !== 'next') autoNext(p); save();
     if(f.id === 'projekt' || f.id === 'kunde') setHeader(false);   // Kopf-Unterzeile mitführen (kein Neuzeichnen)
     if(f.hdr){ const t = document.getElementById('vt-' + f.dev); if(t) t.textContent = vTitle(p.values, f.dev); }   // Kartenkopf: Raum · Modell
     if(el.dataset.other) document.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach(b => b.classList.toggle('sel', b.dataset.v === el.value));
@@ -1485,8 +1518,6 @@ app.addEventListener('input', e => {
       if(ce){ const t = display(c, p.values[c.id]) || '—'; ce.textContent = t; calcTouch(c.id, t, ce); }
       if(ne && c.note) ne.textContent = c.note(p.values);
     });
-  } else if(el.dataset.kname){
-    cur().kundeName = el.value; save();
   } else if(el.id === 'dbsearch'){
     view.q = el.value; $('#dblist').innerHTML = dbList();
   }

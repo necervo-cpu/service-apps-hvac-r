@@ -188,7 +188,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
 .report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
   --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .report *{box-sizing:border-box}
 .report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
   display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
@@ -214,6 +214,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
+.report .tile .pill{margin-left:-2mm;display:inline-block}
+.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
 .report .pill.ok{color:var(--ok);background:var(--ok-bg)}.report .pill.bad{color:var(--bad);background:var(--bad-bg)}.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
 .report .sec{margin-top:4.5mm}
 .report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
@@ -931,15 +933,11 @@ function autoNote(f, c){
 function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
 const sigOwner = () => view.eid || 'book';
 function sigHtml(c){
-  const v = c.obj.values, nameF = c.tpl.pages[c.obj.page].fields.find(f => f.sigName), sk = view.eid ? v.sk : v.iSk;
+  const v = c.obj.values, sk = view.eid ? v.sk : v.iSk;
   return `<h2>Unterschriften</h2><div class="card stag" style="--i:3"><div class="sigs">
     <div><label>Unterschrift Sachkundiger${sk ? ' (' + esc(sk) + ')' : ''}</label>
       <div class="sigwrap"><canvas class="sig" data-sig="sk"></canvas></div>
       <button class="btn small" data-act="sigclear" data-sig="sk">Unterschrift löschen</button></div>
-    <div><label>Unterschrift Betreiber (optional)</label>
-      <div class="sigwrap"><canvas class="sig" data-sig="betr"></canvas></div>
-      ${nameF ? `<input id="in-${nameF.id}" data-f="${nameF.id}" value="${esc(v[nameF.id] || '')}" placeholder="Name des Betreibers / Vertreters" autocomplete="off" style="margin-bottom:8px">` : ''}
-      <button class="btn small" data-act="sigclear" data-sig="betr">Unterschrift löschen</button></div>
   </div></div>`;
 }
 function initSig(canvas, obj){
@@ -1097,9 +1095,10 @@ function reportParts(r){
       });
       // gezeichnete Unterschriften der Erstprüfung
       const sg = s.sign || {}, cap = (who, name) => `<div class="cap">${esc(who)}${name ? ' · ' + esc(name) : ''}</div>`;
+      // Betreiber-Unterschrift wird in der App nicht mehr erfasst, aber bei älteren Einträgen weiter angezeigt
       const sigBox = img(sg.sk) || img(sg.betr) ? `<div class="sigbox">
         <div><div class="img">${img(sg.sk)}</div>${cap('Unterschrift Sachkundiger', val(s, 'Sachkundiger'))}</div>
-        <div><div class="img">${img(sg.betr)}</div>${cap('Unterschrift Betreiber', val(s, 'Name Betreiber'))}</div></div>` : '';
+        ${img(sg.betr) ? `<div><div class="img">${img(sg.betr)}</div>${cap('Unterschrift Betreiber', val(s, 'Name Betreiber'))}</div>` : ''}</div>` : '';
       blocks.push({html:`<div class="sec">${h2(s.title)}<div class="checks">${groups.map((g, k) => `<div class="cgroup"><h4>${up(g[0])}</h4>${items[k].join('') || '<div class="none">—</div>'}</div>`).join('')}</div>
         ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}${sigBox}</div>`});
     } else {
@@ -1132,12 +1131,13 @@ function reportParts(r){
 
   // Unterschriften zu den Einträgen (nur unterschriebene Termine)
   const signed = es.filter(e => e._sig && (img(e._sig.sk) || img(e._sig.betr)));
+  const withBetr = signed.some(e => img(e._sig.betr));   // Spalte „Betreiber“ nur, wenn ein älterer Eintrag eine Betreiber-Unterschrift hat
   if(signed.length) blocks.push({split:true, html:`<div class="sec">${h2('Unterschriften zu den Einträgen')}<table>
-    <colgroup><col style="width:14%"><col><col></colgroup>
-    <thead><tr><th>${up('Datum')}</th><th>${up('Sachkundiger')}</th><th>${up('Betreiber')}</th></tr></thead>
+    <colgroup><col style="width:14%"><col>${withBetr ? '<col>' : ''}</colgroup>
+    <thead><tr><th>${up('Datum')}</th><th>${up('Sachkundiger')}</th>${withBetr ? `<th>${up('Betreiber')}</th>` : ''}</tr></thead>
     <tbody>${signed.map(e => `<tr><td class="date">${esc(e['Datum'] || '—')}</td>
       <td class="sigc">${img(e._sig.sk)}<span class="small">${esc(e['Sachkundiger'] || '')}</span></td>
-      <td class="sigc">${img(e._sig.betr)}<span class="small">${esc(e['Name Betreiber'] || '')}</span></td></tr>`).join('')}</tbody></table></div>`});
+      ${withBetr ? `<td class="sigc">${img(e._sig.betr)}<span class="small">${img(e._sig.betr) ? esc(e['Name Betreiber'] || '') : ''}</span></td>` : ''}</tr>`).join('')}</tbody></table></div>`});
 
   if(r.remark) blocks.push({html:`<div class="note"><b>${up('Bemerkungen zur Anlage')}</b>${nl(r.remark)}</div>`});
   if(r.hinweis && r.hinweis.length) blocks.push({html:`<div class="legal">${r.hinweis.map(t => {
@@ -1193,7 +1193,7 @@ function layoutReport(r, host){
   return pages;
 }
 async function reportFontsReady(){
-  try{ await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(`${w} 10pt "Plus Jakarta Sans"`, 'Logbuch Äß 0123'))); await document.fonts.ready; }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
 }
 /* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
 async function reportPdfBlob(r){

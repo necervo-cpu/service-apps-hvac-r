@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html/engine.js/daten.js die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
-const CACHE = 'daikin-multi-v27';
+const CACHE = 'daikin-multi-v28';
 const ASSETS = ['./', './index.html', './engine.js', './daten.js', './manifest.json', './icon-180.png', './icon-512.png',
                 './lib/jspdf.umd.min.js', './lib/html2canvas.min.js',
                 './lib/fonts/plus-jakarta-sans-latin.woff2', './lib/fonts/plus-jakarta-sans-latin-ext.woff2'];
@@ -11,7 +11,8 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  // Nur eigene alte Caches löschen – die anderen Apps liegen unter derselben Adresse (GitHub Pages).
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k.startsWith(CACHE.replace(/\d+$/, ''))).map(k => caches.delete(k)))));
   self.clients.claim();
 });
 

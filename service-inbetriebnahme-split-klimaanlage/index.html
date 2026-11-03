@@ -183,7 +183,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
 .report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
   --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .report *{box-sizing:border-box}
 .report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
   display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
@@ -209,6 +209,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
+.report .tile .pill{margin-left:-2mm;display:inline-block}
+.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
 .report .pill.ok{color:var(--ok);background:var(--ok-bg)}.report .pill.bad{color:var(--bad);background:var(--bad-bg)}.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
 .report .sec{margin-top:4.5mm}
 .report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
@@ -838,12 +840,6 @@ function finalHtml(p){
           <div class="sigwrap"><canvas class="sig" data-sig="tech"></canvas></div>
           <button class="btn small" data-act="sigclear" data-sig="tech">Unterschrift löschen</button>
         </div>
-        <div>
-          <label>Unterschrift Kunde (optional)</label>
-          <div class="sigwrap"><canvas class="sig" data-sig="kunde"></canvas></div>
-          <input data-kname="1" placeholder="Name des Kunden" value="${esc(p.kundeName || '')}" style="margin-bottom:8px">
-          <button class="btn small" data-act="sigclear" data-sig="kunde">Unterschrift löschen</button>
-        </div>
       </div>
     </div>`;
 }
@@ -921,8 +917,8 @@ function reportParts(r){
   if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Betreiberhinweis.</b> ${esc(r.hinweis)}</p></div>`});
   const sig = r.sig || {}, img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
   blocks.push({html:`<div class="sign">
-    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>
-    <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div></div>`});
+    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>${img(sig.kunde) ? `
+    <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div>` : ''}</div>`});
 
   const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
@@ -972,7 +968,7 @@ function layoutReport(r, host){
   return pages;
 }
 async function reportFontsReady(){
-  try{ await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(`${w} 10pt "Plus Jakarta Sans"`, 'Wartung Äß 0123'))); await document.fonts.ready; }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
 }
 /* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
 async function reportPdfBlob(r){
@@ -1388,8 +1384,6 @@ app.addEventListener('input', e => {
       if(ce){ const t = display(c, p.values[c.id]) || '—'; ce.textContent = t; calcTouch(c.id, t, ce); }
       if(ne && c.note) ne.textContent = c.note(p.values);
     });
-  } else if(el.dataset.kname){
-    cur().kundeName = el.value; save();
   } else if(el.id === 'dbsearch'){
     view.q = el.value; $('#dblist').innerHTML = dbList();
   }
