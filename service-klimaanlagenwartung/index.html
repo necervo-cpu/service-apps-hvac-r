@@ -327,6 +327,9 @@ const ok = (id, col, label, pdf, hint, extra) => Object.assign({id, col, label, 
 const druck = (id, col, label, pdf, hint) => ({id, col, label, pdf, hint, group:'Messwerte', type:'number', unit:'bar', min:-1, max:150});
 const temp = (id, col, label, pdf, hint) => ({id, col, label, pdf, hint, group:'Messwerte', type:'number', unit:'°C', min:-80, max:180});
 const kelvin = (id, col, label, pdf, hint) => ({id, col, label, pdf, hint, group:'Messwerte', type:'number', unit:'K', min:-30, max:80});
+const luft = (id, col, label, pdf) => ({id, col, label, pdf, group:'Messwerte', type:'number', unit:'°C', min:-30, max:70});
+// Altfeld (nicht mehr in der Eingabe): wird nur angezeigt/übertragen, wenn ein alter Wert vorhanden ist – nichts wird gelöscht
+const legacy = f => Object.assign({legacy:true}, f);
 const medium = (id, col, pdf) => ({id, col, label:'Mediumstemperatur Ein- / Austritt (°C)', pdf, group:'Messwerte', type:'text', ph:'z. B. 22,4 / 34,6'});
 // GWP-Werte (AR4, wie in der F-Gase-Verordnung) für das CO₂-Äquivalent
 const GWP = {R32:675, R410A:2088, R407C:1774, R404A:3922, R134A:1430, R449A:1397, R448A:1387, R452A:2140, R454B:466, R454C:148,
@@ -357,10 +360,15 @@ function verdFields(n){
     dev(ok(id('Filt'), col('Filter gereinigt / getauscht'), 'Filter gereinigt bzw. getauscht', 'Filter gereinigt / getauscht', '', P)),
     dev(ok(id('Dicht'), col('Dichtheit'), 'Kältemittelseitig auf Dichtheit geprüft', 'Dichtheit kältemittelseitig', '', P)),
     dev(ok(id('Hyg'), col('Hygienischer Zustand'), 'Hygienischer Zustand geprüft', 'Hygienischer Zustand', '', P)),
-    dev(druck(id('P'), col('Verdampfungsdruck (bar)'), 'Verdampfungsdruck', 'Verdampfungsdruck', '')),
-    dev(temp(id('T'), col('Verdampfungstemperatur (°C)'), 'Verdampfungstemperatur am Verdampferaustritt', 'Verdampfungstemperatur', '')),
-    dev(kelvin(id('Ueh'), col('Überhitzung (K)'), 'Überhitzung', 'Überhitzung', '')),
-    dev(medium(id('Med'), col('Mediumstemperatur Ein/Aus (°C)'), 'Mediumstemp. Ein / Aus (°C)')),
+    dev(luft(id('Te'), col('Lufteintrittstemperatur (°C)'), 'Lufteintrittstemperatur', 'Lufteintrittstemperatur')),
+    dev(luft(id('Ta'), col('Luftaustrittstemperatur (°C)'), 'Luftaustrittstemperatur', 'Luftaustrittstemperatur')),
+    dev({id:id('Dt'), col:col('Luft-Spreizung (K)'), label:'Luft-Spreizung ΔT', pdf:'Luft-Spreizung ΔT', group:'Messwerte', type:'calc', unit:'K',
+      calc:v => isN(v[id('Te')]) && isN(v[id('Ta')]) ? round(num(v[id('Te')]) - num(v[id('Ta')]), 1) : '',
+      note:() => 'Eintritt − Austritt (Luft wird abgekühlt)'}),
+    dev(legacy(druck(id('P'), col('Verdampfungsdruck (bar)'), 'Verdampfungsdruck', 'Verdampfungsdruck', ''))),
+    dev(legacy(temp(id('T'), col('Verdampfungstemperatur (°C)'), 'Verdampfungstemperatur am Verdampferaustritt', 'Verdampfungstemperatur', ''))),
+    dev(legacy(kelvin(id('Ueh'), col('Überhitzung (K)'), 'Überhitzung', 'Überhitzung', ''))),
+    dev(legacy(medium(id('Med'), col('Mediumstemperatur Ein/Aus (°C)'), 'Mediumstemp. Ein / Aus (°C)'))),
     dev({id:id('Bem'), col:col('Bemerkung'), label:'Bemerkung zu diesem Gerät', pdf:'Bemerkung', type:'longtext', wide:true, group:'Bemerkung', ph:'Freitext'})
   ];
 }
@@ -376,7 +384,8 @@ const TEMPLATE = {
       {id:'kunde', col:'Kunde / Betreiber', label:'Kunde / Betreiber', type:'text', ph:'z. B. Dr. med. Markus Weber'},
       {id:'anlage', col:'Anlagenbezeichnung', label:'Anlagenbezeichnung', type:'text', ph:'z. B. Split-Klimaanlage Praxis 2. OG'},
       {id:'herst', col:'Hersteller', label:'Hersteller', type:'text', ph:'z. B. Daikin'},
-      {id:'sn', col:'Seriennummer (S/N)', label:'Seriennummer (S/N)', type:'text'}
+      {id:'sn', col:'Seriennummer (S/N)', label:'Seriennummer (S/N)', type:'text'},
+      {id:'herstDat', col:'Herstellungsdatum', label:'Herstellungsdatum der Anlage', pdf:'Herstellungsdatum', type:'date', notFuture:true}
     ]},
     {title:'Verdichter', pdfTitle:'Verdrängungs- und Strömungsmaschinen • Verdichter', short:'Verdichter', kind:'check', fields:[
       ok('vdZust', 'Verdichter Zustand & Sauberkeit', 'Äußerlich auf Verschmutzung, Beschädigung und Korrosion geprüft', 'Zustand & Sauberkeit', '', {group:'Prüfpunkte'}),
@@ -396,9 +405,14 @@ const TEMPLATE = {
       ok('vfVent', 'Verflüssiger Ventilator', 'Ventilator auf Befestigung und Funktion geprüft', 'Ventilator', '', {group:'Prüfpunkte'}),
       ok('vfDicht', 'Verflüssiger Dichtheit', 'Kältemittelseitig auf Dichtheit geprüft', 'Dichtheit kältemittelseitig', '', {group:'Prüfpunkte'}),
       ok('vfLam', 'Verflüssiger Lamellenpaket', 'Lamellenpaket frei von Verformungen', 'Lamellenpaket', '', {group:'Prüfpunkte'}),
-      temp('vfTc', 'Verflüssiger Verflüssigungstemperatur (°C)', 'Verflüssigungstemperatur', 'Verflüssigungstemperatur', ''),
-      kelvin('vfUk', 'Verflüssiger Unterkühlung (K)', 'Unterkühlung am Verflüssigeraustritt', 'Unterkühlung', ''),
-      medium('vfMed', 'Verflüssiger Mediumstemperatur Ein/Aus (°C)', 'Mediumstemp. Ein / Aus (°C)')
+      luft('vfTe', 'Verflüssiger Lufteintrittstemperatur (°C)', 'Lufteintrittstemperatur', 'Lufteintrittstemperatur'),
+      luft('vfTa', 'Verflüssiger Luftaustrittstemperatur (°C)', 'Luftaustrittstemperatur', 'Luftaustrittstemperatur'),
+      {id:'vfDt', col:'Verflüssiger Luft-Spreizung (K)', label:'Luft-Spreizung ΔT', pdf:'Luft-Spreizung ΔT', group:'Messwerte', type:'calc', unit:'K',
+        calc:v => isN(v.vfTe) && isN(v.vfTa) ? round(num(v.vfTa) - num(v.vfTe), 1) : '',
+        note:() => 'Austritt − Eintritt (Luft wird erwärmt)'},
+      legacy(temp('vfTc', 'Verflüssiger Verflüssigungstemperatur (°C)', 'Verflüssigungstemperatur', 'Verflüssigungstemperatur', '')),
+      legacy(kelvin('vfUk', 'Verflüssiger Unterkühlung (K)', 'Unterkühlung am Verflüssigeraustritt', 'Unterkühlung', '')),
+      legacy(medium('vfMed', 'Verflüssiger Mediumstemperatur Ein/Aus (°C)', 'Mediumstemp. Ein / Aus (°C)'))
     ]},
     {title:'Verdampfer', pdfTitle:'Wärmetauscher • Verdampfer (Luft / Kältemittel)', short:'Verdampfer', kind:'check', evap:true, fields:[
       {id:'vaAnz', col:'Anzahl Verdampfer', label:'Anzahl Innengeräte (Verdampfer)', pdf:'Anzahl Verdampfer', type:'count', init:() => '1',
@@ -416,7 +430,10 @@ const TEMPLATE = {
       {id:'co2', col:'CO₂-Äquivalent (t)', label:'CO₂-Äquivalent', type:'calc', unit:'t CO₂e', group:'Kältemittel',
         calc:v => isN(v.fm) && gwpOf(v.km) != null ? round(num(v.fm) * gwpOf(v.km) / 1000, 3) : '',
         note:v => v.km && gwpOf(v.km) == null ? 'GWP für dieses Kältemittel unbekannt' : isN(v.co2) ? (v.co2 >= 5 ? 'ab 5 t: Dichtheitskontrolle Pflicht' : 'unter 5 t: keine Prüfpflicht') : 'Füllmenge × GWP'},
-      {id:'strom', col:'Stromaufnahme Verdichter (A)', label:'Stromaufnahme Verdichter (A)', pdf:'Stromaufnahme Verdichter', type:'text', group:'Elektrik', ph:'z. B. 4,8 oder L1 4,8 / L2 4,7 / L3 4,9'},
+      {id:'i1', col:'Stromaufnahme Verdichter L1 (A)', label:'Stromaufnahme L1', type:'number', unit:'A', min:0, max:100, group:'Elektrik'},
+      {id:'i2', col:'Stromaufnahme Verdichter L2 (A)', label:'Stromaufnahme L2', type:'number', unit:'A', min:0, max:100, group:'Elektrik', hint:'0 A oder leer bei 1-phasiger Versorgung'},
+      {id:'i3', col:'Stromaufnahme Verdichter L3 (A)', label:'Stromaufnahme L3', type:'number', unit:'A', min:0, max:100, group:'Elektrik', hint:'0 A oder leer bei 1-phasiger Versorgung'},
+      legacy({id:'strom', col:'Stromaufnahme Verdichter (A)', label:'Stromaufnahme Verdichter (A)', pdf:'Stromaufnahme Verdichter', type:'text', group:'Elektrik'}),
       ok('elek', 'Elektrische Anschlüsse & Schutzleiter', 'Elektrische Anschlüsse & Schutzleiter', 'Elektr. Anschlüsse & Schutzleiter', '', {group:'Elektrik'}),
       ok('fgas', 'Dichtheitsprüfung EU-F-Gase-VO', 'Dichtheitsprüfung gem. EU-F-Gase-VO', 'Dichtheitsprüfung F-Gase-VO', 'Nicht prüfpflichtig → „entfällt“', {group:'Prüfungen'}),
       ok('vdi', 'Hygieneinspektion (VDI 6022)', 'Hygieneinspektion (VDI 6022)', 'Hygieneinspektion (VDI 6022)', '', {group:'Prüfungen'}),
@@ -478,14 +495,14 @@ function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','
 const nio = x => x === 'Mangel' ? 'n.i.O.' : x;   // alte Anzeige „Mangel“ → „n.i.O.“
 function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10); }
 function today(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
-function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE'); }
+function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}); }
 function fmtDateTime(s){ if(!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('de-DE', {dateStyle:'short', timeStyle:'short'}); }
 function num(v){ return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.')); }
 function isN(v){ return v !== '' && v != null && !isNaN(num(v)); }
 function round(n, d){ const f = Math.pow(10, d); return Math.round(n * f) / f; }
 function fmtNum(n){ return String(n).replace('.', ','); }
 function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
-const isVis = (f, v) => !f.show || f.show(v);
+const isVis = (f, v) => (!f.legacy || String(v[f.id] ?? '') !== '') && (!f.show || f.show(v));   // Altfelder nur mit vorhandenem Wert
 let toastTimer;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500); }
 /* Bewegung reduzieren (Systemeinstellung) und kurzes Aufleuchten eines geänderten Werts */
@@ -548,7 +565,7 @@ function defects(p){
 const PFLICHTFELDER = false;   // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
 function isRequired(f, p){ return PFLICHTFELDER && (!!f.req || (f.reqIf ? f.reqIf(p.values, p) : false)); }
 function fieldError(f, p){
-  if(f.type === 'calc' || !isVis(f, p.values)) return '';
+  if(f.type === 'calc' || f.legacy || !isVis(f, p.values)) return '';
   const x = p.values[f.id], empty = String(x ?? '').trim() === '';
   if(empty) return isRequired(f, p) ? (f.reqMsg || 'Pflichtfeld') : '';
   if(f.type === 'number'){
@@ -561,7 +578,7 @@ function fieldError(f, p){
 }
 function pageErrors(p, i){ return TEMPLATE.pages[i].fields.map(f => [f, fieldError(f, p)]).filter(e => e[1]); }
 function pageDone(p, i){
-  const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && isVis(f, p.values));
+  const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && !f.legacy && isVis(f, p.values));
   return fs.every(f => !fieldError(f, p)) && fs.some(f => String(p.values[f.id] ?? '') !== '');
 }
 
@@ -594,7 +611,8 @@ function buildReport(p){
 }
 /* Spaltenwerte fürs Google Sheet (ausgeblendete Innengeräte werden geleert) */
 function buildCols(p){
-  return ALL_FIELDS.filter(f => f.col).map(f => {
+  // Altfelder ohne Wert werden gar nicht gesendet (vorhandene Sheet-Werte bleiben unberührt)
+  return ALL_FIELDS.filter(f => f.col && !(f.legacy && String(p.values[f.id] ?? '') === '')).map(f => {
     const x = f.id === 'vaAnz' ? vaCount(p.values) : isVis(f, p.values) ? p.values[f.id] : '';
     if(x === '' || x == null) return [f.col, '', ''];
     if(f.type === 'date') return [f.col, x, 'date'];
@@ -834,7 +852,7 @@ function protoCard(p){
 /* Felder einer Seite mit Zwischenüberschriften (group) */
 function fieldsHtml(pg, p){
   let g = null;
-  return pg.fields.filter(f => isVis(f, p.values)).map(f => {
+  return pg.fields.filter(f => !f.legacy && isVis(f, p.values)).map(f => {
     let h = '';
     if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; }
     return h + fieldHtml(f, p);
@@ -853,7 +871,7 @@ function vStat(p, n){
 const vTitle = (v, n) => ['Verdampfer ' + n, devRoom(v, n), devModel(v, n)].filter(Boolean).join(' · ');
 const vStatHtml = (p, n) => { const s = vStat(p, n); return `<span class="badge ${s[0]}">${s[1]}</span>`; };
 function vcardHtml(p, n, open){
-  const v = p.values, fs = DEV_FIELDS[n].filter(f => isVis(f, v));
+  const v = p.values, fs = DEV_FIELDS[n].filter(f => !f.legacy && isVis(f, v));
   let g = null;
   const body = fs.map(f => { let h = ''; if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; } return h + fieldHtml(f, p); }).join('');
   const anyOpen = fs.some(f => f.type === 'okfail' && !v[f.id]);
@@ -967,7 +985,7 @@ function reportParts(r){
   const header = r.header || [];
   // erstes Kopffeld, dessen Beschriftung passt (Nummern-Felder wie „Kundennummer“ ausgenommen)
   const hv = re => (header.find(x => re.test(x.label) && !/nummer|nr\.?$/i.test(x.label) && x.value) || {}).value || '';
-  const datum = hv(/datum/i);
+  const datum = hv(/^datum/i);
   const stand = datum || (r.completedAt ? new Date(r.completedAt).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}) : '');
   let n = 0;
   const h2 = title => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span></h2>`;
@@ -1013,7 +1031,9 @@ function reportParts(r){
   // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
   (r.sections || []).forEach(s => {
     const all = (s.checks || []).concat(s.rows || []);
-    const ck = all.filter(isCheck), fl = all.filter(x => !isCheck(x));
+    // Messwerte-Block komplett leer → ganz weglassen (Prüfpunkte bleiben wie bisher)
+    const meas = new Set((s.rows || []).filter(x => !isCheck(x))), measEmpty = [...meas].every(x => !String(x.value ?? '').trim());
+    const ck = all.filter(isCheck), fl = all.filter(x => !isCheck(x) && !(measEmpty && meas.has(x)));
     const body = checks(ck) + (fl.length ? (ck.length ? `<div class="sub-h">${up('Messwerte & Angaben')}</div>` : '') + kv(fl) : '');
     if(s.table && s.table.body && s.table.body.length){
       const t = s.table;
@@ -1512,8 +1532,8 @@ app.addEventListener('input', e => {
     if(f.id === 'projekt' || f.id === 'kunde') setHeader(false);   // Kopf-Unterzeile mitführen (kein Neuzeichnen)
     if(f.hdr){ const t = document.getElementById('vt-' + f.dev); if(t) t.textContent = vTitle(p.values, f.dev); }   // Kartenkopf: Raum · Modell
     if(el.dataset.other) document.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach(b => b.classList.toggle('sel', b.dataset.v === el.value));
-    if(f.type === 'number') $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
-    if(!TEMPLATE.pages[p.page].evap) TEMPLATE.pages[p.page].fields.filter(c => c.type === 'calc').forEach(c => {
+    if(f.type === 'number' && $('#soll-' + f.id)) $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
+    (TEMPLATE.pages[p.page].evap ? (f.dev ? DEV_FIELDS[f.dev] : []) : TEMPLATE.pages[p.page].fields).filter(c => c.type === 'calc').forEach(c => {
       const ce = $('#calc-' + c.id), ne = $('#note-' + c.id);
       if(ce){ const t = display(c, p.values[c.id]) || '—'; ce.textContent = t; calcTouch(c.id, t, ce); }
       if(ne && c.note) ne.textContent = c.note(p.values);
