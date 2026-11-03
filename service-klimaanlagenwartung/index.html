@@ -51,6 +51,7 @@ main{max-width:940px;margin:0 auto;padding:10px 16px calc(48px + env(safe-area-i
 .btn.danger{color:var(--bad)}
 .btn.small{min-height:38px;padding:6px 12px;font-size:15px}
 .btn:disabled{opacity:.45}
+.btn[hidden]{display:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .between{justify-content:space-between}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
@@ -107,6 +108,18 @@ textarea{min-height:90px;resize:vertical}
 .calc{display:inline-block;padding:10px 14px;background:var(--calc);border-radius:10px;font-weight:700;min-width:120px}
 .calcnote{font-size:13px;color:var(--muted);margin-left:8px}
 @media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
+/* Verdampfer-Karten (aufklappbar, Stil wie die Raumzeilen der Daikin-App) */
+.card.vcard{padding:6px 14px;transition:padding-bottom var(--t-med) var(--out)}.card.vcard.open{padding-bottom:14px}
+.vh{appearance:none;-webkit-appearance:none;background:none;border:0;color:inherit;font:inherit;text-align:left;width:100%;display:flex;align-items:center;gap:10px;min-height:56px;padding:0;cursor:pointer}
+.vh .n{width:30px;height:30px;border-radius:9px;background:var(--gold);color:#1a1a1a;font-weight:700;display:grid;place-items:center;flex:none;font-size:14px}
+.vh .m{flex:1;min-width:0}.vh .m b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vh .m>span{display:block;margin-top:2px}
+.vh .ico{color:var(--muted);transition:transform var(--t-med) var(--out)}.vcard.open .vh .ico{transform:rotate(180deg)}
+.vh:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:10px}
+.vbw{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows var(--t-med) var(--out),visibility 0s var(--t-med)}
+.vcard.open>.vbw{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows var(--t-med) var(--out),visibility 0s}
+.vbw>.vbody{overflow:hidden;min-height:0}
+.vin{padding:6px 4px 4px;opacity:0;transform:translateY(-4px);transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out)}
+.vcard.open .vin{opacity:1;transform:none}
 table{width:100%;border-collapse:collapse}
 td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -305,9 +318,9 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
    Feld-Definition – entspricht dem Blatt "Datenbank_Wartung_VDMA" in "Datenbank_Kältewartung-Service".
    col = exakter Spaltenname im Google Sheet.
    group = Zwischenüberschrift in der App, show = nur anzeigen, wenn …
-   Checklisten: i.O. / Mangel / entfällt – wie die Auswahllisten im Sheet.
+   Checklisten: i.O. / n.i.O. / entfällt – wie die Auswahllisten im Sheet (alter Wert „Mangel“ wird beim Laden zu „n.i.O.“).
    ===================================================================== */
-const OK3 = ['i.O.', 'Mangel', 'entfällt'];
+const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
 const ok = (id, col, label, pdf, hint, extra) => Object.assign({id, col, label, pdf, hint, type:'okfail'}, extra || {});
 const druck = (id, col, label, pdf, hint) => ({id, col, label, pdf, hint, group:'Messwerte', type:'number', unit:'bar', min:-1, max:150});
 const temp = (id, col, label, pdf, hint) => ({id, col, label, pdf, hint, group:'Messwerte', type:'number', unit:'°C', min:-80, max:180});
@@ -320,6 +333,35 @@ const gwpOf = km => GWP[String(km || '').toUpperCase().replace(/[\s\-()]/g, '')]
 const HINWEIS = 'Wartung nach VDMA-Einheitsblatt 24186-3 (Leistungsprogramm für die Wartung von kältetechnischen Geräten und Anlagen). '
   + 'Anlagen mit fluorierten Treibhausgasen ab 5 t CO₂-Äquivalent unterliegen der Pflicht zur regelmäßigen Dichtheitskontrolle nach Verordnung (EU) 2024/573. '
   + 'Eine regelmäßige Wartung sichert Betriebssicherheit, Hygiene und einen effizienten Energieverbrauch.';
+
+/* Verdampfer / Innengeräte: bis zu VA_MAX Geräte. Gerät 1 behält die bisherigen Feld-IDs (vaZust …) und Spaltennamen
+   („Verdampfer Zustand & Sauberkeit“ …); Gerät n ≥ 2 heißt va2Zust … bzw. „Verdampfer 2 Zustand & Sauberkeit“ … */
+const VA_MAX = 15;
+const vaCount = v => { const n = parseInt(String((v && v.vaAnz) ?? '').trim(), 10); return n >= 1 && n <= VA_MAX ? n : 1; };
+function verdFields(n){
+  const id = s => 'va' + (n > 1 ? n : '') + s, col = s => 'Verdampfer ' + (n > 1 ? n + ' ' : '') + s;
+  const dev = f => Object.assign({dev:n}, n > 1 ? {show:v => vaCount(v) >= n} : {}, f);
+  const P = {group:'Prüfpunkte'};
+  return [
+    dev({id:id('Raum'), col:col('Raum'), label:'Raum / Bezeichnung', pdf:'Raum', type:'text', ph:'z. B. Büro', group:'Gerät', hdr:true, inTitle:true}),
+    dev({id:id('Modell'), col:col('Modell'), label:'Modell', pdf:'Modell', type:'text', ph:'z. B. FTXM25R', group:'Gerät', hdr:true, inTitle:true}),
+    dev({id:id('Sn'), col:col('Seriennummer'), label:'Seriennummer', pdf:'Seriennummer', type:'text', group:'Gerät', inTitle:true}),
+    dev(ok(id('Zust'), col('Zustand & Sauberkeit'), 'Äußerlich auf Verschmutzung, Beschädigung und Korrosion geprüft', 'Zustand & Sauberkeit', '', P)),
+    dev(ok(id('Rein'), col('Reinigung erfolgt'), 'Funktionserhaltendes Reinigen', 'Funktionserhaltendes Reinigen', '', P)),
+    dev(ok(id('Vent'), col('Ventilator'), 'Ventilator auf Funktion geprüft', 'Ventilator', '', P)),
+    dev(ok(id('Klap'), col('Klappenregelung'), 'Klappenregelung auf Funktion geprüft', 'Klappenregelung', 'Nicht vorhanden → „entfällt“', P)),
+    dev(ok(id('KondF'), col('Kondensatablauf Funktion'), 'Kondensatablauf auf Funktion geprüft', 'Kondensatablauf Funktion', '', P)),
+    dev(ok(id('KondR'), col('Kondensatablauf Reinigung'), 'Kondensatablauf gereinigt', 'Kondensatablauf gereinigt', '', P)),
+    dev(ok(id('Filt'), col('Filter gereinigt / getauscht'), 'Filter gereinigt bzw. getauscht', 'Filter gereinigt / getauscht', '', P)),
+    dev(ok(id('Dicht'), col('Dichtheit'), 'Kältemittelseitig auf Dichtheit geprüft', 'Dichtheit kältemittelseitig', '', P)),
+    dev(ok(id('Hyg'), col('Hygienischer Zustand'), 'Hygienischer Zustand geprüft', 'Hygienischer Zustand', '', P)),
+    dev(druck(id('P'), col('Verdampfungsdruck (bar)'), 'Verdampfungsdruck', 'Verdampfungsdruck', '')),
+    dev(temp(id('T'), col('Verdampfungstemperatur (°C)'), 'Verdampfungstemperatur am Verdampferaustritt', 'Verdampfungstemperatur', '')),
+    dev(kelvin(id('Ueh'), col('Überhitzung (K)'), 'Überhitzung', 'Überhitzung', '')),
+    dev(medium(id('Med'), col('Mediumstemperatur Ein/Aus (°C)'), 'Mediumstemp. Ein / Aus (°C)')),
+    dev({id:id('Bem'), col:col('Bemerkung'), label:'Bemerkung zu diesem Gerät', pdf:'Bemerkung', type:'longtext', wide:true, group:'Bemerkung', ph:'Freitext'})
+  ];
+}
 
 const TEMPLATE = {
   id: 'klima-wartung', title: 'WARTUNGSPROTOKOLL • KÄLTETECHNISCHE ANLAGEN',
@@ -356,21 +398,10 @@ const TEMPLATE = {
       kelvin('vfUk', 'Verflüssiger Unterkühlung (K)', 'Unterkühlung am Verflüssigeraustritt', 'Unterkühlung', ''),
       medium('vfMed', 'Verflüssiger Mediumstemperatur Ein/Aus (°C)', 'Mediumstemp. Ein / Aus (°C)')
     ]},
-    {title:'Verdampfer', pdfTitle:'Wärmetauscher • Verdampfer (Luft / Kältemittel)', short:'Verdampfer', kind:'check', fields:[
-      ok('vaZust', 'Verdampfer Zustand & Sauberkeit', 'Äußerlich auf Verschmutzung, Beschädigung und Korrosion geprüft', 'Zustand & Sauberkeit', '', {group:'Prüfpunkte'}),
-      ok('vaRein', 'Verdampfer Reinigung erfolgt', 'Funktionserhaltendes Reinigen', 'Funktionserhaltendes Reinigen', '', {group:'Prüfpunkte'}),
-      ok('vaVent', 'Verdampfer Ventilator', 'Ventilator auf Funktion geprüft', 'Ventilator', '', {group:'Prüfpunkte'}),
-      ok('vaKlap', 'Verdampfer Klappenregelung', 'Klappenregelung auf Funktion geprüft', 'Klappenregelung', 'Nicht vorhanden → „entfällt“', {group:'Prüfpunkte'}),
-      ok('vaKondF', 'Verdampfer Kondensatablauf Funktion', 'Kondensatablauf auf Funktion geprüft', 'Kondensatablauf Funktion', '', {group:'Prüfpunkte'}),
-      ok('vaKondR', 'Verdampfer Kondensatablauf Reinigung', 'Kondensatablauf gereinigt', 'Kondensatablauf gereinigt', '', {group:'Prüfpunkte'}),
-      ok('vaFilt', 'Verdampfer Filter gereinigt / getauscht', 'Filter gereinigt bzw. getauscht', 'Filter gereinigt / getauscht', '', {group:'Prüfpunkte'}),
-      ok('vaDicht', 'Verdampfer Dichtheit', 'Kältemittelseitig auf Dichtheit geprüft', 'Dichtheit kältemittelseitig', '', {group:'Prüfpunkte'}),
-      ok('vaHyg', 'Verdampfer Hygienischer Zustand', 'Hygienischer Zustand geprüft', 'Hygienischer Zustand', '', {group:'Prüfpunkte'}),
-      druck('vaP', 'Verdampfer Verdampfungsdruck (bar)', 'Verdampfungsdruck', 'Verdampfungsdruck', ''),
-      temp('vaT', 'Verdampfer Verdampfungstemperatur (°C)', 'Verdampfungstemperatur am Verdampferaustritt', 'Verdampfungstemperatur', ''),
-      kelvin('vaUeh', 'Verdampfer Überhitzung (K)', 'Überhitzung', 'Überhitzung', ''),
-      medium('vaMed', 'Verdampfer Mediumstemperatur Ein/Aus (°C)', 'Mediumstemp. Ein / Aus (°C)')
-    ]},
+    {title:'Verdampfer', pdfTitle:'Wärmetauscher • Verdampfer (Luft / Kältemittel)', short:'Verdampfer', kind:'check', evap:true, fields:[
+      {id:'vaAnz', col:'Anzahl Verdampfer', label:'Anzahl Innengeräte (Verdampfer)', pdf:'Anzahl Verdampfer', type:'count', init:() => '1',
+        hint:'Für jedes Innengerät gibt es unten eine eigene Karte (bis zu 15).'}
+    ].concat(...Array.from({length:VA_MAX}, (_, k) => verdFields(k + 1)))},
     {title:'Anlagenteile & Dokumentation', pdfTitle:'Anlagenteile im Kältekreislauf & Dokumentation', short:'Anlagenteile', kind:'check', fields:[
       ok('rohr', 'Rohrleitungen Zustand, Isolierung & Befestigung', 'Rohrleitungen: Zustand, Isolierung & Befestigung', 'Rohrleitungen: Zustand, Isolierung & Befestigung', ''),
       ok('arm', 'Armaturen & Kompensatoren Dichtheit', 'Armaturen & Kompensatoren auf Dichtheit geprüft', 'Armaturen & Kompensatoren dicht', ''),
@@ -391,7 +422,7 @@ const TEMPLATE = {
     ]},
     {title:'Abschlussbeurteilung & Abnahme', short:'Abschluss', final:true, fields:[
       ok('ftest', 'Funktionstest Gesamtanlage', 'Gesamtanlage auf korrekte Funktion im Betriebszyklus geprüft', 'Funktionstest Gesamtanlage', ''),
-      {id:'erg', col:'Wartungsstatus Gesamtergebnis', label:'Wartungsstatus Gesamtergebnis', type:'select', opts:['i.O.', 'Mangel'], good:['i.O.'], bad:['Mangel']},
+      {id:'erg', col:'Wartungsstatus Gesamtergebnis', label:'Wartungsstatus Gesamtergebnis', type:'select', opts:['i.O.', 'n.i.O.'], good:['i.O.'], bad:['n.i.O.', 'Mangel']},
       {id:'next', col:'Nächste Wartung fällig', label:'Nächste Wartung fällig', type:'text', ph:'z. B. Oktober 2027'},
       {id:'bem', col:'Festgestellte Mängel & Bemerkungen', label:'Festgestellte Mängel & Bemerkungen', type:'longtext', wide:true, hint:'Mängel, Nacharbeiten, ersetzte Teile, Hinweise für den Betreiber'}
     ]}
@@ -401,6 +432,32 @@ const ALL_FIELDS = TEMPLATE.pages.flatMap(pg => pg.fields);
 const FIELD = Object.fromEntries(ALL_FIELDS.map(f => [f.id, f]));
 // Auffälligkeiten: Bauteil voranstellen (Dichtheit gibt es bei Verdichter, Verflüssiger und Verdampfer)
 const CHECK_PAGE = Object.fromEntries(TEMPLATE.pages.filter(pg => pg.kind === 'check').flatMap(pg => pg.fields.map(f => [f.id, pg.short])));
+const DEV_FIELDS = {};   // Verdampfer-Felder je Gerätenummer
+ALL_FIELDS.forEach(f => { if(f.dev) (DEV_FIELDS[f.dev] = DEV_FIELDS[f.dev] || []).push(f); });
+const devRoom = (v, n) => String(v['va' + (n > 1 ? n : '') + 'Raum'] ?? '').trim();
+const devModel = (v, n) => String(v['va' + (n > 1 ? n : '') + 'Modell'] ?? '').trim();
+const devSn = (v, n) => String(v['va' + (n > 1 ? n : '') + 'Sn'] ?? '').trim();
+/* Bauteilname in den Auffälligkeiten, z. B. „Verdampfer 2 (Büro)“ */
+function devLabel(v, n){ const r = devRoom(v, n); return 'Verdampfer' + (vaCount(v) > 1 || n > 1 ? ' ' + n : '') + (r ? ` (${r})` : ''); }
+/* Abschnittstitel im Bericht, z. B. „Wärmetauscher • Verdampfer 2 – Büro (FTXM25R, SN 123)“ */
+function devTitle(v, n){
+  const cnt = vaCount(v), r = devRoom(v, n), m = devModel(v, n), sn = devSn(v, n);
+  const det = [m, sn && 'SN ' + sn].filter(Boolean).join(', ');
+  if(cnt === 1 && !r && !det) return 'Wärmetauscher • Verdampfer (Luft / Kältemittel)';
+  return 'Wärmetauscher • Verdampfer' + (cnt > 1 ? ' ' + n : '') + (r ? ' – ' + r : '') + (det ? ` (${det})` : '');
+}
+/* Alte Werte umsetzen: „Mangel“ → „n.i.O.“ (App-Speicher, Backups, Sheet-Zeilen); fehlende Anzahl Verdampfer ableiten. true = etwas geändert */
+function normVals(v){
+  let ch = false;
+  ALL_FIELDS.forEach(f => { if((f.type === 'okfail' || f.type === 'select') && v[f.id] === 'Mangel'){ v[f.id] = 'n.i.O.'; ch = true; } });
+  const n = parseInt(String(v.vaAnz ?? '').trim(), 10);
+  if(!(n >= 1 && n <= VA_MAX)){
+    let m = 1;
+    for(let k = 2; k <= VA_MAX; k++) if(DEV_FIELDS[k].some(f => String(v[f.id] ?? '') !== '')) m = k;
+    v.vaAnz = String(m); ch = true;
+  }
+  return ch;
+}
 
 /* ---------- Speicher ---------- */
 const LS = {
@@ -416,6 +473,7 @@ const save = () => LS.set('klw.protocols', protocols);
 const $ = s => document.querySelector(s);
 const app = $('#app');
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const nio = x => x === 'Mangel' ? 'n.i.O.' : x;   // alte Anzeige „Mangel“ → „n.i.O.“
 function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10); }
 function today(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
 function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE'); }
@@ -464,7 +522,7 @@ function evalField(f, v){
 }
 function defects(p){
   return ALL_FIELDS.filter(f => f.type !== 'calc' && isVis(f, p.values) && ['bad', 'warn'].includes(evalField(f, p.values)))
-    .map(f => `${CHECK_PAGE[f.id] ? CHECK_PAGE[f.id] + ' – ' : ''}${f.pdf || f.label}: ${display(f, p.values[f.id])}` + (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''));
+    .map(f => `${f.dev ? devLabel(p.values, f.dev) + ' – ' : CHECK_PAGE[f.id] ? CHECK_PAGE[f.id] + ' – ' : ''}${f.pdf || f.label}: ${nio(display(f, p.values[f.id]))}` + (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''));
 }
 const PFLICHTFELDER = false;   // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
 function isRequired(f, p){ return PFLICHTFELDER && (!!f.req || (f.reqIf ? f.reqIf(p.values, p) : false)); }
@@ -491,20 +549,22 @@ function buildReport(p){
   const v = p.values;
   const row = f => ({label:f.pdf || f.label, value:display(f, v[f.id]), eval:evalField(f, v), wide:!!f.wide});
   const rowsOf = fs => fs.filter(f => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
-  const section = pg => {
+  const section = (pg, fs, title) => {
+    fs = fs || pg.fields;
     const inTab = new Set(pg.table ? pg.table.rows.flatMap(r => r.ids) : []);
-    const rest = pg.fields.filter(f => !inTab.has(f.id));
+    const rest = fs.filter(f => !inTab.has(f.id) && !f.inTitle);
     const body = pg.table ? pg.table.rows
       .filter(r => (!r.show || r.show(v)) && r.ids.some(id => String(v[id] ?? '') !== ''))
       .map(r => ({label:r.label, cells:r.ids.map(id => ({value:display(FIELD[id], v[id]), eval:evalField(FIELD[id], v)}))})) : [];
-    return {title:pg.pdfTitle || pg.title, kind:pg.kind || 'grid',
+    return {title:title || pg.pdfTitle || pg.title, kind:pg.kind || 'grid',
       table: body.length ? {head:pg.table.head, body} : null,
       rows: rowsOf(rest.filter(f => f.type !== 'okfail')), checks: rowsOf(rest.filter(f => f.type === 'okfail'))};
   };
   return {
     title: TEMPLATE.title, firma: settings.firma || '',
     header: rowsOf(TEMPLATE.pages[0].fields),
-    sections: TEMPLATE.pages.filter(pg => !pg.header && !pg.final).map(section),
+    sections: TEMPLATE.pages.filter(pg => !pg.header && !pg.final).flatMap(pg => pg.evap
+      ? Array.from({length:vaCount(v)}, (_, k) => section(pg, DEV_FIELDS[k + 1], devTitle(v, k + 1))) : [section(pg)]),
     defects: defects(p), resultLabel: 'Gesamtergebnis Wartung', success: v.erg || '',
     subline: [v.ftest && 'Funktionstest: ' + v.ftest, v.next && 'Nächste Wartung: ' + v.next].filter(Boolean).join(' · '),
     hinweis: HINWEIS, remark: v.bem || '', remarkLabel: 'Festgestellte Mängel & Bemerkungen',
@@ -514,10 +574,10 @@ function buildReport(p){
 /* Spaltenwerte fürs Google Sheet (ausgeblendete Innengeräte werden geleert) */
 function buildCols(p){
   return ALL_FIELDS.filter(f => f.col).map(f => {
-    const x = isVis(f, p.values) ? p.values[f.id] : '';
+    const x = f.id === 'vaAnz' ? vaCount(p.values) : isVis(f, p.values) ? p.values[f.id] : '';
     if(x === '' || x == null) return [f.col, '', ''];
     if(f.type === 'date') return [f.col, x, 'date'];
-    if((f.type === 'number' || f.type === 'calc') && isN(x)) return [f.col, num(x), ''];
+    if((f.type === 'number' || f.type === 'calc' || f.type === 'count') && isN(x)) return [f.col, num(x), ''];
     return [f.col, String(x), ''];
   });
 }
@@ -665,10 +725,10 @@ const Views = {
     const p = cur();
     if(!p) return '<p>Protokoll nicht gefunden.</p>';
     const pg = TEMPLATE.pages[p.page];
-    const allOk = pg.fields.some(f => f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]);
+    const allOk = !pg.evap && pg.fields.some(f => f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]);
     return `
       <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
-      <div class="card stag" style="--i:1">${fieldsHtml(pg, p)}</div>
+      ${pg.evap ? evapHtml(pg, p) : `<div class="card stag" style="--i:1">${fieldsHtml(pg, p)}</div>`}
       ${pg.final ? finalHtml(p) : ''}
       <div class="err" id="pageerr"></div>`;
   },
@@ -732,7 +792,7 @@ function protoCard(p){
   if(p.status === 'draft'){
     badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
   } else {
-    badges = `${v.erg ? `<span class="badge ${v.erg === 'i.O.' ? 'ok' : 'bad'}">Gesamtergebnis: ${esc(v.erg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+    badges = `${v.erg ? `<span class="badge ${v.erg === 'i.O.' ? 'ok' : 'bad'}">Gesamtergebnis: ${esc(nio(v.erg))}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
   }
   return `
     <div class="card">
@@ -758,6 +818,47 @@ function fieldsHtml(pg, p){
     if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; }
     return h + fieldHtml(f, p);
   }).join('');
+}
+
+/* ----- Verdampfer-Karten ----- */
+const CHEV = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const openSet = () => view.open || (view.open = new Set([1]));   // erste Karte offen, weitere zu (nur Ansicht, nicht gespeichert)
+function vStat(p, n){
+  const fs = DEV_FIELDS[n].filter(f => f.type === 'okfail');
+  if(fs.some(f => evalField(f, p.values) === 'bad')) return ['bad', 'n.i.O. vorhanden'];
+  if(fs.every(f => p.values[f.id])) return ['ok', 'alles i.O.'];
+  return ['warn', 'offen'];
+}
+const vTitle = (v, n) => ['Verdampfer ' + n, devRoom(v, n), devModel(v, n)].filter(Boolean).join(' · ');
+const vStatHtml = (p, n) => { const s = vStat(p, n); return `<span class="badge ${s[0]}">${s[1]}</span>`; };
+function vcardHtml(p, n, open){
+  const v = p.values, fs = DEV_FIELDS[n].filter(f => isVis(f, v));
+  let g = null;
+  const body = fs.map(f => { let h = ''; if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; } return h + fieldHtml(f, p); }).join('');
+  const anyOpen = fs.some(f => f.type === 'okfail' && !v[f.id]);
+  return `<div class="card vcard${open ? ' open' : ''}" id="vc-${n}" data-n="${n}">
+    <button type="button" class="vh" data-act="togglev" data-n="${n}" aria-expanded="${open}" aria-controls="vb-${n}"><span class="n">${n}</span><span class="m"><b id="vt-${n}">${esc(vTitle(v, n))}</b><span id="vs-${n}">${vStatHtml(p, n)}</span></span>${CHEV}</button>
+    <div class="vbw" id="vb-${n}"><div class="vbody"><div class="vin">
+      <div class="row" style="margin:6px 0 4px"><button type="button" class="btn small" data-act="allokv" data-n="${n}" id="vk-${n}"${anyOpen ? '' : ' hidden'}>Offene Punkte auf i.O.</button></div>
+      ${body}
+    </div></div></div>
+  </div>`;
+}
+function evapHtml(pg, p){
+  const cnt = vaCount(p.values), s = openSet();
+  if(view.tried) for(let n = 1; n <= cnt; n++) if(DEV_FIELDS[n].some(f => fieldError(f, p))) s.add(n);   // Karten mit Fehlern aufklappen
+  const f = FIELD.vaAnz;
+  return `<div class="card stag" style="--i:1"><div class="field"><label for="in-vaAnz">${esc(f.label)}</label><div class="fhint">${esc(f.hint)}</div>
+      <select id="in-vaAnz" data-cnt="1" style="max-width:160px">${Array.from({length:VA_MAX}, (_, k) => `<option value="${k + 1}"${k + 1 === cnt ? ' selected' : ''}>${k + 1}</option>`).join('')}</select></div></div>
+    <div class="stag" style="--i:2">${Array.from({length:cnt}, (_, k) => vcardHtml(p, k + 1, s.has(k + 1))).join('')}</div>`;
+}
+/* Nur die geänderten Teile einer Karte aktualisieren (kein Neuzeichnen: Scrollposition und Fokus bleiben) */
+function vSync(p, n){
+  const card = document.getElementById('vc-' + n); if(!card) return;
+  DEV_FIELDS[n].filter(f => f.type === 'okfail').forEach(f => card.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach(b => b.classList.toggle('sel', b.dataset.v === p.values[f.id])));
+  document.getElementById('vs-' + n).innerHTML = vStatHtml(p, n);
+  document.getElementById('vk-' + n).hidden = !DEV_FIELDS[n].some(f => f.type === 'okfail' && !p.values[f.id]);
+  setSteps();
 }
 
 function fieldHtml(f, p){
@@ -803,7 +904,7 @@ function finalHtml(p){
   const missing = TEMPLATE.pages.slice(0, -1).map((pg, k) => [k, pageErrors(p, k)]).filter(x => x[1].length);
   return `
     ${missing.length ? `<div class="warnbox stag" style="--i:2"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing.map(([k, errs]) =>
-      `<li><a class="jump" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</a>: ${errs.map(e => esc(e[0].pdf || e[0].label)).join(', ')}</li>`).join('')}</ul></div>` : ''}
+      `<li><a class="jump" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</a>: ${errs.map(e => esc((e[0].dev ? 'Verdampfer ' + e[0].dev + ' ' : '') + (e[0].pdf || e[0].label))).join(', ')}</li>`).join('')}</ul></div>` : ''}
     <div class="card stag" style="--i:3"><b>Auffälligkeiten:</b> ${d.length ? `<span class="badge bad">${d.length}</span><ul>${d.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<span class="badge ok">keine</span>'}</div>
     <div class="card stag" style="--i:4">
       <div class="grid2">
@@ -839,6 +940,8 @@ function reportParts(r){
   const icon = (k, px) => RICON[k].replace('<svg ', `<svg width="${px}" height="${px}" `).replace(/currentColor/g, COL[k]);
   const pill = (k, text) => `<span class="pill ${k}">${icon(k, 10)}${esc(text)}</span>`;
   const CHECKV = ['i.O.', 'Mangel', 'n.i.O.', 'entfällt'];
+  // Alte gespeicherte Berichte enthalten noch „Mangel“ → bleibt „nicht in Ordnung“, wird aber als „n.i.O.“ angezeigt
+  const shown = x => x === 'Mangel' ? 'n.i.O.' : x, dshown = d => String(d).replace(/: Mangel$/, ': n.i.O.');
   const isCheck = x => ['ok', 'bad', 'na'].includes(x.eval) || CHECKV.includes(x.value);
   const evalOf = x => x.eval && x.eval !== 'none' ? x.eval : x.value === 'i.O.' ? 'ok' : x.value === 'Mangel' || x.value === 'n.i.O.' ? 'bad' : x.value === 'entfällt' ? 'na' : '';
   const firmLines = String(r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '').split('\n').map(s => s.trim()).filter(Boolean);
@@ -855,7 +958,7 @@ function reportParts(r){
   const h2 = title => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span></h2>`;
   const kv = rows => rows.length ? `<dl class="kv">${rows.map(x => `<div${x.wide ? ' class="wide"' : ''}><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'} ${x.eval === 'warn' ? 'warn' : ''}">${x.value ? nl(x.value) : '—'}</dd></div>`).join('')}</dl>` : '';
   const checks = rows => rows.length ? `<div class="checks2">${rows.map(x => { const k = evalOf(x) || 'na';
-    return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(x.value || '—')}</span></div>`; }).join('')}</div>` : '';
+    return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(shown(x.value) || '—')}</span></div>`; }).join('')}</div>` : '';
   const blocks = [];
 
   // Kacheln: Ergebnis · Auffälligkeiten · Nächste Wartung (bzw. Datum)
@@ -864,9 +967,9 @@ function reportParts(r){
   const next = subs.find(s => /^Nächste Wartung:/.test(s)), other = subs.filter(s => s !== next);
   const defects = r.defects || [];
   blocks.push({html:`<div class="status">
-    <div class="tile ${good ? 'ok' : bad ? 'bad' : ''}"><div class="lab">${up(r.resultLabel || 'Wartung erfolgreich')}</div><div class="val">${esc(res || '—')}</div>
+    <div class="tile ${good ? 'ok' : bad ? 'bad' : ''}"><div class="lab">${up(r.resultLabel || 'Wartung erfolgreich')}</div><div class="val">${esc(shown(res) || '—')}</div>
       <div class="sub">${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}</div></div>
-    <div class="tile"><div class="lab">${up('Auffälligkeiten')}</div><div class="val">${defects.length}</div><div class="sub">${esc(defects.length ? defects[0] + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '') : 'keine')}</div></div>
+    <div class="tile"><div class="lab">${up('Auffälligkeiten')}</div><div class="val">${defects.length}</div><div class="sub">${esc(defects.length ? dshown(defects[0]) + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '') : 'keine')}</div></div>
     <div class="tile primary">${next
       ? `<div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(next.replace(/^Nächste Wartung:\s*/, ''))}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`
       : `<div class="lab">${up('Datum')}</div><div class="val">${esc(datum || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div>`}</div>
@@ -890,7 +993,7 @@ function reportParts(r){
     }
   });
 
-  if(defects.length) blocks.push({html:`<div class="note def"><b>${up('Auffälligkeiten')}</b><ul>${defects.map(d => `<li>${esc(d)}</li>`).join('')}</ul></div>`});
+  if(defects.length) blocks.push({html:`<div class="note def"><b>${up('Auffälligkeiten')}</b><ul>${defects.map(d => `<li>${esc(dshown(d))}</li>`).join('')}</ul></div>`});
   blocks.push({html:`<div class="note"><b>${up(r.remarkLabel || 'Bemerkungen / Mängel')}</b>${r.remark ? nl(r.remark) : '—'}</div>`});
   if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Betreiberhinweis.</b> ${esc(r.hinweis)}</p></div>`});
   const sig = r.sig || {}, img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
@@ -1050,7 +1153,7 @@ function dbList(){
     <tbody>${list.map(e => `<tr>
       <td>${esc(fmtDate(e.datum))}</td>
       <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.modell, e.monteur].filter(Boolean).join(' · '))}</span></td>
-      <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'i.O.' ? 'ok' : 'bad'}">${esc(e.erfolg)}</span>` : ''}</td>
+      <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'i.O.' ? 'ok' : 'bad'}">${esc(nio(e.erfolg))}</span>` : ''}</td>
       <td style="text-align:right;white-space:nowrap">${e.pdfUrl
         ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
         : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
@@ -1109,6 +1212,13 @@ async function api(action, data){
   return j;
 }
 let syncing = false;
+/* Werte fürs Sheet-JSON: nur sichtbare, ausgefüllte Felder (ausgeblendete Verdampfer werden geleert, Zelle bleibt klein) */
+function sheetValues(p){
+  const out = {};
+  ALL_FIELDS.forEach(f => { const x = p.values[f.id]; if(isVis(f, p.values) && x !== '' && x != null) out[f.id] = x; });
+  out.vaAnz = String(vaCount(p.values));
+  return out;
+}
 async function syncAll(silent){
   if(syncing) return;
   const list = protocols.filter(p => p.status === 'done' && !p.synced);
@@ -1121,7 +1231,7 @@ async function syncAll(silent){
     try{
       recompute(p);
       await api('upsert', {
-        protocol: {id:p.id, templateId:TEMPLATE.id, values:p.values, kundeName:p.kundeName || '', completedAt:p.completedAt, sourceKey:p.sourceKey || '',
+        protocol: {id:p.id, templateId:TEMPLATE.id, values:sheetValues(p), kundeName:p.kundeName || '', completedAt:p.completedAt, sourceKey:p.sourceKey || '',
                    summary:{report:buildReport(p)}, pdf:await pdfBase64(p)},
         cols: buildCols(p)
       });
@@ -1141,7 +1251,7 @@ function fromSheet(f, x){
   if(typeof x === 'number' && f.type !== 'calc') return fmtNum(x);   // Eingabefelder erwarten Text mit Komma
   x = String(x);
   if(f.type === 'date'){ const m = x.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/); if(m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
-  if(f.type === 'okfail') return x === 'Ja' ? 'i.O.' : x === 'Nein' || x === 'n.i.O.' ? 'Mangel' : x;   // ältere Zeilen: Ja/Nein
+  if(f.type === 'okfail') return x === 'Ja' ? 'i.O.' : x === 'Nein' || x === 'Mangel' ? 'n.i.O.' : x;   // ältere Zeilen: Ja/Nein/Mangel
   return x;
 }
 
@@ -1177,9 +1287,20 @@ const Actions = {
   },
 
   set(d){
-    const p = cur();
-    p.values[d.f] = p.values[d.f] === d.v && !isRequired(FIELD[d.f], p) ? '' : d.v;   // erneutes Tippen wählt wieder ab
-    recompute(p); save(); render();
+    const p = cur(), f = FIELD[d.f];
+    p.values[d.f] = p.values[d.f] === d.v && !isRequired(f, p) ? '' : d.v;   // erneutes Tippen wählt wieder ab
+    recompute(p); save();
+    if(f.dev) vSync(p, f.dev); else render();   // Verdampfer-Karten: nur Knöpfe und Statusmarke ändern
+  },
+  togglev(d, el){   // Karte auf-/zuklappen: nur Klasse umschalten (keine Neuzeichnung, Eingaben behalten den Fokus)
+    const n = +d.n, card = el.closest('.vcard'), s = openSet();
+    const open = !s.has(n); if(open) s.add(n); else s.delete(n);
+    card.classList.toggle('open', open); el.setAttribute('aria-expanded', open);
+  },
+  allokv(d){   // „Offene Punkte auf i.O.“ gilt nur für dieses eine Gerät
+    const p = cur(), n = +d.n;
+    DEV_FIELDS[n].forEach(f => { if(f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]) p.values[f.id] = 'i.O.'; });
+    save(); vSync(p, n);
   },
   allok(){
     const p = cur();
@@ -1300,6 +1421,7 @@ const Actions = {
       });
       const p = {id:j.appId || uid(), templateId:TEMPLATE.id, values, sig:{}, kundeName:j.kundeName || '', sourceKey:d.key,
                  page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
+      normVals(values);
       recompute(p);
       protocols = protocols.filter(x => x.id !== p.id);
       protocols.unshift(p); save();
@@ -1355,9 +1477,10 @@ app.addEventListener('input', e => {
     p.values[f.id] = el.value;
     recompute(p); save();
     if(f.id === 'projekt' || f.id === 'kunde') setHeader(false);   // Kopf-Unterzeile mitführen (kein Neuzeichnen)
+    if(f.hdr){ const t = document.getElementById('vt-' + f.dev); if(t) t.textContent = vTitle(p.values, f.dev); }   // Kartenkopf: Raum · Modell
     if(el.dataset.other) document.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach(b => b.classList.toggle('sel', b.dataset.v === el.value));
     if(f.type === 'number') $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
-    TEMPLATE.pages[p.page].fields.filter(c => c.type === 'calc').forEach(c => {
+    if(!TEMPLATE.pages[p.page].evap) TEMPLATE.pages[p.page].fields.filter(c => c.type === 'calc').forEach(c => {
       const ce = $('#calc-' + c.id), ne = $('#note-' + c.id);
       if(ce){ const t = display(c, p.values[c.id]) || '—'; ce.textContent = t; calcTouch(c.id, t, ce); }
       if(ne && c.note) ne.textContent = c.note(p.values);
@@ -1370,6 +1493,16 @@ app.addEventListener('input', e => {
 });
 app.addEventListener('change', e => {
   const el = e.target;
+  if(el.dataset.cnt && view.name === 'wizard'){
+    const p = cur(), old = vaCount(p.values), nw = Math.min(VA_MAX, Math.max(1, parseInt(el.value, 10) || 1));
+    if(nw < old){
+      const used = []; for(let k = nw + 1; k <= old; k++) if(DEV_FIELDS[k].some(f => String(p.values[f.id] ?? '') !== '')) used.push(k);
+      if(used.length && !confirm(`Verdampfer ${used.join(', ')} enthalten schon Eingaben. Beim nächsten Übertragen werden die Daten dieser Geräte im Google Sheet GELÖSCHT (in der App bleiben sie lokal erhalten, bis du das Protokoll löschst). Anzahl trotzdem verringern?`)){ el.value = old; return; }
+    }
+    p.values.vaAnz = String(nw); if(nw > old) openSet().add(old + 1);
+    recompute(p); save(); render();
+    return;
+  }
   if(el.id === 's_import' && el.files[0]){
     const r = new FileReader();
     r.onload = () => {
@@ -1377,7 +1510,7 @@ app.addEventListener('change', e => {
         const d = JSON.parse(r.result);
         if(!Array.isArray(d.protocols)) throw new Error('Keine gültige Backup-Datei');
         const byId = new Map(protocols.map(p => [p.id, p]));
-        d.protocols.forEach(p => byId.set(p.id, p));
+        d.protocols.forEach(p => { if(p && p.values) normVals(p.values); byId.set(p.id, p); });
         protocols = [...byId.values()]; save();
         toast(`Backup importiert: ${d.protocols.length} Protokolle.`);
       }catch(err){ toast('Import fehlgeschlagen: ' + err.message); }
@@ -1394,6 +1527,8 @@ window.addEventListener('resize', () => {   // Drehen des iPads: Unterschriftsfe
 });
 
 /* ---------- Start ---------- */
+// Gespeicherte Protokolle (auch ältere): „Mangel“ → „n.i.O.“, fehlende Anzahl Verdampfer ergänzen – sonst bleibt alles unverändert
+{ let ch = false; protocols.forEach(p => { if(p && p.values && normVals(p.values)) ch = true; }); if(ch) save(); }
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 render();
