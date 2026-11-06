@@ -120,6 +120,12 @@ details.rw dd{margin:0;font-weight:700;white-space:nowrap}
 .savebox .row{align-items:end;flex-wrap:nowrap}
 .savebox .row>div{flex:1;min-width:0}
 .savebox .btn{flex:none}
+.newrow{margin-top:10px}
+.newrow .btn{width:100%}
+.ncbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:12px}
+.ncbox[hidden]{display:none}
+.ncbox span{font-weight:600;flex:1 1 140px}
+.ncbox .btn{min-height:44px;min-width:44px}
 @media(max-width:560px){.savebox .row{flex-wrap:wrap}.savebox .btn{width:100%}}
 .btn.wide{width:100%;margin-top:8px}
 /* Gespeichert */
@@ -294,7 +300,7 @@ function fill(){
 function build(){
   document.getElementById('v-home').innerHTML =
     '<h2 class="pagetitle" id="h-home" tabindex="-1" style="margin-top:14px">Was möchten Sie berechnen?</h2>' +
-    '<p class="sub">Nur Wasser (kein Glykol). Alle Werte sind Richtwerte.</p>' +
+    '<p class="sub">Nur Wasser (kein Glykol). Alle Werte sind Richtwerte.</p>' + ncBox('home', '') +
     '<div class="tgrid">' +
     hub('mag', 'mag', 'Ausdehnungsgefäß (MAG)', 'Nenngröße, Vordruck, Fülldruck') +
     hub('puffer', 'puf', 'Pufferspeicher', 'Varianten je Wärmeerzeuger') +
@@ -303,7 +309,7 @@ function build(){
 
   document.getElementById('v-mag').innerHTML = '<h2 class="pagetitle" id="h-mag" tabindex="-1" style="margin-top:14px">Ausdehnungsgefäß (MAG)</h2>' +
     '<div class="layout"><div class="res"><div id="magOut"></div>' +
-    '<div class="savebox">' + '<div class="row"><div>' + FN('mag') + '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' + ic('save') + 'Berechnung speichern</button></div></div></div>' +
+    '<div class="savebox">' + '<div class="row"><div>' + FN('mag') + '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('mag') + '</div></div>' +
     '<div class="inp">' + erzCard() +
     '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2" role="group" aria-label="Art der Eingabe">' +
     '<button class="btn" type="button" data-a="mode" data-v="direkt">Direkt eingeben</button><button class="btn" type="button" data-a="mode" data-v="schaetzen">Schätzen</button></div>' +
@@ -324,7 +330,7 @@ function build(){
 
   document.getElementById('v-puffer').innerHTML = '<h2 class="pagetitle" id="h-puffer" tabindex="-1" style="margin-top:14px">Pufferspeicher</h2>' +
     '<div class="layout"><div class="res"><div id="pufOut"></div><button class="btn primary wide" type="button" data-a="take" id="takeBtn" hidden>' + ic('arrow') + 'In MAG-Berechnung übernehmen</button>' +
-    '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn primary" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div></div></div>' +
+    '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn primary" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('puffer') + '</div></div>' +
     '<div class="inp">' + erzCard() + '<div class="card"><h3>Varianten</h3>' +
     sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') + sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') + sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') +
     sw('foerderung', 'Mindestvolumen Förderung', 'Richtwert 30 l je kW Nennleistung') + sw('bimschv', 'Mindestvolumen 1. BImSchV', 'Nach Füllraum und Nennleistung') + '</div>' +
@@ -346,8 +352,10 @@ function build(){
     '<div class="card"><h3>Darstellung</h3><p class="muted" style="margin:0 0 8px">Auto folgt der Einstellung des iPad.</p><button class="btn wide" type="button" data-a="theme" id="themeSet"></button></div>';
   rowsHtml();
 }
+function ncBox(id, v){ return '<div class="ncbox" id="nc-' + id + '" role="alertdialog" aria-label="Eingaben verwerfen?" hidden><span>Eingaben verwerfen?</span><button class="btn" type="button" data-a="ncno">Abbrechen</button><button class="btn danger" type="button" data-a="ncyes" data-v="' + v + '">Ja, verwerfen</button></div>'; }
+function newBtn(v){ return '<div class="newrow"><button class="btn wide" type="button" id="btn-new-' + v + '" data-a="newcalc" data-v="' + v + '" style="margin-top:0">Neue Berechnung</button>' + ncBox(v, v) + '</div>'; }
 function hub(v, icon, title, sub){
-  return '<button class="hub" type="button" data-a="nav" data-v="' + v + '"><span class="hico">' + ic(icon, '') + '</span><span class="htx"><strong>' + title + '</strong><small>' + sub + '</small></span></button>';
+  return '<button class="hub" type="button" data-a="' + (v === 'mag' || v === 'puffer' ? 'hubnew' : 'nav') + '" data-v="' + v + '"><span class="hico">' + ic(icon, '') + '</span><span class="htx"><strong>' + title + '</strong><small>' + sub + '</small></span></button>';
 }
 function erzCard(){
   return '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2" role="group" aria-label="Wärmeerzeuger">' +
@@ -504,6 +512,23 @@ function summary(t){
   const r = lastPuf && lastPuf.res; if (!r || !r.ok) return null;
   return ez + (r.vorschlagL > 0 ? 'Puffer ' + f(r.vorschlagL) + ' l' + (lastPuf.best ? ' (' + lastPuf.best.label + ')' : '') : 'Kein Puffer nötig');
 }
+function emptyState(){
+  const n = DEF(); n.erzeuger = S.erzeuger;
+  if (!E.VARIANTEN_JE_ERZEUGER[n.erzeuger].some(k => n.puf[k].on)) n.puf[E.VARIANTEN_JE_ERZEUGER[n.erzeuger][0]].on = true;
+  return n;
+}
+function isDirty(){
+  const cur = JSON.stringify(S);
+  if (cur === JSON.stringify(emptyState())) return false;
+  return !SAVED.some(x => x && x.state && JSON.stringify(loadState(x.state)) === cur); // gespeichert/geöffnet = nicht ungespeichert
+}
+function hideNc(){ document.querySelectorAll('.ncbox').forEach(b => { b.hidden = true; }); }
+function newCalc(target){
+  hideNc();
+  S = emptyState(); saveDraft(); rowsHtml(); fill(); validateAll(); refreshUI(); recalc();
+  if (target && view !== target) nav(target);
+  window.scrollTo(0, 0); toast('Neue Berechnung gestartet');
+}
 function saveCalc(t){
   const s = summary(t);
   if (!s) { toast(t === 'mag' ? 'Bitte zuerst ein Ergebnis berechnen.' : 'Bitte zuerst alle Felder der Varianten ausfüllen.'); return; }
@@ -527,6 +552,7 @@ function renderSaved(){
 const TITLES = { home: ['MAG & Puffer', 'Ausdehnungsgefäß und Pufferspeicher'], mag: ['Ausdehnungsgefäß', 'MAG berechnen'], puffer: ['Pufferspeicher', 'Puffer berechnen'], saved: ['Gespeichert', 'Gespeicherte Berechnungen'], settings: ['Einstellungen', 'Standardwerte und Darstellung'] };
 function show(v){
   if (!TITLES[v]) v = 'home';
+  hideNc();
   view = v;
   Object.keys(TITLES).forEach(k => { document.getElementById('v-' + k).hidden = k !== v; });
   document.getElementById('ttl').textContent = TITLES[v][0];
@@ -566,6 +592,10 @@ document.addEventListener('click', e => {
   else if (a === 'psv') { S.mag.psv = d.v; saveDraft(); refreshUI(); recalc(); }
   else if (a === 'add') { const l = S.mag[d.l]; l.push(d.l === 'hf' ? { typ: 'radiator', kW: '' } : { typ: 'cu-15x1', m: '' }); saveDraft(); rowsHtml(); recalc(); }
   else if (a === 'del') { S.mag[d.l].splice(Number(d.i), 1); saveDraft(); rowsHtml(); validateAll(); recalc(); }
+  else if (a === 'hubnew') { if (isDirty()) { hideNc(); const bx = document.getElementById('nc-home'); bx.querySelector('[data-a="ncyes"]').dataset.v = d.v; bx.hidden = false; } else newCalc(d.v); }
+  else if (a === 'newcalc') { if (isDirty()) { hideNc(); document.getElementById('nc-' + d.v).hidden = false; } else newCalc(d.v); }
+  else if (a === 'ncyes') newCalc(d.v || null);
+  else if (a === 'ncno') hideNc();
   else if (a === 'save') saveCalc(d.t);
   else if (a === 'take') {
     const r = lastPuf && lastPuf.res; if (!r || !r.ok || !(r.vorschlagL > 0)) return;
