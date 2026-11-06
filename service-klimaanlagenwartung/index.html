@@ -35,7 +35,7 @@
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
-.calc{display:inline-block;padding:10px 14px;background:var(--calc);border-radius:10px;font-weight:700;min-width:120px}
+.calc{display:inline-block;padding:10px 14px;background:var(--gold-soft);border:1px solid var(--line);color:var(--ink);border-radius:10px;font-weight:700;min-width:120px}
 .calcnote{font-size:13px;color:var(--muted);margin-left:8px}
 @media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
 /* Verdampfer-Karten (aufklappbar, Stil wie die Raumzeilen der Daikin-App) */
@@ -350,7 +350,7 @@ const TEMPLATE = {
         init:() => 'KLW-' + today().replace(/-/g, '') + '-' + uid().slice(0, 4).toUpperCase()},
       {id:'datum', col:'Datum', label:'Datum', type:'date', notFuture:true, init:() => today()},
       {id:'monteur', col:'Monteur', label:'Monteur', type:'text', init:() => settings.techniker},
-      {id:'kunde', col:'Kunde / Betreiber', label:'Kunde / Betreiber', type:'text', ph:'z. B. Dr. med. Markus Weber'},
+      {id:'kunde', col:'Kunde / Betreiber', label:'Kunden Nr.', type:'text', ph:'z. B. 10234'},
       {id:'anlage', col:'Anlagenbezeichnung', label:'Anlagenbezeichnung', type:'text', ph:'z. B. Split-Klimaanlage Praxis 2. OG'},
       {id:'herst', col:'Hersteller', label:'Hersteller', type:'text', ph:'z. B. Daikin'},
       {id:'sn', col:'Seriennummer (S/N)', label:'Seriennummer (S/N)', type:'text'},
@@ -919,7 +919,7 @@ function reportParts(r){
     <div><b>${up('Kunde / Betreiber')}</b><span class="space">${img(sig.kunde)}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div>` : ''}</div>`});
 
   const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
-  const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
+  const kunde = ((header.find(x => /^kunden nr/i.test(x.label) && x.value) || {}).value) || hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
   return {
     blocks,
     head:`<div class="head"><div class="firm">${firm1}${firmLines.slice(1).map(s => `<span>${esc(s)}</span>`).join('')}</div>

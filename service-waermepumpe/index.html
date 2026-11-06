@@ -24,6 +24,7 @@
 .seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
+.seg .btn.sel.warn{background:var(--warn);border-color:var(--warn);color:var(--bg)}
 .seg .btn.sel.neutral{background:var(--pri);border-color:var(--pri);color:#fff}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
@@ -31,7 +32,7 @@
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
-.calc{display:inline-block;padding:10px 14px;background:var(--calc);border-radius:10px;font-weight:700;min-width:120px}
+.calc{display:inline-block;padding:10px 14px;background:var(--gold-soft);border:1px solid var(--line);color:var(--ink);border-radius:10px;font-weight:700;min-width:120px}
 .calcnote{font-size:13px;color:var(--muted);margin-left:8px}
 @media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
 .sigwrap{border:2px dashed #c4ccd8;border-radius:12px;background:#fff;margin-bottom:8px}
@@ -181,14 +182,14 @@ textarea{overscroll-behavior:contain}
 .report .head.small{padding-bottom:2.5mm}
 .report .head.small .doc h1{font-size:11pt}
 .report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
-.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
+.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm;text-align:center}
 .report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
 .report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
 .report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
-.report .tile .pill{margin-left:-2mm;display:inline-block}
+.report .tile .pill{margin-left:0;display:inline-block}
 .report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
 .report .pill.ok{color:var(--ok);background:var(--ok-bg)}
 .report .pill.bad{color:var(--bad);background:var(--bad-bg)}
@@ -353,7 +354,7 @@ const TEMPLATE = {
       {id:'fIg', col:'Absicherung Inneneinheit (A)', label:'Absicherung Inneneinheit', pdf:'Sicherung IG', type:'text', req:true, ph:'z. B. B16'},
       {id:'fHs', col:'Absicherung Heizstab (A)', label:'Absicherung Heizstab', pdf:'Sicherung Heizstab', type:'text', ph:'z. B. B16', hint:'Leer lassen, wenn kein Heizstab verbaut ist'},
       {id:'rcd', col:'RCD-Typ / FI-Schutz', label:'RCD-Typ / FI-Schutz', pdf:'RCD-Schutz', type:'select',
-        opts:['Typ A / 40A / 30mA', 'Typ B / 40A / 30mA'], req:true, init:'Typ A / 40A / 30mA'},
+        opts:['Typ A / 40A / 30mA', 'Typ B / 40A / 30mA'], other:true, req:true, init:'Typ A / 40A / 30mA'},
       ok('elAnschl', 'Elektrische Anschlüsse geprüft', 'Elektrische Anschlüsse geprüft', 'Kontaktprüfung', 'Sichtprüfung und Festsitz der Klemmen (VDE 0100)'),
       ok('elFunk', 'Elektrische Funktionsprüfung', 'Elektrische Funktionsprüfung', 'Funktionsprüfung', 'Gesamtprüfung aller elektrischen Funktionen und Sicherheitsabschaltungen')
     ]},
@@ -382,6 +383,8 @@ const TEMPLATE = {
       {id:'druck', col:'Heizungsdruck (bar)', label:'Heizungs-Fülldruck', type:'number', unit:'bar', req:true, min:0.5, max:4, sMin:1.2, sMax:2.0, ph:'1,5'},
       {id:'mag', col:'Ausdehnungsgefäß Vordruck (bar)', label:'Ausdehnungsgefäß Vordruck', type:'number', unit:'bar', req:true, min:0.5, max:3, sMin:1.0, sMax:1.5, ph:'1,1',
         hint:'Stickstoff-Vordruck im wasserseitig drucklosen Zustand'},
+      {id:'entl', col:'Automatische Entlüfter verbaut (R290)', label:'Automatische Entlüfter verbaut?', pdf:'Automatische Entlüfter verbaut', type:'yesno', warn:['Ja'], soll:'bei R290 prüfen',
+        show:v => v.km === 'R290', hint:'Nur bei R290 (Propan): automatische Entlüfter im Heizkreis nur mit Bedacht verbauen (Kältemittel-Gefahr)'},
       {id:'lf', col:'Heizwasser Leitfähigkeit (µS/cm)', label:'Elektrische Leitfähigkeit', type:'number', unit:'µS/cm', req:true, min:0, max:1500, sMax:100, ph:'99'},
       {id:'ph', col:'Heizwasser pH-Wert', label:'pH-Wert Heizwasser', type:'number', unit:'pH', req:true, min:0, max:14, sMin:8.2, sMax:9.0, ph:'8,5'},
       {id:'wasser', label:'Wasser-Zustand (VDI 2035)', type:'calc',
@@ -435,6 +438,7 @@ function display(f, x){
   return String(x);
 }
 function sollText(f){
+  if(f.soll) return f.soll;
   const u = f.unit && f.unit !== 'pH' ? ' ' + f.unit : '';
   if(f.sMin != null && f.sMax != null) return `Soll ${fmtNum(f.sMin)} – ${fmtNum(f.sMax)}${u}`;
   if(f.sMax != null) return `Soll ≤ ${fmtNum(f.sMax)}${u}`;
@@ -446,6 +450,7 @@ function evalField(f, v){
   if(f.type === 'okfail') return x === 'i.O.' ? 'ok' : x === 'n.i.O.' ? 'bad' : x === 'entfällt' ? 'na' : 'none';
   if(f.bad && f.bad.includes(x)) return 'bad';
   if(f.good && f.good.includes(x)) return 'ok';
+  if(f.warn && f.warn.includes(x)) return 'warn';
   if(f.type === 'number' && isN(x) && (f.sMin != null || f.sMax != null)){
     const n = num(x);
     return (f.sMin != null && n < f.sMin) || (f.sMax != null && n > f.sMax) ? 'warn' : 'ok';
@@ -477,7 +482,7 @@ function pageDone(p, i){ return TEMPLATE.pages[i].fields.every(f => f.type === '
 /* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
 function buildReport(p){
   const v = p.values;
-  const rowsOf = pg => pg.fields.filter(f => !(f.wide && !v[f.id])).map(f => ({label:f.pdf || f.label, value:display(f, v[f.id]), eval:evalField(f, v), wide:!!f.wide}));
+  const rowsOf = pg => pg.fields.filter(f => !(f.wide && !v[f.id]) && !(f.show && !f.show(v) && !v[f.id])).map(f => ({label:f.pdf || f.label, value:display(f, v[f.id]), eval:evalField(f, v), wide:!!f.wide}));
   return {
     title: TEMPLATE.title, firma: settings.firma || '',
     header: rowsOf(TEMPLATE.pages[0]),
@@ -574,7 +579,7 @@ const Views = {
     const allOk = pg.kind === 'check' && pg.fields.some(f => !p.values[f.id]);
     return `
       <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
-      <div class="card stag" style="--i:1">${pg.fields.map(f => fieldHtml(f, p)).join('')}</div>
+      <div class="card stag" style="--i:1">${pg.fields.filter(f => !f.show || f.show(p.values)).map(f => fieldHtml(f, p)).join('')}</div>
       ${pg.final ? finalHtml(p) : ''}
       <div class="err" id="pageerr"></div>`;
   },
@@ -642,7 +647,7 @@ function fieldHtml(f, p){
   let body;
   switch(f.type){
     case 'okfail': return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
-    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], ['neutral', 'neutral'])}</div>${errHtml}</div>`;
+    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], ['Ja', 'Nein'].map(o => f.warn && f.warn.includes(o) ? 'warn' : 'neutral'))}</div>${errHtml}</div>`;
     case 'select': {
       const custom = f.other && x && !f.opts.includes(x);
       body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>

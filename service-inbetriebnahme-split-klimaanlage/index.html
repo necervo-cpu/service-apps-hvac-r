@@ -100,8 +100,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Ende Handy-Layout ===== */
 /* ===== Design 2026: Startseite-Optik (Kacheln, Goldlinie), Handy-Feinschliff ===== */
 html{overscroll-behavior-y:none}
-.btn,.tile,.steps button,.ib{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.btn:focus-visible,.tile:focus-visible,.steps button:focus-visible,.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn,.tiles>.tile,.steps button,.ib{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn:focus-visible,.tiles>.tile:focus-visible,.steps button:focus-visible,.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 input,select,textarea{font-size:16px;min-height:50px;border-radius:12px}
 textarea{min-height:96px}
 /* Seitenränder respektieren Notch / Querformat */
@@ -116,8 +116,8 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .newbtn{display:flex;width:100%;min-height:58px;font-size:17px;font-weight:700;border-radius:16px;margin:8px 0 12px;box-shadow:0 4px 14px rgba(26,26,26,.12)}
 .newbtn .ico{width:22px;height:22px;stroke-width:2.4}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tile{appearance:none;-webkit-appearance:none;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 3px 10px;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;transition:transform 140ms var(--out),border-color 150ms,box-shadow 150ms}
-.tile:active{transform:scale(.97)}
+.tiles>.tile{appearance:none;-webkit-appearance:none;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 3px 10px;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;transition:transform 140ms var(--out),border-color 150ms,box-shadow 150ms}
+.tiles>.tile:active{transform:scale(.97)}
 .tile .ti{position:relative;width:40px;height:40px;border-radius:12px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
 .tile .tl{font-size:13px;font-weight:600;line-height:1.2;min-width:0;max-width:100%;overflow-wrap:break-word;-webkit-hyphens:manual;hyphens:manual}
 .tile .cnt{position:absolute;top:-7px;right:-9px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font:700 11.5px/20px "Plus Jakarta Sans",sans-serif;font-style:normal;text-align:center}
@@ -149,15 +149,15 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .bar .btn.primary{flex:1.5;box-shadow:0 3px 10px rgba(26,26,26,.14)}
 .bar .btn[disabled]{opacity:.4}
 @media(hover:hover) and (pointer:fine){
-  .tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}
+  .tiles>.tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}
   .btn:not(:disabled):not(.sel):hover{border-color:var(--pri2)}
 }
 @media(max-width:360px){
-  .tiles{gap:8px}.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
+  .tiles{gap:8px}.tiles>.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
   .seg .btn{padding:10px 4px;font-size:14.5px}
   .bar .btn{font-size:14.5px;padding-left:8px;padding-right:8px}
 }
-@media(prefers-reduced-motion:reduce){.tile{transition:none}}
+@media(prefers-reduced-motion:reduce){.tiles>.tile{transition:none}}
 /* ===== Ende Design 2026 ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
@@ -189,7 +189,7 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .report .head.small{padding-bottom:2.5mm}
 .report .head.small .doc h1{font-size:11pt}
 .report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
-.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
+.report .tile{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
 .report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
 .report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
 .report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
@@ -336,7 +336,7 @@ const TEMPLATE = {
       {id:'pruef', col:'Prüfpflicht', label:'Prüfpflicht (Dichtheitsprüfung)', pdf:'Prüfpflicht F-Gase', type:'calc',
         calc:v => isN(v.co2) ? (v.co2 >= 5 ? 'Ja' : 'Nein') : '', note:() => 'ab 5 t CO₂-Äquivalent (EU 2024/573)'},
       {id:'rohr', col:'Gesamtrohrlänge (m)', label:'Gesamtrohrlänge', type:'number', unit:'m', min:0, max:500},
-      {id:'hoehe', col:'Höhendifferenz AG / IG (m)', label:'Höhendifferenz AG / IG', pdf:'Höhendifferenz AG/IG', type:'number', unit:'m', min:-200, max:200},
+      {id:'hoehe', col:'Höhendifferenz AG / IG (m)', label:'Höhendifferenz AG / IG', pdf:'Höhendifferenz AG/IG', type:'number', unit:'m', min:-200, max:200, hint:'Bei mehreren Innengeräten: die Kombination mit der größten Höhendifferenz angeben'},
       {id:'n2p', col:'Stickstoff Prüfdruck (bar)', label:'Stickstoff-Prüfdruck', pdf:'N₂-Prüfdruck', type:'number', unit:'bar', min:0, max:100, ph:'40'},
       {id:'n2d', col:'Stickstoff Prüfdauer (h)', label:'Stickstoff-Prüfdauer', pdf:'N₂-Prüfdauer', type:'number', unit:'h', min:0, max:500, ph:'24'}
     ]},
@@ -381,7 +381,7 @@ const TEMPLATE = {
       ok('kml', 'Check Kältemittelleitung nach Handbuch', 'Kältemittelleitung nach Handbuch', 'Kältemittelleitung nach Handbuch', 'Durchmesser, Länge, Bördel / Lötstellen', {group:'Kältetechnik'}),
       ok('fgas', 'Check F-Gase-Aufkleber ausgefüllt', 'F-Gase-Aufkleber ausgefüllt', 'F-Gase-Aufkleber ausgefüllt', 'Gesamtfüllmenge und CO₂-Äquivalent eingetragen', {group:'Kältetechnik'}),
       ok('sens', 'Check Sensoren & Thermistoren Position', 'Sensoren & Thermistoren Position', 'Sensoren & Thermistoren Position', '', {group:'Sensorik & Platine'}),
-      ok('haeng', 'Check Hängestutzen Platine entfernt', 'Hängestutzen Platine entfernt', 'Hängestutzen Platine entfernt', 'Transportsicherung', {group:'Sensorik & Platine'})
+      ok('haeng', 'Check Hängestutzen Platine entfernt', 'Hängestutzen Platine entfernt', 'Hängestutzen Platine entfernt', 'Transportsicherung', {group:'Sensorik & Platine', legacy:true})   // entfallen: im Formular ausgeblendet, alte Werte weiter im PDF
     ]},
     {title:'Funktionsprüfung Innen- & Außengeräte', short:'Funktion', kind:'check',
       table:{head:['Gerät', 'Lüfter dreht frei', 'Lamellen & Klappen', 'WLAN-Adapter', 'Tauwasserpumpe'],
@@ -439,6 +439,7 @@ function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 1
 function num(v){ return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.')); }
 function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
 const isVis = (f, v) => !f.show || f.show(v);
+const isEditable = (f, v) => !f.legacy && isVis(f, v);   // legacy = entfallenes Feld: nicht bearbeitbar
 let calcSeen = {};   // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
 function calcTouch(id, text, el){ const k = view.id + ':' + id; if(k in calcSeen && calcSeen[k] !== text) flash(el); calcSeen[k] = text; }
 
@@ -488,7 +489,7 @@ function fieldError(f, p){
 }
 function pageErrors(p, i){ return TEMPLATE.pages[i].fields.map(f => [f, fieldError(f, p)]).filter(e => e[1]); }
 function pageDone(p, i){
-  const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && isVis(f, p.values));
+  const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && isEditable(f, p.values));
   return fs.every(f => !fieldError(f, p)) && fs.some(f => String(p.values[f.id] ?? '') !== '');
 }
 
@@ -496,7 +497,7 @@ function pageDone(p, i){
 function buildReport(p){
   const v = p.values;
   const row = f => ({label:f.pdf || f.label, value:display(f, v[f.id]), eval:evalField(f, v), wide:!!f.wide});
-  const rowsOf = fs => fs.filter(f => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
+  const rowsOf = fs => fs.filter(f => isVis(f, v) && !(f.wide && !v[f.id]) && !(f.legacy && !v[f.id])).map(row);
   const section = pg => {
     const inTab = new Set(pg.table ? pg.table.rows.flatMap(r => r.ids) : []);
     const rest = pg.fields.filter(f => !inTab.has(f.id));
@@ -602,7 +603,7 @@ const Views = {
     const p = cur();
     if(!p) return '<p>Protokoll nicht gefunden.</p>';
     const pg = TEMPLATE.pages[p.page];
-    const allOk = pg.fields.some(f => f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]);
+    const allOk = pg.fields.some(f => f.type === 'okfail' && isEditable(f, p.values) && !p.values[f.id]);
     return `
       <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
       <div class="card stag" style="--i:1">${fieldsHtml(pg, p)}</div>
@@ -667,7 +668,7 @@ function protoCard(p){
 /* Felder einer Seite mit Zwischenüberschriften (group) */
 function fieldsHtml(pg, p){
   let g = null;
-  return pg.fields.filter(f => isVis(f, p.values)).map(f => {
+  return pg.fields.filter(f => isEditable(f, p.values)).map(f => {
     let h = '';
     if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; }
     return h + fieldHtml(f, p);
@@ -964,7 +965,7 @@ const Actions = {
   },
   allok(){
     const p = cur();
-    TEMPLATE.pages[p.page].fields.forEach(f => { if(f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]) p.values[f.id] = 'i.O.'; });
+    TEMPLATE.pages[p.page].fields.forEach(f => { if(f.type === 'okfail' && isEditable(f, p.values) && !p.values[f.id]) p.values[f.id] = 'i.O.'; });
     save(); render();
   },
   next(){

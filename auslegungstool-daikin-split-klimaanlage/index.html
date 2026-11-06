@@ -288,7 +288,7 @@ function barHtml(){
   const p = cur();
   if (!isRes()) return `<div><button class="btn" style="flex:.55" data-act="addroom"${p.rooms.length >= 5 ? ' disabled' : ''}><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Raum</button><button class="btn primary" data-act="toresult">Ergebnis ansehen</button></div>`;
   const sel = EV ? selected() : null;
-  return `<div><button class="btn" data-act="toinput">Ändern</button><button class="btn primary pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button></div>`;
+  return `<div><button class="btn" data-act="toinput">Ändern</button><button class="btn primary pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.id === p.id && sel && sel.ok ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
 }
 function setBar(){
   const b = $('#bar'), h = barHtml();
@@ -478,7 +478,7 @@ const pdfName = s => String(s || 'ohne-Projektnummer').replace(/[\/\\:*?"<>|]+/g
 const isStandalone = () => !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 function pdfBarHtml(){
   if (!lastPdf || lastPdf.id !== view.id) return '';
-  return `<button class="btn primary" data-act="sharepdf">Teilen / Drucken</button>${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+  return `<button class="btn primary" data-act="sharepdf">Teilen</button>${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
 }
 function gasDia(r){
   const u = r.unit, a = r.asg; if (!u || !a) return null;
@@ -685,7 +685,7 @@ const Act = {
         refreshResults();   // baut Leiste neu auf -> neuen Knopf in den Fertig-Zustand setzen
         const nb = cb();
         if (nb){ nb.classList.remove('run'); nb.classList.add('done'); setTimeout(() => nb.classList.remove('done'), 2600); }
-        toast('PDF „' + (p.nr || 'ohne Projektnummer') + '“ ist fertig. Teilen oder drucken.');
+        toast('PDF „' + (p.nr || 'ohne Projektnummer') + '“ ist fertig. Jetzt „Teilen“ antippen.');
       } else toast('PDF „' + (p.nr || 'ohne Projektnummer') + '“ ist fertig.');
     }catch(e){ toast('PDF konnte nicht erstellt werden: ' + e.message); }
     finally {
@@ -697,7 +697,8 @@ const Act = {
     if (!lastPdf) return; const files = [lastPdf.file];
     if (navigator.canShare && navigator.canShare({ files })){
       try{ await navigator.share({ files, title: lastPdf.file.name }); } catch (e){ if (e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message); }
-    } else window.open(lastPdf.url, '_blank');
+    } else if (isStandalone()) window.open(lastPdf.url, '_blank');
+    else { const a = document.createElement('a'); a.href = lastPdf.url; a.download = lastPdf.file.name; document.body.appendChild(a); a.click(); a.remove(); }
   },
   saveset(){
     settings.theme = $('#s_theme').value; applyTheme(); themeBtn(); settings.firma = $('#s_firma').value.trim(); settings.bearbeiter = $('#s_bear').value.trim();
