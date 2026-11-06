@@ -667,7 +667,6 @@ const Views = {
     return `
       <div class="row noprint" style="margin-bottom:12px">
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
-        ${!isStandalone() ? '<button class="btn" data-act="print">Drucken</button>' : ''}
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
         ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
       </div>
