@@ -34,6 +34,6 @@ function netRender(n){
   const el = $('#net');
   const on = navigator.onLine;
   el.className = 'net' + (on ? '' : ' off');
-  el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl"> ausstehend</span>` : ''}`;
+  el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl">&nbsp;ausstehend</span>` : ''}`;
   el.title = (on ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
 }
