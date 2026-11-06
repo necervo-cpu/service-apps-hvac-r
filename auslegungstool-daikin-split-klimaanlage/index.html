@@ -15,10 +15,13 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-180.png">
 <title>Auslegungstool Daikin Split-Klimaanlage</title>
-<script src="lib/html2canvas.min.js" defer></script>
-<script src="lib/jspdf.umd.min.js" defer></script>
+<script src="shared/lib/html2canvas.min.js" defer></script>
+<script src="shared/lib/jspdf.umd.min.js" defer></script>
+<link rel="stylesheet" href="shared/pdf.css">
 <script src="daten.js"></script>
 <script src="engine.js"></script>
+<script src="shared/pdf-bausteine.js"></script>
+<script src="shared/pdf.js"></script>
 <style>
 :root{--t-fast:150ms;--t-med:260ms;--t-exit:180ms;--out:cubic-bezier(.23,1,.32,1);--in:cubic-bezier(.4,0,1,1);--sh:0 6px 18px rgba(26,26,26,.10);--tile:#fbf8e4;--flash:rgba(220,204,75,.5);--bg:#f6f5f1;--card:#fff;--ink:#1a1a1a;--muted:#6a6967;--line:#e8e5dc;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-dark:#c4b53e;--gold-text:#8b7a1b;--cream:#faf9f5;--ok:#1e8e4e;--bad:#c62828;--na:#7d838c;--warn:#b26a00;--ctl:#fff;--selbg:#fbf8e4;--bdg:#eef1f5;--okbg:#e3f4ea;--okbd:#b6e0c6;--okfg:#14532d;--wbg:#fff3e0;--wbd:#ffd59a;--wfg:#6d4300;--ebg:#fdeaea;--ebd:#f1b5b5;--efg:#7a1414;--hbg:#fff8d6;--hfg:#4a3f00}
 :root[data-theme=light]{color-scheme:light}
@@ -175,35 +178,9 @@ th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04
 /* sehr schmale Handys (320 px) und große Schrift/Zoom */
 @media(max-width:360px){header{gap:8px}.logo{width:34px;height:34px;font-size:16px}header .tt h1{font-size:16px}.ib{width:40px;height:40px}input,select,textarea{padding:12px 10px}.bar>div{gap:8px}.bar .btn{padding:10px 8px;font-size:14px;gap:4px}.kpis{gap:6px}.kpi{padding:9px 8px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.001ms!important;transition-delay:0ms!important;animation-duration:.001ms!important;animation-delay:0ms!important}.entering .stag{opacity:1;transform:none}}
-/* PDF-Ausdruck (immer hell, A4 = 794 x 1123 px). PDF-Schrift: Helvetica/Arial (Systemschrift) (lib/fonts bleibt liegen) */
+/* App-Schrift (lib/fonts). PDF-CSS: shared/pdf.css, PDF-Schrift: Helvetica/Arial (Systemschrift) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-.a4{width:794px;height:1123px;background:#fff;color:#1a1a1a;padding:46px 52px 34px;display:flex;flex-direction:column;font:11.2px/1.42 Helvetica,Arial,sans-serif;overflow:hidden;box-sizing:border-box;
-  --gold:#DCCC4B;--ink2:#3a3a3a;--ink3:#6a6967;--line:#dcd9cf;--ls:#eceae3;--z:#faf9f5;--hb:#f8f7f4;--ok:#1e7a46;--okbg:#e6f4ec;--warn:#8a5a00;--warnbg:#fdf3d6}
-.a4 *{box-sizing:border-box;text-transform:none}
-.a4 .pb{flex:1;min-height:0;overflow:hidden}
-.a4 .hd2{display:flex;justify-content:space-between;gap:24px;padding-bottom:14px;border-bottom:3px solid var(--gold)}
-.a4 .lg{width:60px;height:60px;border:1.5px dashed #bdbab0;border-radius:8px;display:grid;place-items:center;font-size:9px;color:var(--ink3);text-align:center;flex:none}
-.a4 .fm{display:flex;gap:14px;align-items:center}.a4 .fm b{font-size:14px;display:block}.a4 .fm span{color:var(--ink2);font-size:10.5px}
-.a4 .dc{text-align:right}.a4 .dc .k{font-size:9px;letter-spacing:.14em;color:var(--ink3)}.a4 .dc h1{margin:2px 0 4px;font-size:22px;line-height:1.1;letter-spacing:-.01em;color:#1a1a1a}.a4 .dc .mt{color:var(--ink2);font-size:10.5px}.a4 .dc .mt b{color:#1a1a1a}
-.a4 .hd2.small{padding-bottom:8px}.a4 .hd2.small .lg{display:none}.a4 .hd2.small .dc h1{font-size:15px;margin:0 0 2px}.a4 .hd2.small .dc .k{display:none}
-.a4 .tiles{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:10px;margin:14px 0 4px}
-.a4 .tile{border:1px solid var(--line);border-radius:7px;padding:9px 11px}.a4 .tile .lab{font-size:8.5px;letter-spacing:.1em;color:var(--ink3);font-weight:600}.a4 .tile .val{font-size:17px;font-weight:700;margin-top:3px;line-height:1.15}.a4 .tile .sb{font-size:10px;color:var(--ink2);margin-top:3px}
-.a4 .tile.ok{border-color:var(--ok);border-left:4px solid var(--ok);background:var(--okbg)}.a4 .tile.ok .val{color:var(--ok)}
-.a4 .tile.pr{border-color:var(--gold);border-left:4px solid var(--gold);background:#faf6dc}
-.a4 .sec{margin-top:14px}.a4 .sec h2{display:flex;align-items:center;gap:9px;margin:0 0 6px;font-size:12px;font-weight:700;padding-bottom:4px;border-bottom:1px solid var(--line);color:#1a1a1a}
-.a4 .sec h2 i{font-style:normal;width:18px;height:18px;border-radius:4px;background:var(--gold);display:grid;place-items:center;font-size:10px;flex:none}
-.a4 table{width:100%;border-collapse:collapse}.a4 th{background:var(--hb);font-size:8.6px;font-weight:700;letter-spacing:.06em;color:var(--ink2);text-align:left;padding:5px 6px;border-bottom:1.5px solid var(--gold)}
-.a4 td{padding:5px 6px;border-bottom:1px solid var(--ls);vertical-align:top;color:#1a1a1a}.a4 tbody tr:nth-child(even) td{background:var(--z)}
-.a4 td.n,.a4 th.n{text-align:right}.a4 .mb{font-weight:700}.a4 td small{display:block;color:var(--ink3);font-size:9px}
-.a4 .kv{display:grid;grid-template-columns:repeat(4,1fr);column-gap:14px;margin:0}.a4 .kv div{padding:4px 0;border-bottom:1px solid var(--ls)}.a4 .kv dt{font-size:8.6px;letter-spacing:.06em;color:var(--ink3)}.a4 .kv dd{margin:1px 0 0;font-weight:600;font-size:11.5px}
-.a4 .kv .w2{grid-column:span 2}
-.a4 .note{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:4px;padding:8px 11px;margin-top:12px}.a4 .note b.t{display:block;font-size:8.6px;letter-spacing:.09em;color:var(--ink3);margin-bottom:2px}
-.a4 .note.warn{border-left-color:#b26a00;background:var(--warnbg)}.a4 .note ul{margin:3px 0 0;padding-left:16px}
-.a4 .fn{font-size:9.5px;color:var(--ink3);margin-top:3px}
-.a4 .ft{border-top:1px solid var(--line);padding-top:7px;margin-top:8px;display:flex;justify-content:space-between;gap:16px;font-size:8.6px;color:var(--ink3);flex:none}
-.a4{overflow-wrap:anywhere}.a4 td{word-break:break-word}.a4 .sec h2{letter-spacing:0}
-.a4 .ft .pno{white-space:nowrap;font-weight:600;color:var(--ink2)}
 </style>
 </head>
 <body>
@@ -474,8 +451,7 @@ function detailHtml(x){
 }
 
 /* ====== PDF ====== */
-const pdfName = s => String(s || 'ohne-Projektnummer').replace(/[\/\\:*?"<>|]+/g, '-').trim();
-const isStandalone = () => !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+/* pdfName, isStandalone, layoutReport, reportPdfBlob stehen in shared/pdf.js, die Bausteine in shared/pdf-bausteine.js, das CSS in shared/pdf.css */
 function pdfBarHtml(){
   if (!lastPdf || lastPdf.id !== view.id) return '';
   return `<button class="btn primary" data-act="sharepdf">Teilen</button>${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
@@ -485,146 +461,63 @@ function gasDia(r){
   if (a.red) return (u.klasse <= 35 || (u.klasse === 42 && u.k42)) ? 9.5 : (u.klasse <= 60 ? 12.7 : 15.9);
   return a.port.gas_mm;
 }
-function reportHtml(p, x){
-  const o = x.odu, firma = settings.firma;
-  // Großbuchstaben im Text statt per CSS (html2canvas kommt sonst mit „ß“ nicht klar)
-  const up = t => esc(String(t == null ? '' : t).toUpperCase());
-  const reds = uniq(x.rows.filter(r => r.asg && r.asg.red).map(r => r.asg.red));
-  let n = 0;
-  const h2 = t => `<h2><i>${++n}</i>${esc(t)}</h2>`;
-  const kv = rows => `<dl class="kv">${rows.map(c => `<div${c[2] ? ' class="' + c[2] + '"' : ''}><dt>${up(c[0])}</dt><dd>${esc(c[1] || '—')}</dd></div>`).join('')}</dl>`;
-  const bearb = p.bearbeiter ? ` · Bearbeiter <b>${esc(p.bearbeiter)}</b>` : '';
-  const meta = `Projekt <b>${esc(p.nr || '—')}</b> · ${esc(fmtDate(p.datum) || '—')}${bearb}`;
-  const head = `<div class="hd2"><div class="fm"><div class="lg">Platz für<br>Logo</div><div>${firma ? `<b>${esc(firma)}</b>` : ''}<span>Interne Kalkulation · Daikin R32 Multisplit</span></div></div>
-    <div class="dc"><div class="k">AUSLEGUNG</div><h1>Daikin Multisplit R32</h1><div class="mt">${meta}</div></div></div>`;
-  const smallHead = `<div class="hd2 small"><div class="fm"><div><span>${firma ? esc(firma) + ' · ' : ''}Interne Kalkulation · Daikin R32 Multisplit</span></div></div>
-    <div class="dc"><h1>Auslegung Daikin Multisplit R32</h1><div class="mt">${meta}</div></div></div>`;
+/* Bericht-Daten für das PDF (Auslegung p, gewähltes Außengerät x) – reportParts baut daraus die Seitenteile */
+function buildReport(p, x){ return { p, x, firma: settings.firma || '', datenstand: dataInfo }; }
+function reportParts(r){
+  const { p, x } = r, o = x.odu, B = pdfBausteine(), esc = B.esc;
+  const TITEL = 'Daikin Multisplit R32', SUB = 'Interne Kalkulation · Daikin R32 Multisplit';
+  const id = p.nr || '—', datum = fmtDate(p.datum) || '';
+  const reds = uniq(x.rows.filter(q => q.asg && q.asg.red).map(q => q.asg.red));
+  const head = B.kopf({ firma: r.firma, kicker: 'Auslegung', titel: TITEL, id, datum, untertitel: 'Interne Kalkulation' });
+  const smallHead = B.kopfKlein({ firma: r.firma, zeile: SUB, titel: 'Auslegung ' + TITEL, id });
+  const foot = B.fuss({ text: 'Auslegung ' + TITEL, stand: datum });
   const blocks = [];
-  blocks.push({ html: `<div class="tiles">
-    <div class="tile ok"><div class="lab">${up('Ergebnis')}</div><div class="val">Freigegeben</div><div class="sb">Kombination freigegeben: Ja – alle geprüften Daikin-Vorgaben eingehalten</div></div>
-    <div class="tile pr"><div class="lab">${up('Außengerät')}</div><div class="val">${esc(o.id)}</div><div class="sb">${x.empfohlen ? 'Empfehlung' : 'Manuell gewählt'} · ${fmt(o.kuehlen_kw)} kW kühlen</div></div>
-    <div class="tile"><div class="lab">${up('Innengeräte')}</div><div class="val">${fmt(x.sum)} kW</div><div class="sb">von max. ${fmt(x.sumMax)} kW · ${x.rows.length} ${x.rows.length === 1 ? 'Raum' : 'Räume'}</div></div></div>` });
-  blocks.push({ html: `<div class="sec">${h2('Kunde und Objekt')}${kv([['Kunde / Objekt', p.kunde], ['Projektnummer', p.nr], ['Datum', fmtDate(p.datum)], ['Bearbeiter', p.bearbeiter]])}</div>` });
-  const rowsHtml = x.rows.map(r => { const b = E.bedarfKw(r.room, DB); const u = r.unit; return `<tr>
-    <td>${r.i + 1} · ${esc(r.room.name || '—')}</td><td class="mb">${esc(u.modell)}<small>Klasse ${u.klasse}</small></td>
-    <td class="n">${r.room.flaeche ? esc(r.room.flaeche) + ' m²' : '—'}</td><td class="n">${b != null ? fmt(b) + ' kW' : '—'}</td>
-    <td class="n">${fmt(u.kwK != null ? u.kwK : u.kw)} / ${u.kwH != null ? fmt(u.kwH) : '—'} kW</td>
-    <td class="n mb">${r.mk != null ? fmt(r.mk, 2) + ' / ' + fmt(r.mh, 2) + ' kW' : '—'}</td>
-    <td>${esc(r.asg.port.port)} (Ø${fmt(r.asg.port.gas_mm)})${r.asg.red ? ' + Red. ' + esc(r.asg.red) : ''}<small>Gas-Ø ${fmt(gasDia(r))} mm</small></td>
-    <td class="n">${r.laenge != null ? fmt(r.laenge) + ' m' : '—'}<small>Höhe ${r.hoehe ? fmt(r.hoehe) : '0'} m</small></td></tr>`; }).join('');
-  const multiNote = x.multi ? `<div class="fn">Multi = Leistung je Raum bei gleichzeitigem Betrieb aller Innengeräte (Nennwert). Quelle: ${esc(x.multi.quelle)}.${x.multi.vorl ? ' Werte dieser Kombination laut Daikin vorläufig.' : ''}</div>` : '';
-  blocks.push({ split: true, rows: rowsHtml, note: multiNote, title: 'Räume und Innengeräte', num: ++n,
-    head: `<tr><th>${up('Raum')}</th><th>${up('Innengerät')}</th><th class="n">${up('Fläche')}</th><th class="n">${up('Bedarf')}</th><th class="n">${up('Einzel kühl./heiz.')}</th><th class="n">${up('Multi kühl./heiz.')}</th><th>${up('Anschluss')}</th><th class="n">${up('Rohr')}</th></tr>` });
-  blocks.push({ html: `<div class="sec">${h2('Außengerät ' + o.id)}${kv([
-    ['Nennleistung kühlen', fmt(o.kuehlen_kw) + ' kW'], ['Nennleistung heizen', fmt(o.heizen_kw) + ' kW'],
-    ['Rohr je Raum', `${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m`], ['Rohr gesamt max.', fmt(o.rohr_gesamt_max_m) + ' m'],
-    ['Summe Innengeräte', `${fmt(x.sum)} kW (max. ${fmt(x.sumMax)} kW)`], ['Anzahl Innengeräte', `${x.rows.length} (zulässig ${o.ig_min}–${o.ig_max})`],
-    ['Rohrlänge gesamt', x.total != null ? fmt(x.total) + ' m' : '—'], ['Flüssigkeitsleitung', 'Ø6,35 mm je Innengerät'],
-    ['Zusätzliches R32', x.extra != null ? fmt(x.extra) + ' kg (ab ' + fmt(o.nachfuell_ab_m) + ' m, ' + fmt(o.nachfuell_kg_je_m * 1000, 0) + ' g/m)' : '—', 'w2'],
-    ['R32 gesamt', x.charge != null ? fmt(x.charge, 2) + ' kg (Werk ' + fmt(o.werk_kg, 2) + ' kg)' : '—', 'w2'],
-    ['Höhe AG höher / niedriger', `${fmt(o.hoehe_ag_oben_m)} m / ${fmt(o.hoehe_ag_unten_m)} m`, 'w2'], ['Höhe IG–IG', `${fmt(o.hoehe_ig_ig_m)} m / ${fmt(o.hoehe_ig_ig_unten_m)} m`, 'w2']])}</div>` });
-  blocks.push({ html: `<div class="sec">${h2('Elektrischer Anschluss')}${kv([
-    ['Stromversorgung', '1~ / 50 Hz / 220–240 V'], ['Stromaufnahme Außengerät', o.strom_a != null ? fmt(o.strom_a) + ' A' : ''],
-    ['Absicherung (empf. Hauptschalter)', o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : ''], ['FI-Schutzschalter', 'immer; nach örtlichen Vorschriften'],
-    ['Netzleitung', '3-adrig, min. ' + fmt(o.netzleitung_min_mm2) + ' mm² (nach Stromstärke)', 'w2'],
-    ['Verbindungsleitung je Raum', '4-adrig, min. ' + fmt(o.verbindungsleitung_min_mm2) + ' mm² (harmonisiert, doppelt isoliert)', 'w2']])}</div>` });
-  blocks.push({ html: `<div class="sec">${h2('Montagehinweise')}<div>${reds.length ? `<b>Reduzierstücke (Daikin-Nr.):</b> ${reds.map(esc).join(', ')} <span style="color:var(--ink3)">(${esc(E.REDUZIERER_INFO)})</span><br>` : 'Keine Reduzierstücke erforderlich.<br>'}
-    Kürzeste Rohrlänge je Raum ${fmt(o.rohr_raum_min_m)} m · Rohre getrennt isolieren · R32: Mindestfläche je Raum beachten.<br>
-    <b>R32-Mindestfläche je Raum:</b> ${x.rows.map(r => `Raum ${r.i + 1}: ${r.amin ? fmt(Math.ceil(r.amin * 10) / 10) + ' m²' : 'keine Anforderung'}`).join(' · ')}</div></div>` });
-  if (x.warns.length) blocks.push({ html: `<div class="note warn"><b class="t">${up('Auffälligkeiten / Hinweise')}</b><ul>${uniq(x.warns).map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` });
-  if (String(p.bemerkung || '').trim()) blocks.push({ noteSplit: true, t: up('Bemerkungen'), text: String(p.bemerkung) });
-  blocks.push({ html: `<div class="note"><b class="t">${up('Wichtiger Hinweis')}</b>Dieses Dokument ist das Ergebnis einer Kombinationshilfe zur ersten Prüfung. Die endgültige Kalkulation muss vor Angebot, Bestellung und Ausführung anhand der Daikin-Unterlagen geprüft werden.</div>` });
-  const foot = `Geprüft nach: ${esc(o.quelle)}. Datenstand: ${esc(dataInfo)}. Die Auslegung ersetzt weder Heizlast-/Kühllastberechnung noch die Installationsanleitung des Herstellers.`;
-  return { blocks, head, smallHead, foot };
+  blocks.push({ html: B.kacheln([
+    { art: 'ok', lab: 'Ergebnis', val: 'Freigegeben', sub: 'Kombination freigegeben: Ja – alle geprüften Daikin-Vorgaben eingehalten' },
+    { art: 'primary', lab: 'Außengerät', val: o.id, sub: `${x.empfohlen ? 'Empfehlung' : 'Manuell gewählt'} · ${fmt(o.kuehlen_kw)} kW kühlen` },
+    { lab: 'Innengeräte', val: fmt(x.sum) + ' kW', sub: `von max. ${fmt(x.sumMax)} kW · ${x.rows.length} ${x.rows.length === 1 ? 'Raum' : 'Räume'}` }]) });
+  blocks.push({ html: B.abschnitt('Kunde und Objekt', B.kv([
+    { label: 'Kunde / Objekt', value: p.kunde }, { label: 'Projektnummer', value: p.nr },
+    { label: 'Datum', value: fmtDate(p.datum) }, { label: 'Bearbeiter', value: p.bearbeiter }])) });
+  const rows = x.rows.map(q => { const b = E.bedarfKw(q.room, DB), u = q.unit, kl = t => `<span class="small">${t}</span>`; return [
+    `${q.i + 1} · ${q.room.name || '—'}`,
+    { html: `<b>${esc(u.modell)}</b>${kl('Klasse ' + esc(u.klasse))}` },
+    { t: q.room.flaeche ? q.room.flaeche + ' m²' : '—', cls: 'num' },
+    { t: b != null ? fmt(b) + ' kW' : '—', cls: 'num' },
+    { t: `${fmt(u.kwK != null ? u.kwK : u.kw)} / ${u.kwH != null ? fmt(u.kwH) : '—'} kW`, cls: 'num' },
+    { html: `<b>${esc(q.mk != null ? fmt(q.mk, 2) + ' / ' + fmt(q.mh, 2) + ' kW' : '—')}</b>`, cls: 'num' },
+    { html: `${esc(q.asg.port.port)} (Ø${esc(fmt(q.asg.port.gas_mm))})${q.asg.red ? ' + Red. ' + esc(q.asg.red) : ''}${kl('Gas-Ø ' + esc(fmt(gasDia(q))) + ' mm')}` },
+    { html: `${esc(q.laenge != null ? fmt(q.laenge) + ' m' : '—')}${kl('Höhe ' + esc(q.hoehe ? fmt(q.hoehe) : '0') + ' m')}`, cls: 'num' }]; });
+  blocks.push(B.tabelle({ titel: 'Räume und Innengeräte', rows,
+    head: ['Raum', 'Innengerät', { t: 'Fläche', num: 1, w: '8%' }, { t: 'Bedarf', num: 1, w: '9%' }, { t: 'Einzel kühl./heiz.', num: 1, w: '13%' },
+           { t: 'Multi kühl./heiz.', num: 1, w: '14%' }, { t: 'Anschluss', w: '15%' }, { t: 'Rohr', num: 1, w: '10%' }] }));
+  if (x.multi) blocks.push({ html: `<div class="none">Multi = Leistung je Raum bei gleichzeitigem Betrieb aller Innengeräte (Nennwert). Quelle: ${esc(x.multi.quelle)}.${x.multi.vorl ? ' Werte dieser Kombination laut Daikin vorläufig.' : ''}</div>` });
+  blocks.push({ html: B.abschnitt('Außengerät ' + o.id, B.kv([
+    { label: 'Nennleistung kühlen', value: fmt(o.kuehlen_kw) + ' kW' }, { label: 'Nennleistung heizen', value: fmt(o.heizen_kw) + ' kW' },
+    { label: 'Rohr je Raum', value: `${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m` }, { label: 'Rohr gesamt max.', value: fmt(o.rohr_gesamt_max_m) + ' m' },
+    { label: 'Summe Innengeräte', value: `${fmt(x.sum)} kW (max. ${fmt(x.sumMax)} kW)` }, { label: 'Anzahl Innengeräte', value: `${x.rows.length} (zulässig ${o.ig_min}–${o.ig_max})` },
+    { label: 'Rohrlänge gesamt', value: x.total != null ? fmt(x.total) + ' m' : '' }, { label: 'Flüssigkeitsleitung', value: 'Ø6,35 mm je Innengerät' },
+    { label: 'Zusätzliches R32', value: x.extra != null ? fmt(x.extra) + ' kg (ab ' + fmt(o.nachfuell_ab_m) + ' m, ' + fmt(o.nachfuell_kg_je_m * 1000, 0) + ' g/m)' : '', wide: true },
+    { label: 'R32 gesamt', value: x.charge != null ? fmt(x.charge, 2) + ' kg (Werk ' + fmt(o.werk_kg, 2) + ' kg)' : '', wide: true },
+    { label: 'Höhe AG höher / niedriger', value: `${fmt(o.hoehe_ag_oben_m)} m / ${fmt(o.hoehe_ag_unten_m)} m`, wide: true },
+    { label: 'Höhe IG–IG', value: `${fmt(o.hoehe_ig_ig_m)} m / ${fmt(o.hoehe_ig_ig_unten_m)} m`, wide: true }])) });
+  blocks.push({ html: B.abschnitt('Elektrischer Anschluss', B.kv([
+    { label: 'Stromversorgung', value: '1~ / 50 Hz / 220–240 V' }, { label: 'Stromaufnahme Außengerät', value: o.strom_a != null ? fmt(o.strom_a) + ' A' : '' },
+    { label: 'Absicherung (empf. Hauptschalter)', value: o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : '' }, { label: 'FI-Schutzschalter', value: 'immer; nach örtlichen Vorschriften' },
+    { label: 'Netzleitung', value: '3-adrig, min. ' + fmt(o.netzleitung_min_mm2) + ' mm² (nach Stromstärke)', wide: true },
+    { label: 'Verbindungsleitung je Raum', value: '4-adrig, min. ' + fmt(o.verbindungsleitung_min_mm2) + ' mm² (harmonisiert, doppelt isoliert)', wide: true }])) });
+  blocks.push({ html: B.abschnitt('Montagehinweise', `<div>${reds.length ? `<b>Reduzierstücke (Daikin-Nr.):</b> ${reds.map(esc).join(', ')} <span style="color:var(--ink-3)">(${esc(E.REDUZIERER_INFO)})</span><br>` : 'Keine Reduzierstücke erforderlich.<br>'}
+    Kürzeste Rohrlänge je Raum ${esc(fmt(o.rohr_raum_min_m))} m · Rohre getrennt isolieren · R32: Mindestfläche je Raum beachten.<br>
+    <b>R32-Mindestfläche je Raum:</b> ${x.rows.map(q => `Raum ${q.i + 1}: ${q.amin ? esc(fmt(Math.ceil(q.amin * 10) / 10)) + ' m²' : 'keine Anforderung'}`).join(' · ')}</div>`) });
+  if (x.warns.length) blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten / Hinweise', liste: uniq(x.warns), art: 'warn' }) });
+  if (String(p.bemerkung || '').trim()) blocks.push({ splitText: { titel: 'Bemerkungen', text: String(p.bemerkung) } });
+  blocks.push({ html: B.notiz({ titel: 'Wichtiger Hinweis', text: 'Dieses Dokument ist das Ergebnis einer Kombinationshilfe zur ersten Prüfung. Die endgültige Kalkulation muss vor Angebot, Bestellung und Ausführung anhand der Daikin-Unterlagen geprüft werden.' }) });
+  blocks.push({ html: B.rechtstext([
+    { titel: 'Geprüft nach:', text: `${o.quelle}. Datenstand: ${r.datenstand}.` },
+    'Die Auslegung ersetzt weder Heizlast-/Kühllastberechnung noch die Installationsanleitung des Herstellers.']) });
+  return { blocks, head, smallHead, foot, id, maxSeiten: 30 };
 }
-/* Verteilt die Blöcke auf A4-Seiten (Tabellen zeilenweise mit wiederholtem Kopf, Abschnitte nie mitten durch). host muss im Dokument hängen. */
-function layoutReport(rep, host){
-  const pages = []; let body;
-  const el = html => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
-  const newPage = () => {
-    const pg = el(`<section class="a4"><div class="pb">${pages.length ? rep.smallHead : rep.head}</div><div class="ft"><span>${rep.foot}</span><span class="pno"></span></div></section>`);
-    host.appendChild(pg); pages.push(pg); body = pg.firstElementChild;
-  };
-  const fits = () => body.scrollHeight <= body.clientHeight + 1;
-  const MAXP = 30, CUT = '<b>… (gekürzt, vollständiger Text in der App)</b> ';
-  const truncated = () => { const ft = pages[pages.length - 1].querySelector('.ft span'); if (!ft.dataset.cut){ ft.dataset.cut = '1'; ft.insertAdjacentHTML('afterbegin', CUT); } };
-  const hasContent = () => body.children.length > 1;   // Kind 0 ist der Seitenkopf
-  host.innerHTML = ''; newPage();
-  rep.blocks.forEach(blk => {
-    if (blk.noteSplit){
-      // Langer Text: wortweise (zu lange Wörter in Stücken) auf Folgeseiten verteilen; Binärsuche je Seite
-      const tokens = blk.text.split(/(\s+)/).flatMap(t => t.length > 100 ? t.match(/[\s\S]{1,100}/g) : [t]).filter(t => t !== '');
-      let pos = 0, cont = false;
-      while (pos < tokens.length){
-        if (cont) while (pos < tokens.length && !tokens[pos].trim()) pos++;
-        if (pos >= tokens.length) break;
-        const node = el(`<div class="note"><b class="t">${blk.t}${cont ? ' (FORTSETZUNG)' : ''}</b><span class="tx"></span></div>`), tx = node.querySelector('.tx');
-        const setK = k => { tx.innerHTML = esc(tokens.slice(pos, pos + k).join('')).replace(/\n/g, '<br>'); };
-        body.appendChild(node);
-        const rest = tokens.length - pos;
-        setK(rest);
-        let k = rest;
-        if (!fits()){
-          let lo = 0, hi = rest - 1;   // größtes k, das noch passt
-          while (lo < hi){ const mid = (lo + hi + 1) >> 1; setK(mid); if (fits()) lo = mid; else hi = mid - 1; }
-          k = lo;
-          if (k < 1){   // nicht einmal ein Stück passt
-            if (hasContent() && body.children.length > 2){ node.remove(); if (pages.length >= MAXP){ truncated(); return; } newPage(); continue; }
-            k = 1;   // leere Seite: mindestens ein Stück, damit es weitergeht
-          }
-          setK(k);
-        }
-        pos += k; cont = true;
-        if (pos < tokens.length){ if (pages.length >= MAXP){ truncated(); return; } newPage(); }
-      }
-      return;
-    }
-    if (!blk.split){
-      const node = el(blk.html); body.appendChild(node);
-      if (!fits()){
-        if (body.children.length > 2){ node.remove(); newPage(); body.appendChild(node); if (!fits()) truncated(); }
-        else truncated();
-      }
-      return;
-    }
-    const shell = cont => el(`<div class="sec"><h2><i>${blk.num}</i>${esc(blk.title)}${cont ? ' (Fortsetzung)' : ''}</h2><table><thead>${blk.head}</thead><tbody></tbody></table></div>`);
-    const tmp = document.createElement('tbody'); tmp.innerHTML = blk.rows;
-    const rows = [...tmp.children];
-    let part = shell(false), placed = 0; body.appendChild(part);
-    rows.forEach(tr => {
-      part.querySelector('tbody').appendChild(tr);
-      if (fits()){ placed++; return; }
-      if (!placed && body.children.length <= 2){ placed++; truncated(); return; }   // einzelne Zeile füllt schon eine leere Seite nicht
-      tr.remove();
-      if (!placed) part.remove();
-      const cont = placed > 0; newPage(); part = shell(cont); body.appendChild(part);
-      part.querySelector('tbody').appendChild(tr); placed = 1;
-    });
-    if (blk.note){ const nt = el(blk.note); part.appendChild(nt); if (!fits()){ nt.remove(); newPage(); body.appendChild(nt); } }
-  });
-  pages.forEach((p, i) => { p.querySelector('.pno').textContent = `Seite ${i + 1} von ${pages.length}`; });
-  return pages;
-}
-async function reportToPdf(rep, onProgress){
-  const prog = v => { try{ if (onProgress) onProgress(v); }catch(e){} };
-  try{ await document.fonts.ready; }catch(e){}
-  prog(.12);
-  const box = document.createElement('div');
-  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;background:#fff;color-scheme:light';
-  document.body.appendChild(box);
-  try{
-    const pages = layoutReport(rep, box);
-    prog(.2);
-    const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-    for (let i = 0; i < pages.length; i++){
-      const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', logging: false, windowWidth: 794 });
-      if (i) pdf.addPage();
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297);
-      prog(.2 + .78 * (i + 1) / pages.length);
-    }
-    return pdf.output('blob');
-  } finally { box.remove(); }
-}
+
 
 /* Wechsel Eingabe <-> Ergebnis: alte Seite gleitet weg (schnell), neue gleitet herein; erst dann wird neu gezeichnet */
 function swapStep(step){
@@ -674,7 +567,7 @@ const Act = {
     const setP = v => { pdfProg = v; const f = $('#bar .pdfb .fill'); if (f) f.style.transform = 'scaleX(' + v + ')'; };
     pdfBusy = p.id; pdfProg = 0; { const b = cb(); if (b) b.classList.add('run'); } setP(.05);
     try{
-      const blob = await reportToPdf(reportHtml(p, x), setP);
+      const blob = await reportPdfBlob(buildReport(p, x), { onProgress: setP });
       setP(1);
       await new Promise(res => setTimeout(res, RM() ? 0 : 240));
       if (!projects.includes(p) || snap() !== s0){ toast('Daten geändert – PDF bitte neu erstellen'); return; }

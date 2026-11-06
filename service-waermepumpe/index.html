@@ -18,6 +18,7 @@
 <script src="shared/lib/html2canvas.min.js" defer></script>
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/pdf.css">
 <style>
 .ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
 .field.err input,.field.err textarea{border-color:var(--bad)}
@@ -160,112 +161,6 @@ textarea{overscroll-behavior:contain}
   src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 .sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
-/* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
-.report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
-  --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.report *{box-sizing:border-box}
-.report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
-  display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
-.report.flat .page{box-shadow:none;margin:0}
-.report .page-body{flex:1;min-height:0;overflow:hidden}
-.report .pfoot{display:flex;justify-content:space-between;gap:4mm;border-top:1px solid var(--line);padding-top:2.5mm;margin-top:4mm;font-size:7pt;color:var(--ink-3)}
-.report .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;padding-bottom:4mm;border-bottom:2.5px solid var(--gold)}
-.report .firm b{display:block;font-size:10pt;color:var(--ink)}
-.report .firm span{display:block;font-size:7.6pt;color:var(--ink-2)}
-.report .doc{text-align:right;flex-shrink:0}
-.report .doc .kicker{font-size:7pt;letter-spacing:.12em;color:var(--ink-3)}
-.report .doc h1{margin:.5mm 0 1mm;font-size:17pt;line-height:1.1;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
-.report .doc .meta{font-size:7.8pt;color:var(--ink-2)}
-.report .doc .meta b{color:var(--ink)}
-.report .law{font-size:6.8pt;color:var(--ink-3);margin-top:2mm;line-height:1.35}
-.report .head.small{padding-bottom:2.5mm}
-.report .head.small .doc h1{font-size:11pt}
-.report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
-.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm;text-align:center}
-.report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
-.report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
-.report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
-.report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
-.report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
-.report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
-.report .tile .pill{margin-left:0;display:inline-block}
-.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
-.report .pill.ok{color:var(--ok);background:var(--ok-bg)}
-.report .pill.bad{color:var(--bad);background:var(--bad-bg)}
-.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
-.report .sec{margin-top:4.5mm}
-.report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
-  padding-bottom:1.2mm;border-bottom:1px solid var(--line)}
-.report .sec h2 .no{display:inline-flex;align-items:center;justify-content:center;width:5mm;height:5mm;border-radius:1mm;background:var(--gold);color:var(--ink);font-size:7.4pt}
-.report .sec h2 .ref{margin-left:auto;font-size:7pt;font-weight:500;color:var(--ink-3)}
-.report .cols2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
-.report .card{border:1px solid var(--line-soft);border-radius:1.5mm;padding:2.5mm 3mm;background:var(--zebra)}
-.report .card h3{margin:0 0 1.5mm;font-size:7pt;letter-spacing:.09em;color:var(--ink-3)}
-.report .addr{font-size:8.8pt;line-height:1.45}
-.report .addr b{font-weight:600}
-.report dl.kv{display:grid;grid-template-columns:repeat(4,1fr);margin:0;column-gap:4mm}
-.report dl.kv div{padding:1.5mm 0;border-bottom:1px solid var(--line-soft);min-width:0}
-.report dl.kv dt{font-size:6.8pt;color:var(--ink-3);letter-spacing:.06em}
-.report dl.kv dd{margin:.3mm 0 0;font-size:8.8pt;font-weight:500;overflow-wrap:anywhere}
-.report dl.kv dd.empty{color:#9a9999;font-weight:400}
-.report .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
-.report .cgroup h4{margin:0 0 1mm;font-size:7pt;letter-spacing:.07em;color:var(--ink-2)}
-.report .citem{display:flex;align-items:flex-start;gap:1.6mm;padding:.9mm 0;border-bottom:1px dotted var(--line)}
-.report .citem svg{width:3.2mm;height:3.2mm;flex-shrink:0;margin-top:.3mm}
-.report .citem .t{flex:1}
-.report .citem .a{font-size:7.4pt;font-weight:600;color:var(--ink-2);text-align:right}
-.report .signoff{display:flex;flex-wrap:wrap;gap:1mm 6mm;margin-top:2.5mm;font-size:7.8pt;color:var(--ink-2)}
-.report .signoff b{color:var(--ink);font-weight:600}
-.report table{width:100%;border-collapse:collapse;table-layout:fixed}
-.report th{font-size:6.8pt;letter-spacing:.06em;color:var(--ink-2);text-align:left;font-weight:600;
-  background:var(--head-bg);padding:1.6mm 2mm;border-bottom:1.5px solid var(--gold)}
-.report td{padding:1.4mm 2mm;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:8.3pt;overflow-wrap:anywhere}
-.report tbody tr:nth-child(even) td{background:var(--zebra)}
-.report td.num,.report th.num{text-align:right}
-.report td.date{white-space:nowrap;font-weight:600}
-.report td .small{display:block;font-size:7pt;color:var(--ink-3)}
-.report .none{font-size:7.8pt;color:var(--ink-3);font-style:italic;padding:.5mm 0}
-.report .leak{margin-top:1.8mm;font-size:7.8pt;color:var(--ink-2);display:flex;flex-wrap:wrap;align-items:center;gap:1mm 2mm}
-.report .leak b{color:var(--ink)}
-.report .note{border:1px solid var(--line);border-left:1mm solid var(--gold);border-radius:1mm;padding:2.5mm 3mm;margin-top:4.5mm;font-size:8.4pt}
-.report .note b{display:block;font-size:7pt;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.8mm}
-.report .legal{margin-top:4mm;display:grid;grid-template-columns:1fr;gap:1.4mm;font-size:6.9pt;color:var(--ink-2);line-height:1.4}
-.report .legal p{margin:0}
-.report .legal b{color:var(--ink)}
-.report .sign{display:grid;grid-template-columns:1fr 1fr;gap:12mm;margin-top:7mm}
-.report .sign>div{display:flex;flex-direction:column}
-.report .sign b{font-size:7pt;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
-.report .sign .space{display:block;height:30mm}
-.report .sign .cap{border-top:1px solid var(--ink-2);padding-top:1.2mm;font-size:7pt;color:var(--ink-3)}
-.report .tile.ok{border-color:var(--ok);border-left:1.2mm solid var(--ok);background:var(--ok-bg)}
-.report .tile.ok .val{color:var(--ok)}
-.report .tile.bad{border-color:var(--bad);border-left:1.2mm solid var(--bad);background:var(--bad-bg)}
-.report .tile.bad .val{color:var(--bad)}
-.report .tile .sub div{margin-top:1mm}
-.report dl.kv div.wide{grid-column:1/-1}
-.report dl.kv dd.warn{color:var(--warn);font-weight:700}
-.report .sub-h{font-size:7pt;letter-spacing:.07em;color:var(--ink-2);font-weight:700;margin:2.5mm 0 .5mm}
-.report .checks2{display:grid;grid-template-columns:1fr 1fr;column-gap:6mm}
-.report .ci{display:flex;align-items:center;gap:1.8mm;padding:1mm .8mm;border-bottom:1px dotted var(--line)}
-.report .ci svg{flex-shrink:0}
-.report .ci .t{flex:1}
-.report .ci .a{font-size:7.4pt;font-weight:700;white-space:nowrap}
-.report .ci.ok .a{color:var(--ok)}
-.report .ci.bad .a{color:var(--bad)}
-.report .ci.na .a{color:#8a8989}
-.report .ci.bad{background:var(--bad-bg)}
-.report .sec-more{margin-top:2mm}
-.report td.lbl{background:var(--head-bg);font-weight:600}
-.report td.ev.ok{color:var(--ok);font-weight:700}
-.report td.ev.bad{color:var(--bad);font-weight:700}
-.report td.ev.warn{color:var(--warn);font-weight:700}
-.report td.ev.na{color:#8a8989}
-.report .note.def{border-left-color:var(--bad);background:#fffafa}
-.report .note ul{margin:0;padding-left:4mm}
-.report .sign .space{display:flex;align-items:flex-end;padding-bottom:1mm}
-.report .sign .space img{max-height:26mm;max-width:100%}
-/* ===== Ende Bericht-CSS ===== */
 @media print{
   header,.noprint,#toast,.bar,#stepwrap{display:none!important}
   html,body{background:#fff}
@@ -288,6 +183,7 @@ textarea{overscroll-behavior:contain}
 <div id="toast"></div>
 
 <script src="shared/core.js"></script>
+<script src="shared/pdf-bausteine.js"></script>
 <script src="shared/pdf.js"></script>
 <script src="shared/sync.js"></script>
 <script src="shared/settings.js"></script>
@@ -690,26 +586,16 @@ function finalHtml(p){
     </div>`;
 }
 
-/* ===== identisch in google-apps-script/PdfDialog.html (Teil 1 von 2: RICON, reportParts; Teil 2 steht in shared/pdf.js) ===== */
+/* @@quelle:reportParts */
 /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Checklisten, Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
-   Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) unverändert entgegen. */
-const RICON = {
-  ok:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.2" fill="currentColor"/><path d="M4.8 8.3l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  bad:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.2" fill="currentColor"/><path d="M5.6 5.6l4.8 4.8M10.4 5.6l-4.8 4.8" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',
-  na:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5.3 8h5.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
-};
+   Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) unverändert entgegen.
+   Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
 function reportParts(r){
-  const nl = s => esc(s).replace(/\n/g, '<br>');
-  // Großbuchstaben im Text statt per CSS: html2canvas stürzt sonst bei „ß“ ab (wird zu „SS“, Text wird länger)
-  const up = s => esc(String(s ?? '').toUpperCase());
-  // Symbole mit fester Farbe und Größe – html2canvas übernimmt „currentColor“ nicht zuverlässig
-  const COL = {ok:'#1e7a46', bad:'#b42318', na:'#8a8989'};
-  const icon = (k, px) => RICON[k].replace('<svg ', `<svg width="${px}" height="${px}" `).replace(/currentColor/g, COL[k]);
-  const pill = (k, text) => `<span class="pill ${k}">${icon(k, 10)}${esc(text)}</span>`;
+  const B = pdfBausteine(), {esc, nl, up, pill} = B;
   const CHECKV = ['i.O.', 'Mangel', 'n.i.O.', 'entfällt'];
   const isCheck = x => ['ok', 'bad', 'na'].includes(x.eval) || CHECKV.includes(x.value);
   const evalOf = x => x.eval && x.eval !== 'none' ? x.eval : x.value === 'i.O.' ? 'ok' : x.value === 'Mangel' || x.value === 'n.i.O.' ? 'bad' : x.value === 'entfällt' ? 'na' : '';
-  const firmLines = String(r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '').split('\n').map(s => s.trim()).filter(Boolean);
+  const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
   // „WARTUNGSPROTOKOLL • KÄLTETECHNISCHE ANLAGEN“ → Kopfzeile „WARTUNGSPROTOKOLL“, Titel „Kältetechnische Anlagen“
   const tp = String(r.title || '').split(' • ');
   const nice = s => s.split(' ').map(w => w.split('-').map(x => x.length >= 5 && x === x.toUpperCase() ? x[0] + x.slice(1).toLowerCase() : x).join('-')).join(' ');
@@ -719,11 +605,6 @@ function reportParts(r){
   const hv = re => (header.find(x => re.test(x.label) && !/nummer|nr\.?$/i.test(x.label) && x.value) || {}).value || '';
   const datum = hv(/datum/i);
   const stand = datum || (r.completedAt ? new Date(r.completedAt).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}) : '');
-  let n = 0;
-  const h2 = title => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span></h2>`;
-  const kv = rows => rows.length ? `<dl class="kv">${rows.map(x => `<div${x.wide ? ' class="wide"' : ''}><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'} ${x.eval === 'warn' ? 'warn' : ''}">${x.value ? nl(x.value) : '—'}</dd></div>`).join('')}</dl>` : '';
-  const checks = rows => rows.length ? `<div class="checks2">${rows.map(x => { const k = evalOf(x) || 'na';
-    return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(x.value || '—')}</span></div>`; }).join('')}</div>` : '';
   const blocks = [];
 
   // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
@@ -745,53 +626,48 @@ function reportParts(r){
     const d = Math.min(d0, new Date(y, mo + 1, 0).getDate());
     return {date:`${p2(d)}.${p2(mo + 1)}.${y}`, sub: dp ? `Dichtheitsprüfung alle ${months} Monate` : 'jährliche Wartung'};
   })();
-  blocks.push({html:`<div class="status">
-    <div class="tile ${good ? 'ok' : bad ? 'bad' : ''}"><div class="lab">${up(r.resultLabel || 'Wartung erfolgreich')}</div><div class="val">${esc(res || '—')}</div>
-      <div class="sub">${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}</div></div>
-    <div class="tile"><div class="lab">${up('Nächste Wartung')}</div><div class="val">${esc(nextDue.date || '—')}</div><div class="sub">${esc(nextDue.sub)}</div></div>
-    <div class="tile primary"><div class="lab">${up('Wartungsdatum')}</div><div class="val">${esc(tileDate || '—')}</div><div class="sub">${esc(r.techniker ? 'Monteur: ' + r.techniker : '')}</div></div>
-  </div>`});
+  blocks.push({html:B.kacheln([
+    {art: good ? 'ok' : bad ? 'bad' : '', lab: r.resultLabel || 'Wartung erfolgreich', val: res,
+     subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`},
+    {lab:'Nächste Wartung', val: nextDue.date, sub: nextDue.sub},
+    {art:'primary', lab:'Wartungsdatum', val: tileDate, sub: r.techniker ? 'Monteur: ' + r.techniker : ''}
+  ])});
 
   // Auftrags- und Anlagendaten
-  if(header.length) blocks.push({html:`<div class="sec">${h2('Auftrags- & Anlagendaten')}${kv(header)}</div>`});
+  if(header.length) blocks.push({html:B.abschnitt('Auftrags- & Anlagendaten', B.kv(header))});
 
   // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
   (r.sections || []).forEach(s => {
     const all = (s.checks || []).concat(s.rows || []);
     const ck = all.filter(isCheck), fl = all.filter(x => !isCheck(x));
-    const body = checks(ck) + (fl.length ? (ck.length ? `<div class="sub-h">${up('Messwerte & Angaben')}</div>` : '') + kv(fl) : '');
+    const body = B.checkliste(ck.map(x => ({label:x.label, value:x.value, eval:evalOf(x)}))) + (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
     if(s.table && s.table.body && s.table.body.length){
       const t = s.table;
-      blocks.push({split:true, html:`<div class="sec">${h2(s.title)}<table><thead><tr>${t.head.map((h, i) => `<th${i ? '' : ' style="width:26%"'}>${up(h)}</th>`).join('')}</tr></thead><tbody>${t.body.map(b =>
-        `<tr><td class="lbl">${esc(b.label)}</td>${b.cells.map(c => `<td class="ev ${c.eval && c.eval !== 'none' ? c.eval : ''}">${esc(c.value || '—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`});
+      blocks.push(B.tabelle({titel:s.title, head:t.head.map((h, i) => i ? h : {t:h, w:'26%'}),
+        rows:t.body.map(b => [{t:b.label, cls:'lbl'}].concat(b.cells.map(c => ({t:c.value || '—', cls:'ev ' + (c.eval && c.eval !== 'none' ? c.eval : '')}))))}));
       if(body) blocks.push({html:`<div class="sec-more">${body}</div>`});
     } else {
-      blocks.push({html:`<div class="sec">${h2(s.title)}${body || '<div class="none">Keine Angaben</div>'}</div>`});
+      blocks.push({html:B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>')});
     }
   });
 
-  if(defects.length) blocks.push({html:`<div class="note def"><b>${up('Auffälligkeiten')}</b><ul>${defects.map(d => `<li>${esc(d)}</li>`).join('')}</ul></div>`});
-  blocks.push({html:`<div class="note"><b>${up(r.remarkLabel || 'Bemerkungen / Mängel')}</b>${r.remark ? nl(r.remark) : '—'}</div>`});
-  if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Betreiberhinweis.</b> ${esc(r.hinweis)}</p></div>`});
-  const sig = r.sig || {}, img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
-  // Kundenblock nur, wenn ein altes Protokoll bereits eine Kundenunterschrift enthält
-  const kImg = img(sig.kunde);
-  blocks.push({html:`<div class="sign">
-    <div><b>${up('Monteur / Prüfer')}</b><span class="space">${img(sig.tech)}</span><span class="cap">${esc([r.techniker, stand].filter(Boolean).join(' · ') || 'Name, Datum')}</span></div>${kImg
-      ? `<div><b>${up('Kunde / Betreiber')}</b><span class="space">${kImg}</span><span class="cap">${esc(r.kundeName || 'Name')}</span></div>` : ''}</div>`});
+  if(defects.length) blocks.push({html:B.notiz({titel:'Auffälligkeiten', liste:defects, art:'def'})});
+  blocks.push({html:B.notiz({titel:r.remarkLabel || 'Bemerkungen / Mängel', text:r.remark})});
+  if(r.hinweis) blocks.push({html:B.rechtstext([{titel:'Betreiberhinweis.', text:r.hinweis}])});
+  const sig = r.sig || {};
+  // Kundenunterschrift: der Baustein druckt sie, sobald ein altes Protokoll ein Bild enthält
+  blocks.push({html:B.unterschrift({tech:{bild:sig.tech, name:[r.techniker, stand].filter(Boolean).join(' · ')}, kunde:{bild:sig.kunde, name:r.kundeName},
+    labels:{tech:'Monteur / Prüfer', kunde:'Kunde / Betreiber'}})});
 
-  const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
   return {
     blocks,
-    head:`<div class="head"><div class="firm">${firm1}${firmLines.slice(1).map(s => `<span>${esc(s)}</span>`).join('')}</div>
-      <div class="doc">${kicker ? `<div class="kicker">${up(kicker)}</div>` : ''}<h1>${esc(h1)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id)}</b>${datum ? ` · <b>${esc(datum)}</b>` : ''}</div></div></div>`,
-    smallHead:`<div class="head small"><div class="firm">${firm1}<span>${esc([kunde, anlage].filter(Boolean).join(' · '))}</span></div>
-      <div class="doc"><h1>${esc(kicker ? nice(kicker) : h1)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id)}</b></div></div></div>`,
-    foot:esc((kicker ? nice(kicker) + ' ' : '') + h1) + (stand ? ' · ' + esc(stand) : ''), id:esc(r.id)
+    head:B.kopf({firma, kicker, titel:h1, nrLabel:'Projekt-Nr.', id:r.id, datum}),
+    smallHead:B.kopfKlein({firma, zeile:[kunde, anlage].filter(Boolean).join(' · '), titel:kicker ? nice(kicker) : h1, nrLabel:'Projekt-Nr.', id:r.id}),
+    foot:B.fuss({text:(kicker ? nice(kicker) + ' ' : '') + h1, stand}), id:esc(r.id)
   };
 }
-/* ===== Ende identischer Teil (Teil 1 von 2; Teil 2: layoutReport … reportPdfBlob in shared/pdf.js, ebenfalls identisch zu PdfDialog.html) ===== */
+/* @@ende */
 
 /* Bericht samt Unterschrift; PDF_OPTS: vor dem Rendern auf die Unterschrift (Bild) warten */
 const PDF_OPTS = {waitImages:true};

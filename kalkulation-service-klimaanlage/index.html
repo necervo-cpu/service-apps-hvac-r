@@ -16,8 +16,9 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 <title>Kalkulation Service Klimaanlage</title>
 <script src="config.js"></script>
-<script src="lib/html2canvas.min.js" defer></script>
-<script src="lib/jspdf.umd.min.js" defer></script>
+<script src="shared/lib/html2canvas.min.js" defer></script>
+<script src="shared/lib/jspdf.umd.min.js" defer></script>
+<link rel="stylesheet" href="shared/pdf.css">
 <style>
 /* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
    Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
@@ -191,59 +192,6 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
   src:url(lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 .sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
-/* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
-.report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
-  --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.report *{box-sizing:border-box}
-.report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
-  display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
-.report.flat .page{box-shadow:none;margin:0}
-.report .page-body{flex:1;min-height:0;overflow:hidden}
-.report .pfoot{display:flex;justify-content:space-between;gap:4mm;border-top:1px solid var(--line);padding-top:2.5mm;margin-top:4mm;font-size:7pt;color:var(--ink-3)}
-.report .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;padding-bottom:4mm;border-bottom:2.5px solid var(--gold)}
-.report .firm b{display:block;font-size:10pt;color:var(--ink)}
-.report .firm span{display:block;font-size:7.6pt;color:var(--ink-2)}
-.report .doc{text-align:right;flex-shrink:0}
-.report .doc .kicker{font-size:7pt;letter-spacing:.12em;color:var(--ink-3)}
-.report .doc h1{margin:.5mm 0 1mm;font-size:17pt;line-height:1.1;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
-.report .doc .meta{font-size:7.8pt;color:var(--ink-2)}
-.report .doc .meta b{color:var(--ink)}
-.report .head.small{padding-bottom:2.5mm}
-.report .head.small .doc h1{font-size:11pt}
-.report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
-.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
-.report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
-.report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
-.report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
-.report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
-.report .tile.ok{border-color:var(--ok);border-left:1.2mm solid var(--ok);background:var(--ok-bg)}.report .tile.ok .val{color:var(--ok)}
-.report .tile.warn{border-color:#d9b65a;border-left:1.2mm solid #c98a00;background:var(--warn-bg)}.report .tile.warn .val{color:var(--warn)}
-.report .sec{margin-top:4mm}
-.report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
-  padding-bottom:1.2mm;border-bottom:1px solid var(--line)}
-.report .sec h2 .no{display:inline-flex;align-items:center;justify-content:center;width:5mm;height:5mm;border-radius:1mm;background:var(--gold);color:var(--ink);font-size:7.4pt}
-.report dl.kv{display:grid;grid-template-columns:repeat(4,1fr);margin:0;column-gap:4mm}
-.report dl.kv div{padding:1.5mm 0;border-bottom:1px solid var(--line-soft);min-width:0}
-.report dl.kv div.wide{grid-column:1/-1}
-.report dl.kv dt{font-size:6.8pt;color:var(--ink-3);letter-spacing:.06em}
-.report dl.kv dd{margin:.3mm 0 0;font-size:8.8pt;font-weight:500;overflow-wrap:anywhere}
-.report dl.kv dd.empty{color:#9a9999;font-weight:400}
-.report table{width:100%;border-collapse:collapse;table-layout:fixed}
-.report th{font-size:6.8pt;letter-spacing:.06em;color:var(--ink-2);text-align:left;font-weight:600;
-  background:var(--head-bg);padding:1.6mm 2mm;border-bottom:1.5px solid var(--gold)}
-.report td{padding:1.4mm 2mm;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:8.3pt;overflow-wrap:anywhere}
-.report tbody tr:nth-child(even) td{background:var(--zebra)}
-.report td.num,.report th.num{text-align:right}
-.report tr.sum td{font-weight:600}
-.report tr.tot td{font-weight:700;font-size:10pt;background:var(--gold-soft);border-top:1.5px solid var(--gold);border-bottom:1.5px solid var(--gold)}
-.report .none{font-size:7.8pt;color:var(--ink-3);font-style:italic;padding:.5mm 0}
-.report .note{border:1px solid var(--line);border-left:1mm solid var(--gold);border-radius:1mm;padding:2.5mm 3mm;margin-top:4.5mm;font-size:8.4pt}
-.report .note b{display:block;font-size:7pt;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.8mm}
-.report .legal{margin-top:4mm;font-size:6.9pt;color:var(--ink-2);line-height:1.4}
-.report .legal p{margin:0 0 1.2mm}
-.report .legal b{color:var(--ink)}
-/* ===== Ende Bericht-CSS ===== */
 /* ===== Design-Feinschliff (Handy, Bedienung) – Startseite wie Service-Apps-Startseite ===== */
 html{overscroll-behavior-y:none}
 button,a,select,[role=button],input[type=date]{touch-action:manipulation}
@@ -306,6 +254,8 @@ h2 .n{display:inline-block;margin-left:8px;background:var(--gold-soft);color:var
 <div class="bar" id="bar" hidden></div>
 <div id="toast"></div>
 
+<script src="shared/pdf-bausteine.js"></script>
+<script src="shared/pdf.js"></script>
 <script>
 'use strict';
 const C = window.CFG;
@@ -931,112 +881,49 @@ function pageDone(p, i){
   return false;
 }
 
-/* ===== identisch in google-apps-script/PdfDialog.html ===== */
+/* @@quelle:reportParts */
 /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Tabellen mit Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
-   Nimmt die Bericht-Datenstruktur von buildReport() unverändert entgegen (die App speichert sie auch im Sheet). */
+   Nimmt die Bericht-Datenstruktur von buildReport() unverändert entgegen (die App speichert sie auch im Sheet).
+   Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
 function reportParts(r){
-  const nl = s => esc(s).replace(/\n/g, '<br>');
-  // Großbuchstaben im Text statt per CSS: html2canvas stürzt sonst bei „ß“ ab (wird zu „SS“, Text wird länger)
-  const up = s => esc(String(s ?? '').toUpperCase());
-  const firmLines = String(r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '').split('\n').map(s => s.trim()).filter(Boolean);
-  let n = 0;
-  const h2 = title => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span></h2>`;
-  const kv = rows => `<dl class="kv">${rows.map(x => `<div${x.wide ? ' class="wide"' : ''}><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'}">${x.value ? nl(x.value) : '—'}</dd></div>`).join('')}</dl>`;
-  const table = t => `<table><colgroup>${t.widths.map(w => `<col style="width:${w}">`).join('')}</colgroup>
-    <thead><tr>${t.head.map((h, i) => `<th class="${t.cls[i] || ''}">${up(h)}</th>`).join('')}</tr></thead>
-    <tbody>${t.rows.map(row => `<tr class="${row.cls || ''}">${row.cells.map((c, i) => `<td class="${t.cls[i] || ''}">${nl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const B = pdfBausteine(), {esc, nl} = B;
+  const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
+  // Tabelle aus buildReport: head, cls (Spalten, 'num' = rechts), widths, rows [{cells, cls:'sum'|'tot'}]
+  const tab = (titel, t, split) => {
+    const bl = B.tabelle({titel, head:t.head.map((h, i) => ({t:h, w:t.widths[i], num:t.cls[i] === 'num'})),
+      rows:t.rows.map(row => ({cls:row.cls, cells:row.cells.map((c, i) => ({html:nl(c), cls:t.cls[i]}))}))});
+    bl.split = split;   // Preis-Tabelle bleibt zusammen (kein Umbruch mitten in der Summe)
+    return bl;
+  };
   const blocks = [];
-  blocks.push({html:`<div class="status">${(r.tiles || []).map(t => `<div class="tile ${t.cls || ''}"><div class="lab">${up(t.lab)}</div><div class="val">${esc(t.val)}</div><div class="sub">${esc(t.sub || '')}</div></div>`).join('')}</div>`});
-  blocks.push({html:`<div class="sec">${h2('Projektdaten')}${kv(r.projekt || [])}</div>`});
+  blocks.push({html:B.kacheln((r.tiles || []).map(t => ({art:t.cls, lab:t.lab, val:t.val, sub:t.sub})))});
+  blocks.push({html:B.abschnitt('Projektdaten', B.kv(r.projekt || []))});
   const tsec = (title, t) => t && t.rows && t.rows.length
-    ? blocks.push({split:true, html:`<div class="sec">${h2(title)}${table(t)}</div>`})
-    : blocks.push({html:`<div class="sec">${h2(title)}<div class="none">Keine Positionen</div></div>`});
+    ? blocks.push(tab(title, t, true))
+    : blocks.push({html:B.abschnitt(title, '<div class="none">Keine Positionen</div>')});
   tsec('Leistungsumfang', r.leistung);
   tsec('Material & Nebenleistungen', r.material);
-  blocks.push({html:`<div class="sec">${h2(r.kicker === 'ANGEBOT' ? 'Preis' : 'Kostenaufstellung')}${table(r.kosten)}</div>`});
-  if(r.km && r.km.length) blocks.push({html:`<div class="sec">${h2('Kältemittel & F-Gase-Prüfung')}${kv(r.km)}</div>`});
-  if(r.remark) blocks.push({html:`<div class="note"><b>${up('Bemerkungen')}</b>${nl(r.remark)}</div>`});
-  if(r.hinweis) blocks.push({html:`<div class="legal"><p><b>Hinweis.</b> ${esc(r.hinweis)}</p></div>`});
-  const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
+  blocks.push(tab(r.kicker === 'ANGEBOT' ? 'Preis' : 'Kostenaufstellung', r.kosten, false));
+  if(r.km && r.km.length) blocks.push({html:B.abschnitt('Kältemittel & F-Gase-Prüfung', B.kv(r.km))});
+  if(r.remark) blocks.push({html:B.notiz({titel:'Bemerkungen', text:r.remark})});
+  if(r.hinweis) blocks.push({html:B.rechtstext([{titel:'Hinweis.', text:r.hinweis}])});
   const kick = r.kicker === 'ANGEBOT' ? 'Angebot' : 'Kalkulation';
+  const id = r.id || '—';
   return {
     blocks,
-    head:`<div class="head"><div class="firm">${firm1}${firmLines.slice(1).map(s => `<span>${esc(s)}</span>`).join('')}</div>
-      <div class="doc"><div class="kicker">${up(r.kicker)}</div><h1>${esc(r.title)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id || '—')}</b>${r.datum ? ` · <b>${esc(r.datum)}</b>` : ''}</div></div></div>`,
-    smallHead:`<div class="head small"><div class="firm">${firm1}<span>${esc(r.kunde || '')}</span></div>
-      <div class="doc"><h1>${esc(kick + ' ' + r.title)}</h1><div class="meta">Projekt-Nr. <b>${esc(r.id || '—')}</b></div></div></div>`,
-    foot:esc(kick + ' ' + r.title) + (r.datum ? ' · ' + esc(r.datum) : ''), id:esc(r.id || '')
+    head:B.kopf({firma, kicker:r.kicker, titel:r.title, nrLabel:'Projekt-Nr.', id, datum:r.datum}),
+    smallHead:B.kopfKlein({firma, zeile:r.kunde || '', titel:kick + ' ' + r.title, nrLabel:'Projekt-Nr.', id}),
+    foot:B.fuss({text:kick + ' ' + r.title, stand:r.datum}), id:esc(id)
   };
 }
-/* Verteilt die Blöcke auf A4-Seiten. host muss im Dokument hängen (Messung der Höhen). */
-function layoutReport(r, host){
-  const b = reportParts(r), pages = [];
-  let body;
-  const el = html => { const d = document.createElement('div'); d.innerHTML = html; return d.firstElementChild; };
-  const newPage = () => {
-    const pg = el(`<section class="page"><div class="page-body">${pages.length ? b.smallHead : b.head}</div><div class="pfoot"><span>${b.foot}</span><span class="pno"></span></div></section>`);
-    host.appendChild(pg); pages.push(pg); body = pg.firstElementChild;
-  };
-  const fits = () => body.scrollHeight <= body.clientHeight + 1;
-  host.innerHTML = '';
-  newPage();
-  b.blocks.forEach(blk => {
-    const node = el(blk.html);
-    body.appendChild(node);
-    if(fits()) return;
-    node.remove();
-    if(!blk.split){ newPage(); body.appendChild(node); return; }
-    // Tabelle zeilenweise verteilen; auf der Folgeseite Überschrift „(Fortsetzung)“ und Tabellenkopf wiederholen
-    const rows = [...node.querySelectorAll('tbody > tr')];
-    const shell = cont => { const s = node.cloneNode(true); s.querySelector('tbody').innerHTML = ''; if(cont) s.querySelector('.tt').textContent += ' (Fortsetzung)'; return s; };
-    let part = shell(false), placed = 0;
-    body.appendChild(part);
-    rows.forEach(tr => {
-      part.querySelector('tbody').appendChild(tr);
-      if(fits()){ placed++; return; }
-      tr.remove();
-      if(!placed) part.remove();
-      const cont = placed > 0;
-      newPage(); part = shell(cont); body.appendChild(part);
-      part.querySelector('tbody').appendChild(tr); placed = 1;
-    });
-  });
-  pages.forEach((p, i) => { p.querySelector('.pno').innerHTML = `${b.id ? b.id + ' · ' : ''}Seite ${i + 1} von ${pages.length}`; });
-  return pages;
-}
-async function reportFontsReady(){
-  try{ await document.fonts.ready; }catch(e){}
-}
-/* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
-async function reportPdfBlob(r){
-  await reportFontsReady();
-  const box = document.createElement('div');
-  box.className = 'report flat';
-  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:220mm;background:#fff';
-  document.body.appendChild(box);
-  try{
-    const pages = layoutReport(r, box);
-    const pdf = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
-    for(let i = 0; i < pages.length; i++){
-      const canvas = await html2canvas(pages[i], {scale:2, backgroundColor:'#ffffff', logging:false});
-      if(i) pdf.addPage();
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297);
-    }
-    return pdf.output('blob');
-  } finally {
-    box.remove();
-  }
-}
-/* ===== Ende identischer Teil ===== */
+/* @@ende */
 
 function reportForView(){
   if(view.db) return view.rep;
   const p = calcs.find(x => x.id === view.id);
   return p ? buildReport(p) : null;
 }
-/* Dateiname = Projektnummer (wie in Google Drive) */
-function pdfName(proj){ return String(proj || 'ohne-Projektnummer').replace(/[\/\\:*?"<>|]+/g, '-').trim(); }
-function isStandalone(){ return !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches; }
+/* pdfName, isStandalone, pdfBase64, layoutReport, reportPdfBlob stehen in shared/pdf.js */
 
 /* ---------- PDF-Erzeugung (offline, ohne Druckdialog – iOS druckt in Home-Bildschirm-Apps nicht) ---------- */
 let lastPdf = null;   // {key, file, url}
@@ -1045,16 +932,6 @@ function pdfBarHtml(){
   if(!lastPdf || lastPdf.key !== viewKey()) return '';
   return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
 }
-/* Beim Synchronisieren: dasselbe PDF erzeugen und mitschicken – landet 1:1 in Google Drive */
-async function pdfBase64(p){
-  if(!window.jspdf || !window.html2canvas) return '';
-  try{
-    const blob = await reportPdfBlob(buildReport(p));
-    const dataUrl = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
-    return String(dataUrl).split(',')[1] || '';
-  }catch(e){ return ''; }
-}
-
 function dbList(){
   const q = (view.q || '').toLowerCase().trim();
   const list = dbCache.list

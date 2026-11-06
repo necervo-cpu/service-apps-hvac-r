@@ -18,6 +18,7 @@
 <script src="shared/lib/html2canvas.min.js" defer></script>
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/pdf.css">
 <style>
 .pagehint{color:var(--muted);margin:0 0 6px}
 .ghead{font-size:15px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;padding:18px 0 4px;border-bottom:2px solid var(--gold)}
@@ -164,86 +165,13 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
   src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 .sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
-/* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
-.report{--gold:#DCCC4B;--gold-soft:#faf6dc;--ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#706F6F;--line:#dcd9cf;--line-soft:#eceae3;--zebra:#faf9f5;--head-bg:#f8f7f4;
-  --ok:#1e7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fdf3d6;
-  color:var(--ink);font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.report *{box-sizing:border-box}
-.report .page{width:210mm;height:297mm;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.15);padding:14mm 15mm 12mm;
-  display:flex;flex-direction:column;font-size:8.3pt;line-height:1.4;text-align:left}
-.report.flat .page{box-shadow:none;margin:0}
-.report .page-body{flex:1;min-height:0;overflow:hidden}
-.report .pfoot{display:flex;justify-content:space-between;gap:4mm;border-top:1px solid var(--line);padding-top:2.5mm;margin-top:4mm;font-size:7pt;color:var(--ink-3)}
-.report .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;padding-bottom:4mm;border-bottom:2.5px solid var(--gold)}
-.report .firm b{display:block;font-size:10pt;color:var(--ink)}
-.report .firm span{display:block;font-size:7.6pt;color:var(--ink-2)}
-.report .doc{text-align:right;flex-shrink:0}
-.report .doc .kicker{font-size:7pt;letter-spacing:.12em;color:var(--ink-3)}
-.report .doc h1{margin:.5mm 0 1mm;font-size:17pt;line-height:1.1;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
-.report .doc .meta{font-size:7.8pt;color:var(--ink-2)}
-.report .doc .meta b{color:var(--ink)}
-.report .law{font-size:6.8pt;color:var(--ink-3);margin-top:2mm;line-height:1.35}
-.report .head.small{padding-bottom:2.5mm}
-.report .head.small .doc h1{font-size:11pt}
-.report .status{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3mm;margin:5mm 0 1mm}
-.report .tile{border:1px solid var(--line);border-radius:2mm;padding:3mm 3.5mm}
-.report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
-.report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
-.report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
-.report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
-.report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
-.report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}
-.report .tile .pill{margin-left:-2mm;display:inline-block}
-.report .tile .pill svg{display:inline-block;vertical-align:-.6mm;margin-right:1.2mm}
-.report .pill.ok{color:var(--ok);background:var(--ok-bg)}
-.report .pill.bad{color:var(--bad);background:var(--bad-bg)}
-.report .pill.warn{color:var(--warn);background:var(--warn-bg)}
-.report .sec{margin-top:4.5mm}
-.report .sec h2{display:flex;align-items:baseline;gap:2.5mm;margin:0 0 2mm;font-size:9.6pt;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;
-  padding-bottom:1.2mm;border-bottom:1px solid var(--line)}
-.report .sec h2 .no{display:inline-flex;align-items:center;justify-content:center;width:5mm;height:5mm;border-radius:1mm;background:var(--gold);color:var(--ink);font-size:7.4pt}
-.report .sec h2 .ref{margin-left:auto;font-size:7pt;font-weight:500;color:var(--ink-3)}
-.report .cols2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
-.report .card{border:1px solid var(--line-soft);border-radius:1.5mm;padding:2.5mm 3mm;background:var(--zebra)}
-.report .card h3{margin:0 0 1.5mm;font-size:7pt;letter-spacing:.09em;color:var(--ink-3)}
-.report .addr{font-size:8.8pt;line-height:1.45}
-.report .addr b{font-weight:600}
-.report dl.kv{display:grid;grid-template-columns:repeat(4,1fr);margin:0;column-gap:4mm}
-.report dl.kv div{padding:1.5mm 0;border-bottom:1px solid var(--line-soft);min-width:0}
-.report dl.kv dt{font-size:6.8pt;color:var(--ink-3);letter-spacing:.06em}
-.report dl.kv dd{margin:.3mm 0 0;font-size:8.8pt;font-weight:500;overflow-wrap:anywhere}
-.report dl.kv dd.empty{color:#9a9999;font-weight:400}
-.report .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
-.report .cgroup h4{margin:0 0 1mm;font-size:7pt;letter-spacing:.07em;color:var(--ink-2)}
-.report .citem{display:flex;align-items:flex-start;gap:1.6mm;padding:.9mm 0;border-bottom:1px dotted var(--line)}
-.report .citem svg{width:3.2mm;height:3.2mm;flex-shrink:0;margin-top:.3mm}
-.report .citem .t{flex:1}
-.report .citem .a{font-size:7.4pt;font-weight:600;color:var(--ink-2);text-align:right}
-.report .signoff{display:flex;flex-wrap:wrap;gap:1mm 6mm;margin-top:2.5mm;font-size:7.8pt;color:var(--ink-2)}
-.report .signoff b{color:var(--ink);font-weight:600}
-.report table{width:100%;border-collapse:collapse;table-layout:fixed}
-.report th{font-size:6.8pt;letter-spacing:.06em;color:var(--ink-2);text-align:left;font-weight:600;
-  background:var(--head-bg);padding:1.6mm 2mm;border-bottom:1.5px solid var(--gold)}
-.report td{padding:1.4mm 2mm;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:8.3pt;overflow-wrap:anywhere}
-.report tbody tr:nth-child(even) td{background:var(--zebra)}
-.report td.num,.report th.num{text-align:right}
-.report td.date{white-space:nowrap;font-weight:600}
-.report td .small{display:block;font-size:7pt;color:var(--ink-3)}
-.report .none{font-size:7.8pt;color:var(--ink-3);font-style:italic;padding:.5mm 0}
-.report .leak{margin-top:1.8mm;font-size:7.8pt;color:var(--ink-2);display:flex;flex-wrap:wrap;align-items:center;gap:1mm 2mm}
-.report .leak b{color:var(--ink)}
-.report .note{border:1px solid var(--line);border-left:1mm solid var(--gold);border-radius:1mm;padding:2.5mm 3mm;margin-top:4.5mm;font-size:8.4pt}
-.report .note b{display:block;font-size:7pt;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.8mm}
-.report .legal{margin-top:4mm;display:grid;grid-template-columns:1fr;gap:1.4mm;font-size:6.9pt;color:var(--ink-2);line-height:1.4}
-.report .legal p{margin:0}
-.report .legal b{color:var(--ink)}
+/* Logbuch-spezifisch (ausserhalb shared/pdf.css; identisch in google-apps-script/PdfDialog.html): Unterschrift Erstprüfung, Unterschriften in Tabellenzellen */
 .report .sigbox{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:3mm}
 .report .sigbox .img{height:17mm;border-bottom:1px solid var(--ink-2);display:flex;align-items:flex-end}
 .report .sigbox img{max-height:16mm;max-width:100%}
 .report .sigbox .cap{font-size:7pt;color:var(--ink-3);padding-top:1.2mm}
 .report td.sigc img{display:block;height:11mm;max-width:100%}
 .report td.sigc .small{display:block}
-/* ===== Ende Bericht-CSS ===== */
 @media print{
   header,.noprint,#toast,.bar,#stepwrap{display:none!important}
   html,body{background:#fff}
@@ -266,6 +194,7 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 <div id="toast"></div>
 
 <script src="shared/core.js"></script>
+<script src="shared/pdf-bausteine.js"></script>
 <script src="shared/pdf.js"></script>
 <script src="shared/sync.js"></script>
 <script src="shared/settings.js"></script>
@@ -887,7 +816,7 @@ function finalHtml(c){
     ${c.obj.values.dicht === 'nicht erfüllt' ? '<div class="warnbox" style="margin-bottom:0">Dichtheitsanforderung nicht erfüllt: Undichtigkeit beheben und die Reparatur mit einer erneuten Dichtheitsprüfung (in der Regel innerhalb eines Monats) als eigenen Eintrag dokumentieren.</div>' : ''}</div>`;
 }
 
-/* ===== identisch in PdfDialog.html (Teil 1 von 2: LISTS, reportParts; Teil 2 steht in shared/pdf.js) ===== */
+/* @@quelle:reportParts */
 /* Tabellen des Logbuchs aus dem Blatt "Einträge": [Spalte, Überschrift, Optionen] */
 const LISTS = [
   {title:'Dichtheitsprüfungen', ref:'VO (EU) 2024/573', need:['Dichtheitsanforderung'],
@@ -914,42 +843,26 @@ function dueState(iso){
   if(days === 0) return {cls:'warn', days, text:'heute fällig'};
   return {cls:days <= 60 ? 'warn' : 'ok', days, text:`fällig in ${days} ${tg(days)}`};
 }
-const RICON = {
-  ok:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.2" fill="currentColor"/><path d="M4.8 8.3l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  bad:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.2" fill="currentColor"/><path d="M5.6 5.6l4.8 4.8M10.4 5.6l-4.8 4.8" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',
-  no:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5.3 8h5.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  clock:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.6V8l2.3 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
-};
-/* Bausteine des Berichts: Kopf, Fußzeile und Blöcke (Tabellen-Blöcke dürfen über Seiten umbrechen) */
+/* Bausteine des Berichts: Kopf, Fußzeile und Blöcke (Tabellen-Blöcke dürfen über Seiten umbrechen).
+   Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
 function reportParts(r){
-  const nl = s => esc(s).replace(/\n/g, '<br>');
+  const B = pdfBausteine(), {esc, nl, up, icon, pill} = B;
   const deNum = s => Number(String(s ?? '').trim().replace(',', '.'));
   const fmt = n => String(Math.round(n * 1000) / 1000).replace('.', ',');
-  // Großbuchstaben im Text statt per CSS: html2canvas stürzt sonst bei „ß“ ab (wird zu „SS“, Text wird länger)
-  const up = s => esc(String(s ?? '').toUpperCase());
-  // Symbole mit fester Farbe und Größe – html2canvas übernimmt „currentColor“ nicht zuverlässig
-  const COL = {ok:'#1e7a46', bad:'#b42318', warn:'#8a5a00', no:'#9a9999'};
-  const icon = (k, cls, px) => RICON[k].replace('<svg ', `<svg width="${px}" height="${px}" `).replace(/currentColor/g, COL[cls]);
-  const pill = (cls, ic, text) => `<span class="pill ${cls}">${icon(ic, cls, 10)}${esc(text)}</span>`;
   const img = s => typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s) ? `<img src="${s}" alt="">` : '';
   const st = r.status || {}, sh = r.short || {};
-  const firmLines = String(r.firma || '').split('\n').map(s => s.trim()).filter(Boolean);
   const stand = r.stand ? new Date(r.stand).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}) : '';
-  let n = 0;
-  const h2 = (title, ref) => `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span>${ref ? `<span class="ref">${esc(ref)}</span>` : ''}</h2>`;
   const blocks = [];
 
   // Status-Kacheln
   const due = dueState(st.nextIso);
   const lastOk = st.lastErg === 'erfüllt', lastBad = st.lastErg === 'nicht erfüllt';
-  blocks.push({html:`<div class="status">
-    <div class="tile primary"><div class="lab">${up('Nächste Dichtheitsprüfung')}</div><div class="val">${esc(st.next || '—')}</div>
-      <div class="sub">${due ? pill(due.cls, due.cls === 'bad' ? 'bad' : 'clock', due.text) : st.next ? '' : 'noch keine Dichtheitsprüfung eingetragen'}</div></div>
-    <div class="tile"><div class="lab">${up('Letzte Dichtheitsprüfung')}</div><div class="val">${esc(st.lastDicht || '—')}</div>
-      <div class="sub">${lastOk ? pill('ok', 'ok', 'Dichtheit erfüllt') : lastBad ? pill('bad', 'bad', 'nicht erfüllt') : ''}</div></div>
-    <div class="tile"><div class="lab">${up('Prüfpflicht')}</div><div class="val">${st.co2 ? esc(st.co2) + ' t CO₂e' : '—'}</div>
-      <div class="sub">${esc([st.intv && 'Intervall ' + st.intv, [st.km, st.fm].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}</div></div>
-  </div>`});
+  blocks.push({html:B.kacheln([
+    {art:'primary', lab:'Nächste Dichtheitsprüfung', val:st.next,
+     subHtml: due ? pill(due.cls, due.text, due.cls === 'bad' ? 'bad' : 'clock') : st.next ? '' : 'noch keine Dichtheitsprüfung eingetragen'},
+    {lab:'Letzte Dichtheitsprüfung', val:st.lastDicht, subHtml: lastOk ? pill('ok', 'Dichtheit erfüllt') : lastBad ? pill('bad', 'nicht erfüllt') : ''},
+    {lab:'Prüfpflicht', val: st.co2 ? st.co2 + ' t CO₂e' : '', sub:[st.intv && 'Intervall ' + st.intv, [st.km, st.fm].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}
+  ])});
 
   // Stammdaten-Abschnitte
   const secs = r.sections || [];
@@ -964,32 +877,32 @@ function reportParts(r){
                        esc([val(a, 'PLZ'), val(a, 'Ort')].filter(Boolean).join(' '))].filter(Boolean);
         return `<div class="card"><h3>${up(a.title)}</h3><div class="addr">${lines.join('<br>') || '—'}</div></div>`;
       };
-      blocks.push({html:`<div class="sec">${h2(group.map(a => a.title).join(' und '))}<div class="cols2">${group.map(card).join('')}</div></div>`});
+      blocks.push({html:B.abschnitt(group.map(a => a.title).join(' und '), `<div class="cols2">${group.map(card).join('')}</div>`)});
     } else if(s.kind === 'check'){
       const groups = [['Systematische Prüfung', ''], ['Indirekte Messmethode', 'Indirekt '], ['Direkte Messmethode', 'Direkt ']];
       const groupOf = l => l.startsWith('Indirekt ') ? 1 : l.startsWith('Direkt ') ? 2 : 0;
       const items = groups.map(() => []);
+      const noIcon = () => icon('na', 12, '#9a9999');
       (s.checks || []).forEach(x => {
         const g = groupOf(x.label), label = x.label.slice(groups[g][1].length);
         const k = x.value === 'Ja' ? (x.eval === 'bad' ? 'bad' : 'ok') : x.value === 'Nein' && x.eval === 'ok' ? 'ok' : 'no';
-        items[g].push(`<div class="citem">${icon(k, k, 12)}<span class="t">${esc(label)}</span><span class="a">${esc(x.value || '—')}</span></div>`);
+        items[g].push(`<div class="citem">${k === 'no' ? noIcon() : icon(k, 12)}<span class="t">${esc(label)}</span><span class="a">${esc(x.value || '—')}</span></div>`);
       });
       const sign = [];
       (s.rows || []).forEach(x => {
-        if(x.label.startsWith('Direkt ')){ if(x.value) items[2].push(`<div class="citem">${icon('no', 'no', 12)}<span class="t">${esc(x.label.slice(7))}: ${esc(x.value)}</span></div>`); }
+        if(x.label.startsWith('Direkt ')){ if(x.value) items[2].push(`<div class="citem">${noIcon()}<span class="t">${esc(x.label.slice(7))}: ${esc(x.value)}</span></div>`); }
         else if(x.label !== 'Name Betreiber') sign.push(`<span>${esc(x.label)} <b>${esc(x.value || '—')}</b></span>`);
       });
-      // gezeichnete Unterschriften der Erstprüfung
+      // gezeichnete Unterschriften der Erstprüfung (eigene kompakte Darstellung .sigbox, Aussehen bleibt wie bisher)
       const sg = s.sign || {}, cap = (who, name) => `<div class="cap">${esc(who)}${name ? ' · ' + esc(name) : ''}</div>`;
       // Betreiber-Unterschrift wird in der App nicht mehr erfasst, aber bei älteren Einträgen weiter angezeigt
       const sigBox = img(sg.sk) || img(sg.betr) ? `<div class="sigbox">
         <div><div class="img">${img(sg.sk)}</div>${cap('Unterschrift Sachkundiger', val(s, 'Sachkundiger'))}</div>
         ${img(sg.betr) ? `<div><div class="img">${img(sg.betr)}</div>${cap('Unterschrift Betreiber', val(s, 'Name Betreiber'))}</div>` : ''}</div>` : '';
-      blocks.push({html:`<div class="sec">${h2(s.title)}<div class="checks">${groups.map((g, k) => `<div class="cgroup"><h4>${up(g[0])}</h4>${items[k].join('') || '<div class="none">—</div>'}</div>`).join('')}</div>
-        ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}${sigBox}</div>`});
+      blocks.push({html:B.abschnitt(s.title, `<div class="checks">${groups.map((g, k) => `<div class="cgroup"><h4>${up(g[0])}</h4>${items[k].join('') || '<div class="none">—</div>'}</div>`).join('')}</div>
+        ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}${sigBox}`)});
     } else {
-      blocks.push({html:`<div class="sec">${h2(s.title)}<dl class="kv">${(s.rows || []).map(x =>
-        `<div><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'}">${esc(x.value || '—')}</dd></div>`).join('')}</dl></div>`});
+      blocks.push({html:B.abschnitt(s.title, B.kv(s.rows || []))});
     }
   }
 
@@ -997,15 +910,15 @@ function reportParts(r){
   const es = (r.entries || []).slice().sort((a, b) => String(a._iso).localeCompare(String(b._iso)));
   LISTS.forEach(l => {
     const rows = es.filter(e => l.need.some(k => String(e[k] ?? '').trim() !== ''));
-    if(!rows.length){ blocks.push({html:`<div class="sec">${h2(l.title, l.ref)}<div class="none">Keine Einträge</div></div>`}); return; }
-    const head = `<colgroup>${l.cols.map(c => `<col${c[2] && c[2].w ? ` style="width:${c[2].w}%"` : ''}>`).join('')}</colgroup>
-      <thead><tr>${l.cols.map(c => `<th${c[2] && c[2].num ? ' class="num"' : ''}>${up(c[1])}</th>`).join('')}</tr></thead>`;
+    if(!rows.length){ blocks.push({html:B.abschnitt(l.title, '<div class="none">Keine Einträge</div>', {ref:l.ref})}); return; }
     const cell = (e, c) => {
       const o = c[2] || {}, x = e[c[0]] || '';
-      if(o.pill && x) return `<td>${x === 'erfüllt' ? pill('ok', 'ok', x) : x === 'nicht erfüllt' ? pill('bad', 'bad', x) : esc(x)}</td>`;
-      return `<td class="${o.date ? 'date' : o.num ? 'num' : ''}">${x ? nl(x) : '—'}${o.sub && e[o.sub] ? `<span class="small">${esc(e[o.sub])}</span>` : ''}</td>`;
+      if(o.pill && x) return {html: x === 'erfüllt' ? pill('ok', x) : x === 'nicht erfüllt' ? pill('bad', x) : esc(x)};
+      return {html:`${x ? nl(x) : '—'}${o.sub && e[o.sub] ? `<span class="small">${esc(e[o.sub])}</span>` : ''}`, cls: o.date ? 'date' : o.num ? 'num' : ''};
     };
-    blocks.push({split:true, html:`<div class="sec">${h2(l.title, l.ref)}<table>${head}<tbody>${rows.map(e => `<tr>${l.cols.map(c => cell(e, c)).join('')}</tr>`).join('')}</tbody></table></div>`});
+    blocks.push(B.tabelle({titel:l.title, ref:l.ref,
+      head:l.cols.map(c => ({t:c[1], w: c[2] && c[2].w ? c[2].w + '%' : '', num: c[2] && c[2].num})),
+      rows:rows.map(e => l.cols.map(c => cell(e, c)))}));
     if(l.leak){
       const fg = deNum(r.fg), years = {};
       es.forEach(e => { const a = deNum(e['Kältemittel aufgefüllt (kg)']), y = String(e._iso || '').slice(0, 4); if(a > 0 && y) years[y] = (years[y] || 0) + a; });
@@ -1018,31 +931,26 @@ function reportParts(r){
   // Unterschriften zu den Einträgen (nur unterschriebene Termine)
   const signed = es.filter(e => e._sig && (img(e._sig.sk) || img(e._sig.betr)));
   const withBetr = signed.some(e => img(e._sig.betr));   // Spalte „Betreiber“ nur, wenn ein älterer Eintrag eine Betreiber-Unterschrift hat
-  if(signed.length) blocks.push({split:true, html:`<div class="sec">${h2('Unterschriften zu den Einträgen')}<table>
-    <colgroup><col style="width:14%"><col>${withBetr ? '<col>' : ''}</colgroup>
-    <thead><tr><th>${up('Datum')}</th><th>${up('Sachkundiger')}</th>${withBetr ? `<th>${up('Betreiber')}</th>` : ''}</tr></thead>
-    <tbody>${signed.map(e => `<tr><td class="date">${esc(e['Datum'] || '—')}</td>
-      <td class="sigc">${img(e._sig.sk)}<span class="small">${esc(e['Sachkundiger'] || '')}</span></td>
-      ${withBetr ? `<td class="sigc">${img(e._sig.betr)}<span class="small">${img(e._sig.betr) ? esc(e['Name Betreiber'] || '') : ''}</span></td>` : ''}</tr>`).join('')}</tbody></table></div>`});
+  if(signed.length) blocks.push(B.tabelle({titel:'Unterschriften zu den Einträgen',
+    head:[{t:'Datum', w:'14%'}, 'Sachkundiger'].concat(withBetr ? ['Betreiber'] : []),
+    rows:signed.map(e => [{t:e['Datum'] || '—', cls:'date'},
+      {html:`${img(e._sig.sk)}<span class="small">${esc(e['Sachkundiger'] || '')}</span>`, cls:'sigc'}].concat(withBetr ?
+      [{html:`${img(e._sig.betr)}<span class="small">${img(e._sig.betr) ? esc(e['Name Betreiber'] || '') : ''}</span>`, cls:'sigc'}] : []))}));
 
-  if(r.remark) blocks.push({html:`<div class="note"><b>${up('Bemerkungen zur Anlage')}</b>${nl(r.remark)}</div>`});
-  if(r.hinweis && r.hinweis.length) blocks.push({html:`<div class="legal">${r.hinweis.map(t => {
+  if(r.remark) blocks.push({html:B.notiz({titel:'Bemerkungen zur Anlage', text:r.remark})});
+  if(r.hinweis && r.hinweis.length) blocks.push({html:B.rechtstext(r.hinweis.map(t => {
     const k = t.indexOf(': ');
-    return `<p>${k > 0 && k < 80 ? `<b>${esc(t.slice(0, k))}.</b> ${esc(t.slice(k + 2))}` : esc(t)}</p>`;
-  }).join('')}</div>`});
+    return k > 0 && k < 80 ? {titel:t.slice(0, k) + '.', text:t.slice(k + 2)} : t;
+  }))});
 
-  const firm1 = firmLines[0] ? `<b>${esc(firmLines[0])}</b>` : '';
   return {
     blocks,
-    head:`<div class="head"><div class="firm">${firm1}${firmLines.slice(1).map(s => `<span>${esc(s)}</span>`).join('')}</div>
-      <div class="doc"><div class="kicker">${up('Anlagenlogbuch')}</div><h1>${esc(r.title)}</h1><div class="meta">Logbuch-Nr. <b>${esc(r.id)}</b>${stand ? ` · Stand <b>${stand}</b>` : ''}</div></div></div>
-      ${r.subtitle ? `<div class="law">${esc(r.subtitle)}</div>` : ''}`,
-    smallHead:`<div class="head small"><div class="firm">${firm1}<span>${esc([sh.betreiber, sh.anlage].filter(Boolean).join(' · '))}</span></div>
-      <div class="doc"><h1>${esc(r.title)}</h1><div class="meta">Logbuch-Nr. <b>${esc(r.id)}</b></div></div></div>`,
-    foot:esc(r.title) + (stand ? ' · Stand ' + stand : ''), id:esc(r.id)
+    head:B.kopf({firma:r.firma, kicker:'Anlagenlogbuch', titel:r.title, nrLabel:'Logbuch-Nr.', id:r.id, datum:stand, datumLabel:'Stand', untertitel:r.subtitle, untertitelUnten:true}),
+    smallHead:B.kopfKlein({firma:r.firma, zeile:[sh.betreiber, sh.anlage].filter(Boolean).join(' · '), titel:r.title, nrLabel:'Logbuch-Nr.', id:r.id}),
+    foot:B.fuss({text:r.title, stand: stand ? 'Stand ' + stand : ''}), id:esc(r.id)
   };
 }
-/* ===== Ende identischer Teil (Teil 1 von 2; Teil 2: layoutReport … reportPdfBlob in shared/pdf.js, ebenfalls identisch zu PdfDialog.html) ===== */
+/* @@ende */
 
 function reportForView(){
   if(view.db) return view.rep;
