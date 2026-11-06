@@ -13,6 +13,14 @@
   const PUFFER_GROESSEN = [50, 80, 100, 120, 150, 200, 300, 400, 500, 600, 800, 1000];
   const P0_MIN_STANDARD = 0.7;
   const L_PRO_KW_STANDARD = 20;
+  const L_PRO_KW_FOERDERUNG = 30; // Pellet, Richtwert BEG-Förderung
+  const VARIANTEN_JE_ERZEUGER = { wp: ['sperrzeit', 'takt', 'abtauung'], kessel: ['takt'], pellet: ['takt', 'foerderung'], holz: ['bimschv'] };
+  const HINWEISE = {
+    kessel: 'Bei modulierenden Brennwertkesseln ist meist kein Puffer nötig, wenn der Mindestvolumenstrom gesichert ist (Herstellerangabe).',
+    foerderung: 'Richtwert BEG-Förderung für Biomasse, aktuelle Förderbedingungen prüfen.',
+    bimschv: 'Nach 1. BImSchV §5: mind. 12 l je Liter Füllraum, mind. 55 l/kW – Herstellerangabe beachten.',
+    festbrennstoff: 'Bei Festbrennstoff die höchste mögliche Kesseltemperatur eintragen (z. B. Abschalttemperatur, meist 90–95 °C)'
+  };
   const KAPAZITAET = 1.163; // Wh/(kg·K) Wasser
 
   const zahl = v => (v === null || v === undefined || v === '' || typeof v === 'boolean') ? NaN : Number(v);
@@ -111,35 +119,66 @@
     return res;
   }
 
-  // eingaben: { sperrzeit:{aktiv,leistungKW,stunden,deltaT}, takt:{aktiv,pminKW,minuten,deltaT},
-  //             abtauung:{aktiv,nennleistungKW,lProKW,anrechenbaresVolumenL} }
+  // eingaben: { erzeuger:'wp'|'kessel'|'pellet'|'holz' (Standard 'wp'),
+  //             sperrzeit:{aktiv,leistungKW,stunden,deltaT}, takt:{aktiv,pminKW,minuten,deltaT},
+  //             abtauung:{aktiv,nennleistungKW,lProKW,anrechenbaresVolumenL},
+  //             foerderung:{aktiv,nennleistungKW,lProKW} (Pellet), bimschv:{aktiv,nennleistungKW,fuellraumL} (Holz) }
+  // Nur die je Erzeuger erlaubten Varianten werden gerechnet, andere werden ignoriert.
   function puffer(e) {
     e = e || {};
-    const fehler = [], warnungen = [], werte = {};
+    const fehler = [], warnungen = [], hinweise = [], werte = {};
+    const erzeuger = VARIANTEN_JE_ERZEUGER[e.erzeuger] ? e.erzeuger : 'wp';
+    const erlaubt = VARIANTEN_JE_ERZEUGER[erzeuger];
     const pos = (v, name) => { const z = zahl(v); if (!isFinite(z) || z <= 0) { fehler.push(name + ': Bitte einen Wert größer 0 eingeben.'); return NaN; } return z; };
+    const leer = v => v === undefined || v === null || v === '';
+    const akt = k => erlaubt.indexOf(k) >= 0 && e[k] && e[k].aktiv;
     const s = e.sperrzeit, t = e.takt, a = e.abtauung;
-    if (s && s.aktiv) {
+    if (akt('sperrzeit')) {
       const Q = pos(s.leistungKW, 'Sperrzeit, Heizleistung (kW)'), h = pos(s.stunden, 'Sperrzeit, Dauer (h)'), dT = pos(s.deltaT, 'Sperrzeit, Spreizung ΔT (K)');
       werte.sperrzeit = 1000 * Q * h / (KAPAZITAET * dT);
       warnungen.push('Sperrzeit: Die Gebäudemasse (Estrich, Wände) überbrückt oft einen Teil der Sperrzeit. Der Wert ist eine Obergrenze.');
     }
-    if (t && t.aktiv) {
+    if (akt('takt')) {
       const P = pos(t.pminKW, 'Takt, kleinste Leistung (kW)'), m = pos(t.minuten, 'Takt, Mindestlaufzeit (min)'), dT = pos(t.deltaT, 'Takt, Spreizung ΔT (K)');
       werte.takt = 1000 * P * m / (60 * KAPAZITAET * dT);
+      if (erzeuger === 'kessel') hinweise.push(HINWEISE.kessel);
     }
-    if (a && a.aktiv) {
+    if (akt('abtauung')) {
       const P = pos(a.nennleistungKW, 'Abtauung, Nennleistung (kW)');
-      const l = (a.lProKW === undefined || a.lProKW === null || a.lProKW === '') ? L_PRO_KW_STANDARD : pos(a.lProKW, 'Abtauung, Liter je kW');
+      const l = leer(a.lProKW) ? L_PRO_KW_STANDARD : pos(a.lProKW, 'Abtauung, Liter je kW');
       let anr = 0;
-      if (a.anrechenbaresVolumenL !== undefined && a.anrechenbaresVolumenL !== null && a.anrechenbaresVolumenL !== '') {
+      if (!leer(a.anrechenbaresVolumenL)) {
         anr = zahl(a.anrechenbaresVolumenL);
         if (!isFinite(anr) || anr < 0) { fehler.push('Abtauung, anrechenbares Volumen (l): Bitte einen Wert ab 0 eingeben.'); anr = 0; }
       }
       werte.abtauung = Math.max(0, l * P - anr);
     }
-    if (fehler.length) return { ok: false, fehler, warnungen: [], werte: {} };
+    if (akt('foerderung')) {
+      const f = e.foerderung;
+      const P = pos(f.nennleistungKW, 'Förderung, Nennleistung (kW)');
+      const l = leer(f.lProKW) ? L_PRO_KW_FOERDERUNG : pos(f.lProKW, 'Förderung, Liter je kW');
+      werte.foerderung = l * P;
+      hinweise.push(HINWEISE.foerderung);
+    }
+    if (akt('bimschv')) {
+      const b = e.bimschv;
+      const hatP = !leer(b.nennleistungKW), hatF = !leer(b.fuellraumL);
+      if (!hatP && !hatF) fehler.push('1. BImSchV: Bitte Nennleistung oder Brennstofffüllraum eingeben.');
+      else {
+        const P = hatP ? pos(b.nennleistungKW, '1. BImSchV, Nennleistung (kW)') : NaN;
+        const F = hatF ? pos(b.fuellraumL, '1. BImSchV, Brennstofffüllraum (l)') : NaN;
+        const teile = [];
+        if (hatP) teile.push(55 * P);
+        if (hatF) teile.push(12 * F);
+        if (!fehler.length) werte.bimschv = Math.max.apply(null, teile);
+        if (!hatP) warnungen.push('1. BImSchV: Die Nennleistung fehlt, gerechnet wird nur mit dem Brennstofffüllraum (12 l je Liter). Der Wert kann zu niedrig sein.');
+        if (!hatF) warnungen.push('1. BImSchV: Der Brennstofffüllraum fehlt, gerechnet wird nur mit der Nennleistung (55 l je kW). Der Wert kann zu niedrig sein.');
+      }
+      hinweise.push(HINWEISE.bimschv);
+    }
+    if (fehler.length) return { ok: false, fehler, warnungen: [], hinweise: [], werte: {} };
     const keys = Object.keys(werte);
-    if (!keys.length) return { ok: false, fehler: ['Bitte mindestens eine Variante (Sperrzeit, Takt oder Abtauung) aktivieren.'], warnungen: [], werte: {} };
+    if (!keys.length) return { ok: false, fehler: ['Bitte mindestens eine Variante (' + ({ wp: 'Sperrzeit, Takt oder Abtauung', kessel: 'Takt', pellet: 'Takt oder Mindestvolumen Förderung', holz: 'Mindestvolumen 1. BImSchV' })[erzeuger] + ') aktivieren.'], warnungen: [], hinweise: [], werte: {} };
     const max = Math.max.apply(null, keys.map(k => werte[k]));
     let vorschlag = 0, text;
     if (max <= 0) text = 'kein Puffer nötig';
@@ -148,10 +187,10 @@
       if (vorschlag === null) { vorschlag = Math.ceil(max / 100) * 100; warnungen.push('Das benötigte Volumen liegt über 1000 l. Sondergröße oder mehrere Speicher einplanen.'); }
       text = vorschlag + ' l';
     }
-    return { ok: true, fehler: [], warnungen, werte, maxL: max, vorschlagL: vorschlag, text };
+    return { ok: true, fehler: [], warnungen, hinweise, erzeuger, werte, maxL: max, vorschlagL: vorschlag, text };
   }
 
-  const api = { ausdehnung, anlagenvolumen, mag, puffer, HEIZFLAECHEN, ROHRE, MAG_GROESSEN, PUFFER_GROESSEN, P0_MIN_STANDARD, L_PRO_KW_STANDARD };
+  const api = { ausdehnung, anlagenvolumen, mag, puffer, HEIZFLAECHEN, ROHRE, MAG_GROESSEN, PUFFER_GROESSEN, P0_MIN_STANDARD, L_PRO_KW_STANDARD, L_PRO_KW_FOERDERUNG, VARIANTEN_JE_ERZEUGER, HINWEISE };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MagEngine = api;
 })(typeof window !== 'undefined' ? window : this);

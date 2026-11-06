@@ -192,9 +192,12 @@ const ic = (n, cls) => '<svg class="' + (cls || 'ico') + '" viewBox="0 0 24 24" 
 const msg = (type, html) => '<div class="msg ' + type + '">' + ic(type === 'warn' ? 'warn' : type === 'err' ? 'err' : 'info') + '<div>' + html + '</div></div>';
 
 /* ---------- Zustand ---------- */
+const ERZ = { wp: 'Wärmepumpe', kessel: 'Gas-/Öl-Kessel', pellet: 'Pellet', holz: 'Scheitholz' };
+const erlaubt = k => E.VARIANTEN_JE_ERZEUGER[S.erzeuger].indexOf(k) >= 0;
 const DEF = () => ({
+  erzeuger: 'wp',
   mag: { mode: 'direkt', direkt: '', hf: [{ typ: 'radiator', kW: '' }], ro: [{ typ: 'cu-15x1', m: '' }], pufferL: '', wpL: '', T: '', H: '', psv: '3', psvFrei: '' },
-  puf: { sperrzeit: { on: true, Q: '', h: '', dT: '' }, takt: { on: false, Pmin: '', min: '', dT: '' }, abtauung: { on: false, P: '', l: '', anr: '' } },
+  puf: { sperrzeit: { on: true, Q: '', h: '', dT: '' }, takt: { on: false, Pmin: '', min: '', dT: '' }, abtauung: { on: false, P: '', l: '', anr: '' }, foerderung: { on: false, P: '', l: '' }, bimschv: { on: false, P: '', V: '' } },
   name: ''
 });
 function merge(d, s){
@@ -204,7 +207,7 @@ function merge(d, s){
   if (typeof d === 'boolean') return typeof s === 'boolean' ? s : d;
   return prim(s) ? String(s) : d;
 }
-function loadState(s){ const o = merge(DEF(), s); if (o.mag.mode !== 'direkt' && o.mag.mode !== 'schaetzen') o.mag.mode = 'direkt'; return o; }
+function loadState(s){ const o = merge(DEF(), s); if (o.mag.mode !== 'direkt' && o.mag.mode !== 'schaetzen') o.mag.mode = 'direkt'; if (!ERZ[o.erzeuger]) o.erzeuger = 'wp'; return o; }
 let S = loadState(LS.get(KEY_DRAFT, null));
 let ST = merge({ p0min: '0,7', lkw: '20' }, LS.get(KEY_SET, null));
 let SAVED = LS.get(KEY_SAVED, []); if (!Array.isArray(SAVED)) SAVED = [];
@@ -228,6 +231,7 @@ const R = {
   'puf.sperrzeit.Q': 'gt0', 'puf.sperrzeit.h': 'gt0', 'puf.sperrzeit.dT': 'gt0',
   'puf.takt.Pmin': 'gt0', 'puf.takt.min': 'gt0', 'puf.takt.dT': 'gt0',
   'puf.abtauung.P': 'gt0', 'puf.abtauung.l': 'gt0', 'puf.abtauung.anr': 'ge0',
+  'puf.foerderung.P': 'gt0', 'puf.foerderung.l': 'gt0', 'puf.bimschv.P': 'gt0', 'puf.bimschv.V': 'gt0',
   'st.p0min': 'ge0', 'st.lkw': 'gt0'
 };
 function chk(p){
@@ -293,25 +297,25 @@ function build(){
     '<p class="sub">Nur Wasser (kein Glykol). Alle Werte sind Richtwerte.</p>' +
     '<div class="tgrid">' +
     hub('mag', 'mag', 'Ausdehnungsgefäß (MAG)', 'Nenngröße, Vordruck, Fülldruck') +
-    hub('puffer', 'puf', 'Pufferspeicher', 'Sperrzeit, Takt, Abtauung') +
+    hub('puffer', 'puf', 'Pufferspeicher', 'Varianten je Wärmeerzeuger') +
     hub('saved', 'save', 'Gespeicherte Berechnungen<span class="cnt" id="cnt" hidden></span>', 'Öffnen oder löschen') +
     hub('settings', 'set', 'Einstellungen', 'Standardwerte, Hell/Dunkel') + '</div>';
 
   document.getElementById('v-mag').innerHTML = '<h2 class="pagetitle" id="h-mag" tabindex="-1" style="margin-top:14px">Ausdehnungsgefäß (MAG)</h2>' +
     '<div class="layout"><div class="res"><div id="magOut"></div>' +
     '<div class="savebox">' + '<div class="row"><div>' + FN('mag') + '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' + ic('save') + 'Berechnung speichern</button></div></div></div>' +
-    '<div class="inp">' +
+    '<div class="inp">' + erzCard() +
     '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2" role="group" aria-label="Art der Eingabe">' +
     '<button class="btn" type="button" data-a="mode" data-v="direkt">Direkt eingeben</button><button class="btn" type="button" data-a="mode" data-v="schaetzen">Schätzen</button></div>' +
-    '<div id="sec-direkt">' + F('mag.direkt', 'Anlagenvolumen', 'l', 'Wasserinhalt ohne Puffer und Wärmepumpe') + '</div>' +
+    '<div id="sec-direkt">' + F('mag.direkt', 'Anlagenvolumen', 'l', 'Wasserinhalt ohne Puffer und Wärmeerzeuger') + '</div>' +
     '<div id="sec-est"><h3 class="big3">Heizflächen</h3><div id="hfRows"></div>' +
     '<button class="btn small wide" type="button" data-a="add" data-l="hf">' + ic('plus') + 'Heizfläche hinzufügen</button>' +
     '<h3 class="big3" style="margin-top:18px">Rohre</h3><div id="roRows"></div>' +
     '<button class="btn small wide" type="button" data-a="add" data-l="ro">' + ic('plus') + 'Rohr hinzufügen</button>' +
     '</div>' +
-    F('mag.pufferL', 'Puffer-Inhalt', 'l', 'Falls ein Pufferspeicher verbaut wird (wird immer addiert)') + F('mag.wpL', 'Wärmepumpen-Inhalt', 'l', 'Wasserinhalt der Wärmepumpe laut Datenblatt (wird immer addiert)') +
+    F('mag.pufferL', 'Puffer-Inhalt', 'l', 'Falls ein Pufferspeicher verbaut wird (wird immer addiert)') + F('mag.wpL', 'Inhalt Wärmeerzeuger', 'l', 'Wasserinhalt laut Datenblatt (Kessel, Wärmepumpe) (wird immer addiert)') +
     '<div class="sum" aria-live="polite"><span>Summe <span class="rb" id="volRb">Richtwert</span></span><b id="volSum">–</b></div></div>' +
-    '<div class="card"><h3>Anlage</h3>' + F('mag.T', 'Max. Vorlauftemperatur', '°C', 'Zwischen 10 und 100 °C') + F('mag.H', 'Statische Höhe', 'm', 'Höhe vom Gefäß bis zum höchsten Punkt der Anlage') +
+    '<div class="card"><h3>Anlage</h3>' + F('mag.T', 'Max. Vorlauftemperatur', '°C', 'Zwischen 10 und 100 °C') + '<div id="festHint" hidden>' + msg('info', E.HINWEISE.festbrennstoff) + '</div>' + F('mag.H', 'Statische Höhe', 'm', 'Höhe vom Gefäß bis zum höchsten Punkt der Anlage') +
     '<div class="field"><label id="l-psv">Sicherheitsventil (Ansprechdruck, bar)</label><div class="seg2" role="group" aria-labelledby="l-psv">' +
     ['2,5', '3', '4', '6'].map(v => '<button class="btn" type="button" data-a="psv" data-v="' + v + '">' + v + ' bar</button>').join('') +
     '<button class="btn" type="button" data-a="psv" data-v="frei">Anderer Wert</button></div>' +
@@ -321,12 +325,17 @@ function build(){
   document.getElementById('v-puffer').innerHTML = '<h2 class="pagetitle" id="h-puffer" tabindex="-1" style="margin-top:14px">Pufferspeicher</h2>' +
     '<div class="layout"><div class="res"><div id="pufOut"></div><button class="btn primary wide" type="button" data-a="take" id="takeBtn" hidden>' + ic('arrow') + 'In MAG-Berechnung übernehmen</button>' +
     '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn primary" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div></div></div>' +
-    '<div class="inp"><div class="card"><h3>Varianten</h3>' +
-    sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') + sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') + sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') + '</div>' +
+    '<div class="inp">' + erzCard() + '<div class="card"><h3>Varianten</h3>' +
+    sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') + sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') + sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') +
+    sw('foerderung', 'Mindestvolumen Förderung', 'Richtwert 30 l je kW Nennleistung') + sw('bimschv', 'Mindestvolumen 1. BImSchV', 'Nach Füllraum und Nennleistung') + '</div>' +
     '<div class="card" id="c-sperrzeit"><h3>Sperrzeit</h3>' + F('puf.sperrzeit.Q', 'Heizleistung', 'kW', 'Leistung, die während der Sperre fehlt') + F('puf.sperrzeit.h', 'Sperrzeit', 'h', 'Dauer der Sperre in Stunden') + F('puf.sperrzeit.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') + '</div>' +
-    '<div class="card" id="c-takt"><h3>Takt</h3>' + F('puf.takt.Pmin', 'Kleinste Leistung der Wärmepumpe', 'kW', '') + F('puf.takt.min', 'Mindestlaufzeit', 'min', 'Laut Hersteller, oft 6 bis 10 min') + F('puf.takt.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') + '</div>' +
+    '<div class="card" id="c-takt"><h3>Takt</h3>' + F('puf.takt.Pmin', 'Kleinste Leistung der Wärmepumpe', 'kW', '') + F('puf.takt.min', 'Mindestlaufzeit', 'min', 'Laut Hersteller, oft 6 bis 10 min') + F('puf.takt.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') + '<div id="keHint" hidden>' + msg('info', E.HINWEISE.kessel) + '</div></div>' +
     '<div class="card" id="c-abtauung"><h3>Abtauung</h3>' + F('puf.abtauung.P', 'Nennleistung', 'kW', '') + F('puf.abtauung.l', 'Liter je kW', 'l/kW', 'Leer lassen = Standardwert aus den Einstellungen', '') +
-    F('puf.abtauung.anr', 'Anrechenbares Volumen', 'l', 'Optional: Wasser, das ohnehin im Heizkreis umläuft') + '</div></div></div>';
+    F('puf.abtauung.anr', 'Anrechenbares Volumen', 'l', 'Optional: Wasser, das ohnehin im Heizkreis umläuft') + '</div>' +
+    '<div class="card" id="c-foerderung"><h3>Mindestvolumen Förderung</h3>' + F('puf.foerderung.P', 'Nennleistung', 'kW', '') + F('puf.foerderung.l', 'Liter je kW', 'l/kW', 'Leer lassen = 30', '30') +
+    msg('info', E.HINWEISE.foerderung) + '</div>' +
+    '<div class="card" id="c-bimschv"><h3>Mindestvolumen 1. BImSchV</h3>' + F('puf.bimschv.P', 'Nennleistung', 'kW', 'Rechnet mit 55 l je kW') + F('puf.bimschv.V', 'Brennstofffüllraum', 'l', 'Rechnet mit 12 l je Liter Füllraum') +
+    msg('info', E.HINWEISE.bimschv) + '</div></div></div>';
 
   document.getElementById('v-saved').innerHTML = '<h2 class="pagetitle" id="h-saved" tabindex="-1" style="margin-top:14px">Gespeicherte Berechnungen</h2><div id="savedList"></div>';
 
@@ -340,7 +349,12 @@ function build(){
 function hub(v, icon, title, sub){
   return '<button class="hub" type="button" data-a="nav" data-v="' + v + '"><span class="hico">' + ic(icon, '') + '</span><span class="htx"><strong>' + title + '</strong><small>' + sub + '</small></span></button>';
 }
-function sw(k, t, s){ return '<label class="swrow"><input type="checkbox" role="switch" data-c="puf.' + k + '.on" data-k="puf.' + k + '.on"><span>' + t + '<small>' + s + '</small></span></label>'; }
+function erzCard(){
+  return '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2" role="group" aria-label="Wärmeerzeuger">' +
+    Object.keys(ERZ).map(k => '<button class="btn" type="button" data-a="erz" data-v="' + k + '">' + ERZ[k] + '</button>').join('') + '</div></div>';
+}
+function setText(sel, t){ const el = document.querySelector(sel); if (el) el.textContent = t; }
+function sw(k, t, s){ return '<label class="swrow" id="sw-' + k + '"><input type="checkbox" role="switch" data-c="puf.' + k + '.on" data-k="puf.' + k + '.on"><span>' + t + '<small>' + s + '</small></span></label>'; }
 
 /* ---------- UI-Zustand ---------- */
 function refreshUI(){
@@ -350,7 +364,18 @@ function refreshUI(){
   document.getElementById('sec-direkt').hidden = m.mode !== 'direkt';
   document.getElementById('sec-est').hidden = m.mode !== 'schaetzen';
   document.getElementById('psvFreiBox').hidden = m.psv !== 'frei';
-  ['sperrzeit', 'takt', 'abtauung'].forEach(k => { document.getElementById('c-' + k).hidden = !S.puf[k].on; });
+  document.querySelectorAll('[data-a=erz]').forEach(b => { const on = b.dataset.v === S.erzeuger; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
+  ['sperrzeit', 'takt', 'abtauung', 'foerderung', 'bimschv'].forEach(k => {
+    const ok = erlaubt(k);
+    document.getElementById('sw-' + k).hidden = !ok;
+    document.getElementById('c-' + k).hidden = !(ok && S.puf[k].on);
+  });
+  document.getElementById('festHint').hidden = !(S.erzeuger === 'pellet' || S.erzeuger === 'holz');
+  document.getElementById('keHint').hidden = S.erzeuger !== 'kessel';
+  const wpE = S.erzeuger === 'wp';
+  setText('label[for="f-puf.takt.Pmin"]', 'Kleinste Leistung ' + (wpE ? 'der Wärmepumpe' : 'des Kessels') + ' (kW)');
+  const tm = document.getElementById('f-puf.takt.min');
+  if (tm) { tm.placeholder = ''; const h = tm.closest('.field').querySelector('.fhint'); if (h) h.textContent = wpE ? 'Laut Hersteller, oft 6 bis 10 min' : 'Laut Hersteller, oft ' + (S.erzeuger === 'pellet' ? 'etwa 30' : 'etwa 10') + ' min'; }
   const lf = document.getElementById('f-puf.abtauung.l'); if (lf) lf.placeholder = f(lkw(), lkw() % 1 ? 1 : 0);
   const th = document.getElementById('themebtn'), ts = document.getElementById('themeSet'); if (ts && th) ts.textContent = (th.title || 'Darstellung') + ' – tippen zum Wechseln';
   const c = document.getElementById('cnt'); if (c) { c.hidden = !SAVED.length; c.textContent = SAVED.length; }
@@ -417,7 +442,7 @@ function volText(v){
   const t = v.teile || {}, p = [];
   if (t.direkt > 0) p.push(fv(t.direkt) + ' l'); else { if (t.heizflaechen > 0) p.push('Heizflächen ' + fv(t.heizflaechen) + ' l'); if (t.rohre > 0) p.push('Rohre ' + fv(t.rohre) + ' l'); }
   if (t.puffer > 0) p.push('Puffer ' + fv(t.puffer) + ' l');
-  if (t.wp > 0) p.push('Wärmepumpe ' + fv(t.wp) + ' l');
+  if (t.wp > 0) p.push('Wärmeerzeuger ' + fv(t.wp) + ' l');
   return esc(p.length > 1 ? p.join(' + ') + ' = ' + fv(v.volumenL) + ' l' : fv(v.volumenL) + ' l');
 }
 const row = (t, s, v) => '<div><dt>' + t + '<small>' + s + '</small></dt><dd>' + v + '</dd></div>';
@@ -426,20 +451,22 @@ const row = (t, s, v) => '<div><dt>' + t + '<small>' + s + '</small></dt><dd>' +
 const PV = [
   { k: 'sperrzeit', label: 'Sperrzeit', req: ['Q', 'h', 'dT'], eng: p => ({ aktiv: true, leistungKW: num(p.Q), stunden: num(p.h), deltaT: num(p.dT) }) },
   { k: 'takt', label: 'Takt', req: ['Pmin', 'min', 'dT'], eng: p => ({ aktiv: true, pminKW: num(p.Pmin), minuten: num(p.min), deltaT: num(p.dT) }) },
-  { k: 'abtauung', label: 'Abtauung', req: ['P'], eng: p => ({ aktiv: true, nennleistungKW: num(p.P), lProKW: empty(p.l) ? lkw() : num(p.l), anrechenbaresVolumenL: empty(p.anr) ? '' : num(p.anr) }) }
+  { k: 'abtauung', label: 'Abtauung', req: ['P'], eng: p => ({ aktiv: true, nennleistungKW: num(p.P), lProKW: empty(p.l) ? lkw() : num(p.l), anrechenbaresVolumenL: empty(p.anr) ? '' : num(p.anr) }) },
+  { k: 'foerderung', label: 'Förderung', req: ['P'], opt: ['l'], eng: p => ({ aktiv: true, nennleistungKW: num(p.P), lProKW: empty(p.l) ? '' : num(p.l) }) },
+  { k: 'bimschv', label: '1. BImSchV', req: [], any: ['P', 'V'], eng: p => ({ aktiv: true, nennleistungKW: empty(p.P) ? '' : num(p.P), fuellraumL: empty(p.V) ? '' : num(p.V) }) }
 ];
 function calcPuf(){
-  const P = S.puf, out = { rows: [], res: null, active: 0 }, input = {};
+  const P = S.puf, out = { rows: [], res: null, active: 0 }, input = { erzeuger: S.erzeuger };
   PV.forEach(v => {
-    const p = P[v.k]; if (!p.on) return;
+    const p = P[v.k]; if (!p.on || !erlaubt(v.k)) return;
     out.active++;
-    const paths = v.req.map(x => 'puf.' + v.k + '.' + x).concat(v.k === 'abtauung' ? ['puf.abtauung.l', 'puf.abtauung.anr'] : []);
-    const bad = errCount(paths), miss = v.req.filter(x => empty(p[x]));
+    const paths = v.req.concat(v.any || [], v.opt || []).map(x => 'puf.' + v.k + '.' + x).concat(v.k === 'abtauung' ? ['puf.abtauung.l', 'puf.abtauung.anr'] : []);
+    const bad = errCount(paths), miss = v.req.filter(x => empty(p[x])).concat(v.any && v.any.every(x => empty(p[x])) ? ['any'] : []);
     const r = { key: v.k, label: v.label, state: bad ? 'invalid' : miss.length ? 'empty' : 'ok' };
-    if (r.state === 'ok') { input[v.k] = v.eng(p); const one = {}; one[v.k] = v.eng(p); r.litres = E.puffer(one).werte[v.k]; }
+    if (r.state === 'ok') { input[v.k] = v.eng(p); const one = { erzeuger: S.erzeuger }; one[v.k] = v.eng(p); r.litres = E.puffer(one).werte[v.k]; }
     out.rows.push(r);
   });
-  if (Object.keys(input).length) {
+  if (Object.keys(input).length > 1) {
     out.res = E.puffer(input);
     if (out.res.ok) { let best = null; out.rows.forEach(r => { if (r.litres != null && (best == null || r.litres > best.litres)) best = r; }); out.best = best; }
   }
@@ -448,7 +475,7 @@ function calcPuf(){
 function renderPuf(){
   const o = calcPuf();
   let h = '';
-  if (!o.active) h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte mindestens eine Variante (Sperrzeit, Takt oder Abtauung) einschalten.');
+  if (!o.active) h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte mindestens eine Variante (' + E.VARIANTEN_JE_ERZEUGER[S.erzeuger].map(k => PV.find(v => v.k === k).label).join(', ') + ') einschalten.');
   else {
     h = '<ul class="pv" aria-label="Ergebnis je Variante">' + o.rows.map(r => '<li><span class="l">' + r.label + '</span>' + (r.state === 'ok' ?
       '<span class="v">' + (r.litres > 0 ? 'ca. ' + f(Math.ceil(r.litres)) + ' l' : '0 l') + '</span>' :
@@ -471,10 +498,11 @@ function recalc(){ renderMag(); renderPuf(); }
 
 /* ---------- Speichern ---------- */
 function summary(t){
+  const ez = ERZ[S.erzeuger] + ' · ';
   if (t === 'mag') { const r = lastMag && lastMag.res; if (!r || !r.ok) return null;
-    return 'MAG ' + (r.Vn ? f(r.Vn) + ' l' : '> 1.000 l') + ' · p0 ' + f(r.p0, 2) + ' · pa ' + (r.pa == null ? '–' : f(r.pa, 2)) + ' · pe ' + f(r.pe, 2) + ' bar'; }
+    return ez + 'MAG ' + (r.Vn ? f(r.Vn) + ' l' : '> 1.000 l') + ' · p0 ' + f(r.p0, 2) + ' · pa ' + (r.pa == null ? '–' : f(r.pa, 2)) + ' · pe ' + f(r.pe, 2) + ' bar'; }
   const r = lastPuf && lastPuf.res; if (!r || !r.ok) return null;
-  return r.vorschlagL > 0 ? 'Puffer ' + f(r.vorschlagL) + ' l' + (lastPuf.best ? ' (' + lastPuf.best.label + ')' : '') : 'Kein Puffer nötig';
+  return ez + (r.vorschlagL > 0 ? 'Puffer ' + f(r.vorschlagL) + ' l' + (lastPuf.best ? ' (' + lastPuf.best.label + ')' : '') : 'Kein Puffer nötig');
 }
 function saveCalc(t){
   const s = summary(t);
@@ -530,6 +558,11 @@ document.addEventListener('click', e => {
   const a = b.dataset.a, d = b.dataset;
   if (a === 'nav') nav(d.v);
   else if (a === 'mode') { S.mag.mode = d.v; saveDraft(); refreshUI(); recalc(); }
+  else if (a === 'erz') {
+    S.erzeuger = d.v;
+    if (!E.VARIANTEN_JE_ERZEUGER[d.v].some(k => S.puf[k].on)) S.puf[E.VARIANTEN_JE_ERZEUGER[d.v][0]].on = true; // sonst wäre keine Variante aktiv
+    saveDraft(); fill(); refreshUI(); recalc();
+  }
   else if (a === 'psv') { S.mag.psv = d.v; saveDraft(); refreshUI(); recalc(); }
   else if (a === 'add') { const l = S.mag[d.l]; l.push(d.l === 'hf' ? { typ: 'radiator', kW: '' } : { typ: 'cu-15x1', m: '' }); saveDraft(); rowsHtml(); recalc(); }
   else if (a === 'del') { S.mag[d.l].splice(Number(d.i), 1); saveDraft(); rowsHtml(); validateAll(); recalc(); }
