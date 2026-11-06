@@ -7,7 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Service IBN">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">
 <meta name="color-scheme" content="light dark">
 <script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
@@ -97,6 +98,67 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
   .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
 }
 /* ===== Ende Handy-Layout ===== */
+/* ===== Design 2026: Startseite-Optik (Kacheln, Goldlinie), Handy-Feinschliff ===== */
+html{overscroll-behavior-y:none}
+.btn,.tile,.steps button,.ib{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn:focus-visible,.tile:focus-visible,.steps button:focus-visible,.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input,select,textarea{font-size:16px;min-height:50px;border-radius:12px}
+textarea{min-height:96px}
+/* Seitenränder respektieren Notch / Querformat */
+header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+header .tt h1{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:17px;line-height:1.2;letter-spacing:-.005em}
+/* Abschnittsüberschriften mit Zähler */
+h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:26px 2px 10px}
+h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 9px;font-size:11.5px;letter-spacing:0}
+/* Startseite */
+.newbtn{display:flex;width:100%;min-height:58px;font-size:17px;font-weight:700;border-radius:16px;margin:8px 0 12px;box-shadow:0 4px 14px rgba(26,26,26,.12)}
+.newbtn .ico{width:22px;height:22px;stroke-width:2.4}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{appearance:none;-webkit-appearance:none;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 3px 10px;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;transition:transform 140ms var(--out),border-color 150ms,box-shadow 150ms}
+.tile:active{transform:scale(.97)}
+.tile .ti{position:relative;width:40px;height:40px;border-radius:12px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
+.tile .tl{font-size:13px;font-weight:600;line-height:1.2;min-width:0;max-width:100%;overflow-wrap:break-word;-webkit-hyphens:manual;hyphens:manual}
+.tile .cnt{position:absolute;top:-7px;right:-9px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font:700 11.5px/20px "Plus Jakarta Sans",sans-serif;font-style:normal;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.emptyhint{margin:0;padding:18px 16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);text-align:center;font-size:15px}
+/* Protokoll-Karten: lange Namen umbrechen, Schaltflächen laufen in Reihe */
+.card .row.between>div:first-child{flex:1 1 170px;min-width:0;overflow-wrap:anywhere}
+.card .row.between>div:last-child{display:flex;flex-wrap:wrap;gap:6px}
+.card .row .btn.small{min-height:44px}
+/* Formular: Zwischenüberschrift, Karten, Auswahl */
+.card{border-radius:18px}
+.ghead{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);letter-spacing:.06em;border-bottom:0;padding:22px 0 2px}
+.ghead:before{content:"";width:4px;height:16px;border-radius:2px;background:var(--gold);flex:none}
+.ghead:first-child{padding-top:2px}
+.seg{gap:0}
+.seg .btn{min-width:0;flex:1 1 0;border-radius:0;margin-left:-1px;padding:10px 8px;min-height:52px}
+.seg .btn:first-child{border-radius:12px 0 0 12px;margin-left:0}
+.seg .btn:last-child{border-radius:0 12px 12px 0}
+.seg .btn.sel{position:relative;z-index:1}
+.seg .btn:active,.opts .btn:active{transform:none;filter:brightness(.93)}
+@media(min-width:701px){.seg{min-width:300px}}
+.opts .btn{min-width:52px}
+.calc{background:var(--gold-soft);border:1px solid var(--line);color:var(--ink)}
+.sigwrap{border-color:var(--line);border-radius:14px}
+.warnbox,.errbox,.okbox{border-radius:14px}
+/* Leiste unten: leicht durchscheinend, Hauptaktion breiter */
+.bar{background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
+.bar .btn{border-radius:14px}
+.bar .btn.primary{flex:1.5;box-shadow:0 3px 10px rgba(26,26,26,.14)}
+.bar .btn[disabled]{opacity:.4}
+@media(hover:hover) and (pointer:fine){
+  .tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}
+  .btn:not(:disabled):not(.sel):hover{border-color:var(--pri2)}
+}
+@media(max-width:360px){
+  .tiles{gap:8px}.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
+  .seg .btn{padding:10px 4px;font-size:14.5px}
+  .bar .btn{font-size:14.5px;padding-left:8px;padding-right:8px}
+}
+@media(prefers-reduced-motion:reduce){.tile{transition:none}}
+/* ===== Ende Design 2026 ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
@@ -523,17 +585,17 @@ const Views = {
     const done = protocols.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
-      <div class="row">
-        <button class="btn primary" data-act="new">+ Neue Inbetriebnahme</button>
-        <button class="btn" data-act="sync">Synchronisieren${pending ? ` (${pending})` : ''}</button>
-        <button class="btn" data-act="db">Datenbank / PDF</button>
-        <button class="btn" data-act="settings">Einstellungen</button>
+      <button class="btn primary newbtn stag" style="--i:0" data-act="new"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neue Inbetriebnahme</button>
+      <div class="tiles stag" style="--i:1">
+        <button class="tile" data-act="sync"><span class="ti"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>${pending ? `<i class="cnt" aria-hidden="true">${pending}</i>` : ''}</span><span class="tl">Synchro&shy;nisieren${pending ? `<span class="sr"> (${pending})</span>` : ''}</span></button>
+        <button class="tile" data-act="db"><span class="ti"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span class="tl">Datenbank / PDF</span></button>
+        <button class="tile" data-act="settings"><span class="ti"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><span class="tl">Einstel&shy;lungen</span></button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis du unter <b>Einstellungen</b> die Web-App-URL einträgst.</div>' : ''}
-      <h2>Offene Inbetriebnahmen</h2>
-      ${drafts.length ? drafts.map(protoCard).join('') : '<p class="muted">Keine offenen Inbetriebnahmen.</p>'}
-      <h2>Abgeschlossen</h2>
-      ${done.length ? done.map(protoCard).join('') : '<p class="muted">Noch keine abgeschlossenen Inbetriebnahmen.</p>'}`;
+      <h2>Offene Inbetriebnahmen <span class="n">${drafts.length}</span></h2>
+      ${drafts.length ? drafts.map(protoCard).join('') : '<p class="emptyhint">Keine offenen Inbetriebnahmen. Mit „Neue Inbetriebnahme“ geht es los.</p>'}
+      <h2>Abgeschlossen <span class="n">${done.length}</span></h2>
+      ${done.length ? done.map(protoCard).join('') : '<p class="emptyhint">Noch keine abgeschlossenen Inbetriebnahmen.</p>'}`;
   },
 
   wizard(){

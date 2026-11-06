@@ -2,12 +2,13 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Anlagenlogbuch">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">
 <meta name="color-scheme" content="light dark">
 <script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
@@ -108,6 +109,53 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
   .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
 }
 /* ===== Ende Handy-Layout ===== */
+/* ===== Design-Update: Startseiten-Look, Handy-Feinschliff ===== */
+html{overscroll-behavior-y:none}
+header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+button,a.btn,.steps>*,.opts .btn,.seg .btn,[role=button],[data-act]{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,select,textarea{font-size:16px}
+:where(button,a,input,select,textarea,[data-act]):focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+body{overflow-wrap:break-word}
+.card,.bk-t,.kv div,.pagetitle,.ent-m{overflow-wrap:anywhere;min-width:0}
+h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:24px 2px 10px}
+h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:11.5px;letter-spacing:0}
+/* Startseite: eine Hauptaktion, darunter drei Kacheln */
+.cta{width:100%;min-height:58px;font-size:17px;font-weight:700;border-radius:16px;margin-top:6px}
+.cta .ico{width:22px;height:22px;stroke-width:2.2}
+.qa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
+.qt{appearance:none;-webkit-appearance:none;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:96px;padding:12px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:transform 140ms var(--out),border-color var(--t-fast),box-shadow var(--t-fast)}
+.qt:active{transform:scale(.97)}
+.qt .qi{width:38px;height:38px;border-radius:12px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center;flex:none}
+.qt .qi .ico{width:20px}
+.qt b{font-size:14px;font-weight:600;line-height:1.2;display:block}
+.qt small{display:block;font-size:12px;color:var(--muted);line-height:1.25;margin-top:2px}
+.qt .pend{position:absolute;top:8px;right:8px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12px;font-weight:700;display:grid;place-items:center}
+@media(max-width:380px){.cta{font-size:16px;padding:10px 12px;line-height:1.25}.qa{grid-template-columns:1fr 1fr}.qa .qt:first-child{grid-column:1/-1;flex-direction:row;align-items:center;min-height:64px}}
+.hint{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:14px;margin:14px 2px 0}
+.hint .ico{width:18px;height:18px;margin-top:2px;color:var(--gold-text)}
+/* Logbuch-Karten */
+.bk{border-left:4px solid var(--gold);padding:14px 14px 12px}
+.bk.due-bad{border-left-color:var(--bad)}.bk.due-warn{border-left-color:var(--warn)}.bk.due-ok{border-left-color:var(--ok)}
+.bk-t b{display:block;font-size:16px;line-height:1.25}
+.bk-t .bk-s{display:block;font-size:15px;margin-top:2px}
+.bk-t .muted{display:block;font-size:14px;margin-top:2px}
+.bk-b{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.bk-a{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.bk-a .btn{min-width:0;text-align:center}
+.bk-a .primary{grid-column:1/-1}
+.bk-a .btn.danger{grid-column:1/-1;min-height:40px;background:transparent;border-color:transparent}
+.warnbox{font-size:15px}
+.bk .ent-m{margin-top:6px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:16px;margin:10px 0}
+.empty .qi{width:46px;height:46px;border-radius:14px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center}
+.empty b{color:var(--ink);font-size:16px}
+.kvcard{border-left:4px solid var(--gold)}
+@media(hover:hover) and (pointer:fine){.btn:hover{border-color:var(--pri2)}.qt:hover,.bk:hover{border-color:var(--gold)}}
+@media(pointer:coarse){.btn.small{min-height:44px}}
+@media(max-width:600px){.bk-a .btn.small{padding:6px 8px}.row.tb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.row.tb .btn{min-width:0;text-align:center}}
+/* ===== Ende Design-Update ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
@@ -578,23 +626,31 @@ function nextBadge(s){
 }
 
 /* ---------- Ansichten ---------- */
+const IC = {
+  plus:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  db:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+  sync:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M3 21v-5h5"/></svg>',
+  set:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
+  book:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+  info:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'
+};
 const Views = {
   home(){
     const drafts = books.filter(p => p.status === 'draft');
     const done = books.filter(p => p.status === 'done').sort((a, b) => String(summary(b).last || b.completedAt).localeCompare(String(summary(a).last || a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
-      <div class="row">
-        <button class="btn primary" data-act="newbook">+ Neues Logbuch (neue Anlage)</button>
-        <button class="btn" data-act="db">Datenbank / alle Logbücher</button>
-        <button class="btn" data-act="sync">Synchronisieren${pending ? ` (${pending})` : ''}</button>
-        <button class="btn" data-act="settings">Einstellungen</button>
+      <button class="btn primary cta" data-act="newbook">${IC.plus}Neues Logbuch (neue Anlage)</button>
+      <div class="qa">
+        <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank</b><small>alle Logbücher</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi">${IC.sync}</span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+        <button class="qt" data-act="settings"><span class="qi">${IC.set}</span><span><b>Einstellungen</b><small>Verbindung, Monteur</small></span></button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Logbücher werden lokal gespeichert, bis du unter <b>Einstellungen</b> die Web-App-URL einträgst.</div>' : ''}
-      <p class="muted" style="font-size:15px">Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank / alle Logbücher</b> → Anlage suchen → <b>+ Eintrag</b>.</p>
-      ${drafts.length ? `<h2>Logbuch in Arbeit</h2>${drafts.map(bookCard).join('')}` : ''}
-      <h2>Logbücher</h2>
-      ${done.length ? done.map(bookCard).join('') : '<p class="muted">Noch keine Logbücher vorhanden.</p>'}`;
+      <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
+      ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
+      <h2>Logbücher <span class="n">${done.length}</span></h2>
+      ${done.length ? done.map(bookCard).join('') : `<div class="empty"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus dem Google Sheet.</span></div>`}`;
   },
 
   book(){
@@ -605,13 +661,14 @@ const Views = {
     const es = doneEntries(p).reverse();
     const kv = (k, x) => `<div><b>${esc(k)}</b>${esc(x || '—')}</div>`;
     return `
-      <div class="row"><button class="btn" data-act="home">← Zurück</button>
+      <div class="row tb"><button class="btn" data-act="home">← Zurück</button>
         <button class="btn primary" data-act="newentry" data-id="${p.id}">+ Neuer Eintrag</button>
         <button class="btn" data-act="report" data-id="${p.id}">Logbuch / PDF</button>
         <button class="btn" data-act="editstamm" data-id="${p.id}">Anlagendaten bearbeiten</button></div>
-      <div class="card">
-        <div class="row between"><div class="pagetitle">${esc(v.projekt || 'Ohne Nr.')}</div><div>${nextBadge(s)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span></div></div>
-        <div class="kv" style="margin-top:8px">
+      <div class="card kvcard">
+        <div class="pagetitle">${esc(v.projekt || 'Ohne Nr.')}</div>
+        <div class="bk-b">${nextBadge(s)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span></div>
+        <div class="kv" style="margin-top:12px">
           ${kv('Betreiber', [v.bFirma, v.bName].filter(Boolean).join(', '))}
           ${kv('Aufstellort', [v.aFirma || v.aName, v.aStr, [v.aPlz, v.aOrt].filter(Boolean).join(' ')].filter(Boolean).join(', '))}
           ${kv('Anlage', [v.herst, anlageText(v)].filter(Boolean).join(' · '))}
@@ -620,18 +677,19 @@ const Views = {
           ${kv('Letzte Dichtheitsprüfung', s.lastDicht ? fmtDate(s.lastDicht) + ' – ' + s.lastErg : '')}
         </div>
       </div>
-      ${draftE.length ? `<h2>Eintrag in Arbeit</h2>${draftE.map(e => `<div class="card row between"><div><b>${esc(fmtDate(e.values.datum))}</b> · ${esc(e.values.sk || '')}</div>
-        <div class="row"><button class="btn small primary" data-act="resume" data-id="${p.id}" data-eid="${e.id}">Fortsetzen</button>
+      ${draftE.length ? `<h2>Eintrag in Arbeit <span class="n">${draftE.length}</span></h2>${draftE.map(e => `<div class="card bk"><div class="bk-t"><b>${esc(fmtDate(e.values.datum))}</b><span class="muted">${esc(e.values.sk || '')}</span></div>
+        <div class="bk-a"><button class="btn small primary" data-act="resume" data-id="${p.id}" data-eid="${e.id}">Fortsetzen</button>
         <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></div></div>`).join('')}` : ''}
-      <h2>Einträge (${es.length})</h2>
-      ${es.length ? `<div class="card"><table><thead><tr><th>Datum</th><th>Eintrag</th><th></th></tr></thead><tbody>${es.map(e => {
+      <h2>Einträge <span class="n">${es.length}</span></h2>
+      ${es.length ? es.map(e => {
         const x = e.values;
         const what = [x.dicht && `<span class="badge ${x.dicht === 'erfüllt' ? 'ok' : 'bad'}">Dichtheit ${esc(x.dicht)}</span>`, x.art && esc(x.art),
           (isN(x.auf) || isN(x.ent)) && 'Kältemittel', x.mang && '<span class="badge bad">Mangel</span>', x.erg && 'Ergänzung'].filter(Boolean).join(' · ');
-        return `<tr><td>${esc(fmtDate(x.datum))}</td><td>${what || '<span class="muted">—</span>'}<br><span class="muted" style="font-size:14px">${esc([x.sk, x.zert].filter(Boolean).join(' · '))}</span></td>
-          <td style="text-align:right;white-space:nowrap"><button class="btn small" data-act="editentry" data-id="${p.id}" data-eid="${e.id}">Bearbeiten</button>
-          <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></td></tr>`;
-      }).join('')}</tbody></table></div>` : '<p class="muted">Noch keine Einträge. Mit <b>+ Neuer Eintrag</b> die erste Prüfung / Wartung eintragen.</p>'}`;
+        return `<div class="card bk"><div class="bk-t"><b>${esc(fmtDate(x.datum))}</b><span class="muted">${esc([x.sk, x.zert].filter(Boolean).join(' · '))}</span></div>
+          <div class="ent-m">${what || '<span class="muted">—</span>'}</div>
+          <div class="bk-a"><button class="btn small" data-act="editentry" data-id="${p.id}" data-eid="${e.id}">Bearbeiten</button>
+          <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></div></div>`;
+      }).join('') : `<div class="empty"><span class="qi">${IC.book}</span><b>Noch keine Einträge</b><span>Mit <b>+ Neuer Eintrag</b> die erste Prüfung / Wartung eintragen.</span></div>`}`;
   },
 
   wizard(){
@@ -669,7 +727,7 @@ const Views = {
     const due = dbCache.list.map(e => dueState(e.next)).filter(Boolean);
     const over = due.filter(d => d.cls === 'bad').length, soon = due.filter(d => d.cls === 'warn').length;
     return `
-      <div class="row">
+      <div class="row tb">
         <button class="btn" data-act="home">← Zurück</button>
         <button class="btn primary" data-act="dbload">Aus Google Sheet laden</button>
       </div>
@@ -696,14 +754,13 @@ function bookCard(p){
   const badges = p.status === 'draft'
     ? `<span class="badge warn">Schritt ${p.page + 1}/${STAMM.pages.length}</span>`
     : `<span class="badge">${s.n} Einträge</span> ${nextBadge(s)} ${draftE ? '<span class="badge warn">Eintrag in Arbeit</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+  const dd = dueState(s.next), stripe = p.status !== 'draft' && dd ? ' due-' + dd.cls : '';
   return `
-    <div class="card">
-      <div class="row between">
-        <div><b>${esc(v.projekt || 'Ohne Logbuch-Nr.')}</b>${betrText(v) ? ' · ' + esc(betrText(v)) : ''}<br>
-          <span class="muted">${esc([anlageText(v), v.aOrt || v.bOrt].filter(Boolean).join(' · '))}</span></div>
-        <div>${badges}</div>
-      </div>
-      <div class="row" style="margin-top:10px">
+    <div class="card bk${stripe}">
+      <div class="bk-t"><b>${esc(v.projekt || 'Ohne Logbuch-Nr.')}</b>${betrText(v) ? `<span class="bk-s">${esc(betrText(v))}</span>` : ''}
+        <span class="muted">${esc([anlageText(v), v.aOrt || v.bOrt].filter(Boolean).join(' · '))}</span></div>
+      <div class="bk-b">${badges}</div>
+      <div class="bk-a">
         ${p.status === 'draft'
           ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
           : `<button class="btn small primary" data-act="newentry" data-id="${p.id}">+ Neuer Eintrag</button>
@@ -1012,15 +1069,15 @@ function dbList(){
       ? (a, b) => (/^\d{4}-/.test(a.next) ? a.next : '9999') .localeCompare(/^\d{4}-/.test(b.next) ? b.next : '9999')
       : (a, b) => String(b.last).localeCompare(String(a.last)));
   if(!list.length) return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
-  return `<div class="card"><table>
-    <thead><tr><th>Logbuch / Betreiber</th><th>Stand</th><th></th></tr></thead>
-    <tbody>${list.map(e => `<tr>
-      <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.anlage, e.sn && 'S/N ' + e.sn, e.ort].filter(Boolean).join(' · '))}</span></td>
-      <td>${e.n ? `${esc(e.n)} Einträge` : ''}${e.next ? `<br>${nextBadge({next:e.next})}` : ''}${e.erg === 'nicht erfüllt' ? '<br><span class="badge bad">nicht erfüllt</span>' : ''}</td>
-      <td style="text-align:right;white-space:nowrap">
+  return list.map(e => { const dd = dueState(e.next);
+    return `<div class="card bk${dd ? ' due-' + dd.cls : ''}">
+      <div class="bk-t"><b>${esc(e.projekt)}</b>${e.kunde ? `<span class="bk-s">${esc(e.kunde)}</span>` : ''}<span class="muted">${esc([e.anlage, e.sn && 'S/N ' + e.sn, e.ort].filter(Boolean).join(' · '))}</span></div>
+      <div class="bk-b">${e.n ? `<span class="badge">${esc(e.n)} Einträge</span>` : ''}${e.next ? nextBadge({next:e.next}) : ''}${e.erg === 'nicht erfüllt' ? '<span class="badge bad">nicht erfüllt</span>' : ''}</div>
+      <div class="bk-a">
         <button class="btn small primary" data-act="dbopen" data-key="${esc(e.key)}" data-then="entry">+ Eintrag</button>
         <button class="btn small" data-act="dbopen" data-key="${esc(e.key)}">Öffnen</button>
-        ${e.pdfUrl ? `<a class="btn small" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : `<button class="btn small" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+        ${e.pdfUrl ? `<a class="btn small" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : `<button class="btn small" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
+      </div></div>`; }).join('');
 }
 
 /* ---------- Google-Sheet-Schnittstelle ---------- */

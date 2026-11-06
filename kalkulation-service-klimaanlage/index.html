@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-title" content="Kalk. Klima">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">
 <meta name="color-scheme" content="light dark">
 <script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
@@ -243,6 +244,47 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 .report .legal p{margin:0 0 1.2mm}
 .report .legal b{color:var(--ink)}
 /* ===== Ende Bericht-CSS ===== */
+/* ===== Design-Feinschliff (Handy, Bedienung) – Startseite wie Service-Apps-Startseite ===== */
+html{overscroll-behavior-y:none}
+button,a,select,[role=button],input[type=date]{touch-action:manipulation}
+button,[role=button],.steps button{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn:focus-visible,.steps button:focus-visible,.tile:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(hover:hover) and (pointer:fine){
+  .ib:hover{background:rgba(255,255,255,.22)}
+  .btn:hover:not(:disabled){border-color:var(--pri2)}
+  .tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(0,0,0,.14)}
+}
+/* Kopf: langer Titel darf auf zwei Zeilen umbrechen statt abgeschnitten zu werden */
+header .tt h1{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;line-height:1.15;overflow-wrap:anywhere}
+.themebtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:360px){.logo{display:none}.tile{padding:12px}.tile strong{font-size:14px}.tiles{gap:8px}}
+/* Startseite */
+.newbtn{width:100%;min-height:56px;font-size:17px;border-radius:16px;gap:8px;margin-top:4px}
+.newbtn .ico{width:22px;height:22px;stroke-width:2.2}
+.tiles{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 0 4px}
+@media(min-width:720px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:719px){.tiles .tile:last-child:nth-child(odd){grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;gap:14px}}
+.warnbox{font-size:15px;line-height:1.45}
+.tile{appearance:none;-webkit-appearance:none;font:inherit;text-align:left;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:112px;padding:14px;border-radius:18px;border:1px solid var(--line);background:var(--card);position:relative;transition:transform 140ms var(--out),box-shadow 150ms,border-color 150ms}
+.tile:active{transform:scale(.97)}
+.tico{position:relative;width:42px;height:42px;border-radius:13px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
+.tico .ico{width:22px;height:22px}
+.tile .cnt{position:absolute;top:-6px;right:-8px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid var(--card)}
+.ttx{min-width:0}
+.tile strong{display:block;font-size:15px;font-weight:600;line-height:1.25;overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
+.tile small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.3;overflow-wrap:anywhere}
+h2 .n{display:inline-block;margin-left:8px;background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:12px;letter-spacing:0;vertical-align:1px}
+.cmain{min-width:0;flex:1 1 180px;overflow-wrap:anywhere}
+.cbad{flex:none}
+.card .row.between{align-items:flex-start}
+@media(prefers-reduced-motion:reduce){.tile{transition:none}}
+/* Sehr große Beträge: Ergebniszeile bricht um statt zu überlappen, Ergebnistabelle bleibt im Rahmen */
+#sumbar{height:auto;min-height:44px;flex-wrap:wrap;column-gap:12px;row-gap:2px}
+#sumbar>div{min-width:0}
+#result td{overflow-wrap:anywhere}
+@media(max-width:600px){#result td.num{white-space:normal}#result td:first-child{min-width:40%}}
+/* ===== Ende Design-Feinschliff ===== */
 @media print{
   header,.noprint,#toast,.bar,#stepwrap{display:none!important}
   html,body{background:#fff}
@@ -617,7 +659,9 @@ function live(){
   if(sb){   // Ergebnis-Zeile: Gerüst einmal aufbauen, danach nur Texte tauschen (Aufleuchten bei Änderung)
     if(!sb.firstChild) sb.innerHTML = '<div><small>Arbeitszeit</small><span data-s="t"></span></div><div><small>Netto</small><span data-s="n"></span></div><div class="gold"><small>Brutto</small><span data-s="b"></span></div>';
     const vals = {t:hrs(k.minTech + k.dauer * k.nH), n:eur(k.netto), b:eur(k.brutto)};
-    sb.querySelectorAll('[data-s]').forEach(el => { const t = vals[el.dataset.s]; if(el.textContent !== t){ el.textContent = t; } calcTouch('sum' + el.dataset.s, t, el); });
+    let chg = false;
+    sb.querySelectorAll('[data-s]').forEach(el => { const t = vals[el.dataset.s]; if(el.textContent !== t){ el.textContent = t; chg = true; } calcTouch('sum' + el.dataset.s, t, el); });
+    if(chg){ const bar = $('#bar'); if(bar && !bar.hidden) document.documentElement.style.setProperty('--barh', bar.offsetHeight + 'px'); }   // Leiste kann bei sehr großen Beträgen höher werden
   }
   document.querySelectorAll('input[data-f]').forEach(el => {
     if(el === document.activeElement || el.dataset.other) return;
@@ -643,20 +687,18 @@ const Views = {
     const done = calcs.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
-      <div class="row">
-        <button class="btn primary" data-act="new">+ Neue Kalkulation</button>
-        <button class="btn" data-act="sync">Synchronisieren${pending ? ` (${pending})` : ''}</button>
-        <button class="btn" data-act="db">Datenbank / PDF</button>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" data-act="fragen">Fragen an den Kunden</button>
-        <button class="btn" data-act="info">Info</button>
-        <button class="btn" data-act="settings">Einstellungen</button>
+      <button type="button" class="btn primary newbtn" data-act="new"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neue Kalkulation</button>
+      <div class="tiles">
+        <button type="button" class="tile" data-act="sync"><span class="tico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>${pending ? `<span class="cnt">${pending}</span>` : ''}</span><span class="ttx"><strong>Synchronisieren</strong><small>${pending ? `${pending} noch nicht im Sheet` : 'Mit dem Google Sheet abgleichen'}</small></span></button>
+        <button type="button" class="tile" data-act="db"><span class="tico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span><span class="ttx"><strong>Datenbank / PDF</strong><small>Gespeicherte Kalkulationen</small></span></button>
+        <button type="button" class="tile" data-act="fragen"><span class="tico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4M12 17.5h.01"/></svg></span><span class="ttx"><strong>Fragen an den Kunden</strong><small>Vor dem Termin klären</small></span></button>
+        <button type="button" class="tile" data-act="info"><span class="tico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></span><span class="ttx"><strong>Info</strong><small>Anleitung &amp; Rechenregeln</small></span></button>
+        <button type="button" class="tile" data-act="settings"><span class="tico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span><span class="ttx"><strong>Einstellungen</strong><small>Verbindung, Firma, Stammdaten</small></span></button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten. Unter <b>Einstellungen</b> die Web-App-URL eintragen.</div>' : ''}
-      <h2>Offene Kalkulationen</h2>
+      <h2>Offene Kalkulationen<span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(calcCard).join('') : '<p class="muted">Keine offenen Kalkulationen.</p>'}
-      <h2>Abgeschlossen</h2>
+      <h2>Abgeschlossen<span class="n">${done.length}</span></h2>
       ${done.length ? done.map(calcCard).join('') : '<p class="muted">Noch keine abgeschlossenen Kalkulationen.</p>'}`;
   },
 
@@ -772,9 +814,9 @@ function calcCard(p){
   return `
     <div class="card">
       <div class="row between">
-        <div><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? ' · ' + esc(v.kunde) : ''}<br>
+        <div class="cmain"><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? ' · ' + esc(v.kunde) : ''}<br>
           <span class="muted">${esc([fmtDate(v.datum), v.standort, 'brutto ' + eur(k.brutto)].filter(Boolean).join(' · '))}</span></div>
-        <div>${badges}</div>
+        <div class="cbad">${badges}</div>
       </div>
       <div class="row" style="margin-top:10px">
         ${p.status === 'draft'
@@ -1343,6 +1385,6 @@ render();
 loadStamm(true).then(ok => { if(ok && view.name !== 'wizard') render(); });
 syncAll(true);
 </script>
-<script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:['◐','Auto'],hell:['☀','Hell'],dunkel:['☾','Dunkel']};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t][0];b.title='Darstellung: '+L[t][1];b.setAttribute('aria-label','Darstellung: '+L[t][1]+' (tippen zum Wechseln)');}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
+<script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:'Auto',hell:'Hell',dunkel:'Dunkel'};var P={auto:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',hell:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',dunkel:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+P[t]+'</svg>';b.title='Darstellung: '+L[t];b.setAttribute('aria-label','Darstellung: '+L[t]+' (tippen zum Wechseln)');}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
 </body>
 </html>

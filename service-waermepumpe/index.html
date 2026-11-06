@@ -2,12 +2,13 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Service WP">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
+<meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
@@ -100,6 +101,56 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
   .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
 }
 /* ===== Ende Handy-Layout ===== */
+/* ===== Design-Überarbeitung (Stil der Startseite: Kacheln, Zähler-Chips, ruhige Flächen) ===== */
+html{overscroll-behavior-y:none}
+button,.btn,.ib,.steps>*,.tt,a.jump{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn{transition:transform var(--t-fast) var(--out),filter var(--t-fast),background-color var(--t-fast),border-color var(--t-fast),color var(--t-fast)}
+.btn:focus-visible,.ib:focus-visible,.steps button:focus-visible,.tt:focus-visible,a.jump:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+:root[data-theme=dark] .btn:focus-visible,:root[data-theme=dark] .steps button:focus-visible{outline-color:var(--gold)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .btn:focus-visible,:root:not([data-theme=light]) .steps button:focus-visible{outline-color:var(--gold)}}
+header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));box-shadow:0 -6px 18px rgba(26,26,26,.07)}
+.card{box-shadow:0 1px 0 rgba(26,26,26,.03)}
+@media(hover:hover) and (pointer:fine){.btn:hover{border-color:var(--gold-dark)}.btn.primary:hover{filter:brightness(1.04)}.ib:hover{background:rgba(255,255,255,.22)}.steps button:hover{border-color:var(--gold-dark)}}
+/* Startseite */
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 4px}
+.newbtn{grid-column:1/-1;justify-content:flex-start;gap:14px;min-height:68px;padding:12px 16px;border-radius:18px;font-size:17px;text-align:left}
+.newbtn .wi{width:42px;height:42px;border-radius:13px;background:var(--pri);color:var(--gold);display:grid;place-items:center;flex:none}
+:root[data-theme=dark] .newbtn .wi{background:#1a1a1a}
+.atile{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;min-height:104px;padding:14px;border-radius:18px;text-align:left;background:var(--card)}
+.atile .wi{width:42px;height:42px;border-radius:13px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
+.atile .wt{min-width:0;display:block;line-height:1.25;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
+.atile small{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
+.atile.pend .wi{background:var(--wbg);color:var(--warn)}
+.wi .ico{width:22px;height:22px;stroke-width:2}
+.secth{display:flex;align-items:center;gap:8px}
+.secth .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 9px;font-size:12px;letter-spacing:0}
+.emptybox{border:1.5px dashed var(--line);border-radius:16px;padding:20px 16px;text-align:center;color:var(--muted);margin:10px 0;font-size:15px}
+.warnbox .btn{margin-top:10px}
+/* Protokoll-Karten */
+.pc{padding:14px 16px}
+.pc-main{min-width:0;flex:1;overflow-wrap:anywhere}
+.pc-main b{font-size:17px}
+.pc-main .pc-k{display:block;line-height:1.3}
+.pc-meta{margin-top:4px;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.pc-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pc-act{margin-top:12px;gap:8px}
+.pc-act .btn.primary{flex:1 1 140px}
+.pc.dr{border-left:4px solid var(--gold)}
+.badge{overflow-wrap:anywhere}
+/* Formular */
+.field label,.pagetitle,.steplab>span{overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
+.pagetitle{min-width:0}
+.row.between>.pagetitle{flex:1 1 200px}
+.sigwrap{overscroll-behavior:contain}
+textarea{overscroll-behavior:contain}
+.opts .btn{max-width:100%;overflow-wrap:anywhere}
+.seg .btn{min-width:0}
+@media(max-width:600px){main,#stepwrap{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}.pc{padding:12px 14px}}
+@media(max-width:600px){.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));width:100%}.seg .btn{padding:8px 4px;font-size:15px;white-space:nowrap}}
+@media(max-width:240px){.net:not(.off){display:none}.actions{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:340px){.logo{display:none}.actions{gap:8px}.atile{padding:12px;min-height:96px}.bar .btn{font-size:14px;padding:8px 10px}.steps{gap:3px}}
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
@@ -502,18 +553,18 @@ const Views = {
     const drafts = protocols.filter(p => p.status === 'draft');
     const done = protocols.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
+    const plus = '<svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
     return `
-      <div class="row">
-        <button class="btn primary" data-act="new">+ Neue Wartung</button>
-        <button class="btn" data-act="sync">Synchronisieren${pending ? ` (${pending})` : ''}</button>
-        <button class="btn" data-act="db">Datenbank / PDF</button>
-        <button class="btn" data-act="settings">Einstellungen</button>
+      <div class="actions">
+        <button class="btn primary newbtn" data-act="new"><span class="wi">${plus}</span><span class="wt">Neue Wartung<small style="display:block;font-weight:500;font-size:12.5px;opacity:.75">Protokoll starten</small></span></button>
+        <button class="btn atile${pending ? ' pend' : ''}" data-act="sync"><span class="wi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></span><span class="wt">Synchronisieren<small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span></button>
+        <button class="btn atile" data-act="db"><span class="wi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span class="wt">Datenbank / PDF<small>Suchen &amp; öffnen</small></span></button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis du unter <b>Einstellungen</b> die Web-App-URL einträgst.</div>' : ''}
-      <h2>Offene Wartungen</h2>
-      ${drafts.length ? drafts.map(protoCard).join('') : '<p class="muted">Keine offenen Wartungen.</p>'}
-      <h2>Abgeschlossen</h2>
-      ${done.length ? done.map(protoCard).join('') : '<p class="muted">Noch keine abgeschlossenen Wartungen.</p>'}`;
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis du die Web-App-URL einträgst.<br><button class="btn small" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      <h2 class="secth">Offene Wartungen <span class="n">${drafts.length}</span></h2>
+      ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
+      <h2 class="secth">Abgeschlossen <span class="n">${done.length}</span></h2>
+      ${done.length ? done.map(protoCard).join('') : '<div class="emptybox">Noch keine abgeschlossenen Wartungen.</div>'}`;
   },
 
   wizard(){
@@ -567,14 +618,13 @@ function protoCard(p){
   } else {
     badges = `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
   }
+  const meta = [fmtDate(v.datum), v.agModell, v.monteur].filter(Boolean).map(esc).join(' · ');
   return `
-    <div class="card">
-      <div class="row between">
-        <div><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? ' · ' + esc(v.kunde) : ''}<br>
-          <span class="muted">${esc(fmtDate(v.datum))}${v.agModell ? ' · ' + esc(v.agModell) : ''}${v.monteur ? ' · ' + esc(v.monteur) : ''}</span></div>
-        <div>${badges}</div>
-      </div>
-      <div class="row" style="margin-top:10px">
+    <div class="card pc${p.status === 'draft' ? ' dr' : ''}">
+      <div class="pc-main"><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? `<span class="pc-k">${esc(v.kunde)}</span>` : ''}</div>
+      ${meta ? `<div class="pc-meta">${meta}</div>` : ''}
+      <div class="pc-badges">${badges}</div>
+      <div class="row pc-act">
         ${p.status === 'draft'
           ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
           : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}
@@ -762,17 +812,19 @@ function dbList(){
   const list = dbCache.list
     .filter(e => !q || [e.projekt, e.kunde, e.monteur, e.modell, e.datum, fmtDate(e.datum)].join(' ').toLowerCase().includes(q))
     .sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
-  if(!list.length) return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
+  if(!list.length) return `<div class="emptybox">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</div>`;
+  const lim = view.lim || 100, shown = list.slice(0, lim);
   return `<div class="card"><table>
     <thead><tr><th>Datum</th><th>Projekt / Kunde</th><th>Erfolgreich</th><th></th></tr></thead>
-    <tbody>${list.map(e => `<tr>
+    <tbody>${shown.map(e => `<tr>
       <td>${esc(fmtDate(e.datum))}</td>
       <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.modell, e.monteur].filter(Boolean).join(' · '))}</span></td>
       <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'Ja' ? 'ok' : 'bad'}">${esc(e.erfolg)}</span>` : ''}</td>
       <td style="text-align:right;white-space:nowrap">${e.pdfUrl
         ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
         : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
-        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`).join('')}</tbody></table></div>`;
+        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`).join('')}</tbody></table></div>
+    ${list.length > lim ? `<button class="btn" style="width:100%" data-act="dbmore">Weitere anzeigen (${lim} von ${list.length})</button>` : ''}`;
 }
 
 /* ---------- Unterschrift ---------- */
@@ -840,6 +892,7 @@ const Actions = {
   home(){ go('home'); },
   settings(){ go('settings'); },
   db(){ go('db', {q:view.q}); },
+  dbmore(){ view.lim = (view.lim || 100) + 100; $('#dblist').innerHTML = dbList(); },
   sync(){ syncAll(false); },
 
   new(){
@@ -1048,7 +1101,7 @@ app.addEventListener('input', e => {
       if(c.note) $('#note-' + c.id).textContent = c.note(p.values);
     });
   } else if(el.id === 'dbsearch'){
-    view.q = el.value; $('#dblist').innerHTML = dbList();
+    view.q = el.value; view.lim = 100; $('#dblist').innerHTML = dbList();
   }
 });
 app.addEventListener('change', e => {
