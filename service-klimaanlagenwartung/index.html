@@ -14,86 +14,16 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-180.png">
 <title>Service Klimaanlagenwartung</title>
-<script src="lib/html2canvas.min.js" defer></script>
-<script src="lib/jspdf.umd.min.js" defer></script>
+<script src="shared/lib/html2canvas.min.js" defer></script>
+<script src="shared/lib/jspdf.umd.min.js" defer></script>
+<link rel="stylesheet" href="shared/base.css">
 <style>
-/* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
-   Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
-:root{--t-fast:150ms;--t-med:260ms;--t-exit:180ms;--out:cubic-bezier(.2,.8,.2,1);--in:cubic-bezier(.4,0,1,1);--flash:rgba(220,204,75,.5);--gold-dark:#c4b53e;--gold-text:#8b7a1b;--hbg:#fff8d6;--hfg:#4a3f00;--ebd:#f1b5b5;--efg:#7a1414;--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-soft:#faf6dc;
-  --ok:#1e7a46;--bad:#b42318;--na:#8a8989;--warn:#8a5a00;--ctl:#fff;--bdg:#eceae3;--okbg:#e6f4ec;--okbd:#b6dcc4;--okfg:#14532d;--ebg:#fdecea;--wbg:#fdf3d6;--wbd:#e6d98a;--wfg:#4a3d00;--calc:#eef2f7;--sheet:#e9e7e1;--k1:#f4f3ef;--fwbd:#ecd28a;--fwfg:#5a3d00}
-:root[data-theme=light]{color-scheme:light}
-:root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}}
-:root[data-theme=dark] .opts .btn.sel,:root[data-theme=dark] .seg .btn.sel.neutral{border-color:var(--gold)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .opts .btn.sel,:root:not([data-theme=light]) .seg .btn.sel.neutral{border-color:var(--gold)}}
-/* Dunkel: zusätzliche Variablen */
-:root[data-theme=dark]{--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}}
-.themebtn{font-size:18px;line-height:1}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;border-bottom:3px solid var(--gold);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:9px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;font-weight:700;font-size:17px;flex:none}
-header .tt{flex:1;min-width:0;line-height:1.2;cursor:pointer}header .tt h1{display:block;font-size:16px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header .tt span{display:block;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ib{appearance:none;-webkit-appearance:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);border:0;display:grid;place-items:center;color:#fff;flex:none;padding:0;cursor:pointer;font:inherit}
-.ib{transition:transform var(--t-fast) var(--out),background var(--t-fast)}.ib:active{transform:scale(.94);background:rgba(255,255,255,.22)}
-.ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.net{display:inline-flex;align-items:center;font-size:12px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18);white-space:nowrap;flex:none}
-.net .nd{width:8px;height:8px;border-radius:50%;background:#4cc27f;margin-right:5px;flex:none}
-.net.off{background:var(--bad)}.net.off .nd{background:#fff}
-/* Seitenübergang: seitlich verschobene Seite darf keinen waagerechten Bildlauf erzeugen */
-.stage{overflow-x:hidden;overflow-x:clip}
-main{max-width:940px;margin:0 auto;padding:10px 16px calc(48px + env(safe-area-inset-bottom))}
-.btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--ctl);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-weight:600;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
-.btn{position:relative;transition:transform var(--t-fast) var(--out),filter var(--t-fast)}
-.btn:active{transform:scale(.97);filter:brightness(.96)}
-.btn.primary{background:var(--gold);border-color:var(--pri2);color:#1a1a1a}
-.btn.danger{color:var(--bad)}
-.btn.small{min-height:38px;padding:6px 12px;font-size:15px}
-.btn:disabled{opacity:.45}
 .btn[hidden]{display:none}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.between{justify-content:space-between}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
-h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 6px}
-label{display:block;font-size:15px;color:var(--ink);margin:0 0 6px;font-weight:600}
-input,select,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--ctl);color:var(--ink)}
-textarea{min-height:90px;resize:vertical}
-.badge{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--bdg);color:var(--ink)}
-.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--ebg);color:var(--bad)}.badge.warn{background:var(--wbg);color:var(--warn)}
-.muted{color:var(--muted)}
-.warnbox{background:var(--gold-soft);border:1px solid var(--wbd);border-left:5px solid var(--gold);color:var(--wfg);padding:12px 14px;border-radius:12px;margin:12px 0}
-.progress{height:8px;background:var(--bdg);border-radius:99px;overflow:hidden;margin:8px 0 10px}
-.progress>div{height:100%;background:var(--gold);transition:width var(--t-med) var(--out)}
-.info{display:flex;gap:8px;align-items:center;background:var(--hbg);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:8px 12px;font-size:12.5px;line-height:1.3;color:var(--ink)}
-.errbox{background:var(--ebg);border:1px solid var(--ebd);color:var(--efg);padding:12px 14px;border-radius:12px;margin:12px 0}
-.okbox{background:var(--okbg);border:1px solid var(--okbd);color:var(--okfg);padding:12px 14px;border-radius:12px;margin:12px 0}
-/* Schrittanzeige (Kopfbereich unter dem Header, bleibt beim Schrittwechsel stehen) */
-#stepwrap{max-width:940px;margin:0 auto;padding:12px 16px 0}
-#stepwrap[hidden]{display:none}
-.steplab{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted)}
-.steplab>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.steplab b{color:var(--ink)}
-.steps{display:flex;gap:4px;margin:0 0 6px}
-.steps>*{flex:1;min-width:0;text-align:center;font:inherit;font-size:13px;font-weight:600;padding:9px 0;min-height:38px;border-radius:10px;border:1px solid var(--line);color:var(--muted);background:var(--card);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;appearance:none;-webkit-appearance:none}
-.steps button{transition:transform var(--t-fast) var(--out)}.steps button:active{transform:scale(.97)}
-.steps .done{background:var(--okbg);border-color:var(--okbd);color:var(--ok)}
-.steps .on{background:var(--pri);color:#fff;border-color:var(--pri)}
-:root[data-theme=dark] .steps .on{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .steps .on{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}}
-@media(max-width:700px){.steps .sl{display:none}}
-.pagetitle{font-size:26px;font-weight:700;margin:2px 0 4px;line-height:1.2}
 /* Felder */
-.field{padding:14px 0;border-bottom:1px solid var(--line)}
-.field:last-child{border-bottom:0}
 .ghead{font-size:15px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;padding:18px 0 4px;border-bottom:2px solid var(--gold)}
 .ghead:first-child{padding-top:2px}
-.fhint{font-size:14px;color:var(--muted);margin:-3px 0 6px;font-weight:400}
 .ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
 .field.err input,.field.err textarea{border-color:var(--bad)}
-.frow{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.frow label{margin:0}
-.seg{display:flex;gap:6px;flex-shrink:0}
-.seg .btn{min-width:92px;min-height:52px}
 .seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
@@ -101,7 +31,6 @@ textarea{min-height:90px;resize:vertical}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
 .opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
-.inunit{display:flex;align-items:center;gap:10px}
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
@@ -120,9 +49,6 @@ textarea{min-height:90px;resize:vertical}
 .vbw>.vbody{overflow:hidden;min-height:0}
 .vin{padding:6px 4px 4px;opacity:0;transform:translateY(-4px);transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out)}
 .vcard.open .vin{opacity:1;transform:none}
-table{width:100%;border-collapse:collapse}
-td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
-th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .sigwrap{border:2px dashed #c4ccd8;border-radius:12px;background:#fff;margin-bottom:8px}
 canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
@@ -134,7 +60,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
-.bar[hidden]{display:none}
 .bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
 .bar .btn{flex:1;min-height:52px;border-radius:13px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
@@ -189,10 +114,10 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* Bericht */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
-  src:url(lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
+  src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
-  src:url(lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
+  src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 .sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
 /* ===== Bericht-CSS (identisch in google-apps-script/PdfDialog.html) ===== */
@@ -313,6 +238,11 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 <div class="bar" id="bar" hidden></div>
 <div id="toast"></div>
 
+<script src="shared/core.js"></script>
+<script src="shared/pdf.js"></script>
+<script src="shared/sync.js"></script>
+<script src="shared/settings.js"></script>
+<script src="shared/wizard.js"></script>
 <script>
 'use strict';
 
@@ -479,35 +409,22 @@ function normVals(v){
 }
 
 /* ---------- Speicher ---------- */
-const LS = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ toast('Speichern fehlgeschlagen – Speicher voll? Übertragene Protokolle löschen.'); return false; } }
-};
+/* LS steht in shared/core.js */
+LS.fullMsg += ' Übertragene Protokolle löschen.';
+const SETTINGS_FIELDS = [{id:'s_tech', key:'techniker', label:'Monteur (Vorbelegung)', placeholder:'z. B. C.Geuther'}];   // Einstellungsseite: shared/settings.js
 let settings  = Object.assign({url:'', token:'', firma:'', techniker:''}, LS.get('klw.settings', {}));
 let protocols = LS.get('klw.protocols', []);
 let dbCache   = LS.get('klw.db', {at:null, list:[]});
 const save = () => LS.set('klw.protocols', protocols);
 
 /* ---------- Helfer ---------- */
-const $ = s => document.querySelector(s);
+/* $, esc, uid, today, fmtDateTime, isN, round, fmtNum, toast, RM, flash stehen in shared/core.js */
 const app = $('#app');
-function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const nio = x => x === 'Mangel' ? 'n.i.O.' : x;   // alte Anzeige „Mangel“ → „n.i.O.“
-function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10); }
-function today(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
 function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}); }
-function fmtDateTime(s){ if(!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('de-DE', {dateStyle:'short', timeStyle:'short'}); }
 function num(v){ return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.')); }
-function isN(v){ return v !== '' && v != null && !isNaN(num(v)); }
-function round(n, d){ const f = Math.pow(10, d); return Math.round(n * f) / f; }
-function fmtNum(n){ return String(n).replace('.', ','); }
 function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
 const isVis = (f, v) => (!f.legacy || String(v[f.id] ?? '') !== '') && (!f.show || f.show(v));   // Altfelder nur mit vorhandenem Wert
-let toastTimer;
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500); }
-/* Bewegung reduzieren (Systemeinstellung) und kurzes Aufleuchten eines geänderten Werts */
-const RM = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-function flash(el){ if(!el || RM()) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
 let calcSeen = {};   // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
 function calcTouch(id, text, el){ const k = view.id + ':' + id; if(k in calcSeen && calcSeen[k] !== text) flash(el); calcSeen[k] = text; }
 
@@ -653,34 +570,8 @@ function hsubText(){
   if(view.name === 'report' && view.db && view.rep) return view.rep.id || 'Bericht';
   return view.name === 'settings' ? 'Einstellungen' : view.name === 'db' ? 'Datenbank / PDF' : 'Wartungsprotokolle';
 }
-function setHeader(animate){
-  const hs = $('#hsub'), t = hsubText();
-  if(hsubAnim){ hsubAnim.cancel(); hsubAnim = null; }
-  const changed = hs.textContent !== t;
-  hs.textContent = t;
-  if(animate && changed && !RM() && hs.animate) hsubAnim = hs.animate([{opacity:0, transform:'translateY(6px)'}, {opacity:.75, transform:'none'}], {duration:260, easing:'cubic-bezier(.2,.8,.2,1)'});
-}
-/* Schrittanzeige: bleibt beim Schrittwechsel im DOM stehen (Balken gleitet, Punkte wechseln nur die Klasse) */
-function setSteps(){
-  const w = $('#stepwrap'), p = view.name === 'wizard' ? cur() : null;
-  if(!p){ w.hidden = true; w.dataset.pid = ''; return; }
-  const pages = TEMPLATE.pages, n = pages.length, i = p.page, fresh = w.dataset.pid !== p.id;
-  if(fresh){
-    w.dataset.pid = p.id;
-    w.innerHTML = `<div class="steplab"><span id="stlab"></span><button class="btn small" data-act="home">Pause</button></div>
-      <div class="progress"><div id="stbar" style="width:0"></div></div>
-      <div class="steps">${pages.map((x, k) => `<button type="button" data-act="jump" data-i="${k}" aria-label="Schritt ${k + 1}: ${esc(x.title)}">${k + 1}<span class="sl"> ${esc(x.short)}</span></button>`).join('')}</div>`;
-  }
-  const wasHidden = w.hidden; w.hidden = false;
-  if(fresh || wasHidden) void w.offsetWidth;
-  $('#stlab').innerHTML = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
-  $('#stbar').style.width = Math.round((i + 1) / n * 100) + '%';
-  w.querySelectorAll('.steps button').forEach((b, k) => {
-    b.classList.toggle('done', k !== i && pageDone(p, k) && !pages[k].final);
-    b.classList.toggle('on', k === i);
-    if(k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
-  });
-}
+/* Schrittanzeige: stepsRender in shared/wizard.js */
+function setSteps(){ const p = view.name === 'wizard' ? cur() : null; stepsRender(p && {key:p.id, pages:TEMPLATE.pages, index:p.page, done:k => pageDone(p, k) && !TEMPLATE.pages[k].final, pauseAct:'home'}); }
 /* Feste Leiste unten */
 function barHtml(){
   if(view.name === 'wizard'){
@@ -694,51 +585,9 @@ function barHtml(){
   }
   return '';
 }
-function setBar(){
-  const b = $('#bar'), h = barHtml();
-  b.innerHTML = h; b.hidden = !h; document.body.classList.toggle('hasbar', !!h);
-}
-/* Schrittwechsel: alte Seite gleitet weg (0,18 s), Zustand ändern + neu zeichnen, neue Seite gleitet herein (0,26 s).
-   Doppeltipp während des Übergangs wird ignoriert (navBusy). Transform/Animation-Klassen werden danach vollständig entfernt. */
-function stepTo(dir, change){
-  if(navBusy) return;
-  const vid = view.id, after = () => { change(); render(); window.scrollTo(0, 0); };
-  if(RM() || !app.animate){ after(); return; }
-  navBusy = true;
-  app.className = 'pg-out-' + dir;
-  setTimeout(() => {
-    let ok = false;
-    try{
-      if(view.name !== 'wizard' || view.id !== vid){ app.className = ''; return; }
-      change(); render(); window.scrollTo(0, 0);
-      const cls = 'pg-in-' + dir + ' entering';
-      clearTimeout(enterT);
-      app.className = cls;
-      ok = true;
-      setTimeout(() => { navBusy = false; }, 300);
-      setTimeout(() => { if(app.className === cls) app.className = ''; }, 900);
-    } finally {
-      if(!ok){ navBusy = false; if(/pg-/.test(app.className)) app.className = ''; }   // Fehler oder Abbruch: App bleibt bedienbar
-    }
-  }, 180);
-}
-/* Bericht seitenweise (A4) anzeigen – auf schmalen Bildschirmen verkleinert */
-async function showReport(){
-  const host = $('#sheet'), r = reportForView();
-  if(!host || !r) return;
-  await reportFontsReady();
-  if(!host.isConnected) return;
-  layoutReport(r, host);
-  host.style.zoom = Math.min(1, (host.parentElement.clientWidth - 8) / host.querySelector('.page').offsetWidth);
-}
-function updateNet(){
-  const n = protocols.filter(p => p.status === 'done' && !p.synced).length;
-  const el = $('#net');
-  const on = navigator.onLine;
-  el.className = 'net' + (on ? '' : ' off');
-  el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl"> ausstehend</span>` : ''}`;
-  el.title = (on ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
-}
+function setBar(){ barRender(barHtml()); }
+function wizSnapshot(){ const vid = view.id; return () => view.name === 'wizard' && view.id === vid; }
+function updateNet(){ netRender(protocols.filter(p => p.status === 'done' && !p.synced).length); }
 
 /* ---------- Ansichten ---------- */
 const Views = {
@@ -799,29 +648,7 @@ const Views = {
   },
 
   settings(){
-    return `
-      <div class="row"><button class="btn" data-act="home">← Zurück</button></div>
-      <h2>Google-Sheet-Verbindung</h2>
-      <div class="card">
-        <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
-        <input id="s_url" value="${esc(settings.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocorrect="off">
-        <label style="margin-top:14px">Token (muss mit TOKEN im Apps Script übereinstimmen)</label>
-        <input id="s_token" value="${esc(settings.token)}" autocapitalize="off" autocorrect="off">
-      </div>
-      <h2>Allgemein</h2>
-      <div class="card">
-        <label>Firmenkopf im PDF (mehrzeilig möglich)</label><textarea id="s_firma" style="min-height:110px" placeholder="z. B. Firmenname&#10;Straße&#10;PLZ Ort · Telefon">${esc(settings.firma)}</textarea>
-        <label style="margin-top:14px">Monteur (Vorbelegung)</label><input id="s_tech" value="${esc(settings.techniker)}" placeholder="z. B. C.Geuther">
-      </div>
-      <div class="row"><button class="btn primary" data-act="savesettings">Speichern</button><button class="btn" data-act="ping">Speichern &amp; Verbindung testen</button></div>
-      <h2>Datensicherung</h2>
-      <div class="card">
-        <p class="muted" style="margin-top:0">Sichert alle Protokolle der App als JSON-Datei.</p>
-        <div class="row">
-          <button class="btn" data-act="backup">Backup exportieren</button>
-          <label class="btn" style="margin:0;font-size:17px">Backup importieren<input type="file" id="s_import" accept=".json,application/json" hidden></label>
-        </div>
-      </div>`;
+    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei.');
   }
 };
 
@@ -956,7 +783,7 @@ function finalHtml(p){
     </div>`;
 }
 
-/* ===== identisch in google-apps-script/PdfDialog.html ===== */
+/* ===== identisch in google-apps-script/PdfDialog.html (Teil 1 von 2: RICON, reportParts; Teil 2 steht in shared/pdf.js) ===== */
 /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Checklisten, Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
    Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) unverändert entgegen. */
 const RICON = {
@@ -1064,78 +891,17 @@ function reportParts(r){
     foot:esc((kicker ? nice(kicker) + ' ' : '') + h1) + (stand ? ' · ' + esc(stand) : ''), id:esc(r.id)
   };
 }
-/* Verteilt die Blöcke auf A4-Seiten. host muss im Dokument hängen (Messung der Höhen). */
-function layoutReport(r, host){
-  const b = reportParts(r), pages = [];
-  let body;
-  const el = html => { const d = document.createElement('div'); d.innerHTML = html; return d.firstElementChild; };
-  const newPage = () => {
-    const pg = el(`<section class="page"><div class="page-body">${pages.length ? b.smallHead : b.head}</div><div class="pfoot"><span>${b.foot}</span><span class="pno"></span></div></section>`);
-    host.appendChild(pg); pages.push(pg); body = pg.firstElementChild;
-  };
-  const fits = () => body.scrollHeight <= body.clientHeight + 1;
-  host.innerHTML = '';
-  newPage();
-  b.blocks.forEach(blk => {
-    const node = el(blk.html);
-    body.appendChild(node);
-    if(fits()) return;
-    node.remove();
-    if(!blk.split){ newPage(); body.appendChild(node); return; }
-    // Tabelle zeilenweise verteilen; auf der Folgeseite Überschrift „(Fortsetzung)“ und Tabellenkopf wiederholen
-    const rows = [...node.querySelectorAll('tbody > tr')];
-    const shell = cont => { const s = node.cloneNode(true); s.querySelector('tbody').innerHTML = ''; if(cont) s.querySelector('.tt').textContent += ' (Fortsetzung)'; return s; };
-    let part = shell(false), placed = 0;
-    body.appendChild(part);
-    rows.forEach(tr => {
-      part.querySelector('tbody').appendChild(tr);
-      if(fits()){ placed++; return; }
-      tr.remove();
-      if(!placed) part.remove();
-      const cont = placed > 0;
-      newPage(); part = shell(cont); body.appendChild(part);
-      part.querySelector('tbody').appendChild(tr); placed = 1;
-    });
-  });
-  pages.forEach((p, i) => { p.querySelector('.pno').innerHTML = `${b.id} · Seite ${i + 1} von ${pages.length}`; });
-  return pages;
-}
-async function reportFontsReady(){
-  try{ await document.fonts.ready; }catch(e){}
-}
-/* PDF: jede A4-Seite wird einzeln aufgenommen (Bild) und als eigene PDF-Seite eingefügt */
-async function reportPdfBlob(r){
-  await reportFontsReady();
-  const box = document.createElement('div');
-  box.className = 'report flat';
-  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:220mm;background:#fff';
-  document.body.appendChild(box);
-  try{
-    const pages = layoutReport(r, box);
-    await Promise.all([...box.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(res => { i.onload = i.onerror = res; })));
-    const pdf = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
-    for(let i = 0; i < pages.length; i++){
-      const canvas = await html2canvas(pages[i], {scale:2, backgroundColor:'#ffffff', logging:false});
-      if(i) pdf.addPage();
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297);
-    }
-    return pdf.output('blob');
-  } finally {
-    box.remove();
-  }
-}
-/* ===== Ende identischer Teil ===== */
+/* ===== Ende identischer Teil (Teil 1 von 2; Teil 2: layoutReport … reportPdfBlob in shared/pdf.js, ebenfalls identisch zu PdfDialog.html) ===== */
 
+/* Bericht samt Unterschrift; PDF_OPTS: vor dem Rendern auf die Unterschrift (Bild) warten. layoutReport, reportPdfBlob, pdfName, isStandalone, pdfBase64 stehen in shared/pdf.js */
+const PDF_OPTS = {waitImages:true};
+function reportOf(p){ const r = buildReport(p); r.sig = p.sig; return r; }
 function reportForView(){
   if(view.db) return view.rep;
   const p = protocols.find(x => x.id === view.id);
   if(!p) return null;
-  const r = buildReport(p); r.sig = p.sig;
-  return r;
+  return reportOf(p);
 }
-/* Dateiname = Projekt-Nr. (wie in Google Drive) */
-function pdfName(proj){ return String(proj || 'ohne-Protokollnummer').replace(/[\/\\:*?"<>|]+/g, '-').trim(); }
-function isStandalone(){ return !!navigator.standalone || window.matchMedia('(display-mode: standalone)').matches; }
 
 /* ---------- PDF-Erzeugung (offline, ohne Druckdialog – iOS druckt in Home-Bildschirm-Apps nicht) ---------- */
 let lastPdf = null;   // {key, file, url}
@@ -1145,55 +911,6 @@ function pdfBarHtml(){
   // „Öffnen“ nur im normalen Browser – in der Home-Bildschirm-App gäbe es keinen Weg zurück
   return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
 }
-/* Beim Synchronisieren: dasselbe PDF erzeugen und mitschicken – landet 1:1 in Google Drive */
-async function pdfBase64(p){
-  if(!window.jspdf || !window.html2canvas) return '';
-  try{
-    const r = buildReport(p); r.sig = p.sig;
-    const blob = await reportPdfBlob(r);
-    const dataUrl = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
-    return String(dataUrl).split(',')[1] || '';
-  }catch(e){ return ''; }
-}
-async function reportToPdf(src){
-  const W = 760, scale = 2, mmW = 190, mmH = 277;   // A4 mit 10 mm Rand
-  const box = document.createElement('div');
-  box.style.cssText = `position:fixed;left:-10000px;top:0;width:${W}px;background:#fff`;
-  const clone = src.cloneNode(true);
-  clone.style.border = '0'; clone.style.padding = '0'; clone.style.borderRadius = '0';
-  box.appendChild(clone); document.body.appendChild(box);
-  try{
-    await Promise.all([...clone.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(res => { i.onload = i.onerror = res; })));
-    const canvas = await html2canvas(clone, {scale, backgroundColor:'#ffffff', windowWidth:W, logging:false});
-    const top0 = clone.getBoundingClientRect().top;
-    // Seitenumbrüche nur zwischen Zeilen/Abschnitten, nie direkt nach einer Abschnitts-Überschrift oder Tabellenkopf
-    const breaks = [...clone.querySelectorAll('tr, .rsec, .box, .sigs, .rfoot')]
-      .filter(e => !(e.tagName === 'TR' && !e.previousElementSibling && (e.parentElement.tagName === 'TBODY' || e.closest('table').previousElementSibling?.classList.contains('rsec'))))
-      .map(e => e.getBoundingClientRect().top - top0).filter(y => y > 0).sort((a, b) => a - b);
-    const H = canvas.height / scale, pagePx = mmH * W / mmW;
-    const pdf = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
-    let start = 0, first = true;
-    while(start < H - 1){
-      let end = start + pagePx;
-      if(end < H){ const c = breaks.filter(y => y > start + 80 && y <= end); if(c.length) end = c[c.length - 1]; }
-      else end = H;
-      const sy = Math.round(start * scale), sh = Math.round((end - start) * scale);
-      const part = document.createElement('canvas');
-      part.width = canvas.width; part.height = sh;
-      const ctx = part.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, part.width, sh);
-      ctx.drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
-      if(!first) pdf.addPage();
-      first = false;
-      pdf.addImage(part.toDataURL('image/jpeg', 0.85), 'JPEG', 10, 10, mmW, (end - start) * mmW / W);
-      start = end;
-    }
-    return pdf.output('blob');
-  } finally {
-    box.remove();
-  }
-}
-
 function dbList(){
   const q = (view.q || '').toLowerCase().trim();
   const list = dbCache.list
@@ -1251,19 +968,7 @@ const After = {
 };
 
 /* ---------- Google-Sheet-Schnittstelle ---------- */
-async function api(action, data){
-  if(!settings.url) throw new Error('Keine Web-App-URL in den Einstellungen.');
-  const res = await fetch(settings.url, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},   // "simple request" → kein CORS-Preflight
-    body: JSON.stringify(Object.assign({token:settings.token, action}, data || {}))
-  });
-  let j;
-  try{ j = await res.json(); }catch(e){ throw new Error('Unerwartete Antwort – ist die Web-App für „Jeder“ freigegeben?'); }
-  if(!j.ok) throw new Error(j.error || 'Unbekannter Fehler');
-  return j;
-}
-let syncing = false;
+/* api, syncing, syncCanStart, syncEnd, netRender stehen in shared/sync.js */
 /* Werte fürs Sheet-JSON: nur sichtbare, ausgefüllte Felder (ausgeblendete Verdampfer werden geleert, Zelle bleibt klein) */
 function sheetValues(p){
   const out = {};
@@ -1272,25 +977,21 @@ function sheetValues(p){
   return out;
 }
 async function syncAll(silent){
-  if(syncing) return;
   const list = protocols.filter(p => p.status === 'done' && !p.synced);
-  if(!list.length){ if(!silent) toast('Alles ist bereits im Google Sheet.'); return; }
-  if(!settings.url){ if(!silent) toast('Bitte zuerst die Web-App-URL in den Einstellungen eintragen.'); return; }
-  if(!navigator.onLine){ if(!silent) toast('Offline – wird automatisch übertragen, sobald Internet da ist.'); return; }
-  syncing = true;
+  if(!syncCanStart(list.length > 0, silent)) return;
   let okCount = 0, err = null;
   for(const p of list){
     try{
       recompute(p);
       await api('upsert', {
         protocol: {id:p.id, templateId:TEMPLATE.id, values:sheetValues(p), kundeName:p.kundeName || '', completedAt:p.completedAt, sourceKey:p.sourceKey || '',
-                   summary:{report:buildReport(p)}, pdf:await pdfBase64(p)},
+                   summary:{report:buildReport(p)}, pdf:await pdfBase64(p, reportOf(p), PDF_OPTS)},
         cols: buildCols(p)
       });
       p.synced = true; p.syncedAt = new Date().toISOString(); save(); okCount++;
     }catch(e){ err = e; break; }
   }
-  syncing = false;
+  syncEnd();
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
   else if(okCount) toast(`${okCount} Protokoll(e) ins Google Sheet übertragen.`);
   if(view.name === 'home' || view.name === 'report') render(); else updateNet();
@@ -1397,7 +1098,7 @@ const Actions = {
     if(btn && btn.classList.contains('done')) return;   // Doppelstart verhindern
     const r = reportForView();
     if(!r) return;
-    const name = pdfName(r.id) + '.pdf', key = viewKey();
+    const name = pdfName(r.id, 'ohne-Protokollnummer') + '.pdf', key = viewKey();
     if(pdfBusy){ toast(pdfBusy !== key ? 'Es wird gerade ein anderes PDF erstellt …' : 'PDF wird noch erstellt …'); return; }   // gleicher Bericht: Doppelstart still verhindern
     const cb = () => $('#bar .pdfb');   // immer der aktuell im DOM befindliche Knopf (die Leiste wird bei Neuzeichnen neu gebaut)
     const setP = v => { pdfProg = v; const f = viewKey() === key ? $('#bar .pdfb .fill') : null; if(f) f.style.transform = 'scaleX(' + v + ')'; };
@@ -1405,7 +1106,7 @@ const Actions = {
     // Fortschritt ist geschätzt (der gemeinsame PDF-Code meldet keinen): nähert sich 92 %, springt bei Fertigstellung auf 100 %
     pdfTick = setInterval(() => setP(pdfProg + (.92 - pdfProg) * .07), 250);
     try{
-      const blob = await reportPdfBlob(reportForView());
+      const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
       clearInterval(pdfTick); setP(1);
       await new Promise(res => setTimeout(res, RM() ? 0 : 240));
       if(lastPdf) URL.revokeObjectURL(lastPdf.url);
@@ -1437,7 +1138,7 @@ const Actions = {
   print(){
     const r = reportForView();
     const old = document.title;
-    document.title = pdfName(r.id);
+    document.title = pdfName(r.id, 'ohne-Protokollnummer');
     window.print();
     setTimeout(() => { document.title = old; }, 1500);
   },
@@ -1484,7 +1185,7 @@ const Actions = {
   async drivepdf(){
     try{
       toast('PDF wird in Google Drive erstellt …');
-      const blob = await reportPdfBlob(reportForView());
+      const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
       const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
       const j = await api('savepdf', {key:view.key, pdf:b64});
       const e = dbCache.list.find(x => x.key === view.key); if(e){ e.pdfUrl = j.url; LS.set('klw.db', dbCache); }
@@ -1494,11 +1195,7 @@ const Actions = {
   },
 
   savesettings(d){
-    settings.url = $('#s_url').value.trim();
-    settings.token = $('#s_token').value.trim();
-    settings.firma = $('#s_firma').value.trim();
-    settings.techniker = $('#s_tech').value.trim();
-    LS.set('klw.settings', settings);
+    settingsSave(SETTINGS_FIELDS, 'klw.settings');
     if(d !== 'silent') toast('Gespeichert.');
   },
   async ping(){
@@ -1507,11 +1204,7 @@ const Actions = {
     catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
   },
   backup(){
-    const data = JSON.stringify({app:'klima-wartung', exportedAt:new Date().toISOString(), protocols}, null, 1);
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
-    a.download = `klima-wartung-backup-${today()}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
+    backupDownload({app:'klima-wartung', exportedAt:new Date().toISOString(), protocols}, `klima-wartung-backup-${today()}.json`);
   }
 };
 
@@ -1555,18 +1248,8 @@ app.addEventListener('change', e => {
     return;
   }
   if(el.id === 's_import' && el.files[0]){
-    const r = new FileReader();
-    r.onload = () => {
-      try{
-        const d = JSON.parse(r.result);
-        if(!Array.isArray(d.protocols)) throw new Error('Keine gültige Backup-Datei');
-        const byId = new Map(protocols.map(p => [p.id, p]));
-        d.protocols.forEach(p => { if(p && p.values) normVals(p.values); byId.set(p.id, p); });
-        protocols = [...byId.values()]; save();
-        toast(`Backup importiert: ${d.protocols.length} Protokolle.`);
-      }catch(err){ toast('Import fehlgeschlagen: ' + err.message); }
-    };
-    r.readAsText(el.files[0]);
+    // Altwert „Mangel“ → „n.i.O.“ auch für importierte Protokolle
+    backupImport(el.files[0], 'protocols', protocols, 'Protokolle', list => { list.forEach(p => { if(p && p.values) normVals(p.values); }); protocols = list; save(); });
   }
 });
 window.addEventListener('online', () => { updateNet(); syncAll(true); });
@@ -1585,6 +1268,6 @@ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().c
 render();
 syncAll(true);
 </script>
-<script>(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:['◐','Auto'],hell:['☀','Hell'],dunkel:['☾','Dunkel']};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t][0];b.title='Darstellung: '+L[t][1];b.setAttribute('aria-label','Darstellung: '+L[t][1]+' (tippen zum Wechseln)');}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();</script>
+<script src="shared/theme.js"></script>
 </body>
 </html>
