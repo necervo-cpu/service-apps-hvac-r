@@ -92,18 +92,17 @@ textarea{min-height:90px;resize:vertical}
 .fhint{font-size:14px;color:var(--muted);margin:-3px 0 6px;font-weight:400}
 .frow{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .frow label{margin:0}
-/* Zahlenfeld mit − / + */
-.step{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.step .btn{width:52px;min-height:52px;padding:0;font-size:26px;line-height:1}
-.step input{width:110px;text-align:right;font-size:21px;padding:10px}
-.step .unit{min-width:44px;color:var(--muted);font-weight:600;font-size:15px}
+/* Zahlenfeld (ohne − / +): feste Breiten, damit alle Felder genau untereinander stehen */
+.step{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.step input{width:120px;text-align:right;font-size:21px;padding:10px}
+.step .unit{width:76px;color:var(--muted);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inunit{display:flex;align-items:center;gap:10px}
 .inunit input{max-width:220px;font-size:21px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .auto{font-size:14px;color:var(--muted);margin-top:6px}
 .auto b{color:var(--ok);font-weight:600}
 .auto .man{color:var(--warn);font-weight:600}
-@media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}.step{justify-content:flex-end}}
+@media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}.step{justify-content:flex-start}}
 table{width:100%;border-collapse:collapse}
 td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -120,12 +119,12 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .fgas.ok{background:var(--okbg);border-color:var(--okbd);color:var(--okfg)}
 .fgas b{display:block;font-size:18px}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF), im Formular mit der Ergebnis-Zeile darüber */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:8px 14px calc(12px + env(safe-area-inset-bottom))}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:8px 16px calc(12px + env(safe-area-inset-bottom))}
 .bar[hidden]{display:none}
-.bar>.brow{max-width:940px;margin:0 auto;display:flex;gap:10px}
+.bar>.brow{max-width:908px;margin:0 auto;display:flex;gap:10px;justify-content:space-between}
 .bar .btn{flex:1;min-height:52px;border-radius:12px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
-#sumbar{max-width:940px;height:44px;margin:0 auto 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:0 2px 6px}
+#sumbar{max-width:908px;height:44px;margin:0 auto 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:0 2px 6px}
 /* Breite einheitlich (wie shared/base.css): 940px auf jeder Ansicht; Scrollleiste immer reserviert; ab 700px kurze Knöpfe */
 html{scrollbar-gutter:stable}
 @media(max-width:699px){.bar .btn.bback{flex:.6}.bar .btn.bshare{flex:.7}}
@@ -178,7 +177,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 }
 @media(max-width:600px){
   header{padding-left:12px;padding-right:12px}
-  main,#stepwrap{padding-left:12px;padding-right:12px}
+  main,#stepwrap,.bar{padding-left:12px;padding-right:12px}
   .card{padding:12px 14px}
   .pagetitle{font-size:22px}
   .card:not(#result)>table thead{display:none}
@@ -790,9 +789,7 @@ function stepField(p, id, label, unit, opt){
   opt = opt || {};
   const autoTxt = opt.autoHint ? `<div class="auto" id="auto-${id}" data-hint="${esc(opt.autoHint)}">${autoLine(p, id, opt.autoHint)}</div>` : '';
   return `<div class="field"><div class="frow"><div><label for="in-${id}">${esc(label)}</label>${opt.hint ? `<div class="fhint" style="margin:0">${esc(opt.hint)}</div>` : ''}</div>
-    <div class="step"><button class="btn" data-act="step" data-f="${id}" data-d="-1" aria-label="weniger">−</button>
-      <input id="in-${id}" data-f="${id}" inputmode="decimal" autocomplete="off" value="${esc(p.values[id] ?? '')}" placeholder="${esc(opt.ph ?? '0')}">
-      <button class="btn" data-act="step" data-f="${id}" data-d="1" aria-label="mehr">+</button><span class="unit">${esc(unit || '')}</span></div></div>${autoTxt}</div>`;
+    <div class="step"><input id="in-${id}" data-f="${id}" inputmode="decimal" autocomplete="off" value="${esc(p.values[id] ?? '')}" placeholder="${esc(opt.ph ?? '0')}"><span class="unit">${esc(unit || '')}</span></div></div>${autoTxt}</div>`;
 }
 function autoLine(p, id, hint){
   return p.manual && p.manual[id]
@@ -1041,14 +1038,6 @@ const Actions = {
     p.values[d.f] = p.values[d.f] === d.v ? '' : d.v;   // erneutes Tippen wählt ab
     if(d.f === 'herm') p.manual.herm = true;
     if(d.f === 'pauschal' && !p.values.pauschal) p.values.pauschal = 'Nein';
-    applyAutos(p); save(); render();
-  },
-  step(d){
-    const p = cur(), pos = POSBY[d.f];
-    const st = (pos && pos.step) || (['anfahrt', 'erschwernis', 'sonderPreis'].includes(d.f) ? 10 : d.f === 'menge' ? 0.1 : 1);
-    const x = round(Math.max(0, n0(p.values[d.f]) + Number(d.d) * st), 2);
-    p.values[d.f] = x ? fmtNum(x) : '';
-    if((pos && pos.auto) || d.f === 'gwp') p.manual[d.f] = true;
     applyAutos(p); save(); render();
   },
   unauto(d){ const p = cur(); delete p.manual[d.f]; applyAutos(p); save(); render(); },
