@@ -15,7 +15,7 @@
    iosSwitch(f, x, warn) -> HTML-Text von zwei Knöpfen „Ja“ / „Nein“ in der Segment-Spur (.seg, wie i.O./n.i.O.)
      f = Feld (braucht f.id, optional f.label), x = aktueller Wert ('Ja' / 'Nein' / '' oder fehlend),
      warn = true (oder Liste, die 'Ja' enthält), wenn „Ja“ orange statt grün sein soll (Liste mit 'Nein': Nein orange).
-     Leer = nichts gewählt, nichts vorbelegt. Antippen sendet data-act="set" data-f data-v; erneutes Tippen
+     Gewähltes „Nein“ ist grau (Klasse na), „Ja“ grün. Leer = nichts gewählt, nichts vorbelegt. Antippen sendet data-act="set" data-f data-v; erneutes Tippen
      auf die gewählte Antwort wählt sie in den Apps wieder ab (Actions.set).
 
    iosAfterRender(viewName)
@@ -75,7 +75,7 @@ function iosSwitch(f, x, warn){
   const wJa = Array.isArray(warn) ? warn.includes('Ja') : !!warn;
   const wNein = Array.isArray(warn) && warn.includes('Nein');
   const one = (v, cls) => `<button type="button" class="btn ${cls}${x === v ? ' sel' : ''}" aria-pressed="${x === v}" data-act="set" data-f="${esc(f.id)}" data-v="${v}">${v}</button>`;
-  return `<div class="seg" role="group" aria-label="${esc(f.label || 'Ja/Nein')}">${one('Ja', wJa ? 'warn' : 'ok')}${one('Nein', wNein ? 'warn' : 'neutral')}</div>`;
+  return `<div class="seg" role="group" aria-label="${esc(f.label || 'Ja/Nein')}">${one('Ja', wJa ? 'warn' : 'ok')}${one('Nein', wNein ? 'warn' : 'na')}</div>`;
 }
 
 /* ---------- Großer Titel -> klein in der Kopfleiste ---------- */

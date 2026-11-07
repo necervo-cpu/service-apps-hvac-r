@@ -31,12 +31,11 @@ header .tt span{display:block;font-size:12px;opacity:.75;white-space:nowrap;over
 .net.off .nd{background:#fff}
 /* Seitenübergang: seitlich verschobene Seite darf keinen waagerechten Bildlauf erzeugen */
 .stage{overflow-x:hidden;overflow-x:clip}
-/* Breite: einheitlich auf jeder Ansicht (Start, Formular, Listen, Datenbank, Einstellungen): 940px, ab 1100px 1280px.
+/* Breite: einheitlich auf jeder Ansicht (Start, Formular, Listen, Datenbank, Einstellungen): 940px auf jeder Ansicht.
    Feste Leiste (.bar>div) und Schrittanzeige (#stepwrap) haben dieselbe Breite wie main, damit nichts beim Seitenwechsel springt. */
 html{scrollbar-gutter:stable}
 main{max-width:940px;margin:0 auto;padding:10px 16px calc(48px + env(safe-area-inset-bottom))}
 .bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
-@media(min-width:1100px){main,#stepwrap,.bar>div{max-width:1280px}}
 /* Unter 700px: Leiste wie bisher (Zurück/Teilen schmaler, Rest gleich breit) */
 @media(max-width:699px){.bar .btn.bback{flex:.6}.bar .btn.bshare{flex:.7}}
 /* Ab 700px: Knöpfe in der Leiste kurz statt über die volle Breite. Zurück links, Rest rechts (bei 3 Knöpfen: zweiter Knopf schiebt sich nach rechts) */

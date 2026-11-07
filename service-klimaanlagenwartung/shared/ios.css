@@ -1,4 +1,4 @@
-/* shared/ios.css – Apple-Stil für alle Apps: Glasoptik, zentrierte Bedienung ab 700px, iOS-Schalter,
+/* shared/ios.css – Apple-Stil für alle Apps: Glasoptik, Startblock .kstart mittig ab 700px, iOS-Schalter,
    Bottom Sheet, Erfolgs-Häkchen, Kapsel-Meldung, iOS-Seitenwechsel, großer Titel in der Kopfleiste.
    Dauerhaft aktiv, kein Umschalter, keine Body-Klassen.
 
@@ -73,27 +73,10 @@ html{background:var(--bg,#f8f7f4)}
 body{background:transparent}
 body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--ios-bg);pointer-events:none}
 
-/* ===== Zentriert ab 700px ===== */
+/* ===== Startblock mittig ab 700px (nur oben auf der Startseite; alles andere bleibt linksbündig) ===== */
 @media(min-width:700px){
-  .bar>div{justify-content:center}
-  .bar .btn:nth-child(2):not(:last-child){margin-left:0}
-  .btnrow,main .row{justify-content:center}
-  .btnrow .btn.danger{margin-left:0}
   .kstart{margin-left:auto;margin-right:auto}
-  .pagetitle{text-align:center}
-  main .row.between{flex-direction:column;gap:8px}
-  main .row.between>*{flex:none!important}
-  .ghead{justify-content:center}
-  .field{text-align:center}
-  .field label{display:block}
-  .frow{flex-direction:column;align-items:center;gap:10px}
-  .seg,.opts,.inunit{justify-content:center}
-  .field input,.field textarea,.field select{display:block;margin-left:auto;margin-right:auto;max-width:560px;text-align:center}
-  .field textarea{text-align:left}
-  .inunit input{margin:0;max-width:260px}
-  .inunit{margin-left:auto;margin-right:auto}
-  .sigwrap{max-width:560px;margin-left:auto;margin-right:auto}
-  .grphead{text-align:center}
+  .kstart .warnbox{text-align:center}
 }
 
 /* ===== Apple-Stil: Schrift, Segment-Steuerung, Fokus ===== */

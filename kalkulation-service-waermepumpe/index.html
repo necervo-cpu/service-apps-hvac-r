@@ -126,9 +126,8 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .bar .btn{flex:1;min-height:52px;border-radius:12px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 #sumbar{max-width:940px;height:44px;margin:0 auto 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:0 2px 6px}
-/* Breite einheitlich (wie shared/base.css): 940px, ab 1100px 1280px; Scrollleiste immer reserviert; ab 700px kurze Knöpfe */
+/* Breite einheitlich (wie shared/base.css): 940px auf jeder Ansicht; Scrollleiste immer reserviert; ab 700px kurze Knöpfe */
 html{scrollbar-gutter:stable}
-@media(min-width:1100px){main,#stepwrap,.bar>.brow,#sumbar{max-width:1280px}}
 @media(max-width:699px){.bar .btn.bback{flex:.6}.bar .btn.bshare{flex:.7}}
 @media(min-width:700px){
 .bar .btn{flex:0 0 auto!important;min-width:200px;padding-left:28px;padding-right:28px}
