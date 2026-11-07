@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 <title>MAG &amp; Puffer</title>
 <link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/knoepfe.css">
 <style>
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -63,8 +64,6 @@ input.bad{border-color:var(--bad);border-width:2px}
 .ferr svg{width:18px;height:18px;margin-top:1px}
 .seg2{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
 .seg2 .btn{flex:1;min-width:110px;min-height:48px}
-.btn.sel{background:var(--selbg);color:var(--selfg);border-color:var(--selbg)}
-.btn.sel::before{content:"\2713";font-weight:700}
 .rowline{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:8px 10px;align-items:end;padding:12px 0;border-bottom:1px solid var(--line)}
 .rowline>div:first-child{grid-column:1 / -1}
 .rowline select{width:100%;text-overflow:ellipsis}
@@ -311,7 +310,7 @@ function build(){
     '<div class="layout"><div class="res"><div id="magOut"></div>' +
     '<div class="savebox">' + '<div class="row"><div>' + FN('mag') + '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('mag') + '</div></div>' +
     '<div class="inp">' + erzCard() +
-    '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2" role="group" aria-label="Art der Eingabe">' +
+    '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2 opts" role="group" aria-label="Art der Eingabe">' +
     '<button class="btn" type="button" data-a="mode" data-v="direkt">Direkt eingeben</button><button class="btn" type="button" data-a="mode" data-v="schaetzen">Schätzen</button></div>' +
     '<div id="sec-direkt">' + F('mag.direkt', 'Anlagenvolumen', 'l', 'Wasserinhalt ohne Puffer und Wärmeerzeuger') + '</div>' +
     '<div id="sec-est"><h3 class="big3">Heizflächen</h3><div id="hfRows"></div>' +
@@ -322,7 +321,7 @@ function build(){
     F('mag.pufferL', 'Puffer-Inhalt', 'l', 'Falls ein Pufferspeicher verbaut wird (wird immer addiert)') + F('mag.wpL', 'Inhalt Wärmeerzeuger', 'l', 'Wasserinhalt laut Datenblatt (Kessel, Wärmepumpe) (wird immer addiert)') +
     '<div class="sum" aria-live="polite"><span>Summe <span class="rb" id="volRb">Richtwert</span></span><b id="volSum">–</b></div></div>' +
     '<div class="card"><h3>Anlage</h3>' + F('mag.T', 'Max. Vorlauftemperatur', '°C', 'Zwischen 10 und 100 °C') + '<div id="festHint" hidden>' + msg('info', E.HINWEISE.festbrennstoff) + '</div>' + F('mag.H', 'Statische Höhe', 'm', 'Höhe vom Gefäß bis zum höchsten Punkt der Anlage') +
-    '<div class="field"><label id="l-psv">Sicherheitsventil (Ansprechdruck, bar)</label><div class="seg2" role="group" aria-labelledby="l-psv">' +
+    '<div class="field"><label id="l-psv">Sicherheitsventil (Ansprechdruck, bar)</label><div class="seg2 opts" role="group" aria-labelledby="l-psv">' +
     ['2,5', '3', '4', '6'].map(v => '<button class="btn" type="button" data-a="psv" data-v="' + v + '">' + v + ' bar</button>').join('') +
     '<button class="btn" type="button" data-a="psv" data-v="frei">Anderer Wert</button></div>' +
     '<div id="psvFreiBox">' + F('mag.psvFrei', 'Ansprechdruck', 'bar', '') + '</div></div></div>' +
@@ -358,7 +357,7 @@ function hub(v, icon, title, sub){
   return '<button class="hub" type="button" data-a="' + (v === 'mag' || v === 'puffer' ? 'hubnew' : 'nav') + '" data-v="' + v + '"><span class="hico">' + ic(icon, '') + '</span><span class="htx"><strong>' + title + '</strong><small>' + sub + '</small></span></button>';
 }
 function erzCard(){
-  return '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2" role="group" aria-label="Wärmeerzeuger">' +
+  return '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2 opts" role="group" aria-label="Wärmeerzeuger">' +
     Object.keys(ERZ).map(k => '<button class="btn" type="button" data-a="erz" data-v="' + k + '">' + ERZ[k] + '</button>').join('') + '</div></div>';
 }
 function setText(sel, t){ const el = document.querySelector(sel); if (el) el.textContent = t; }

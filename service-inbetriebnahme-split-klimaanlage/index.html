@@ -18,20 +18,13 @@
 <script src="shared/lib/html2canvas.min.js" defer></script>
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/knoepfe.css">
 <link rel="stylesheet" href="shared/pdf.css">
 <style>
 .ghead{font-size:15px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;padding:18px 0 4px;border-bottom:2px solid var(--gold)}
 .ghead:first-child{padding-top:2px}
 .ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
 .field.err input,.field.err textarea{border-color:var(--bad)}
-.seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-.seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
-.seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn.sel.neutral{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn,.opts .btn{font-weight:700}
-.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.opts .btn{min-height:46px}
-.opts .btn.sel{background:var(--na);border-color:var(--na);color:#fff}
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
@@ -136,7 +129,6 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .htile.main small{color:#3a3a3a}
 .htile.alert{border-color:var(--gold)}
 .htile .cnt{position:absolute;top:10px;right:10px;min-width:22px;height:22px;padding:0 7px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12.5px;font-weight:700;display:grid;place-items:center}
-@media(hover:hover) and (pointer:fine){.htile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}.htile.main:hover{filter:brightness(1.03)}}
 @media(min-width:560px){.hometiles{grid-template-columns:repeat(3,minmax(0,1fr))}.htile.main{grid-column:1/-1}}
 @media(max-width:559px){.htile:last-child{grid-column:1/-1;flex-direction:row;align-items:center;min-height:84px}}
 @media(max-width:360px){.htile{padding:12px}.htile strong{font-size:14px}.hometiles{gap:10px}}
@@ -152,14 +144,7 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .ghead{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);letter-spacing:.06em;border-bottom:0;padding:22px 0 2px}
 .ghead:before{content:"";width:4px;height:16px;border-radius:2px;background:var(--gold);flex:none}
 .ghead:first-child{padding-top:2px}
-.seg{gap:0}
-.seg .btn{min-width:0;flex:1 1 0;border-radius:0;margin-left:-1px;padding:10px 8px;min-height:52px}
-.seg .btn:first-child{border-radius:12px 0 0 12px;margin-left:0}
-.seg .btn:last-child{border-radius:0 12px 12px 0}
-.seg .btn.sel{position:relative;z-index:1}
-.seg .btn:active,.opts .btn:active{transform:none;filter:brightness(.93)}
 @media(min-width:701px){.seg{min-width:300px}}
-.opts .btn{min-width:52px}
 .calc{background:var(--gold-soft);border:1px solid var(--line);color:var(--ink)}
 .sigwrap{border-color:var(--line);border-radius:14px}
 .warnbox,.errbox,.okbox{border-radius:14px}
@@ -168,9 +153,6 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .bar .btn{border-radius:14px}
 .bar .btn.primary{flex:1.5;box-shadow:0 3px 10px rgba(26,26,26,.14)}
 .bar .btn[disabled]{opacity:.4}
-@media(hover:hover) and (pointer:fine){
-  .tiles>.tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}
-}
 @media(max-width:360px){
   .tiles{gap:8px}.tiles>.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
   .seg .btn{padding:10px 4px;font-size:14.5px}

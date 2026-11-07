@@ -19,6 +19,7 @@
 <script src="shared/lib/html2canvas.min.js" defer></script>
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/pdf.css">
+<link rel="stylesheet" href="shared/knoepfe.css">
 <style>
 /* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
    Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
@@ -27,8 +28,6 @@
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}}
-:root[data-theme=dark] .opts .btn.sel,:root[data-theme=dark] .seg .btn.sel.neutral{border-color:var(--gold)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .opts .btn.sel,:root:not([data-theme=light]) .seg .btn.sel.neutral{border-color:var(--gold)}}
 :root[data-theme=dark]{--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}}
 .themebtn{font-size:18px;line-height:1}
@@ -89,12 +88,6 @@ textarea{min-height:90px;resize:vertical}
 .fhint{font-size:14px;color:var(--muted);margin:-3px 0 6px;font-weight:400}
 .frow{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .frow label{margin:0}
-.seg{display:flex;gap:6px;flex-shrink:0}
-.seg .btn{min-width:92px;min-height:52px}
-.seg .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
-.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.opts .btn{min-height:46px}
-.opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
 /* Zahlenfeld mit − / + */
 .step{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .step .btn{width:52px;min-height:52px;padding:0;font-size:26px;line-height:1}
@@ -198,11 +191,6 @@ button,a,select,[role=button],input[type=date]{touch-action:manipulation}
 button,[role=button],.steps button{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .btn:focus-visible,.steps button:focus-visible,button.tile:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media(hover:hover) and (pointer:fine){
-  .ib:hover{background:rgba(255,255,255,.22)}
-  .btn:hover:not(:disabled){border-color:var(--pri2)}
-  button.tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(0,0,0,.14)}
-}
 /* Kopf: langer Titel darf auf zwei Zeilen umbrechen statt abgeschnitten zu werden */
 header .tt h1{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;line-height:1.15;overflow-wrap:anywhere}
 .themebtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}

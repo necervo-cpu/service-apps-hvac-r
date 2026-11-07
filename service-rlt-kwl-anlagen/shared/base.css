@@ -1,6 +1,7 @@
 /* shared/base.css – gemeinsames Grund-CSS der Service-Apps
    Inhalt: Farb-Variablen (:root, Hell/Dunkel), Reset und Typografie, Kopfzeile, Buttons, Karten,
    Formularfelder, Schrittanzeige, Toast, Tabellen sowie Teile des Bericht-CSS.
+   Auswahl-Knöpfe (.seg/.opts) stehen in shared/knoepfe.css.
    Einbinden: vor dem App-<style> laden:  <link rel="stylesheet" href="shared/base.css">
    App-spezifisches CSS bleibt in der jeweiligen App. */
 /* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
@@ -10,8 +11,6 @@
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#121212;--card:#1e1e1e;--ink:#f0eee6;--muted:#a8a69d;--line:#3a3731;--pri:#0a0a0a;--gold-soft:#3a3516;--ok:#4cc27f;--bad:#ef7070;--na:#9a9a9a;--warn:#f0a53a;--ctl:#2a2a2a;--bdg:#33312d;--okbg:#16301f;--okbd:#2c6b43;--okfg:#b8e8c9;--ebg:#3a1818;--wbg:#3a3010;--wbd:#7a6a20;--wfg:#f3e6a0;--calc:#2b3340;--sheet:#0e0e0e;--k1:#262626;--fwbd:#7a6a20;--fwfg:#f3e6a0}}
-:root[data-theme=dark] .opts .btn.sel,:root[data-theme=dark] .seg .btn.sel.neutral{border-color:var(--gold)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .opts .btn.sel,:root:not([data-theme=light]) .seg .btn.sel.neutral{border-color:var(--gold)}}
 :root[data-theme=dark]{--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--flash:rgba(220,204,75,.32);--gold-text:#DCCC4B;--hbg:#3a3516;--hfg:#f3e9a8;--ebd:#7a2c2c;--efg:#ffc4c4}}
 .themebtn{font-size:18px;line-height:1}
@@ -80,8 +79,6 @@ textarea{min-height:90px;resize:vertical}
 .fhint{font-size:14px;color:var(--muted);margin:-3px 0 6px;font-weight:400}
 .frow{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .frow label{margin:0}
-.seg{display:flex;gap:6px;flex-shrink:0}
-.seg .btn{min-width:92px;min-height:52px}
 .inunit{display:flex;align-items:center;gap:10px}
 table{width:100%;border-collapse:collapse}
 td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}

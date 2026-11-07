@@ -18,19 +18,11 @@
 <script src="shared/lib/html2canvas.min.js" defer></script>
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/knoepfe.css">
 <link rel="stylesheet" href="shared/pdf.css">
 <style>
 .ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
 .field.err input,.field.err textarea{border-color:var(--bad)}
-.seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-.seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
-.seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn.sel.warn{background:var(--warn);border-color:var(--warn);color:var(--bg)}
-.seg .btn.sel.neutral{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn,.opts .btn{font-weight:700}
-.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.opts .btn{min-height:46px}
-.opts .btn.sel{background:var(--na);border-color:var(--na);color:#fff}
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
@@ -147,10 +139,8 @@ main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:ma
 .row.between>.pagetitle{flex:1 1 200px}
 .sigwrap{overscroll-behavior:contain}
 textarea{overscroll-behavior:contain}
-.opts .btn{max-width:100%;overflow-wrap:anywhere}
-.seg .btn{min-width:0}
 @media(max-width:600px){main,#stepwrap{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}.pc{padding:12px 14px}}
-@media(max-width:600px){.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));width:100%}.seg .btn{padding:8px 4px;font-size:15px;white-space:nowrap}}
+@media(max-width:600px){.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));width:100%}.seg .btn{min-width:0;padding:8px 4px;font-size:15px;white-space:nowrap}}
 @media(max-width:240px){.net:not(.off){display:none}.actions{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:340px){.logo{display:none}.actions{gap:8px}.atile{padding:12px;min-height:96px}.bar .btn{font-size:14px;padding:8px 10px}.steps{gap:3px}}
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */

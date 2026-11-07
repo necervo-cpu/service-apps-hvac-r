@@ -40,7 +40,6 @@ header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;border-b
 .logo{width:40px;height:40px;border-radius:12px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none}
 header .tt{flex:1;min-width:0;line-height:1.2;cursor:pointer}header .tt h1{display:block;font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header .tt span{display:block;font-size:13px;color:#cfcdc4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ib{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.14);border:0;display:grid;place-items:center;color:#fff;flex:none;padding:0;cursor:pointer}
-@media(hover:hover) and (pointer:fine){.ib:hover{background:rgba(255,255,255,.24)}}
 .ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .net{font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.14);white-space:nowrap}
 .net:not(.off){display:none}   /* online = Normalzustand, nur „offline“ anzeigen */
@@ -51,7 +50,6 @@ main{max-width:960px;margin:0 auto;padding:6px calc(16px + env(safe-area-inset-r
 .btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--ctl);color:var(--ink);border-radius:14px;padding:10px 16px;font:inherit;font-weight:600;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
 .btn{position:relative;transition:transform var(--t-fast) var(--out),filter var(--t-fast)}
 .btn:active{transform:scale(.97);filter:brightness(.96)}
-@media(hover:hover) and (pointer:fine){.btn:hover{border-color:var(--gold-dark)}.btn.primary:hover{filter:brightness(1.04)}}
 .ib{transition:transform var(--t-fast) var(--out),background var(--t-fast)}.ib:active{transform:scale(.94);background:rgba(255,255,255,.22)}
 .steps button{transition:transform var(--t-fast) var(--out)}.steps button:active{transform:scale(.97)}
 .btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1a1a}
@@ -67,7 +65,6 @@ h2 .n{background:var(--tile);color:var(--gold-text);border-radius:99px;padding:1
 label{display:block;font-size:15px;color:var(--ink);margin:0 0 6px;font-weight:600}
 input,select,textarea{width:100%;font:inherit;font-size:16px;padding:12px;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--ctl);color:var(--ink);transition:border-color var(--t-fast),box-shadow var(--t-fast)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:0;border-color:var(--gold-dark);box-shadow:0 0 0 3px var(--flash)}
-@media(hover:hover) and (pointer:fine){input:hover,select:hover,textarea:hover{border-color:var(--gold-dark)}}
 textarea{min-height:90px;resize:vertical}
 .badge{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--bdg);color:var(--muted)}
 .badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--ebg);color:var(--bad)}.badge.warn{background:var(--wbg);color:var(--warn)}
@@ -135,11 +132,9 @@ body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 .rr b{font-size:14.5px;overflow-wrap:anywhere}.rr .l{font-size:12.5px;color:var(--muted)}.rr .v{text-align:right;font-size:12.5px;color:var(--muted)}.rr .v b{display:block;font-size:15px;color:var(--ink)}
 .proj{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;cursor:pointer;transition:transform var(--t-fast) var(--out),border-color var(--t-fast),box-shadow var(--t-fast)}
 .proj:active{transform:scale(.985)}
-@media(hover:hover) and (pointer:fine){.proj:hover{border-color:var(--gold);box-shadow:var(--sh)}}
 .proj .pi{width:46px;height:46px;border-radius:14px;background:var(--tile);color:var(--gold-text);display:grid;place-items:center;flex:none}
 .proj .pt{flex:1;min-width:0}.proj .pt b{display:block;font-size:15px;overflow-wrap:anywhere}.proj .pk{display:block;font-size:14px;overflow-wrap:anywhere}.proj .pt small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
 .ib.del{background:transparent;color:var(--muted);border:1px solid var(--line)}
-@media(hover:hover) and (pointer:fine){.ib.del:hover{background:var(--ebg);color:var(--bad);border-color:var(--ebd)}}
 .ib.del:active{background:var(--ebg);color:var(--bad)}
 .card.empty{text-align:center;padding:28px 16px}.card.empty .muted{font-size:14px;margin-top:2px}
 details.card>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:36px;font-weight:600;cursor:pointer}
@@ -169,7 +164,6 @@ td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertic
 th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .oduline{display:flex;gap:10px;align-items:flex-start;padding:12px;border:2px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:var(--ctl);transition:transform var(--t-fast) var(--out),border-color var(--t-fast)}
 .oduline:active{transform:scale(.985)}
-@media(hover:hover) and (pointer:fine){.oduline:hover{border-color:var(--gold-dark)}}
 .oduline.sel{border-color:var(--gold);background:var(--selbg)}
 .oduline .why{font-size:14px;color:var(--bad);margin-top:4px}
 .oduline b{font-size:18px}
