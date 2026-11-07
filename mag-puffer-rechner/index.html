@@ -136,10 +136,9 @@ details.rw dd{margin:0;font-weight:700;white-space:nowrap}
 .svmain small{display:block;color:var(--muted);font-size:14px}
 .svmain em{display:block;overflow-wrap:anywhere;font-style:normal;font-size:15px;margin-top:2px;font-variant-numeric:tabular-nums}
 .svact{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);max-width:calc(100vw - 32px);background:var(--pri);color:#fff;border:1px solid var(--line);padding:12px 18px;border-radius:12px;font-size:16px;font-weight:600;opacity:0;pointer-events:none;z-index:20;transition:opacity 160ms,transform 160ms}
-.toast.show{opacity:1;transform:translateX(-50%)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="shared/ios.css">
 </head>
 <body>
 <header>
@@ -155,7 +154,7 @@ details.rw dd{margin:0;font-weight:700;white-space:nowrap}
   <section class="view" id="v-saved" hidden aria-labelledby="h-saved"></section>
   <section class="view" id="v-settings" hidden aria-labelledby="h-settings"></section>
 </main>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script src="shared/core.js"></script>
 <script src="engine.js"></script>

@@ -120,7 +120,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .fgas.ok{background:var(--okbg);border-color:var(--okbd);color:var(--okfg)}
 .fgas b{display:block;font-size:18px}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF), im Formular mit der Ergebnis-Zeile darüber */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:8px 14px calc(12px + env(safe-area-inset-bottom))}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:8px 14px calc(12px + env(safe-area-inset-bottom))}
 .bar[hidden]{display:none}
 .bar>.brow{max-width:940px;margin:0 auto;display:flex;gap:10px}
 .bar .btn{flex:1;min-height:52px;border-radius:12px;font-weight:700;font-size:15px}
@@ -131,7 +131,6 @@ html{scrollbar-gutter:stable}
 @media(min-width:1100px){main,#stepwrap,.bar>.brow,#sumbar{max-width:1280px}}
 @media(max-width:699px){.bar .btn.bback{flex:.6}.bar .btn.bshare{flex:.7}}
 @media(min-width:700px){
-.bar>.brow{justify-content:space-between}
 .bar .btn{flex:0 0 auto!important;min-width:200px;padding-left:28px;padding-right:28px}
 .bar .btn:nth-child(2):not(:last-child){margin-left:auto}
 .btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -144,9 +143,9 @@ html{scrollbar-gutter:stable}
 #sumbar .gold span{color:var(--gold-text)}
 body.hasbar main{padding-bottom:calc(var(--barh,110px) + 24px)}
 .list li{margin:6px 0}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out);z-index:20;max-width:90vw;text-align:center;pointer-events:none;border:1px solid var(--line)}
-body.hasbar #toast{bottom:calc(var(--barh,90px) + 12px)}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
+#toast{position:fixed;left:50%;opacity:0;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1}
 /* PDF-Knopf mit Fortschritt */
 .bar .btn.pdfb{overflow:hidden}
 .pdfb .fill{position:absolute;inset:0;background:rgba(0,0,0,.14);transform:scaleX(0);transform-origin:left;transition:transform 220ms linear;pointer-events:none}
@@ -162,11 +161,7 @@ body.hasbar #toast{bottom:calc(var(--barh,90px) + 12px)}
 /* Wert wechselt: kurzes Aufleuchten */
 .flash{animation:flash 900ms var(--out)}
 @keyframes flash{from{background-color:var(--flash)}}
-/* Seitenwechsel zwischen den Schritten */
-.pg-out-fwd{animation:pgoutf var(--t-exit) var(--in) forwards}.pg-out-back{animation:pgoutb var(--t-exit) var(--in) forwards}
-.pg-in-fwd{animation:pginf var(--t-med) var(--out) both}.pg-in-back{animation:pginb var(--t-med) var(--out) both}
-@keyframes pgoutf{to{transform:translateX(-22%);opacity:0}}@keyframes pgoutb{to{transform:translateX(22%);opacity:0}}
-@keyframes pginf{from{transform:translateX(100%);opacity:0}}@keyframes pginb{from{transform:translateX(-100%);opacity:0}}
+/* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
 /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
 .entering .stag{opacity:0;transform:translateY(12px);animation:up var(--t-med) var(--out) forwards;animation-delay:calc(var(--i)*70ms + 120ms)}
 @keyframes up{to{opacity:1;transform:none}}
@@ -185,7 +180,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 @media(max-width:600px){
   header{padding-left:12px;padding-right:12px}
   main,#stepwrap{padding-left:12px;padding-right:12px}
-  .card{padding:12px 14px;border-radius:12px}
+  .card{padding:12px 14px}
   .pagetitle{font-size:22px}
   .card:not(#result)>table thead{display:none}
   .card:not(#result)>table,.card:not(#result)>table tbody,.card:not(#result)>table tr,.card:not(#result)>table td{display:block;width:100%}
@@ -237,6 +232,7 @@ h2 .n{display:inline-block;margin-left:8px;background:var(--gold-soft);color:var
   @page{size:A4;margin:0}
 }
 </style>
+<link rel="stylesheet" href="shared/ios.css">
 </head>
 <body>
 <header><div class="logo" id="logo">K</div><div class="tt" id="ttl" data-act="home"><h1 id="apptitle">Kalkulation</h1><span id="hsub">Kalkulationen</span></div><span id="net" class="net"></span>
@@ -249,6 +245,7 @@ h2 .n{display:inline-block;margin-left:8px;background:var(--gold-soft);color:var
 
 <script src="shared/pdf-bausteine.js"></script>
 <script src="shared/pdf.js"></script>
+<script src="shared/ios.js"></script>
 <script>
 'use strict';
 const C = window.CFG;
@@ -496,6 +493,7 @@ function render(){
   }
   setHeader(true);
   setSteps(); setBar();
+  iosAfterRender(view.name);
   if(wiz) live();
   if(view.name === 'report') showReport();
   updateNet();
@@ -623,6 +621,12 @@ function live(){
   }
 }
 
+/* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen; nur lesend) */
+function wizardHtml(p, i){
+  return `
+      <div class="pagetitle">${esc(PAGES[i].title)}</div>
+      ${Pages[i](p)}`;
+}
 /* ---------- Ansichten ---------- */
 const Views = {
   home(){
@@ -649,10 +653,7 @@ const Views = {
   wizard(){
     const p = cur();
     if(!p) return '<p>Kalkulation nicht gefunden.</p>';
-    const i = p.page;
-    return `
-      <div class="pagetitle">${esc(PAGES[i].title)}</div>
-      ${Pages[i](p)}`;
+    return wizardHtml(p, p.page);
   },
 
   report(){
@@ -710,10 +711,21 @@ const Views = {
       <p class="muted" style="text-align:right;font-size:14px">Entwickelt für die Praxis · © C. Geuther</p>`;
   },
 
-  settings(){
+  settings(){   // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
+    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsBody();
+  }
+};
+
+/* Inhalt der Einstellungen (Blatt; Ausweich-Ansicht Views.settings) */
+/* Nach Stammdaten laden/speichern: App neu zeichnen und, falls das Einstellungs-Blatt offen ist, dessen Inhalt auffrischen (Bildlauf bleibt) */
+function renderSettings(){
+  render();
+  const b = iosSheet.isOpen() && document.querySelector('.sheet-body');
+  if(b){ const y = b.scrollTop; b.innerHTML = settingsBody(); b.scrollTop = y; }
+}
+function settingsBody(){
     const S = stammNow();
     return `
-      <div class="row"><button class="btn" data-act="home">← Zurück</button></div>
       <h2>Google-Sheet-Verbindung</h2>
       <div class="card">
         <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
@@ -746,8 +758,7 @@ const Views = {
           <label class="btn" style="margin:0;font-size:17px">Backup importieren<input type="file" id="s_import" accept=".json,application/json" hidden></label>
         </div>
       </div>`;
-  }
-};
+}
 
 function calcCard(p){
   const v = p.values, k = calc(p);
@@ -991,7 +1002,7 @@ function newCalc(values, stamm){
 }
 const Actions = {
   home(){ go('home'); },
-  settings(){ go('settings'); },
+  settings(){ iosSheet.open(settingsBody(), render); },
   fragen(){ go('fragen'); },
   info(){ go('info'); },
   db(){ go('db', {q:view.q}); },
@@ -1055,6 +1066,7 @@ const Actions = {
     applyAutos(p);
     p.status = 'done'; p.completedAt = new Date().toISOString(); p.synced = false;
     save();
+    iosCheck('Kalkulation abgeschlossen');
     go('report', {id:p.id});
     syncAll(true);
   },
@@ -1172,10 +1184,10 @@ const Actions = {
   },
   async ping(){
     Actions.savesettings('silent');
-    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); await loadStamm(true); render(); syncAll(true); }
+    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); await loadStamm(true); renderSettings(); syncAll(true); }
     catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
   },
-  async stammload(){ if(await loadStamm(false)) render(); },
+  async stammload(){ if(await loadStamm(false)) renderSettings(); },
   async stammsave(d, btn){
     const err = $('#stammerr'), values = {}, bad = [];
     document.querySelectorAll('[data-stamm]').forEach(el => {
@@ -1196,7 +1208,7 @@ const Actions = {
       stammCache = {at:new Date().toISOString(), values:j.values || {}};
       LS.set(K('stamm'), stammCache);
       toast('Stammdaten im Google Sheet gespeichert ✓');
-      render();
+      renderSettings();
     }catch(e){ toast('Speichern fehlgeschlagen: ' + e.message); btn.disabled = false; btn.textContent = 'Im Sheet speichern'; }
   },
   backup(){
@@ -1228,7 +1240,7 @@ app.addEventListener('input', e => {
     view.q = el.value; $('#dblist').innerHTML = dbList();
   }
 });
-app.addEventListener('change', e => {
+document.addEventListener('change', e => {
   const el = e.target;
   if(el.id === 's_import' && el.files[0]){
     const r = new FileReader();
@@ -1245,6 +1257,20 @@ app.addEventListener('change', e => {
     r.readAsText(el.files[0]);
   }
 });
+/* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage; Formular Schritt 0 -> Start, Start -> kein Wischen) */
+iosSwipe.init({back(){
+  if(view.name === 'wizard'){
+    const p = cur(); if(!p) return null;
+    if(p.page > 0){ const t = p.page - 1; return {html: wizardHtml(p, t), go(){ p.page = t; save(); render(); window.scrollTo(0, 0); }}; }
+    return {html: Views.home(), go(){ Actions.home(); }};
+  }
+  if(view.name === 'report'){
+    if(view.db) return {html: Views.db(), go(){ Actions.db(); }};
+    return {html: Views.home(), go(){ Actions.home(); }};
+  }
+  if(view.name === 'db' || view.name === 'fragen' || view.name === 'info' || view.name === 'settings') return {html: Views.home(), go(){ Actions.home(); }};
+  return null;
+}});
 window.addEventListener('online', () => { updateNet(); loadStamm(true); syncAll(true); });
 window.addEventListener('offline', updateNet);
 

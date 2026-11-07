@@ -41,14 +41,14 @@ canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
 a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
 input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out);z-index:20;max-width:90vw;text-align:center;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
+#toast{position:fixed;left:50%;opacity:0;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1}
 /* Feste Leiste unten (Zurück / Weiter / Speichern / PDF) */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
 .bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
-body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 /* PDF-Knopf mit Fortschritt */
 .bar .btn.pdfb{overflow:hidden}
 .pdfb .fill{position:absolute;inset:0;background:rgba(0,0,0,.14);transform:scaleX(0);transform-origin:left;transition:transform 220ms linear;pointer-events:none}
@@ -62,15 +62,7 @@ body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 /* Wert wechselt: kurzes Aufleuchten */
 .flash{animation:flash 900ms var(--out)}
 @keyframes flash{from{background-color:var(--flash)}}
-/* Seitenwechsel zwischen den Schritten */
-.pg-out-fwd{animation:pgoutf var(--t-exit) var(--in) forwards}
-.pg-out-back{animation:pgoutb var(--t-exit) var(--in) forwards}
-.pg-in-fwd{animation:pginf var(--t-med) var(--out) both}
-.pg-in-back{animation:pginb var(--t-med) var(--out) both}
-@keyframes pgoutf{to{transform:translateX(-22%);opacity:0}}
-@keyframes pgoutb{to{transform:translateX(22%);opacity:0}}
-@keyframes pginf{from{transform:translateX(100%);opacity:0}}
-@keyframes pginb{from{transform:translateX(-100%);opacity:0}}
+/* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
 /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
 .entering .stag{opacity:0;transform:translateY(12px);animation:up var(--t-med) var(--out) forwards;animation-delay:calc(var(--i)*70ms + 120ms)}
 @keyframes up{to{opacity:1;transform:none}}
@@ -89,7 +81,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 @media(max-width:600px){
   header{padding-left:12px;padding-right:12px}
   main,#stepwrap{padding-left:12px;padding-right:12px}
-  .card{padding:12px 14px;border-radius:12px}
+  .card{padding:12px 14px}
   .pagetitle{font-size:22px}
   .card>table thead{display:none}
   .card>table,.card>table tbody,.card>table tr,.card>table td{display:block;width:100%}
@@ -161,6 +153,7 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
   @page{size:A4;margin:0}
 }
 </style>
+<link rel="stylesheet" href="shared/ios.css">
 </head>
 <body>
 <header><div class="logo">L</div><div class="tt" id="ttl" data-act="home"><h1>Anlagenlogbuch</h1><span id="hsub">Logbücher</span></div><span id="net" class="net"></span>
@@ -177,6 +170,7 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 <script src="shared/sync.js"></script>
 <script src="shared/settings.js"></script>
 <script src="shared/wizard.js"></script>
+<script src="shared/ios.js"></script>
 <script>
 'use strict';
 LS.fullMsg += ' Übertragene Logbücher aus der App entfernen.';
@@ -307,6 +301,18 @@ const STAMM = {
   ]
 };
 
+/* Gruppen je Seite (nur Darstellung: Überschrift + Karte). Feldreihenfolge bleibt, damit PDF und Sheet unverändert sind.
+   Seiten „Anlagendaten“ und „Dichtheitsprüfung vor Erstinbetriebnahme“ behalten ihre vorhandenen group-Angaben. */
+{
+  const G = {
+    'Logbuch anlegen': [['Logbuch', ['projekt', 'angelegt']], ['Erfasst von', ['von']]],
+    'Betreiber': [['Name', ['bFirma', 'bName']], ['Adresse', ['bStr', 'bPlz', 'bOrt']]],
+    'Aufstellort': [['Name', ['aFirma', 'aName']], ['Adresse', ['aStr', 'aPlz', 'aOrt']]],
+    'Abschluss': [['Bemerkungen', ['bem']]]
+  };
+  STAMM.pages.forEach(pg => (G[pg.title] || []).forEach(([name, ids]) => ids.forEach(id => { pg.fields.find(f => f.id === id).group = name; })));
+}
+
 const EINTRAG = {
   id:'anlagenlogbuch-eintrag', pages: [
     {title:'Termin', short:'Termin', header:true, fields:[
@@ -344,6 +350,17 @@ const EINTRAG = {
     ]}
   ]
 };
+/* Gruppen je Seite (nur Darstellung), Feldreihenfolge bleibt */
+{
+  const G = {
+    'Termin': [['Termin', ['datum']], ['Sachkundiger', ['sk', 'zert']]],
+    'Dichtheitsprüfung': [['Ergebnis', ['dicht', 'meth']], ['Nächste Prüfung', ['next']]],
+    'Prüfung / Wartung / Instandhaltung': [['Art der Arbeit', ['art']], ['Bericht', ['ber']]],
+    'Kältemittel': [['Kältemittel', ['km', 'kz']], ['Mengen & Grund', ['ent', 'auf', 'grund']]],
+    'Mängel & Ergänzungen': [['Mangel', ['mang', 'mass']], ['Ergänzung', ['erg']]]
+  };
+  EINTRAG.pages.forEach(pg => (G[pg.title] || []).forEach(([name, ids]) => ids.forEach(id => { pg.fields.find(f => f.id === id).group = name; })));
+}
 [STAMM, EINTRAG].forEach(t => {
   t.pages.forEach(pg => pg.fields.forEach(f => { if(!f.pdf) f.pdf = pg.prefix && f.col.startsWith(pg.prefix) ? f.col.slice(pg.prefix.length) : f.col; }));
   t.all = t.pages.flatMap(pg => pg.fields);
@@ -488,6 +505,7 @@ function render(){
   initSigs();
   touchAutos();
   setSteps(); setBar();
+  iosAfterRender(view.name);
   updateNet();
 }
 /* Auto-Felder der aktuellen Seite: Werte merken (Aufleuchten erst bei späterer Änderung) */
@@ -532,6 +550,24 @@ function nextBadge(s){
   return `<span class="badge ${d.cls}">nächste Prüfung ${esc(fmtDate(s.next))} – ${esc(d.text)}</span>`;
 }
 
+/* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
+function wizardHtml(c, i){
+  const pg = c.tpl.pages[i];
+  const allYes = pg.fields.some(f => f.allYes && !c.obj.values[f.id]);
+  return `
+    <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div><div class="row">
+      ${pg.btn ? `<button class="btn small" data-act="${pg.btn.act}">${esc(pg.btn.label)}</button>` : ''}
+      ${allYes ? '<button class="btn small" data-act="allyes">Offene Prüfpunkte auf Ja</button>' : ''}</div></div>
+    ${pg.hint ? `<p class="pagehint stag" style="--i:0">${esc(pg.hint)}</p>` : ''}
+    ${pg.fields.some(f => !f.sigName) ? iosGroups(pg.fields.filter(f => isVis(f, c.obj.values) && !f.sigName), f => fieldHtml(f, c), 1) : ''}
+    ${pg.final ? finalHtml(c) : ''}
+    ${pg.sign ? sigHtml(c) : ''}
+    <div class="err" id="pageerr"></div>`;
+}
+
+function settingsBody(){
+  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Logbücher der App als JSON-Datei.');
+}
 /* ---------- Ansichten ---------- */
 const IC = {
   plus:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
@@ -603,17 +639,7 @@ const Views = {
   wizard(){
     const c = ctx();
     if(!c) return '<p>Nicht gefunden.</p>';
-    const pg = c.tpl.pages[c.obj.page];
-    const allYes = pg.fields.some(f => f.allYes && !c.obj.values[f.id]);
-    return `
-      <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div><div class="row">
-        ${pg.btn ? `<button class="btn small" data-act="${pg.btn.act}">${esc(pg.btn.label)}</button>` : ''}
-        ${allYes ? '<button class="btn small" data-act="allyes">Offene Prüfpunkte auf Ja</button>' : ''}</div></div>
-      ${pg.hint ? `<p class="pagehint stag" style="--i:0">${esc(pg.hint)}</p>` : ''}
-      ${pg.fields.some(f => !f.sigName) ? `<div class="card stag" style="--i:1">${fieldsHtml(pg, c)}</div>` : ''}
-      ${pg.final ? finalHtml(c) : ''}
-      ${pg.sign ? sigHtml(c) : ''}
-      <div class="err" id="pageerr"></div>`;
+    return wizardHtml(c, c.obj.page);
   },
 
   report(){
@@ -650,8 +676,8 @@ const Views = {
       <div id="dblist">${dbList()}</div>`;
   },
 
-  settings(){
-    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Logbücher der App als JSON-Datei.');
+  settings(){   // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
+    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsBody();
   }
 };
 
@@ -678,16 +704,6 @@ function bookCard(p){
     </div>`;
 }
 
-/* Felder einer Seite mit Zwischenüberschriften (group) */
-function fieldsHtml(pg, c){
-  let g = null;
-  return pg.fields.filter(f => isVis(f, c.obj.values) && !f.sigName).map(f => {
-    let h = '';
-    if(f.group && f.group !== g){ g = f.group; h = `<div class="ghead">${esc(g)}</div>`; }
-    return h + fieldHtml(f, c);
-  }).join('');
-}
-
 function fieldHtml(f, c){
   const v = c.obj.values, x = v[f.id] ?? '';
   const err = view.tried ? fieldError(f, c.obj) : '';
@@ -697,10 +713,7 @@ function fieldHtml(f, c){
   const tone = o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : '';
   let body;
   switch(f.type){
-    case 'yesno': {
-      const cls = ['Ja', 'Nein'].map(o => tone(o) || 'neutral');
-      return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], cls)}</div>${errHtml}</div>`;
-    }
+    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
     case 'select':
       body = `<div class="opts">${f.opts.map(o => `<button class="btn ${tone(o)} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
       break;
@@ -1038,7 +1051,7 @@ function initValues(tpl){
 /* ---------- Aktionen ---------- */
 const Actions = {
   home(){ go('home'); },
-  settings(){ go('settings'); },
+  settings(){ iosSheet.open(settingsBody(), render); },
   db(){ go('db', {q:view.q, sort:view.sort}); },
   dbsort(d){ view.sort = d.v; render(); },
   sync(){ syncAll(false); },
@@ -1142,6 +1155,7 @@ const Actions = {
     c.p.synced = false;
     save();
     const wasEntry = !!view.eid;
+    iosCheck(wasEntry ? 'Eintrag gespeichert' : 'Logbuch gespeichert');
     go('book', {id:c.p.id});
     toast(wasEntry ? 'Eintrag gespeichert.' : 'Logbuch gespeichert.');
     syncAll(true);
@@ -1293,7 +1307,7 @@ app.addEventListener('input', e => {
     view.q = el.value; $('#dblist').innerHTML = dbList();
   }
 });
-app.addEventListener('change', e => {
+document.addEventListener('change', e => {
   const el = e.target;
   if(el.dataset.f && view.name === 'wizard'){
     const c = ctx(), f = c.tpl.F[el.dataset.f];
@@ -1302,6 +1316,23 @@ app.addEventListener('change', e => {
     backupImport(el.files[0], 'books', books, 'Logbücher', list => { books = list; save(); });
   }
 });
+/* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage) */
+iosSwipe.init({back(){
+  if(view.name === 'wizard'){
+    const c = ctx(); if(!c) return null;
+    const i = c.obj.page;
+    if(i > 0){ const t = i - 1; return {html: wizardHtml(c, t), go(){ c.obj.page = t; save(); view.tried = false; render(); window.scrollTo(0, 0); }}; }
+    // Seite 1: Eintrag -> Logbuch; Anlagendaten -> Logbuch (beim Bearbeiten) bzw. Start (neues Logbuch)
+    if(view.eid || c.p.completedAt) return {html: Views.book(), go(){ Actions.openbook({id:view.id}); }};
+    return {html: Views.home(), go(){ Actions.home(); }};
+  }
+  if(view.name === 'report'){
+    if(view.db) return {html: Views.db(), go(){ Actions.db(); }};
+    return {html: Views.book(), go(){ Actions.openbook({id:view.id}); }};
+  }
+  if(view.name === 'book' || view.name === 'db' || view.name === 'settings') return {html: Views.home(), go(){ Actions.home(); }};
+  return null;
+}});
 let lastW = window.innerWidth;
 window.addEventListener('resize', () => {   // Drehen des Geräts: Unterschriftsfelder neu aufbauen
   if(window.innerWidth !== lastW && document.querySelector('canvas.sig')) render();

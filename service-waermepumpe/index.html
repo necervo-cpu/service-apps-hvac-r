@@ -37,14 +37,14 @@ canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
 a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
 input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out);z-index:20;max-width:90vw;text-align:center;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
+#toast{position:fixed;left:50%;opacity:0;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
 .bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
-body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 /* PDF-Knopf mit Fortschritt */
 .bar .btn.pdfb{overflow:hidden}
 .pdfb .fill{position:absolute;inset:0;background:rgba(0,0,0,.14);transform:scaleX(0);transform-origin:left;transition:transform 220ms linear;pointer-events:none}
@@ -58,15 +58,7 @@ body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 /* Wert wechselt: kurzes Aufleuchten */
 .flash{animation:flash 900ms var(--out)}
 @keyframes flash{from{background-color:var(--flash)}}
-/* Seitenwechsel zwischen den Schritten */
-.pg-out-fwd{animation:pgoutf var(--t-exit) var(--in) forwards}
-.pg-out-back{animation:pgoutb var(--t-exit) var(--in) forwards}
-.pg-in-fwd{animation:pginf var(--t-med) var(--out) both}
-.pg-in-back{animation:pginb var(--t-med) var(--out) both}
-@keyframes pgoutf{to{transform:translateX(-22%);opacity:0}}
-@keyframes pgoutb{to{transform:translateX(22%);opacity:0}}
-@keyframes pginf{from{transform:translateX(100%);opacity:0}}
-@keyframes pginb{from{transform:translateX(-100%);opacity:0}}
+/* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
 /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
 .entering .stag{opacity:0;transform:translateY(12px);animation:up var(--t-med) var(--out) forwards;animation-delay:calc(var(--i)*70ms + 120ms)}
 @keyframes up{to{opacity:1;transform:none}}
@@ -85,7 +77,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 @media(max-width:600px){
   header{padding-left:12px;padding-right:12px}
   main,#stepwrap{padding-left:12px;padding-right:12px}
-  .card{padding:12px 14px;border-radius:12px}
+  .card{padding:12px 14px}
   .pagetitle{font-size:22px}
   .card>table thead{display:none}
   .card>table,.card>table tbody,.card>table tr,.card>table td{display:block;width:100%}
@@ -150,6 +142,7 @@ textarea{overscroll-behavior:contain}
   @page{size:A4;margin:0}
 }
 </style>
+<link rel="stylesheet" href="shared/ios.css">
 </head>
 <body>
 <header><div class="logo">W</div><div class="tt" id="ttl" data-act="home"><h1>Service Wärmepumpe</h1><span id="hsub">Wartungsprotokolle</span></div><span id="net" class="net"></span>
@@ -166,6 +159,7 @@ textarea{overscroll-behavior:contain}
 <script src="shared/sync.js"></script>
 <script src="shared/settings.js"></script>
 <script src="shared/wizard.js"></script>
+<script src="shared/ios.js"></script>
 <script>
 'use strict';
 
@@ -284,6 +278,20 @@ const TEMPLATE = {
     ]}
   ]
 };
+/* Gruppen je Seite (nur Darstellung: Überschrift + Karte). Reihenfolge der Felder bleibt, damit PDF und Sheet unverändert sind. */
+{
+  const G = {
+    'Anlagendaten (Außen- & Inneneinheit)': [['Außeneinheit', ['agModell', 'agSn', 'agDat']], ['Inneneinheit', ['igModell', 'igSn', 'igDat']], ['Weiteres', ['zusInfo']]],
+    'Kältekreislauf & F-Gase-Prüfung': [['Kältemittel', ['km', 'std', 'zus', 'total', 'gwp', 'co2']], ['Dichtheitsprüfung', ['herm', 'dpv', 'dp', 'dpErg']], ['Hinweise', ['kkInfo']]],
+    'Elektrik, Schutzorgane & Absicherung': [['Netzspannung', ['uAg', 'uAgSt', 'uIg', 'uHs']], ['Absicherung', ['fAg', 'fAgSt', 'fIg', 'fHs', 'rcd']], ['Prüfungen', ['elAnschl', 'elFunk']]],
+    'Wartungscheckliste Außeneinheit': [['Gehäuse & Elektrik', ['agReinig', 'agElek', 'agFuehl']], ['Ablauf & Lüfter', ['agKond', 'agVent']], ['Platine & Filter', ['agPlat', 'agFilt']]],
+    'Wartungscheckliste Inneneinheit & Hydraulik': [['Inneneinheit', ['igReinig', 'igElek', 'igFuehl']], ['Hydraulik & Sicherheit', ['hydDicht', 'sicher', 'igFilt']], ['Speicher & Funktion', ['speicher', 'anode', 'ueberstr', 'aktor']]],
+    'Hydraulik, Systemdrücke & Heizwasser (VDI 2035)': [['Systemdrücke', ['druck', 'mag', 'entl']], ['Heizwasser', ['lf', 'ph', 'wasser']]],
+    'Betriebsdaten & Messwerte': [['Luftseite', ['tEin', 'tAus', 'dT']], ['Heizwasser', ['tVl', 'tRl', 'dTw']], ['Stromaufnahme', ['i1', 'i2', 'i3']]],
+    'Wartungsabschluss & Abnahme': [['Zustand', ['betrieb', 'erfolg']], ['Bemerkungen', ['bem']]]
+  };
+  TEMPLATE.pages.forEach(pg => (G[pg.title] || []).forEach(([name, ids]) => ids.forEach(id => { pg.fields.find(f => f.id === id).group = name; })));
+}
 const ALL_FIELDS = TEMPLATE.pages.flatMap(pg => pg.fields);
 const FIELD = Object.fromEntries(ALL_FIELDS.map(f => [f.id, f]));
 
@@ -399,6 +407,7 @@ function render(){
   if(view.name === 'report') showReport();
   if(After[view.name]) After[view.name]();
   setSteps(); setBar();
+  iosAfterRender(view.name);
   updateNet();
 }
 /* Kopf: Unterzeile = Projektnummer · Kunde (im Formular / Bericht), sonst Bereichsname */
@@ -426,6 +435,20 @@ function setBar(){ barRender(barHtml()); }
 function wizSnapshot(){ const vid = view.id; return () => view.name === 'wizard' && view.id === vid; }
 function updateNet(){ netRender(protocols.filter(p => p.status === 'done' && !p.synced).length); }
 
+/* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
+function wizardHtml(p, i){
+  const pg = TEMPLATE.pages[i];
+  const allOk = pg.kind === 'check' && pg.fields.some(f => !p.values[f.id]);
+  return `
+    <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
+    ${iosGroups(pg.fields.filter(f => !f.show || f.show(p.values)), f => fieldHtml(f, p), 1)}
+    ${pg.final ? finalHtml(p) : ''}
+    <div class="err" id="pageerr"></div>`;
+}
+
+function settingsBody(){
+  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei.');
+}
 /* ---------- Ansichten ---------- */
 const Views = {
   home(){
@@ -451,13 +474,7 @@ const Views = {
   wizard(){
     const p = cur();
     if(!p) return '<p>Protokoll nicht gefunden.</p>';
-    const pg = TEMPLATE.pages[p.page];
-    const allOk = pg.kind === 'check' && pg.fields.some(f => !p.values[f.id]);
-    return `
-      <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
-      <div class="card stag" style="--i:1">${pg.fields.filter(f => !f.show || f.show(p.values)).map(f => fieldHtml(f, p)).join('')}</div>
-      ${pg.final ? finalHtml(p) : ''}
-      <div class="err" id="pageerr"></div>`;
+    return wizardHtml(p, p.page);
   },
 
   report(){
@@ -485,8 +502,8 @@ const Views = {
       <div id="dblist">${dbList()}</div>`;
   },
 
-  settings(){
-    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei.');
+  settings(){   // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
+    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsBody();
   }
 };
 
@@ -523,7 +540,7 @@ function fieldHtml(f, p){
   let body;
   switch(f.type){
     case 'okfail': return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
-    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], ['Ja', 'Nein'].map(o => f.warn && f.warn.includes(o) ? 'warn' : 'neutral'))}</div>${errHtml}</div>`;
+    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.warn)}</div>${errHtml}</div>`;
     case 'select': {
       const custom = f.other && x && !f.opts.includes(x);
       body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
@@ -750,7 +767,7 @@ async function syncAll(silent){
 /* ---------- Aktionen ---------- */
 const Actions = {
   home(){ go('home'); },
-  settings(){ go('settings'); },
+  settings(){ iosSheet.open(settingsBody(), render); },
   db(){ go('db', {q:view.q}); },
   dbmore(){ view.lim = (view.lim || 100) + 100; $('#dblist').innerHTML = dbList(); },
   sync(){ syncAll(false); },
@@ -818,6 +835,7 @@ const Actions = {
     if(PFLICHTFELDER && !p.sig.tech){ $('#pageerr').textContent = 'Bitte als Monteur unterschreiben.'; toast('Bitte als Monteur unterschreiben.'); return; }
     p.status = 'done'; p.completedAt = new Date().toISOString(); p.synced = false;
     save();
+    iosCheck();
     go('report', {id:p.id});
     syncAll(true);
   },
@@ -964,12 +982,26 @@ app.addEventListener('input', e => {
     view.q = el.value; view.lim = 100; $('#dblist').innerHTML = dbList();
   }
 });
-app.addEventListener('change', e => {
+document.addEventListener('change', e => {
   const el = e.target;
   if(el.id === 's_import' && el.files[0]){
     backupImport(el.files[0], 'protocols', protocols, 'Protokolle', list => { protocols = list; save(); });
   }
 });
+/* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage) */
+iosSwipe.init({back(){
+  if(view.name === 'wizard'){
+    const p = cur(); if(!p) return null;
+    if(p.page > 0){ const t = p.page - 1; return {html: wizardHtml(p, t), go(){ p.page = t; save(); view.tried = false; render(); window.scrollTo(0, 0); }}; }
+    return {html: Views.home(), go(){ Actions.home(); }};
+  }
+  if(view.name === 'report'){
+    if(view.db) return {html: Views.db(), go(){ Actions.db(); }};
+    return {html: Views.home(), go(){ Actions.home(); }};
+  }
+  if(view.name === 'db' || view.name === 'settings') return {html: Views.home(), go(){ Actions.home(); }};
+  return null;
+}});
 window.addEventListener('online', () => { updateNet(); syncAll(true); });
 window.addEventListener('offline', updateNet);
 let lastW = window.innerWidth;

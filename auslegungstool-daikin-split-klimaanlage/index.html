@@ -22,6 +22,7 @@
 <script src="engine.js"></script>
 <script src="shared/pdf-bausteine.js"></script>
 <script src="shared/pdf.js"></script>
+<script src="shared/ios.js"></script>
 <style>
 :root{--t-fast:150ms;--t-med:260ms;--t-exit:180ms;--out:cubic-bezier(.23,1,.32,1);--in:cubic-bezier(.4,0,1,1);--sh:none;--tile:#fbf8e4;--flash:rgba(220,204,75,.5);--bg:#f8f7f4;--card:#fff;--ink:#1a1a1a;--muted:#706F6F;--line:#e4e1d8;--pri:#1a1a1a;--pri2:#c4b53e;--gold:#DCCC4B;--gold-dark:#c4b53e;--gold-text:#8b7a1b;--cream:#faf9f5;--ok:#1e7a46;--bad:#b42318;--na:#7d838c;--warn:#b26a00;--ctl:#fff;--selbg:#fbf8e4;--bdg:#eceae3;--okbg:#e3f4ea;--okbd:#b6e0c6;--okfg:#14532d;--wbg:#fff3e0;--wbd:#ffd59a;--wfg:#6d4300;--ebg:#fdeaea;--ebd:#f1b5b5;--efg:#7a1414;--hbg:#fff8d6;--hfg:#4a3f00}
 :root[data-theme=light]{color-scheme:light}
@@ -122,7 +123,6 @@ textarea{min-height:90px;resize:vertical}
 html{scrollbar-gutter:stable}
 @media(min-width:700px){.bar>div{justify-content:space-between}.bar .btn{flex:0 0 auto!important;min-width:200px;padding-left:28px;padding-right:28px}.bar .btn:nth-child(2):not(:last-child){margin-left:auto}}
 body.hasbar main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
-body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 .hero{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:18px;padding:16px;margin:12px 0}
 .hero.warn{border-top-color:var(--warn)}.hero.bad{border-top-color:var(--bad)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:4px 11px;border-radius:99px;background:var(--okbg);color:var(--ok);margin:0 4px 4px 0}
@@ -172,8 +172,6 @@ th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04
 .oduline.sel{border-color:var(--gold);background:var(--selbg)}
 .oduline .why{font-size:14px;color:var(--bad);margin-top:4px}
 .oduline b{font-size:18px}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(40px);opacity:0;background:var(--pri);color:#fff;padding:12px 18px;border-radius:12px;transition:opacity var(--t-med) var(--out),transform var(--t-med) var(--out);z-index:20;max-width:90vw;text-align:center;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* sehr schmale Handys (320 px) und große Schrift/Zoom */
 @media(max-width:360px){header{gap:8px}.logo{width:34px;height:34px;font-size:16px}header .tt h1{font-size:16px}.ib{width:40px;height:40px}input,select,textarea{padding:12px 10px}.bar>div{gap:8px}.bar .btn{padding:10px 8px;font-size:14px;gap:4px}.kpis{gap:6px}.kpi{padding:9px 8px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.001ms!important;transition-delay:0ms!important;animation-duration:.001ms!important;animation-delay:0ms!important}.entering .stag{opacity:1;transform:none}}
@@ -181,6 +179,7 @@ th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 </style>
+<link rel="stylesheet" href="shared/ios.css">
 </head>
 <body>
 <header><div class="logo">D</div><div class="tt" id="ttl"><h1>Daikin-Auslegung</h1><span id="hsub">Split / Multisplit R32</span></div><span class="net" id="net">online</span>
@@ -276,6 +275,7 @@ function render(){
   setHeader();
   $('#app').innerHTML = view.name === 'list' ? vList() : view.name === 'edit' ? vEdit() : vSettings();
   if (view.name === 'edit') refreshResults(); else setBar();
+  if (window.iosAfterRender) iosAfterRender(view.name + (view.step ? '-' + view.step : ''));
   window.scrollTo(0, y);
 }
 function vList(){
@@ -628,6 +628,16 @@ window.addEventListener('offline', () => { $('#net').textContent = 'offline'; $(
 if (!navigator.onLine){ $('#net').textContent = 'offline'; $('#net').classList.add('off'); }
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+/* Wischen vom linken Rand zurück: Ergebnis -> Eingabe, Eingabe -> Liste (sonst null). Elternansicht wird nur lesend gerendert. */
+if (window.iosSwipe) iosSwipe.init({ back(){
+  if (view.name !== 'edit' || !cur()) return null;
+  if (isRes()) {
+    const keep = view.step; let html;
+    try { view.step = 'in'; html = vEdit(); } finally { view.step = keep; }
+    return { html, go(){ view.step = 'in'; prevKpi = null; render(); window.scrollTo(0, 0); } };
+  }
+  return { html: vList(), go(){ go('list'); } };
+} });
 loadData(); themeBtn(); render();
 </script>
 </body>
