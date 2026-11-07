@@ -154,9 +154,9 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 .bk-a .btn.danger{grid-column:1/-1;min-height:40px;background:transparent;border-color:transparent}
 .warnbox{font-size:15px}
 .bk .ent-m{margin-top:6px}
-.empty{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:16px;margin:10px 0}
-.empty .qi{width:46px;height:46px;border-radius:14px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center}
-.empty b{color:var(--ink);font-size:16px}
+.emptybox{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:16px;margin:10px 0}
+.emptybox .qi{width:46px;height:46px;border-radius:14px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center}
+.emptybox b{color:var(--ink);font-size:16px}
 .kvcard{border-left:4px solid var(--gold)}
 @media(pointer:coarse){.btn.small{min-height:44px}}
 @media(max-width:600px){.bk-a .btn.small{padding:6px 8px}.row.tb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.row.tb .btn{min-width:0;text-align:center}}
@@ -583,7 +583,7 @@ const Views = {
       <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
       ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
       <h2>Logbücher <span class="n">${done.length}</span></h2>
-      ${done.length ? done.map(bookCard).join('') : `<div class="empty"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus dem Google Sheet.</span></div>`}`;
+      ${done.length ? done.map(bookCard).join('') : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus dem Google Sheet.</span></div>`}`;
   },
 
   book(){
@@ -622,7 +622,7 @@ const Views = {
           <div class="ent-m">${what || '<span class="muted">—</span>'}</div>
           <div class="bk-a"><button class="btn small" data-act="editentry" data-id="${p.id}" data-eid="${e.id}">Bearbeiten</button>
           <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></div></div>`;
-      }).join('') : `<div class="empty"><span class="qi">${IC.book}</span><b>Noch keine Einträge</b><span>Mit <b>+ Neuer Eintrag</b> die erste Prüfung / Wartung eintragen.</span></div>`}`;
+      }).join('') : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Einträge</b><span>Mit <b>+ Neuer Eintrag</b> die erste Prüfung / Wartung eintragen.</span></div>`}`;
   },
 
   wizard(){
@@ -866,7 +866,7 @@ function reportParts(r){
      subHtml: due ? pill(due.cls, due.text, due.cls === 'bad' ? 'bad' : 'clock') : st.next ? '' : 'noch keine Dichtheitsprüfung eingetragen'},
     {lab:'Letzte Dichtheitsprüfung', val:st.lastDicht, subHtml: lastOk ? pill('ok', 'Dichtheit erfüllt') : lastBad ? pill('bad', 'nicht erfüllt') : ''},
     {lab:'Prüfpflicht', val: st.co2 ? st.co2 + ' t CO₂e' : '', sub:[st.intv && 'Intervall ' + st.intv, [st.km, st.fm].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}
-  ])});
+  ], {links:true})});
 
   // Stammdaten-Abschnitte
   const secs = r.sections || [];
@@ -879,7 +879,7 @@ function reportParts(r){
       const card = a => {
         const lines = [val(a, 'Firma') && `<b>${esc(val(a, 'Firma'))}</b>`, esc(val(a, 'Name')), esc(val(a, 'Straße')),
                        esc([val(a, 'PLZ'), val(a, 'Ort')].filter(Boolean).join(' '))].filter(Boolean);
-        return `<div class="card"><h3>${up(a.title)}</h3><div class="addr">${lines.join('<br>') || '—'}</div></div>`;
+        return `<div class="card"><h3>${up(a.title)}</h3><div class="addr">${lines.join('<br>') || '<span style="color:#9a9999">—</span>'}</div></div>`;
       };
       blocks.push({html:B.abschnitt(group.map(a => a.title).join(' und '), `<div class="cols2">${group.map(card).join('')}</div>`)});
     } else if(s.kind === 'check'){
