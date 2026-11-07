@@ -112,16 +112,16 @@ input,textarea,select{background:var(--ios-ctl);border-color:var(--ios-edge-low)
 .qt,.cta{box-shadow:inset 0 1px 0 var(--ios-edge),var(--ios-shadow)}
 .qt{background:var(--ios-glass)}
 
-/* ===== iOS-Seitenwechsel: neue Seite schiebt sich darüber, alte weicht ein Stück zurück ===== */
+/* ===== Seitenwechsel: Weiter und Zurück sind spiegelgleich (gleiche Strecke, Dauer und Einblendung) ===== */
 .pg-out-fwd{animation:iosOutF 180ms var(--ios-ease) forwards}
 .pg-out-back{animation:iosOutB 180ms var(--ios-ease) forwards}
-.pg-in-fwd{animation:iosInF 320ms var(--ios-ease) both}
+.pg-in-fwd{animation:iosInF 300ms var(--ios-ease) both}
 .pg-in-back{animation:iosInB 300ms var(--ios-ease) both}
-@keyframes iosOutF{to{transform:translateX(-30%);opacity:.4}}
+@keyframes iosOutF{to{transform:translateX(-40%);opacity:0}}
 @keyframes iosOutB{to{transform:translateX(40%);opacity:0}}
-@keyframes iosInF{from{transform:translateX(100%)}}
+@keyframes iosInF{from{transform:translateX(30%);opacity:.5}}
 @keyframes iosInB{from{transform:translateX(-30%);opacity:.5}}
-.pg-pre-fwd{transform:translateX(100%)}
+.pg-pre-fwd{transform:translateX(30%);opacity:.5}
 .pg-pre-back{transform:translateX(-30%);opacity:.5}
 /* Gegen Ruckeln: Seite vorab als eigene Ebene, und während des Gleitens kein Live-Weichzeichner auf den Glaskarten
    (der Hintergrund ist ein weicher Verlauf – ohne Blur sieht es gleich aus, aber jedes Bild muss nicht neu weichgezeichnet werden) */
