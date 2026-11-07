@@ -124,6 +124,7 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 .bk-a .btn{min-width:0;text-align:center}
 .bk-a .primary{grid-column:1/-1}
 .bk-a .btn.danger{grid-column:1/-1;min-height:40px;background:transparent;border-color:transparent}
+@media(min-width:700px){.bk-a{display:flex;flex-wrap:wrap;align-items:center}.bk-a .btn{padding-left:20px;padding-right:20px;min-width:140px}.bk-a .btn.danger{margin-left:auto;min-width:0}}
 .warnbox{font-size:15px}
 .warnbox .btn{margin-top:10px}
 .bk .ent-m{margin-top:6px}
@@ -514,7 +515,7 @@ function barHtml(){
   }
   if(view.name === 'report' && reportForView()){
     const run = pdfBusy === viewKey();
-    return `<div><button class="btn" style="flex:.6" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+    return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
   }
   return '';
 }

@@ -126,6 +126,18 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 .bar .btn{flex:1;min-height:52px;border-radius:12px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 #sumbar{max-width:940px;height:44px;margin:0 auto 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:0 2px 6px}
+/* Breite einheitlich (wie shared/base.css): 940px, ab 1100px 1280px; Scrollleiste immer reserviert; ab 700px kurze Knöpfe */
+html{scrollbar-gutter:stable}
+@media(min-width:1100px){main,#stepwrap,.bar>.brow,#sumbar{max-width:1280px}}
+@media(max-width:699px){.bar .btn.bback{flex:.6}.bar .btn.bshare{flex:.7}}
+@media(min-width:700px){
+.bar>.brow{justify-content:space-between}
+.bar .btn{flex:0 0 auto!important;min-width:200px;padding-left:28px;padding-right:28px}
+.bar .btn:nth-child(2):not(:last-child){margin-left:auto}
+.btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.btnrow .btn{flex:0 0 auto!important;width:auto!important;padding-left:20px;padding-right:20px;min-width:140px}
+.btnrow .btn.danger{margin-left:auto;min-width:0}
+}
 #sumbar>div{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 #sumbar small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.2}
 #sumbar span{font-size:18px;font-weight:700;line-height:1.25;border-radius:6px;white-space:nowrap}
@@ -532,7 +544,7 @@ function barHtml(){
   }
   if(view.name === 'report' && reportForView()){
     const run = pdfBusy === viewKey();
-    return `<div class="brow"><button class="btn" style="flex:.6" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+    return `<div class="brow"><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
   }
   return '';
 }
@@ -618,6 +630,7 @@ const Views = {
     const done = calcs.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
+      <div class="kstart">
       <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Kalkulation</strong><small>Neue Kalkulation anlegen</small></span></button>
       <div class="qa">
         <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Gespeicherte Kalkulationen</small></span></button>
@@ -626,6 +639,7 @@ const Views = {
         <button type="button" class="qt" data-act="info"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></span><span><b>Info</b><small>Anleitung &amp; Rechenregeln</small></span></button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      </div>
       <h2>Offene Kalkulationen<span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(calcCard).join('') : '<p class="muted">Keine offenen Kalkulationen.</p>'}
       <h2>Abgeschlossen<span class="n">${done.length}</span></h2>
@@ -747,7 +761,7 @@ function calcCard(p){
           <span class="muted">${esc([fmtDate(v.datum), v.standort, 'brutto ' + eur(k.brutto)].filter(Boolean).join(' · '))}</span></div>
         <div class="cbad">${badges}</div>
       </div>
-      <div class="row" style="margin-top:10px">
+      <div class="row btnrow" style="margin-top:10px">
         ${p.status === 'draft'
           ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
           : `<button class="btn small primary" data-act="report" data-id="${p.id}">Ansehen / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}

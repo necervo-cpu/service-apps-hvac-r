@@ -418,7 +418,7 @@ function barHtml(){
   }
   if(view.name === 'report' && reportForView()){
     const run = pdfBusy === viewKey();
-    return `<div><button class="btn" style="flex:.6" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+    return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
   }
   return '';
 }
@@ -504,7 +504,7 @@ function protoCard(p){
       <div class="pc-main"><b>${esc(v.projekt || 'Ohne Projektnummer')}</b>${v.kunde ? `<span class="pc-k">${esc(v.kunde)}</span>` : ''}</div>
       ${meta ? `<div class="pc-meta">${meta}</div>` : ''}
       <div class="pc-badges">${badges}</div>
-      <div class="row pc-act">
+      <div class="row btnrow pc-act">
         ${p.status === 'draft'
           ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
           : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}
@@ -684,7 +684,7 @@ function dbList(){
         ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
         : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
         <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`).join('')}</tbody></table></div>
-    ${list.length > lim ? `<button class="btn" style="width:100%" data-act="dbmore">Weitere anzeigen (${lim} von ${list.length})</button>` : ''}`;
+    ${list.length > lim ? `<button class="btn bfull" data-act="dbmore">Weitere anzeigen (${lim} von ${list.length})</button>` : ''}`;
 }
 
 /* ---------- Unterschrift ---------- */

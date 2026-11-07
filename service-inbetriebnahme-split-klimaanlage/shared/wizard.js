@@ -16,10 +16,7 @@ function setHeader(animate){
 /* Schrittanzeige: bleibt beim Schrittwechsel im DOM stehen (Balken gleitet, Punkte wechseln nur die Klasse) */
 function stepsRender(m){
   const w = $('#stepwrap');
-  const cl = document.body.classList;
-  if(!m){ w.hidden = true; w.dataset.pid = ''; cl.remove('wiz', 'wizend'); return; }
-  /* Body-Klassen für die Breite (base.css): wiz = Formular offen, wizend = aktuelle Seite ist Abschluss- oder Unterschrift-Seite */
-  cl.add('wiz'); cl.toggle('wizend', !!(m.pages[m.index].final || m.pages[m.index].sign));
+  if(!m){ w.hidden = true; w.dataset.pid = ''; return; }
   const pages = m.pages, n = pages.length, i = m.index, key = m.key, fresh = w.dataset.pid !== key;
   if(fresh){
     w.dataset.pid = key;

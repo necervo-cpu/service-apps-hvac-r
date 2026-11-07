@@ -442,7 +442,7 @@ function barHtml(){
   }
   if(view.name === 'report' && reportForView()){
     const run = pdfBusy === viewKey();
-    return `<div><button class="btn" style="flex:.6" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+    return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
   }
   return '';
 }
@@ -528,7 +528,7 @@ function protoCard(p){
           <span class="muted">${esc(fmtDate(v.datum))}${v.agMod ? ' · ' + esc(v.agMod) : ''}${v.monteur ? ' · ' + esc(v.monteur) : ''}</span></div>
         <div>${badges}</div>
       </div>
-      <div class="row" style="margin-top:10px">
+      <div class="row btnrow" style="margin-top:10px">
         ${p.status === 'draft'
           ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
           : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}
