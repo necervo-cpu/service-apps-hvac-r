@@ -7,7 +7,7 @@
 
 function settingsConnectionHtml(){
   return `
-      <h2>Google-Sheet-Verbindung</h2>
+      <h2>Datenbank-Verbindung</h2>
       <div class="card">
         <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
         <input id="s_url" value="${esc(settings.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocorrect="off">

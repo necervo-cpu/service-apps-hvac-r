@@ -482,10 +482,10 @@ const Views = {
       <div class="kstart">
       <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA 24186-1 starten</small></span></button>
       <div class="qa">
-        <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Einträge aus dem Sheet</small></span></button>
+        <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Einträge aus der Datenbank</small></span></button>
         <button class="qt" data-act="sync"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
       <h2 class="sect">Offene Wartungen <span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
@@ -507,7 +507,7 @@ const Views = {
       <div class="row noprint" style="margin-bottom:12px">
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
-        ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
+        ${p && !p.synced ? '<span class="badge warn">noch nicht in der Datenbank</span>' : ''}
       </div>
       <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
@@ -517,7 +517,7 @@ const Views = {
     return `
       <div class="row">
         <button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="dbload">Aus Google Sheet laden</button>
+        <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
       </div>
       <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
       <input id="dbsearch" type="search" placeholder="Suchen: Projekt-Nr., Kunden-Nr., Anlage, Monteur, Datum …" value="${esc(view.q || '')}">
@@ -535,7 +535,7 @@ function protoCard(p){
   if(p.status === 'draft'){
     badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
   } else {
-    badges = `${v.erfolg ? `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+    badges = `${v.erfolg ? `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
   }
   return `
     <div class="card pcard">
@@ -782,7 +782,7 @@ async function syncAll(silent){
   }
   syncEnd();
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
-  else if(okCount) toast(`${okCount} Protokoll(e) ins Google Sheet übertragen.`);
+  else if(okCount) toast(`${okCount} Protokoll(e) in die Datenbank übertragen.`);
   if(view.name === 'home' || view.name === 'report') render(); else updateNet();
 }
 
@@ -816,14 +816,14 @@ const Actions = {
   report(d){ go('report', {id:d.id}); },
   reopen(d){
     const p = protocols.find(x => x.id === d.id);
-    if(!confirm('Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird die Zeile im Sheet aktualisiert.')) return;
+    if(!confirm('Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.')) return;
     p.status = 'draft'; p.synced = false; p.page = TEMPLATE.pages.length - 1; save();
     go('wizard', {id:p.id});
   },
   del(d){
     const p = protocols.find(x => x.id === d.id);
-    const msg = p.synced ? 'Protokoll aus der App entfernen? (Es bleibt im Google Sheet erhalten.)'
-      : p.status === 'done' ? 'ACHTUNG: Dieses Protokoll ist noch NICHT im Google Sheet. Wirklich endgültig löschen?' : 'Entwurf löschen?';
+    const msg = p.synced ? 'Protokoll aus der App entfernen? (Es bleibt in der Datenbank erhalten.)'
+      : p.status === 'done' ? 'ACHTUNG: Dieses Protokoll ist noch NICHT in der Datenbank. Wirklich endgültig löschen?' : 'Entwurf löschen?';
     if(!confirm(msg)) return;
     protocols = protocols.filter(x => x.id !== d.id); save(); render();
   },
@@ -934,18 +934,18 @@ const Actions = {
     }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   async dbreport(d){
-    if(!navigator.onLine){ toast('Zum Öffnen eines Protokolls aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Öffnen eines Protokolls aus der Datenbank wird Internet benötigt.'); return; }
     try{ toast('Lade Protokoll …'); const j = await api('get', {key:d.key}); go('report', {db:true, rep:j.report, key:d.key, q:view.q}); }
     catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   async dbedit(d){
-    if(!navigator.onLine){ toast('Zum Laden aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Laden aus der Datenbank wird Internet benötigt.'); return; }
     try{
       toast('Lade Protokoll …');
       const j = await api('load', {key:d.key});
       const local = j.appId && protocols.find(x => x.id === j.appId);
-      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus dem Sheet ersetzen?')) return;
-      if(local && local.status === 'draft' && !confirm('Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus dem Sheet ersetzen?')) return;
+      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?')) return;
+      if(local && local.status === 'draft' && !confirm('Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?')) return;
       const values = {};
       ALL_FIELDS.forEach(f => {
         const x = j.values ? j.values[f.id] : (f.col ? j.cols[f.col] : '');
@@ -978,7 +978,7 @@ const Actions = {
   },
   async ping(){
     Actions.savesettings('silent');
-    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); syncAll(true); }
+    try{ await api('ping'); toast('Verbindung zur Datenbank funktioniert ✓'); syncAll(true); }
     catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
   },
   backup(){

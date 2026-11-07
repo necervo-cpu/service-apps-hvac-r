@@ -21,7 +21,7 @@ let syncing = false;
 /* Vorab-Prüfungen für syncAll; bei true ist syncing gesetzt (am Ende syncEnd() aufrufen). */
 function syncCanStart(hasPending, silent){
   if(syncing) return false;
-  if(!hasPending){ if(!silent) toast('Alles ist bereits im Google Sheet.'); return false; }
+  if(!hasPending){ if(!silent) toast('Alles ist bereits in der Datenbank.'); return false; }
   if(!settings.url){ if(!silent) toast('Bitte zuerst die Web-App-URL in den Einstellungen eintragen.'); return false; }
   if(!navigator.onLine){ if(!silent) toast('Offline – wird automatisch übertragen, sobald Internet da ist.'); return false; }
   syncing = true;

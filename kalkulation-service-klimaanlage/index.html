@@ -339,7 +339,7 @@ async function loadStamm(silent){
     const j = await api('stamm');
     stammCache = {at:new Date().toISOString(), values:j.values || {}};
     LS.set(K('stamm'), stammCache);
-    if(!silent) toast('Stammdaten aus dem Google Sheet geladen.');
+    if(!silent) toast('Stammdaten aus der Datenbank geladen.');
     return true;
   }catch(e){ if(!silent) toast('Stammdaten konnten nicht geladen werden: ' + e.message); return false; }
 }
@@ -640,7 +640,7 @@ const Views = {
         <button type="button" class="qt" data-act="fragen"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4M12 17.5h.01"/></svg></span><span><b>Fragen an den Kunden</b><small>Vor dem Termin klären</small></span></button>
         <button type="button" class="qt" data-act="info"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></span><span><b>Info</b><small>Anleitung &amp; Rechenregeln</small></span></button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
       <h2>Offene Kalkulationen<span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(calcCard).join('') : '<p class="muted">Keine offenen Kalkulationen.</p>'}
@@ -663,7 +663,7 @@ const Views = {
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
         ${p ? `<button class="btn" data-act="reopen" data-id="${p.id}">Bearbeiten</button>` : ''}
-        ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
+        ${p && !p.synced ? '<span class="badge warn">noch nicht in der Datenbank</span>' : ''}
       </div>
       <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
@@ -673,7 +673,7 @@ const Views = {
     return `
       <div class="row">
         <button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="dbload">Aus Google Sheet laden</button>
+        <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
       </div>
       <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen einer Kalkulation wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
       <input id="dbsearch" type="search" placeholder="Suchen: Projekt-Nr., Kunde, Standort, Datum …" value="${esc(view.q || '')}">
@@ -703,7 +703,7 @@ const Views = {
         <li><b>Preis:</b> Lohn + Material + Anfahrt + Erschwernis + Sonderposition = netto, zzgl. ${fmtNum(S.mwst)} % MwSt.</li>
       </ul></div>
       <h2>Stammdaten</h2>
-      <div class="card">Stundensätze, Richtzeiten und Preise stehen im Google Sheet im Blatt <b>„Stammdaten“</b> und gelten für alle Geräte. Ändern lassen sie sich dort oder in der App unter <b>Einstellungen → Stammdaten → Im Sheet speichern</b>. Jede Kalkulation merkt sich die Werte, mit denen sie begonnen wurde. Ändern sich die Stammdaten später, zeigt die Seite „Ergebnis“ einen Knopf zum Übernehmen.</div>
+      <div class="card">Stundensätze, Richtzeiten und Preise stehen in der Datenbank unter <b>„Stammdaten“</b> und gelten für alle Geräte. Ändern lassen sie sich dort oder in der App unter <b>Einstellungen → Stammdaten → In Datenbank speichern</b>. Jede Kalkulation merkt sich die Werte, mit denen sie begonnen wurde. Ändern sich die Stammdaten später, zeigt die Seite „Ergebnis“ einen Knopf zum Übernehmen.</div>
       <h2>PDF</h2>
       <div class="card">Auf der Seite „Ergebnis“ lässt sich <b>Pauschalangebot</b> einschalten: Dann blendet das PDF Arbeitszeiten und Einzelpreise aus und heißt „Angebot“. Ohne Schalter entsteht die interne Kalkulation mit allen Zeiten und Preisen.</div>
       <p class="muted" style="text-align:right;font-size:14px">Entwickelt für die Praxis · © C. Geuther</p>`;
@@ -724,7 +724,7 @@ function renderSettings(){
 function settingsBody(){
     const S = stammNow();
     return `
-      <h2>Google-Sheet-Verbindung</h2>
+      <h2>Datenbank-Verbindung</h2>
       <div class="card">
         <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
         <input id="s_url" value="${esc(settings.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="off" autocorrect="off">
@@ -739,14 +739,14 @@ function settingsBody(){
       <div class="row"><button class="btn primary" data-act="savesettings">Speichern</button><button class="btn" data-act="ping">Speichern &amp; Verbindung testen</button></div>
       <h2>Stammdaten</h2>
       <div class="card">
-        <p class="muted" style="margin-top:0">${stammCache.at ? `Aus dem Google Sheet (Blatt „Stammdaten“), Stand ${fmtDateTime(stammCache.at)}.` : 'Noch nicht aus dem Google Sheet geladen – es gelten die Standardwerte.'}
-          Änderungen hier gelten nach „Im Sheet speichern“ für alle Geräte (Internet nötig). Angefangene Kalkulationen behalten ihre Werte, bis man sie auf der Seite „Ergebnis“ übernimmt.</p>
+        <p class="muted" style="margin-top:0">${stammCache.at ? `Aus der Datenbank (Stammdaten), Stand ${fmtDateTime(stammCache.at)}.` : 'Noch nicht aus der Datenbank geladen – es gelten die Standardwerte.'}
+          Änderungen hier gelten nach „In Datenbank speichern“ für alle Geräte (Internet nötig). Angefangene Kalkulationen behalten ihre Werte, bis man sie auf der Seite „Ergebnis“ übernimmt.</p>
         ${C.stamm.map(s => typeof s.def === 'number'
           ? `<div class="field"><div class="frow"><label for="st-${s.key}" style="font-weight:500">${esc(s.label)}</label>
               <div class="inunit" style="flex-shrink:0"><input id="st-${s.key}" data-stamm="${s.key}" inputmode="decimal" autocomplete="off" value="${esc(fmtNum(S[s.key]))}" style="width:130px;text-align:right;font-size:19px"><span class="unit" style="min-width:90px">${esc(s.unit)}</span></div></div></div>`
           : `<div class="field"><label for="st-${s.key}" style="font-weight:500">${esc(s.label)}</label><textarea id="st-${s.key}" data-stamm="${s.key}">${esc(S[s.key])}</textarea></div>`).join('')}
         <div class="err" id="stammerr"></div>
-        <div class="row"><button class="btn dark" data-act="stammsave">Im Sheet speichern</button><button class="btn" data-act="stammload">Stammdaten aus Sheet laden</button></div>
+        <div class="row"><button class="btn dark" data-act="stammsave">In Datenbank speichern</button><button class="btn" data-act="stammload">Stammdaten aus Datenbank laden</button></div>
       </div>
       <h2>Datensicherung</h2>
       <div class="card">
@@ -762,7 +762,7 @@ function calcCard(p){
   const v = p.values, k = calc(p);
   const badges = p.status === 'draft'
     ? `<span class="badge warn">Schritt ${p.page + 1}/${PAGES.length}</span>`
-    : `${v.pauschal === 'Ja' ? '<span class="badge">Angebot</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+    : `${v.pauschal === 'Ja' ? '<span class="badge">Angebot</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
   return `
     <div class="card">
       <div class="row between">
@@ -968,7 +968,7 @@ let syncing = false;
 async function syncAll(silent){
   if(syncing) return;
   const list = calcs.filter(p => p.status === 'done' && !p.synced);
-  if(!list.length){ if(!silent) toast('Alles ist bereits im Google Sheet.'); return; }
+  if(!list.length){ if(!silent) toast('Alles ist bereits in der Datenbank.'); return; }
   if(!settings.url){ if(!silent) toast('Bitte zuerst die Web-App-URL in den Einstellungen eintragen.'); return; }
   if(!navigator.onLine){ if(!silent) toast('Offline – wird automatisch übertragen, sobald Internet da ist.'); return; }
   syncing = true;
@@ -985,7 +985,7 @@ async function syncAll(silent){
   }
   syncing = false;
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
-  else if(okCount) toast(`${okCount} Kalkulation(en) ins Google Sheet übertragen.`);
+  else if(okCount) toast(`${okCount} Kalkulation(en) in die Datenbank übertragen.`);
   if(view.name === 'home' || view.name === 'report') render(); else updateNet();
 }
 
@@ -1021,14 +1021,14 @@ const Actions = {
   report(d){ go('report', {id:d.id}); },
   reopen(d){
     const p = calcs.find(x => x.id === d.id);
-    if(p.synced && !confirm('Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird die Zeile im Sheet aktualisiert.')) return;
+    if(p.synced && !confirm('Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.')) return;
     p.status = 'draft'; p.synced = false; p.page = PAGES.length - 1; save();
     go('wizard', {id:p.id});
   },
   del(d){
     const p = calcs.find(x => x.id === d.id);
-    const msg = p.synced ? 'Kalkulation aus der App entfernen? (Sie bleibt im Google Sheet erhalten.)'
-      : p.status === 'done' ? 'ACHTUNG: Diese Kalkulation ist noch NICHT im Google Sheet. Wirklich endgültig löschen?' : 'Entwurf löschen?';
+    const msg = p.synced ? 'Kalkulation aus der App entfernen? (Sie bleibt in der Datenbank erhalten.)'
+      : p.status === 'done' ? 'ACHTUNG: Diese Kalkulation ist noch NICHT in der Datenbank. Wirklich endgültig löschen?' : 'Entwurf löschen?';
     if(!confirm(msg)) return;
     calcs = calcs.filter(x => x.id !== d.id); save(); render();
   },
@@ -1121,18 +1121,18 @@ const Actions = {
     }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   async dbreport(d){
-    if(!navigator.onLine){ toast('Zum Öffnen einer Kalkulation aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Öffnen einer Kalkulation aus der Datenbank wird Internet benötigt.'); return; }
     try{ toast('Lade Kalkulation …'); const j = await api('get', {key:d.key}); go('report', {db:true, rep:j.report, key:d.key, q:view.q}); }
     catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   async dbedit(d){
-    if(!navigator.onLine){ toast('Zum Laden aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Laden aus der Datenbank wird Internet benötigt.'); return; }
     try{
       toast('Lade Kalkulation …');
       const j = await api('load', {key:d.key});
       const local = j.appId && calcs.find(x => x.id === j.appId);
-      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus dem Sheet ersetzen?')) return;
-      if(local && local.status === 'draft' && !confirm('Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus dem Sheet ersetzen?')) return;
+      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?')) return;
+      if(local && local.status === 'draft' && !confirm('Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?')) return;
       const values = {};
       FIELDS.forEach(f => {
         let x = j.values ? j.values[f.id] : j.cols[f.col];
@@ -1172,7 +1172,7 @@ const Actions = {
   },
   async ping(){
     Actions.savesettings('silent');
-    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); await loadStamm(true); renderSettings(); syncAll(true); }
+    try{ await api('ping'); toast('Verbindung zur Datenbank funktioniert ✓'); await loadStamm(true); renderSettings(); syncAll(true); }
     catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
   },
   async stammload(){ if(await loadStamm(false)) renderSettings(); },
@@ -1195,9 +1195,9 @@ const Actions = {
       const j = await api('setstamm', {values});
       stammCache = {at:new Date().toISOString(), values:j.values || {}};
       LS.set(K('stamm'), stammCache);
-      toast('Stammdaten im Google Sheet gespeichert ✓');
+      toast('Stammdaten in der Datenbank gespeichert ✓');
       renderSettings();
-    }catch(e){ toast('Speichern fehlgeschlagen: ' + e.message); btn.disabled = false; btn.textContent = 'Im Sheet speichern'; }
+    }catch(e){ toast('Speichern fehlgeschlagen: ' + e.message); btn.disabled = false; btn.textContent = 'In Datenbank speichern'; }
   },
   backup(){
     const data = JSON.stringify({app:C.id, exportedAt:new Date().toISOString(), calcs}, null, 1);

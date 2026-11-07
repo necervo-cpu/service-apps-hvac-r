@@ -589,12 +589,12 @@ const Views = {
         <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank / PDF</b><small>alle Logbücher</small></span></button>
         <button class="qt" data-act="sync"><span class="qi">${IC.sync}</span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Logbücher werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Logbücher werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
       <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
       ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
       <h2>Logbücher <span class="n">${done.length}</span></h2>
-      ${done.length ? done.map(bookCard).join('') : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus dem Google Sheet.</span></div>`}`;
+      ${done.length ? done.map(bookCard).join('') : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus der Datenbank.</span></div>`}`;
   },
 
   book(){
@@ -611,7 +611,7 @@ const Views = {
         <button class="btn" data-act="editstamm" data-id="${p.id}">Anlagendaten bearbeiten</button></div>
       <div class="card kvcard">
         <div class="pagetitle">${esc(v.projekt || 'Ohne Nr.')}</div>
-        <div class="bk-b">${nextBadge(s)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span></div>
+        <div class="bk-b">${nextBadge(s)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span></div>
         <div class="kv" style="margin-top:12px">
           ${kv('Betreiber', [v.bFirma, v.bName].filter(Boolean).join(', '))}
           ${kv('Aufstellort', [v.aFirma || v.aName, v.aStr, [v.aPlz, v.aOrt].filter(Boolean).join(' ')].filter(Boolean).join(', '))}
@@ -650,7 +650,7 @@ const Views = {
       <div class="row noprint" style="margin-bottom:12px">
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
-        ${p && !p.synced ? '<span class="badge warn">noch nicht im Google Sheet</span>' : ''}
+        ${p && !p.synced ? '<span class="badge warn">noch nicht in der Datenbank</span>' : ''}
       </div>
       <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
@@ -662,7 +662,7 @@ const Views = {
     return `
       <div class="row tb">
         <button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="dbload">Aus Google Sheet laden</button>
+        <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
       </div>
       <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Logbücher. Zum Öffnen wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
       <div class="row" style="margin-bottom:10px">
@@ -686,7 +686,7 @@ function bookCard(p){
   const draftE = p.entries.some(e => e.status === 'draft');
   const badges = p.status === 'draft'
     ? `<span class="badge warn">Schritt ${p.page + 1}/${STAMM.pages.length}</span>`
-    : `<span class="badge">${s.n} Einträge</span> ${nextBadge(s)} ${draftE ? '<span class="badge warn">Eintrag in Arbeit</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'im Sheet' : 'nicht übertragen'}</span>`;
+    : `<span class="badge">${s.n} Einträge</span> ${nextBadge(s)} ${draftE ? '<span class="badge warn">Eintrag in Arbeit</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
   const dd = dueState(s.next), stripe = p.status !== 'draft' && dd ? ' due-' + dd.cls : '';
   return `
     <div class="card bk${stripe}">
@@ -1018,7 +1018,7 @@ async function syncAll(silent){
   }
   syncEnd();
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
-  else if(okCount) toast('Logbuch ins Google Sheet übertragen, PDF in Google Drive abgelegt.');
+  else if(okCount) toast('Logbuch in die Datenbank übertragen, PDF in Google Drive abgelegt.');
   if(['home', 'book', 'report'].includes(view.name)) render(); else updateNet();
 }
 
@@ -1089,7 +1089,7 @@ const Actions = {
   },
   delentry(d){
     const p = book(d.id), e = p.entries.find(x => x.id === d.eid);
-    if(!confirm(e.status === 'draft' && !e.completedAt ? 'Angefangenen Eintrag verwerfen?' : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch im Google Sheet entfernt.')) return;
+    if(!confirm(e.status === 'draft' && !e.completedAt ? 'Angefangenen Eintrag verwerfen?' : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch in der Datenbank entfernt.')) return;
     p.entries = p.entries.filter(x => x.id !== d.eid);
     if(e.completedAt){ p.deleted = (p.deleted || []).concat(e.id); p.synced = false; }
     save(); render();
@@ -1097,8 +1097,8 @@ const Actions = {
   },
   delbook(d){
     const p = book(d.id);
-    const msg = p.synced ? 'Logbuch aus der App entfernen? (Es bleibt im Google Sheet erhalten und kann jederzeit wieder geladen werden.)'
-      : p.status === 'done' ? 'ACHTUNG: Änderungen an diesem Logbuch sind noch NICHT im Google Sheet. Wirklich aus der App entfernen?' : 'Angefangenes Logbuch verwerfen?';
+    const msg = p.synced ? 'Logbuch aus der App entfernen? (Es bleibt in der Datenbank erhalten und kann jederzeit wieder geladen werden.)'
+      : p.status === 'done' ? 'ACHTUNG: Änderungen an diesem Logbuch sind noch NICHT in der Datenbank. Wirklich aus der App entfernen?' : 'Angefangenes Logbuch verwerfen?';
     if(!confirm(msg)) return;
     books = books.filter(x => x.id !== d.id); save(); go('home');
   },
@@ -1223,18 +1223,18 @@ const Actions = {
     }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   async dbreport(d){
-    if(!navigator.onLine){ toast('Zum Öffnen eines Logbuchs aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Öffnen eines Logbuchs aus der Datenbank wird Internet benötigt.'); return; }
     try{ toast('Lade Logbuch …'); const j = await api('get', {key:d.key}); go('report', {db:true, rep:j.report, key:d.key, q:view.q}); }
     catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
   },
   /* Logbuch aus dem Sheet aufs iPad holen (von jedem iPad aus), danach optional gleich neuen Eintrag beginnen */
   async dbopen(d){
-    if(!navigator.onLine){ toast('Zum Laden aus dem Sheet wird Internet benötigt.'); return; }
+    if(!navigator.onLine){ toast('Zum Laden aus der Datenbank wird Internet benötigt.'); return; }
     try{
       toast('Lade Logbuch …');
       const j = await api('load', {key:d.key});
       const local = j.appId && book(j.appId);
-      if(local && !local.synced && !confirm('In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus dem Sheet ersetzen?')) return;
+      if(local && !local.synced && !confirm('In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?')) return;
       let p;
       if(j.values){
         p = {id:j.appId, templateId:STAMM.id, values:j.values, deleted:j.deleted || [], sourceKey:'',
@@ -1273,7 +1273,7 @@ const Actions = {
   },
   async ping(){
     Actions.savesettings('silent');
-    try{ await api('ping'); toast('Verbindung zum Google Sheet funktioniert ✓'); syncAll(true); }
+    try{ await api('ping'); toast('Verbindung zur Datenbank funktioniert ✓'); syncAll(true); }
     catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
   },
   backup(){
