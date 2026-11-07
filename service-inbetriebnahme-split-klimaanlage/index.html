@@ -27,10 +27,11 @@
 .seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn.sel.neutral{background:var(--pri);border-color:var(--pri);color:#fff}
+.seg .btn.sel.neutral{background:var(--na);border-color:var(--na);color:#fff}
+.seg .btn,.opts .btn{font-weight:700}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
-.opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.opts .btn.sel{background:var(--na);border-color:var(--na);color:#fff}
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
@@ -169,7 +170,6 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .bar .btn[disabled]{opacity:.4}
 @media(hover:hover) and (pointer:fine){
   .tiles>.tile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}
-  .btn:not(:disabled):not(.sel):hover{border-color:var(--pri2)}
 }
 @media(max-width:360px){
   .tiles{gap:8px}.tiles>.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
