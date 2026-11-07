@@ -471,7 +471,7 @@ function wizardHtml(p, i){
 }
 
 function settingsBody(){
-  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei.');
+  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.');
 }
 /* ---------- Ansichten ---------- */
 const Views = {
@@ -752,6 +752,16 @@ const After = {
 };
 
 /* ---------- Google-Sheet-Schnittstelle ---------- */
+/* Übertragene Protokolle werden 7 Tage nach der Übertragung aus der App entfernt (bleiben in der Datenbank) */
+const KEEP_SYNCED_DAYS = 7;
+function pruneSynced(){
+  const now = Date.now(), maxAge = KEEP_SYNCED_DAYS * 864e5;
+  let changed = false;
+  protocols.forEach(p => { if(p.status === 'done' && p.synced === true && !p.syncedAt){ p.syncedAt = new Date().toISOString(); changed = true; } });   // alte Einträge: Frist startet jetzt
+  const keep = protocols.filter(p => !(p.status === 'done' && p.synced === true && p.syncedAt && p.id !== view.id && now - new Date(p.syncedAt).getTime() > maxAge));
+  if(keep.length !== protocols.length){ protocols = keep; changed = true; }
+  if(changed) save();
+}
 async function syncAll(silent){
   const list = protocols.filter(p => p.status === 'done' && !p.synced);
   if(!syncCanStart(list.length > 0, silent)) return;
@@ -768,6 +778,7 @@ async function syncAll(silent){
     }catch(e){ err = e; break; }
   }
   syncEnd();
+  pruneSynced();
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
   else if(okCount) toast(`${okCount} Protokoll(e) in die Datenbank übertragen.`);
   if(view.name === 'home' || view.name === 'report') render(); else updateNet();
@@ -1029,6 +1040,7 @@ window.addEventListener('resize', () => {   // Drehen des iPads: Unterschriftsfe
 /* ---------- Start ---------- */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+pruneSynced();
 render();
 syncAll(true);
 </script>

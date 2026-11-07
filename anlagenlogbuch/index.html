@@ -566,7 +566,7 @@ function wizardHtml(c, i){
 }
 
 function settingsBody(){
-  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Logbücher der App als JSON-Datei.');
+  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Logbücher der App als JSON-Datei. Übertragene Logbücher ohne angefangenen Eintrag werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.');
 }
 /* ---------- Ansichten ---------- */
 const IC = {
@@ -981,6 +981,18 @@ function dbList(){
 
 /* ---------- Google-Sheet-Schnittstelle ---------- */
 const plainEntry = e => ({id:e.id, values:e.values, completedAt:e.completedAt || ''});
+/* Übertragene Protokolle werden 7 Tage nach der Übertragung aus der App entfernt (bleiben in der Datenbank) */
+const KEEP_SYNCED_DAYS = 7;
+function pruneSynced(){
+  const now = Date.now(), maxAge = KEEP_SYNCED_DAYS * 864e5;
+  let changed = false;
+  books.forEach(p => { if(p.status === 'done' && p.synced === true && !p.syncedAt){ p.syncedAt = new Date().toISOString(); changed = true; } });   // alte Einträge: Frist startet jetzt
+  // nie löschen: Logbuch mit angefangenem/geöffnetem Eintrag oder noch nicht übertragener Unterschrift-Löschung
+  const busy = p => (p.entries || []).some(e => e.status !== 'done') || (p.sigDel || []).length > 0;
+  const keep = books.filter(p => !(p.status === 'done' && p.synced === true && p.syncedAt && p.id !== view.id && !busy(p) && now - new Date(p.syncedAt).getTime() > maxAge));
+  if(keep.length !== books.length){ books = keep; changed = true; }
+  if(changed) save();
+}
 async function syncAll(silent){
   if(!syncCanStart(books.some(p => p.status === 'done' && !p.synced), silent)) return;
   let okCount = 0, err = null;
@@ -1017,6 +1029,7 @@ async function syncAll(silent){
     }
   }
   syncEnd();
+  pruneSynced();
   if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
   else if(okCount) toast('Logbuch in die Datenbank übertragen, PDF in Google Drive abgelegt.');
   if(['home', 'book', 'report'].includes(view.name)) render(); else updateNet();
@@ -1344,6 +1357,7 @@ window.addEventListener('offline', updateNet);
 /* ---------- Start ---------- */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+pruneSynced();
 render();
 syncAll(true);
 </script>
