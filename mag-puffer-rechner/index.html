@@ -15,11 +15,11 @@
 <link rel="stylesheet" href="shared/base.css">
 <link rel="stylesheet" href="shared/knoepfe.css">
 <style>
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-:root{--selbg:#1a1a1a;--selfg:#fff}
-:root[data-theme=dark]{--selbg:#DCCC4B;--selfg:#1a1a1a}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--selbg:#DCCC4B;--selfg:#1a1a1a}}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+:root{--selbg:var(--pri);--selfg:#fff}
+:root[data-theme=dark]{--selbg:var(--gold);--selfg:var(--pri)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--selbg:var(--gold);--selfg:var(--pri)}}
 [hidden]{display:none!important}
 html,body{min-height:100vh;min-height:100dvh}
 body{touch-action:manipulation}
@@ -34,7 +34,7 @@ main{max-width:940px;padding-left:calc(16px + env(safe-area-inset-left));padding
 .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:14px}
 .hub{appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:14px;text-align:left;min-height:104px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;transition:transform var(--t-fast) var(--out)}
 .hub:active{transform:scale(.98)}
-.hico{width:52px;height:52px;border-radius:14px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;flex:none}
+.hico{width:52px;height:52px;border-radius:12px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;flex:none}
 .hico svg{width:28px;height:28px}
 .htx strong{display:block;font-size:18px;line-height:1.25}
 .htx small{display:block;font-size:14px;color:var(--muted);margin-top:2px}
@@ -52,7 +52,7 @@ main{max-width:940px;padding-left:calc(16px + env(safe-area-inset-left));padding
   .res{grid-column:2;grid-row:1;position:sticky;top:calc(84px + env(safe-area-inset-top));max-height:calc(100dvh - 100px - env(safe-area-inset-top));overflow:auto;padding-bottom:4px}
 }
 .card h3{font-size:13px;color:var(--muted)}
-.card h3.big3{font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0;margin:0 0 6px}
+.card h3.big3{font-size:17px;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;margin:0 0 6px}
 /* Felder */
 input,select{min-height:48px;font-size:16px}
 select{appearance:none;-webkit-appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
@@ -99,7 +99,7 @@ input.bad{border-color:var(--bad);border-width:2px}
 .msg b{font-weight:700}
 .msg>div{min-width:0;overflow-wrap:anywhere}
 .rb{font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--wbg);color:var(--wfg);border:1px solid var(--wbd);white-space:nowrap}
-details.rw{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0}
+details.rw{border:1px solid var(--line);border-radius:16px;background:var(--card);margin:10px 0}
 details.rw summary{min-height:48px;display:flex;align-items:center;padding:0 14px;font-weight:700;cursor:pointer;list-style:none}
 details.rw summary::-webkit-details-marker{display:none}
 details.rw summary::after{content:"";margin-left:auto;width:10px;height:10px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg);transition:transform 150ms}
@@ -136,7 +136,7 @@ details.rw dd{margin:0;font-weight:700;white-space:nowrap}
 .svmain small{display:block;color:var(--muted);font-size:14px}
 .svmain em{display:block;overflow-wrap:anywhere;font-style:normal;font-size:15px;margin-top:2px;font-variant-numeric:tabular-nums}
 .svact{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);max-width:calc(100vw - 32px);background:#1a1a1a;color:#fff;border:1px solid #555;padding:12px 18px;border-radius:12px;font-size:16px;font-weight:600;opacity:0;pointer-events:none;z-index:20;transition:opacity 160ms,transform 160ms}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);max-width:calc(100vw - 32px);background:var(--pri);color:#fff;border:1px solid var(--line);padding:12px 18px;border-radius:12px;font-size:16px;font-weight:600;opacity:0;pointer-events:none;z-index:20;transition:opacity 160ms,transform 160ms}
 .toast.show{opacity:1;transform:translateX(-50%)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -329,7 +329,7 @@ function build(){
 
   document.getElementById('v-puffer').innerHTML = '<h2 class="pagetitle" id="h-puffer" tabindex="-1" style="margin-top:14px">Pufferspeicher</h2>' +
     '<div class="layout"><div class="res"><div id="pufOut"></div><button class="btn primary wide" type="button" data-a="take" id="takeBtn" hidden>' + ic('arrow') + 'In MAG-Berechnung übernehmen</button>' +
-    '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn primary" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('puffer') + '</div></div>' +
+    '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn dark" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('puffer') + '</div></div>' +
     '<div class="inp">' + erzCard() + '<div class="card"><h3>Varianten</h3>' +
     sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') + sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') + sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') +
     sw('foerderung', 'Mindestvolumen Förderung', 'Richtwert 30 l je kW Nennleistung') + sw('bimschv', 'Mindestvolumen 1. BImSchV', 'Nach Füllraum und Nennleistung') + '</div>' +

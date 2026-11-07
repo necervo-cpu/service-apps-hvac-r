@@ -10,7 +10,7 @@
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .seg .btn,.opts .btn{background:var(--segbg);border-color:transparent;color:var(--ink);font-weight:700;border-radius:12px;min-width:0;max-width:100%;overflow-wrap:anywhere}
 .seg .btn{min-width:92px;min-height:52px}
-.opts .btn{min-height:46px}
+.opts .btn{min-height:48px}
 .seg .btn.sel,.opts .btn.sel,.seg .btn.sel.neutral,.opts .btn.sel.neutral{background:var(--gold);border-color:transparent;color:#1a1a1a}
 .seg .btn.sel.ok,.opts .btn.sel.ok{background:var(--ok);color:#fff}
 .seg .btn.sel.bad,.opts .btn.sel.bad{background:var(--bad);color:#fff}

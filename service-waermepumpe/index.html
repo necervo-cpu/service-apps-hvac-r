@@ -30,7 +30,7 @@
 .calc{display:inline-block;padding:10px 14px;background:var(--gold-soft);border:1px solid var(--line);color:var(--ink);border-radius:10px;font-weight:700;min-width:120px}
 .calcnote{font-size:13px;color:var(--muted);margin-left:8px}
 @media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
-.sigwrap{border:2px dashed #c4ccd8;border-radius:12px;background:#fff;margin-bottom:8px}
+.sigwrap{border:2px dashed var(--line);border-radius:12px;background:#fff;margin-bottom:8px}
 canvas.sig{width:100%;height:170px;display:block;touch-action:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 @media(max-width:640px){.grid2{grid-template-columns:1fr}}
@@ -42,7 +42,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
 .bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
-.bar .btn{flex:1;min-height:52px;border-radius:13px;font-weight:700;font-size:15px}
+.bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
 body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
@@ -55,7 +55,6 @@ body.hasbar #toast{bottom:calc(90px + env(safe-area-inset-bottom))}
 .pdfb.run .lr{opacity:1;transform:none}
 .pdfb.done .lr{opacity:0}
 .pdfb.done .l2{opacity:1;transform:none}
-.bar .btn.pdfb.done{background:#1e8e4e;border-color:#1e8e4e;color:#fff}
 .pdfb.done .fill{opacity:0}
 /* Wert wechselt: kurzes Aufleuchten */
 .flash{animation:flash 900ms var(--out)}
@@ -87,7 +86,7 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 @media(max-width:600px){
   header{padding-left:12px;padding-right:12px}
   main,#stepwrap{padding-left:12px;padding-right:12px}
-  .card{padding:12px 14px;border-radius:14px}
+  .card{padding:12px 14px;border-radius:12px}
   .pagetitle{font-size:22px}
   .card>table thead{display:none}
   .card>table,.card>table tbody,.card>table tr,.card>table td{display:block;width:100%}
@@ -106,8 +105,7 @@ button,.btn,.ib,.steps>*,.tt,a.jump{touch-action:manipulation;-webkit-user-selec
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .btn:focus-visible,:root:not([data-theme=light]) .steps button:focus-visible{outline-color:var(--gold)}}
 header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
 main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
-.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));box-shadow:0 -6px 18px rgba(26,26,26,.07)}
-.card{box-shadow:0 1px 0 rgba(26,26,26,.03)}
+.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
 /* Startseite */
 .secth{display:flex;align-items:center;gap:8px}
 .secth .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 9px;font-size:12px;letter-spacing:0}
@@ -135,10 +133,10 @@ textarea{overscroll-behavior:contain}
 @media(max-width:240px){.net:not(.off){display:none}}
 @media(max-width:340px){.logo{display:none}.bar .btn{font-size:14px;padding:8px 10px}.steps{gap:3px}}
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 .sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
