@@ -45,7 +45,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* Feste Leiste unten (Zurück / Weiter / Speichern / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
-.bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
 .bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
@@ -547,12 +546,14 @@ const Views = {
     const done = books.filter(p => p.status === 'done').sort((a, b) => String(summary(b).last || b.completedAt).localeCompare(String(summary(a).last || a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
+      <div class="kstart">
       <button type="button" class="cta" data-act="newbook"><span class="hi">${IC.plus}</span><span class="txt"><strong>Neues Logbuch</strong><small>Logbuch für eine neue Anlage anlegen</small></span></button>
       <div class="qa">
         <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank / PDF</b><small>alle Logbücher</small></span></button>
         <button class="qt" data-act="sync"><span class="qi">${IC.sync}</span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Logbücher werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      </div>
       <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
       ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
       <h2>Logbücher <span class="n">${done.length}</span></h2>

@@ -31,7 +31,11 @@ header .tt span{display:block;font-size:12px;opacity:.75;white-space:nowrap;over
 .net.off .nd{background:#fff}
 /* Seitenübergang: seitlich verschobene Seite darf keinen waagerechten Bildlauf erzeugen */
 .stage{overflow-x:hidden;overflow-x:clip}
+/* Breite: Ansichten ohne Formular 940px; ab 1100px Startbildschirm (main hat .kstart) und offenes Formular (body.wiz, nicht letzte/Unterschrift-Seite = body.wizend) 1280px.
+   Feste Leiste (.bar>div) und Schrittanzeige folgen derselben Breite wie main. body.wiz/.wizend setzt stepsRender() in wizard.js. */
 main{max-width:940px;margin:0 auto;padding:10px 16px calc(48px + env(safe-area-inset-bottom))}
+.bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
+@media(min-width:1100px){body.wiz:not(.wizend) main,body.wiz:not(.wizend) #stepwrap,body.wiz:not(.wizend) .bar>div,main:has(>.kstart){max-width:1280px}}
 .btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--ctl);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-weight:700;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
 .btn{position:relative;transition:transform var(--t-fast) var(--out),filter var(--t-fast)}
 .btn:active{transform:scale(.97);filter:brightness(.96)}
@@ -95,3 +99,16 @@ table{width:100%;border-collapse:collapse}
 td,th{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .bar[hidden]{display:none}
+/* Formular zweispaltig ab 1100px (Unterschrift-/Abschluss-Seiten, Verdampfer-Karten und Karten mit Unterschriftsfeld bleiben einspaltig) */
+@media(min-width:1100px){
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)){display:grid;grid-template-columns:1fr 1fr;column-gap:24px;align-items:start}
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > *{grid-column:1/-1}
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field{grid-column:auto}
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(textarea),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(.calc),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(table),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(.opts .btn:nth-child(5)),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(.seg .btn:nth-child(4)),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(.info),
+body.wiz:not(.wizend) #app > .card:not(.vcard):not(:has(canvas)) > .field:has(.autonote){grid-column:1/-1}
+}

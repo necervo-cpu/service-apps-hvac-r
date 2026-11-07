@@ -23,3 +23,9 @@
 .qt small{display:block;font-size:12px;color:var(--muted,#706F6F);line-height:1.25;margin-top:2px;overflow-wrap:anywhere}
 .qt .pend{position:absolute;top:8px;right:8px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--gold,#DCCC4B);color:#1a1a1a;font-size:12px;font-weight:700;display:grid;place-items:center}
 @media(prefers-reduced-motion:reduce){.cta,.qa .qt{transition:none}}
+/* Startbildschirm großer Bildschirm: Hauptkachel links, Schnellzugriffe rechts. Unter 1100px ist .kstart ohne Wirkung (display:block, keine Abstände). */
+@media(min-width:1100px){
+.kstart{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
+.kstart>.cta,.kstart>.warnbox{grid-column:1}
+.kstart>.qa{grid-column:2;grid-row:1/span 2;margin-top:6px}
+}

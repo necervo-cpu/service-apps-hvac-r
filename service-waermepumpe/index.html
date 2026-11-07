@@ -41,7 +41,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
-.bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
 .bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
@@ -435,12 +434,14 @@ const Views = {
     const pending = done.filter(p => !p.synced).length;
     const plus = '<svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
     return `
+      <div class="kstart">
       <button type="button" class="cta" data-act="new"><span class="hi">${plus}</span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA starten</small></span></button>
       <div class="qa">
         <button class="qt" data-act="db"><span class="qi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span><b>Datenbank / PDF</b><small>Suchen &amp; öffnen</small></span></button>
         <button class="qt" data-act="sync"><span class="qi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      </div>
       <h2 class="secth">Offene Wartungen <span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
       <h2 class="secth">Abgeschlossen <span class="n">${done.length}</span></h2>

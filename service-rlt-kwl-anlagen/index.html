@@ -42,7 +42,6 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
-.bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
 .warnbox .btn{margin-top:10px}
 .bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
@@ -455,12 +454,14 @@ const Views = {
     const done = protocols.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
+      <div class="kstart">
       <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA 24186-1 starten</small></span></button>
       <div class="qa">
         <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Einträge aus dem Sheet</small></span></button>
         <button class="qt" data-act="sync"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      </div>
       <h2 class="sect">Offene Wartungen <span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
       <h2 class="sect">Abgeschlossen <span class="n">${done.length}</span></h2>
