@@ -21,13 +21,13 @@ function stepsRender(m){
   if(fresh){
     w.dataset.pid = key;
     w.innerHTML = `<div class="steplab"><span id="stlab"></span><button class="btn small" data-act="${m.pauseAct}">Pause</button></div>
-      <div class="progress"><div id="stbar" style="width:0"></div></div>
+      <div class="progress"><div id="stbar" style="transform:scaleX(0)"></div></div>
       <div class="steps">${pages.map((x, k) => `<button type="button" data-act="jump" data-i="${k}" aria-label="Schritt ${k + 1}: ${esc(x.title)}">${k + 1}<span class="sl"> ${esc(x.short)}</span></button>`).join('')}</div>`;
   }
   const wasHidden = w.hidden; w.hidden = false;
   if(fresh || wasHidden) void w.offsetWidth;
   $('#stlab').innerHTML = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
-  $('#stbar').style.width = Math.round((i + 1) / n * 100) + '%';
+  $('#stbar').style.transform = 'scaleX(' + ((i + 1) / n).toFixed(4) + ')';   // transform statt width: kein Neu-Layout je Bild
   w.querySelectorAll('.steps button').forEach((b, k) => {
     b.classList.toggle('done', k !== i && m.done(k));
     b.classList.toggle('on', k === i);
@@ -44,6 +44,18 @@ function barRender(h){
    (wichtig für die Unterschrift-Felder: Koordinaten werden live per getBoundingClientRect gelesen). */
 function stepTo(dir, change){
   if(navBusy) return;
+  /* Handy: Ist noch die Bildschirmtastatur offen (z. B. direkt nach dem Tippen auf Weiter), erst die Tastatur schließen
+     und warten, bis sie weg ist – sonst ändert sich mitten im Gleiten die Bildschirmhöhe und alles ruckelt. */
+  const ae = document.activeElement, vv = window.visualViewport;
+  if(ae && ae.matches && ae.matches('input,textarea,select') && vv && vv.height < window.innerHeight * 0.85){
+    navBusy = true; ae.blur();
+    let t = null, done = false;
+    const go = () => { if(done) return; done = true; vv.removeEventListener('resize', wait); clearTimeout(t); clearTimeout(max); navBusy = false; stepTo(dir, change); };
+    const wait = () => { clearTimeout(t); t = setTimeout(go, 80); };
+    const max = setTimeout(go, 500);
+    vv.addEventListener('resize', wait);
+    return;
+  }
   const still = wizSnapshot();
   if(RM() || !app.animate){ change(); render(); window.scrollTo(0, 0); return; }
   navBusy = true;
