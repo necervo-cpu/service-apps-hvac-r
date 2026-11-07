@@ -137,7 +137,6 @@ input,select,textarea{font-size:16px;border-radius:12px}
 .entering .htile{opacity:0;transform:translateY(8px);animation:up 240ms var(--out) forwards;animation-delay:calc(var(--i,0)*40ms)}
 h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:24px 2px 10px}
 h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:11.5px}
-.empty{margin:0;padding:18px 14px;border:1px dashed var(--line);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
 .pcard{margin:0 0 10px}
 .phead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 14px;flex-wrap:wrap}
 .ptxt{min-width:0;flex:1 1 220px;overflow-wrap:anywhere}
@@ -682,7 +681,7 @@ function reportParts(r){
      subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`},
     {lab:'Nächste Wartung', val: nextDue.date, sub: nextDue.sub},
     {art:'primary', lab:'Wartungsdatum', val: tileDate, sub: r.techniker ? 'Monteur: ' + r.techniker : ''}
-  ])});
+  ], {links:true})});
 
   // Auftrags- und Anlagendaten
   if(header.length) blocks.push({html:B.abschnitt('Auftrags- & Anlagendaten', B.kv(header))});
