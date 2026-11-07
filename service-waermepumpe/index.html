@@ -373,7 +373,7 @@ function fieldError(f, p){
   return '';
 }
 function pageErrors(p, i){ return TEMPLATE.pages[i].fields.map(f => [f, fieldError(f, p)]).filter(e => e[1]); }
-function pageDone(p, i){ return TEMPLATE.pages[i].fields.every(f => f.type === 'calc' || !fieldError(f, p)) && TEMPLATE.pages[i].fields.some(f => f.type !== 'calc' && String(p.values[f.id] ?? '') !== ''); }
+function pageDone(p, i){ return TEMPLATE.pages[i].fields.every(f => f.type === 'calc' || !fieldError(f, p)) && TEMPLATE.pages[i].fields.some(f => f.type !== 'calc' && f.init == null && String(p.values[f.id] ?? '') !== ''); }
 
 /* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
 function buildReport(p){

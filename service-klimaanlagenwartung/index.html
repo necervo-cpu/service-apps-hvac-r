@@ -441,7 +441,8 @@ function fieldError(f, p){
 function pageErrors(p, i){ return TEMPLATE.pages[i].fields.map(f => [f, fieldError(f, p)]).filter(e => e[1]); }
 function pageDone(p, i){
   const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && !f.legacy && isVis(f, p.values));
-  return fs.every(f => !fieldError(f, p)) && fs.some(f => String(p.values[f.id] ?? '') !== '');
+  // Grün erst, wenn der Monteur selbst etwas eingetragen hat – vorausgefüllte Felder (init) zählen nicht
+  return fs.every(f => !fieldError(f, p)) && fs.some(f => f.init == null && String(p.values[f.id] ?? '') !== '');
 }
 
 /* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
