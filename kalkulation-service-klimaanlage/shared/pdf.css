@@ -26,6 +26,7 @@
 .report .tile .lab{font-size:6.8pt;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
 .report .tile .val{font-size:14pt;font-weight:700;margin-top:.8mm;line-height:1.15}
 .report .tile .sub{font-size:7.6pt;color:var(--ink-2);margin-top:1mm}
+.report .status.links .tile{text-align:left}
 .report .tile.primary{border-color:var(--gold);border-left:1.2mm solid var(--gold);background:var(--gold-soft)}
 .report .pill{display:inline-flex;align-items:center;gap:1.2mm;font-weight:600;font-size:7.6pt;padding:.5mm 2mm;border-radius:10mm;white-space:nowrap}
 .report .pill svg{width:2.8mm;height:2.8mm;flex-shrink:0}

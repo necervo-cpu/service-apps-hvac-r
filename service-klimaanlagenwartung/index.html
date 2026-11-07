@@ -786,7 +786,7 @@ function reportParts(r){
      subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}`},
     {lab:'Nächste Wartung', val: nextDue.date, sub: nextDue.sub},
     {art:'primary', lab:'Wartungsdatum', val: tileDate, sub: r.techniker ? 'Monteur: ' + r.techniker : ''}
-  ])});
+  ], {links:true})});
 
   // Auftrags- und Anlagendaten
   if(header.length) blocks.push({html:B.abschnitt('Auftrags- & Anlagendaten', B.kv(header))});

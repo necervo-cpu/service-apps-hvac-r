@@ -64,9 +64,9 @@ function pdfBausteine(){
     return {split:true, html:`<div class="sec">${h2(titel, ref)}<table><thead><tr>${th}</tr></thead><tbody>${rows.map(tr).join('')}</tbody></table></div>`};
   };
 
-  /* Kacheln (Ergebnis-Leiste, mittig). tiles = [{art:'ok'|'bad'|'warn'|'primary'|'', lab, val, sub (Text), subHtml (fertiges HTML)}]
+  /* Kacheln (Ergebnis-Leiste, mittig; {links:true} = Text linksbündig). tiles = [{art:'ok'|'bad'|'warn'|'primary'|'', lab, val, sub (Text), subHtml (fertiges HTML)}]
      spalten: CSS für grid-template-columns, wenn nicht 1.25fr 1fr 1fr (Standard bei 3 Kacheln) */
-  const kacheln = (tiles, {spalten} = {}) => `<div class="status"${spalten ? ` style="grid-template-columns:${spalten}"` : ''}>${tiles.map(t =>
+  const kacheln = (tiles, {spalten, links} = {}) => `<div class="status${links ? ' links' : ''}"${spalten ? ` style="grid-template-columns:${spalten}"` : ''}>${tiles.map(t =>
     `<div class="tile ${t.art || ''}"><div class="lab">${up(t.lab)}</div><div class="val">${esc(t.val || '—')}</div><div class="sub">${t.subHtml != null ? t.subHtml : esc(t.sub || '')}</div></div>`).join('')}</div>`;
 
   /* Hinweiskasten. art:'def' = rot (Auffälligkeiten); liste = Aufzählung, sonst text (leer = „—“) */
