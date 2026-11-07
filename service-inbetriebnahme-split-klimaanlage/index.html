@@ -19,6 +19,7 @@
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
 <link rel="stylesheet" href="shared/knoepfe.css">
+<link rel="stylesheet" href="shared/kacheln.css">
 <link rel="stylesheet" href="shared/pdf.css">
 <style>
 .ghead{font-size:15px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;padding:18px 0 4px;border-bottom:2px solid var(--gold)}
@@ -43,6 +44,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-of
 /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
 .bar>div{max-width:940px;margin:0 auto;display:flex;gap:10px}
+.warnbox .btn{margin-top:10px}
 .bar .btn{flex:1;min-height:52px;border-radius:13px;font-weight:700;font-size:15px}
 .bar .btn.primary{border-color:var(--gold-dark)}
 body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
@@ -95,8 +97,8 @@ input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
 /* ===== Ende Handy-Layout ===== */
 /* ===== Design 2026: Startseite-Optik (Kacheln, Goldlinie), Handy-Feinschliff ===== */
 html{overscroll-behavior-y:none}
-.btn,.tiles>.tile,.steps button,.ib,.htile{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.btn:focus-visible,.tiles>.tile:focus-visible,.steps button:focus-visible,.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn,.steps button,.ib{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn:focus-visible,.steps button:focus-visible,.ib:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 input,select,textarea{font-size:16px;min-height:50px;border-radius:12px}
 textarea{min-height:96px}
 /* Seitenränder respektieren Notch / Querformat */
@@ -108,31 +110,6 @@ header .tt h1{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical
 h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:26px 2px 10px}
 h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 9px;font-size:11.5px;letter-spacing:0}
 /* Startseite */
-.newbtn{display:flex;width:100%;min-height:58px;font-size:17px;font-weight:700;border-radius:16px;margin:8px 0 12px;box-shadow:0 4px 14px rgba(26,26,26,.12)}
-.newbtn .ico{width:22px;height:22px;stroke-width:2.4}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tiles>.tile{appearance:none;-webkit-appearance:none;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 3px 10px;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;transition:transform 140ms var(--out),border-color 150ms,box-shadow 150ms}
-.tiles>.tile:active{transform:scale(.97)}
-.tile .ti{position:relative;width:40px;height:40px;border-radius:12px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
-.tile .tl{font-size:13px;font-weight:600;line-height:1.2;min-width:0;max-width:100%;overflow-wrap:break-word;-webkit-hyphens:manual;hyphens:manual}
-.tile .cnt{position:absolute;top:-7px;right:-9px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font:700 11.5px/20px "Plus Jakarta Sans",sans-serif;font-style:normal;text-align:center}
-.hometiles{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:4px}
-.htile{appearance:none;-webkit-appearance:none;font:inherit;text-align:left;display:flex;flex-direction:column;gap:12px;min-height:132px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;color:var(--ink);cursor:pointer;position:relative;min-width:0;transition:transform 140ms var(--out),box-shadow 150ms,border-color 150ms}
-.htile:active{transform:scale(.97)}
-.htile:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.htile .hi{width:46px;height:46px;border-radius:14px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
-.htile .hi .ico{width:24px;height:24px}
-.htile strong{display:block;font-size:15px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
-.htile small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.3;overflow-wrap:anywhere}
-.htile.main{grid-column:1/-1;flex-direction:row;align-items:center;min-height:84px;background:var(--gold);border-color:var(--pri2);color:#1a1a1a}
-.htile.main .hi{background:rgba(26,26,26,.9);color:var(--gold)}
-.htile.main small{color:#3a3a3a}
-.htile.alert{border-color:var(--gold)}
-.htile .cnt{position:absolute;top:10px;right:10px;min-width:22px;height:22px;padding:0 7px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12.5px;font-weight:700;display:grid;place-items:center}
-@media(min-width:560px){.hometiles{grid-template-columns:repeat(3,minmax(0,1fr))}.htile.main{grid-column:1/-1}}
-@media(max-width:559px){.htile:last-child{grid-column:1/-1;flex-direction:row;align-items:center;min-height:84px}}
-@media(max-width:360px){.htile{padding:12px}.htile strong{font-size:14px}.hometiles{gap:10px}}
-.entering .htile{opacity:0;transform:translateY(8px);animation:up 240ms var(--out) forwards;animation-delay:calc(var(--i,0)*40ms)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .emptyhint{margin:0;padding:18px 16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);text-align:center;font-size:15px}
 /* Protokoll-Karten: lange Namen umbrechen, Schaltflächen laufen in Reihe */
@@ -154,11 +131,9 @@ h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padd
 .bar .btn.primary{flex:1.5;box-shadow:0 3px 10px rgba(26,26,26,.14)}
 .bar .btn[disabled]{opacity:.4}
 @media(max-width:360px){
-  .tiles{gap:8px}.tiles>.tile{padding:10px 2px 8px}.tile .tl{font-size:12px}
   .seg .btn{padding:10px 4px;font-size:14.5px}
   .bar .btn{font-size:14.5px;padding-left:8px;padding-right:8px}
 }
-@media(prefers-reduced-motion:reduce){.tiles>.tile{transition:none}}
 /* ===== Ende Design 2026 ===== */
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
@@ -491,13 +466,12 @@ const Views = {
     const done = protocols.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
     const pending = done.filter(p => !p.synced).length;
     return `
-      <div class="hometiles">
-        <button type="button" class="htile main" style="--i:0" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Inbetriebnahme</strong><small>Protokoll für Split-Klimaanlage starten</small></span></button>
-        <button type="button" class="htile${pending ? ' alert' : ''}" style="--i:1" data-act="sync">${pending ? `<span class="cnt" aria-hidden="true">${pending}</span>` : ''}<span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span><span class="txt"><strong>Synchronisieren</strong><small>${pending ? `${pending} noch nicht im Sheet` : 'Alles übertragen'}</small></span></button>
-        <button type="button" class="htile" style="--i:2" data-act="db"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span class="txt"><strong>Datenbank / PDF</strong><small>Einträge aus dem Sheet</small></span></button>
-        <button type="button" class="htile" style="--i:3" data-act="settings"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span><span class="txt"><strong>Einstellungen</strong><small>Verbindung, Monteur</small></span></button>
+      <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Inbetriebnahme</strong><small>Protokoll für Split-Klimaanlage starten</small></span></button>
+      <div class="qa">
+        <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Einträge aus dem Sheet</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis du unter <b>Einstellungen</b> die Web-App-URL einträgst.</div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       <h2>Offene Inbetriebnahmen <span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(protoCard).join('') : '<p class="emptyhint">Keine offenen Inbetriebnahmen. Mit „Neue Inbetriebnahme“ geht es los.</p>'}
       <h2>Abgeschlossen <span class="n">${done.length}</span></h2>

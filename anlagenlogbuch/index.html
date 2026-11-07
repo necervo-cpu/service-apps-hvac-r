@@ -19,6 +19,7 @@
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
 <link rel="stylesheet" href="shared/knoepfe.css">
+<link rel="stylesheet" href="shared/kacheln.css">
 <link rel="stylesheet" href="shared/pdf.css">
 <style>
 .pagehint{color:var(--muted);margin:0 0 6px}
@@ -114,22 +115,6 @@ body{overflow-wrap:break-word}
 .card,.bk-t,.kv div,.pagetitle,.ent-m{overflow-wrap:anywhere;min-width:0}
 h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:24px 2px 10px}
 h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:11.5px;letter-spacing:0}
-/* Startseite: eine Hauptaktion, darunter drei Kacheln */
-.cta{appearance:none;-webkit-appearance:none;font:inherit;text-align:left;width:100%;display:flex;align-items:center;gap:12px;min-height:84px;margin-top:6px;padding:14px;background:var(--gold);border:1px solid var(--gold-dark);border-radius:18px;color:#1a1a1a;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform 140ms var(--out)}
-.cta:active{transform:scale(.97)}
-.cta .hi{width:46px;height:46px;border-radius:14px;background:rgba(26,26,26,.9);color:var(--gold);display:grid;place-items:center;flex:none}
-.cta .hi .ico{width:24px;height:24px}
-.cta strong{display:block;font-size:15px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
-.cta small{display:block;font-size:12.5px;color:#3a3a3a;margin-top:3px;line-height:1.3;overflow-wrap:anywhere}
-.qa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
-.qt{appearance:none;-webkit-appearance:none;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:96px;padding:12px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:transform 140ms var(--out),border-color var(--t-fast),box-shadow var(--t-fast)}
-.qt:active{transform:scale(.97)}
-.qt .qi{width:38px;height:38px;border-radius:12px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center;flex:none}
-.qt .qi .ico{width:20px}
-.qt b{font-size:14px;font-weight:600;line-height:1.2;display:block}
-.qt small{display:block;font-size:12px;color:var(--muted);line-height:1.25;margin-top:2px}
-.qt .pend{position:absolute;top:8px;right:8px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12px;font-weight:700;display:grid;place-items:center}
-@media(max-width:380px){.qa{grid-template-columns:1fr 1fr}.qa .qt:first-child{grid-column:1/-1;flex-direction:row;align-items:center;min-height:64px}}
 .hint{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:14px;margin:14px 2px 0}
 .hint .ico{width:18px;height:18px;margin-top:2px;color:var(--gold-text)}
 /* Logbuch-Karten */
@@ -144,6 +129,7 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 .bk-a .primary{grid-column:1/-1}
 .bk-a .btn.danger{grid-column:1/-1;min-height:40px;background:transparent;border-color:transparent}
 .warnbox{font-size:15px}
+.warnbox .btn{margin-top:10px}
 .bk .ent-m{margin-top:6px}
 .emptybox{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:16px;margin:10px 0}
 .emptybox .qi{width:46px;height:46px;border-radius:14px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center}
@@ -566,11 +552,10 @@ const Views = {
     return `
       <button type="button" class="cta" data-act="newbook"><span class="hi">${IC.plus}</span><span class="txt"><strong>Neues Logbuch</strong><small>Logbuch für eine neue Anlage anlegen</small></span></button>
       <div class="qa">
-        <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank</b><small>alle Logbücher</small></span></button>
+        <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank / PDF</b><small>alle Logbücher</small></span></button>
         <button class="qt" data-act="sync"><span class="qi">${IC.sync}</span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
-        <button class="qt" data-act="settings"><span class="qi">${IC.set}</span><span><b>Einstellungen</b><small>Verbindung, Monteur</small></span></button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Logbücher werden lokal gespeichert, bis du unter <b>Einstellungen</b> die Web-App-URL einträgst.</div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Logbücher werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
       ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
       <h2>Logbücher <span class="n">${done.length}</span></h2>

@@ -19,6 +19,7 @@
 <script src="shared/lib/jspdf.umd.min.js" defer></script>
 <link rel="stylesheet" href="shared/base.css">
 <link rel="stylesheet" href="shared/knoepfe.css">
+<link rel="stylesheet" href="shared/kacheln.css">
 <link rel="stylesheet" href="shared/pdf.css">
 <style>
 .ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
@@ -108,16 +109,6 @@ main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:ma
 .bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));box-shadow:0 -6px 18px rgba(26,26,26,.07)}
 .card{box-shadow:0 1px 0 rgba(26,26,26,.03)}
 /* Startseite */
-.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 4px}
-.newbtn{grid-column:1/-1;justify-content:flex-start;gap:14px;min-height:68px;padding:12px 16px;border-radius:18px;font-size:17px;text-align:left}
-.newbtn .wi{width:42px;height:42px;border-radius:13px;background:var(--pri);color:var(--gold);display:grid;place-items:center;flex:none}
-:root[data-theme=dark] .newbtn .wi{background:#1a1a1a}
-.atile{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;min-height:104px;padding:14px;border-radius:18px;text-align:left;background:var(--card)}
-.atile .wi{width:42px;height:42px;border-radius:13px;background:var(--gold-soft);color:var(--gold-text);display:grid;place-items:center;flex:none}
-.atile .wt{min-width:0;display:block;line-height:1.25;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
-.atile small{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
-.atile.pend .wi{background:var(--wbg);color:var(--warn)}
-.wi .ico{width:22px;height:22px;stroke-width:2}
 .secth{display:flex;align-items:center;gap:8px}
 .secth .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 9px;font-size:12px;letter-spacing:0}
 .emptybox{border:1.5px dashed var(--line);border-radius:16px;padding:20px 16px;text-align:center;color:var(--muted);margin:10px 0;font-size:15px}
@@ -141,8 +132,8 @@ main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:ma
 textarea{overscroll-behavior:contain}
 @media(max-width:600px){main,#stepwrap{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}.pc{padding:12px 14px}}
 @media(max-width:600px){.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));width:100%}.seg .btn{min-width:0;padding:8px 4px;font-size:15px;white-space:nowrap}}
-@media(max-width:240px){.net:not(.off){display:none}.actions{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:340px){.logo{display:none}.actions{gap:8px}.atile{padding:12px;min-height:96px}.bar .btn{font-size:14px;padding:8px 10px}.steps{gap:3px}}
+@media(max-width:240px){.net:not(.off){display:none}}
+@media(max-width:340px){.logo{display:none}.bar .btn{font-size:14px;padding:8px 10px}.steps{gap:3px}}
 /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
 @font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;
   src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
@@ -446,12 +437,12 @@ const Views = {
     const pending = done.filter(p => !p.synced).length;
     const plus = '<svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
     return `
-      <div class="actions">
-        <button class="btn primary newbtn" data-act="new"><span class="wi">${plus}</span><span class="wt">Neue Wartung<small style="display:block;font-weight:500;font-size:12.5px;opacity:.75">Protokoll starten</small></span></button>
-        <button class="btn atile${pending ? ' pend' : ''}" data-act="sync"><span class="wi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></span><span class="wt">Synchronisieren<small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span></button>
-        <button class="btn atile" data-act="db"><span class="wi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span class="wt">Datenbank / PDF<small>Suchen &amp; öffnen</small></span></button>
+      <button type="button" class="cta" data-act="new"><span class="hi">${plus}</span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA starten</small></span></button>
+      <div class="qa">
+        <button class="qt" data-act="db"><span class="qi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span><b>Datenbank / PDF</b><small>Suchen &amp; öffnen</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis du die Web-App-URL einträgst.<br><button class="btn small" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zum Google Sheet eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       <h2 class="secth">Offene Wartungen <span class="n">${drafts.length}</span></h2>
       ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
       <h2 class="secth">Abgeschlossen <span class="n">${done.length}</span></h2>
