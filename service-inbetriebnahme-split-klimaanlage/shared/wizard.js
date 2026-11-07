@@ -53,12 +53,19 @@ function stepTo(dir, change){
     try{
       if(!still()){ app.className = ''; return; }
       change(); render(); window.scrollTo(0, 0);
-      const cls = 'pg-in-' + dir + ' entering';
+      /* Neue Seite erst außerhalb bereitlegen und zeichnen lassen; das Gleiten startet 2 Bilder später.
+         Sonst schluckt das Neuzeichnen die ersten Bilder und die Seite springt (beim Weiter am stärksten sichtbar).
+         Kein gestaffeltes Einblenden der Karten (.entering) während des Gleitens – das ruckelt zusätzlich. */
+      const pre = 'pg-pre-' + dir, cls = 'pg-in-' + dir;
       clearTimeout(enterT);
-      app.className = cls;
+      app.className = pre;
       ok = true;
-      setTimeout(() => { navBusy = false; }, 300);
-      setTimeout(() => { if(app.className === cls) app.className = ''; }, 900);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if(app.className !== pre){ navBusy = false; return; }
+        app.className = cls;
+        setTimeout(() => { navBusy = false; }, 300);
+        setTimeout(() => { if(app.className === cls) app.className = ''; }, 400);
+      }));
     } finally {
       if(!ok){ navBusy = false; if(/pg-/.test(app.className)) app.className = ''; }   // Fehler oder Abbruch: App bleibt bedienbar
     }

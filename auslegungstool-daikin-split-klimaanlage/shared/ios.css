@@ -121,6 +121,8 @@ input,textarea,select{background:var(--ios-ctl);border-color:var(--ios-edge-low)
 @keyframes iosOutB{to{transform:translateX(40%);opacity:0}}
 @keyframes iosInF{from{transform:translateX(100%)}}
 @keyframes iosInB{from{transform:translateX(-30%);opacity:.5}}
+.pg-pre-fwd{transform:translateX(100%)}
+.pg-pre-back{transform:translateX(-30%);opacity:.5}
 /* Gegen Ruckeln: Seite vorab als eigene Ebene, und während des Gleitens kein Live-Weichzeichner auf den Glaskarten
    (der Hintergrund ist ein weicher Verlauf – ohne Blur sieht es gleich aus, aber jedes Bild muss nicht neu weichgezeichnet werden) */
 #app[class*="pg-"]{will-change:transform,opacity}
