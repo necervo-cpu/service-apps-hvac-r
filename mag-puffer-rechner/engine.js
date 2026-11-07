@@ -96,7 +96,7 @@
     const n = ausdehnung(T);
     const Ve = n / 100 * VA;
     const Vv = Math.max(0.005 * VA, 3);
-    const p0 = Math.max(H / 10 + 0.2, p0min);
+    const p0 = Math.max(H / 10 + 0.3, p0min);
     const ASV = pSV <= 5 ? 0.5 : 0.1 * pSV;
     const pe = pSV - ASV;
     if (pe <= p0 + 0.3) {
