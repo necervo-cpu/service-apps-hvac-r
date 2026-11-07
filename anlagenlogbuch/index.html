@@ -28,10 +28,11 @@
 .seg .btn.sel.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
-.seg .btn.sel.neutral{background:var(--pri);border-color:var(--pri);color:#fff}
+.seg .btn.sel.neutral{background:var(--na);border-color:var(--na);color:#fff}
+.seg .btn,.opts .btn{font-weight:700}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
-.opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.opts .btn.sel{background:var(--na);border-color:var(--na);color:#fff}
 .opts .btn.sel.ok{background:var(--ok);border-color:var(--ok)}
 .opts .btn.sel.bad{background:var(--bad);border-color:var(--bad)}
 .inunit input{max-width:260px;font-size:22px}
@@ -129,7 +130,6 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 .cta .hi .ico{width:24px;height:24px}
 .cta strong{display:block;font-size:15px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
 .cta small{display:block;font-size:12.5px;color:#3a3a3a;margin-top:3px;line-height:1.3;overflow-wrap:anywhere}
-@media(hover:hover) and (pointer:fine){.cta:hover{filter:brightness(1.03)}}
 .qa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
 .qt{appearance:none;-webkit-appearance:none;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:96px;padding:12px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:transform 140ms var(--out),border-color var(--t-fast),box-shadow var(--t-fast)}
 .qt:active{transform:scale(.97)}
@@ -158,7 +158,6 @@ h2 .n{background:var(--k1);color:var(--gold-text);border-radius:99px;padding:1px
 .empty .qi{width:46px;height:46px;border-radius:14px;background:var(--k1);color:var(--gold-text);display:grid;place-items:center}
 .empty b{color:var(--ink);font-size:16px}
 .kvcard{border-left:4px solid var(--gold)}
-@media(hover:hover) and (pointer:fine){.btn:hover{border-color:var(--pri2)}.qt:hover,.bk:hover{border-color:var(--gold)}}
 @media(pointer:coarse){.btn.small{min-height:44px}}
 @media(max-width:600px){.bk-a .btn.small{padding:6px 8px}.row.tb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.row.tb .btn{min-width:0;text-align:center}}
 /* ===== Ende Design-Update ===== */
