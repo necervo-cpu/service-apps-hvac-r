@@ -45,7 +45,6 @@
     --ios-okc:color-mix(in srgb,var(--card,#fff) 75%,transparent);
     --ios-sheetcard:color-mix(in srgb,var(--card,#fff) 70%,transparent);
     --ios-grab:color-mix(in srgb,var(--ink,#1a1a1a) 25%,transparent);
-    --ios-swoff:color-mix(in srgb,var(--ink,#1a1a1a) 18%,transparent);
   }
 }
 @supports not (color:color-mix(in srgb,red,blue)){
@@ -53,19 +52,19 @@
     --ios-glass:rgba(255,255,255,.42);--ios-glass-strong:rgba(255,255,255,.62);--ios-line-soft:rgba(228,225,216,.7);
     --ios-seg:rgba(236,234,227,.55);--ios-ctl:rgba(255,255,255,.7);--ios-done:rgba(230,244,236,.7);
     --ios-sheet:rgba(255,255,255,.82);--ios-okc:rgba(255,255,255,.75);--ios-sheetcard:rgba(255,255,255,.7);
-    --ios-grab:rgba(26,26,26,.25);--ios-swoff:rgba(26,26,26,.18);
+    --ios-grab:rgba(26,26,26,.25);
   }
   :root[data-theme=dark]{
     --ios-glass:rgba(30,30,30,.42);--ios-glass-strong:rgba(30,30,30,.62);--ios-line-soft:rgba(58,55,49,.7);
     --ios-seg:rgba(42,42,42,.55);--ios-ctl:rgba(42,42,42,.7);--ios-done:rgba(22,48,31,.7);
     --ios-sheet:rgba(30,30,30,.82);--ios-okc:rgba(30,30,30,.75);--ios-sheetcard:rgba(30,30,30,.7);
-    --ios-grab:rgba(240,238,230,.25);--ios-swoff:rgba(240,238,230,.18);
+    --ios-grab:rgba(240,238,230,.25);
   }
   @media(prefers-color-scheme:dark){:root:not([data-theme=light]){
     --ios-glass:rgba(30,30,30,.42);--ios-glass-strong:rgba(30,30,30,.62);--ios-line-soft:rgba(58,55,49,.7);
     --ios-seg:rgba(42,42,42,.55);--ios-ctl:rgba(42,42,42,.7);--ios-done:rgba(22,48,31,.7);
     --ios-sheet:rgba(30,30,30,.82);--ios-okc:rgba(30,30,30,.75);--ios-sheetcard:rgba(30,30,30,.7);
-    --ios-grab:rgba(240,238,230,.25);--ios-swoff:rgba(240,238,230,.18);
+    --ios-grab:rgba(240,238,230,.25);
   }}
 }
 
@@ -152,20 +151,8 @@ header.ht-on .tt>:not(.htitle){opacity:0}
 .grphead{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted,#706F6F);margin:22px 0 6px;padding:0 6px}
 .card.grp{margin-top:0}
 
-/* ===== iOS-Schalter (Ja/Nein); ohne Wert: Hinweis „offen“, Schalter links mit Goldrand ===== */
-.iosw-wrap{display:flex;align-items:center;gap:12px;justify-content:center}
-.iosw-l{font-weight:700;min-width:52px;text-align:right;color:var(--muted,#706F6F)}
-.iosw-wrap.open .iosw-l{font-style:italic;font-weight:600}
-.field.err .iosw-l{color:var(--bad,#b42318)}
-.iosw{position:relative;width:62px;height:38px;border-radius:999px;border:0;padding:0;background:var(--ios-swoff);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);cursor:pointer;transition:background-color 260ms var(--ios-ease),box-shadow 200ms;flex:none}
-.iosw.open{box-shadow:inset 0 0 0 2px var(--ios-gold-d)}
-.iosw span{position:absolute;top:3px;left:3px;width:32px;height:32px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.18),0 1px 1px rgba(0,0,0,.12);transition:transform 320ms var(--ios-ease),width 160ms ease}
-.iosw[aria-checked=true]{background:var(--ok,#1e7a46)}
-.iosw.warn[aria-checked=true]{background:var(--warn,#8a5a00)}
-.iosw[aria-checked=true] span{transform:translateX(24px)}
-.iosw:active span{width:38px}
-.iosw[aria-checked=true]:active span{transform:translateX(18px)}
-.iosw:focus-visible{outline:2px solid var(--ios-ink);outline-offset:3px}
+/* ===== Pflichtfeld-Fehler bei Segment-Spur ===== */
+.field.err .seg{box-shadow:inset 0 0 0 2px var(--bad,#b42318)}
 
 /* ===== Bottom Sheet (Einstellungen) ===== */
 .sheet-scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 240ms ease,visibility 0s 240ms}
@@ -229,5 +216,5 @@ body.ios-swiping .stage,body.ios-swiping .ios-mover{background:var(--ios-bg);box
 /* ===== Weniger Bewegung ===== */
 @media(prefers-reduced-motion:reduce){
   .pg-out-fwd,.pg-out-back,.pg-in-fwd,.pg-in-back{animation:none}
-  .okc,.okc circle,.okc path,.sheet,.sheet-scrim,.stage,.iosw,.iosw span,.htitle,header .tt>*,#toast{transition:none!important}
+  .okc,.okc circle,.okc path,.sheet,.sheet-scrim,.stage,.htitle,header .tt>*,#toast{transition:none!important}
 }

@@ -12,15 +12,15 @@
      Aufeinanderfolgende Felder mit gleichem f.group -> Überschrift (.grphead) + Karte (.card.grp.stag).
      Felder ohne group -> Karte ohne Überschrift. Hat gar kein Feld eine group -> genau eine .card.stag wie bisher.
 
-   iosSwitch(f, x, warn) -> HTML-Text eines Ja/Nein-Schalters
+   iosSwitch(f, x, warn) -> HTML-Text von zwei Knöpfen „Ja“ / „Nein“ in der Segment-Spur (.seg, wie i.O./n.i.O.)
      f = Feld (braucht f.id, optional f.label), x = aktueller Wert ('Ja' / 'Nein' / '' oder fehlend),
-     warn = true (oder Liste, die 'Ja' enthält), wenn „Ja“ orange statt grün sein soll.
-     Leer = Hinweis „offen“, nichts ist vorbelegt. Antippen sendet data-act="set" data-f data-v wie die alten Knöpfe.
-     Die Gleit-Animation läuft in iosAfterRender (Schalter wird zuerst im alten Zustand gezeichnet).
+     warn = true (oder Liste, die 'Ja' enthält), wenn „Ja“ orange statt grün sein soll (Liste mit 'Nein': Nein orange).
+     Leer = nichts gewählt, nichts vorbelegt. Antippen sendet data-act="set" data-f data-v; erneutes Tippen
+     auf die gewählte Antwort wählt sie in den Apps wieder ab (Actions.set).
 
    iosAfterRender(viewName)
      Nach jedem render() aufrufen (nach setSteps/setBar). Setzt den großen Titel (#app .pagetitle), der beim
-     Scrollen klein in die Kopfleiste wandert, und lässt Schalter zum neuen Zustand gleiten.
+     Scrollen klein in die Kopfleiste wandert,.
      viewName ist nur ein Name (landet in document.body.dataset.iosView).
 
    iosCheck(text)
@@ -70,28 +70,12 @@ function iosGroups(fields, fieldFn, i0){
   }).join('');
 }
 
-/* ---------- Schalter statt Ja/Nein ---------- */
-const swMem = Object.create(null);   // zuletzt gezeichneter Zustand je Feld, damit der Schalter zum neuen Zustand gleiten kann
+/* ---------- Ja/Nein als zwei Knöpfe (Segment-Spur wie i.O./n.i.O.) ---------- */
 function iosSwitch(f, x, warn){
-  const open = x == null || x === '';
-  const now = x === 'Ja';
-  const prev = f.id in swMem ? swMem[f.id] : now;
-  swMem[f.id] = now;
-  const w = Array.isArray(warn) ? warn.includes('Ja') : !!warn;
-  const label = open ? 'offen' : (now ? 'Ja' : 'Nein');
-  const aria = (f.label || 'Ja/Nein') + (open ? ' (offen)' : '');
-  return `<div class="iosw-wrap${open ? ' open' : ''}"><span class="iosw-l">${label}</span>`
-    + `<button type="button" class="iosw${w ? ' warn' : ''}${open ? ' open' : ''}" role="switch" aria-checked="${prev}" data-now="${now ? 1 : 0}" aria-label="${esc(aria)}" data-act="set" data-f="${esc(f.id)}" data-v="${now ? 'Nein' : 'Ja'}"><span></span></button></div>`;
-}
-function glideSwitches(){
-  const all = document.querySelectorAll('.iosw[data-now]');
-  if(!all.length){ for(const k in swMem) delete swMem[k]; return; }
-  all.forEach(sw => {
-    const now = sw.dataset.now === '1';
-    if((sw.getAttribute('aria-checked') === 'true') !== now){
-      requestAnimationFrame(() => requestAnimationFrame(() => sw.setAttribute('aria-checked', String(now))));
-    }
-  });
+  const wJa = Array.isArray(warn) ? warn.includes('Ja') : !!warn;
+  const wNein = Array.isArray(warn) && warn.includes('Nein');
+  const one = (v, cls) => `<button type="button" class="btn ${cls}${x === v ? ' sel' : ''}" aria-pressed="${x === v}" data-act="set" data-f="${esc(f.id)}" data-v="${v}">${v}</button>`;
+  return `<div class="seg" role="group" aria-label="${esc(f.label || 'Ja/Nein')}">${one('Ja', wJa ? 'warn' : 'ok')}${one('Nein', wNein ? 'warn' : 'neutral')}</div>`;
 }
 
 /* ---------- Großer Titel -> klein in der Kopfleiste ---------- */
@@ -119,7 +103,6 @@ function largeTitle(){
 function iosAfterRender(viewName){
   document.body.dataset.iosView = viewName || '';
   largeTitle();
-  glideSwitches();
 }
 
 /* ---------- Erfolgs-Häkchen ---------- */
