@@ -687,7 +687,7 @@ function reportParts(r){
     {lab:'Auffälligkeiten', val: String(defects.length), sub: defects.length ? defects[0] + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '') : 'keine'},
     next ? {art:'primary', lab:'Nächste Wartung', val: next.replace(/^Nächste Wartung:\s*/, ''), sub: monteur}
          : {art:'primary', lab:'Datum', val: datum, sub: monteur}
-  ])});
+  ], {links:true})});
 
   // Auftrags- und Anlagendaten
   if(header.length) blocks.push({html:B.abschnitt('Auftrags- & Anlagendaten', B.kv(header))});
