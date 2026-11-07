@@ -29,9 +29,11 @@
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
 .seg .btn.sel.neutral{background:var(--pri);border-color:var(--pri);color:#fff}
+.seg .btn,.opts .btn{font-weight:700}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
 .opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.opts .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
 .inunit input{max-width:260px;font-size:22px}
 .inunit .unit{color:var(--muted);font-weight:600}
 .soll{font-size:14px;margin-top:6px}
@@ -589,12 +591,18 @@ function fieldHtml(f, p){
   switch(f.type){
     case 'okfail': return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
     case 'yesno': {
-      const cls = ['Ja', 'Nein'].map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'neutral');
+      // Farbe nach Bedeutung (good/bad); ohne Angabe: Ja grün, Nein rot
+      const cls = ['Ja', 'Nein'].map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : o === 'Ja' ? 'ok' : 'bad');
       return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], cls)}</div>${errHtml}</div>`;
     }
     case 'select': {
+      // Auswahl mit Gut/Schlecht (z. B. Funktionstest): wie die Checklisten-Knöpfe in Grün/Rot
+      if(!f.other && (f.good || f.bad)){
+        const cls = f.opts.map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'na');
+        return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(f.opts, cls)}</div>${errHtml}</div>`;
+      }
       const custom = f.other && x && !f.opts.includes(x);
-      body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+      body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''} ${o === 'entfällt' ? 'na' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
         ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
       break;
     }
