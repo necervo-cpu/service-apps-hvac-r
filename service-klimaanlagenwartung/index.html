@@ -30,6 +30,7 @@
 .seg .btn.sel.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .seg .btn.sel.na{background:var(--na);border-color:var(--na);color:#fff}
 .seg .btn.sel.neutral{background:var(--pri);border-color:var(--pri);color:#fff}
+.seg .btn{font-weight:700}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .opts .btn{min-height:46px}
 .opts .btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
@@ -141,7 +142,7 @@ input,select,textarea{font-size:16px}
 .htile.main small{color:#3a3a3a}
 .htile.alert{border-color:var(--gold)}
 .htile .cnt{position:absolute;top:10px;right:10px;min-width:22px;height:22px;padding:0 7px;border-radius:99px;background:var(--gold);color:#1a1a1a;font-size:12.5px;font-weight:700;display:grid;place-items:center}
-@media(hover:hover) and (pointer:fine){.htile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}.htile.main:hover{filter:brightness(1.03)}.btn:hover{border-color:var(--pri2)}.vh:hover .ico{color:var(--ink)}}
+@media(hover:hover) and (pointer:fine){.htile:hover{border-color:var(--gold);box-shadow:0 6px 18px rgba(26,26,26,.10)}.htile.main:hover{filter:brightness(1.03)}.btn:not(.seg .btn):hover{border-color:var(--pri2)}.vh:hover .ico{color:var(--ink)}}
 @media(min-width:560px){.hometiles{grid-template-columns:repeat(3,minmax(0,1fr))}.htile.main{grid-column:1/-1}}
 @media(max-width:559px){.htile:last-child{grid-column:1/-1;flex-direction:row;align-items:center;min-height:84px}}
 @media(max-width:360px){.htile{padding:12px}.htile strong{font-size:14px}.hometiles{gap:10px}}
@@ -681,10 +682,16 @@ function fieldHtml(f, p){
   switch(f.type){
     case 'okfail': return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
     case 'yesno': {
-      const cls = ['Ja', 'Nein'].map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'neutral');
+      // Farbe nach Bedeutung (good/bad); ohne Angabe: Ja grün, Nein rot
+      const cls = ['Ja', 'Nein'].map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : o === 'Ja' ? 'ok' : 'bad');
       return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(['Ja', 'Nein'], cls)}</div>${errHtml}</div>`;
     }
     case 'select': {
+      // Auswahl mit Gut/Schlecht (z. B. Gesamtergebnis i.O./n.i.O.): wie die Checklisten-Knöpfe in Grün/Rot
+      if(!f.other && (f.good || f.bad)){
+        const cls = f.opts.map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'na');
+        return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(f.opts, cls)}</div>${errHtml}</div>`;
+      }
       const custom = f.other && x && !f.opts.includes(x);
       body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
         ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
