@@ -700,6 +700,28 @@
       const GWP = { R290: 3, R32: 675, R410A: 2088, R454B: 466, R134a: 1430, R407C: 1774 };
       const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
       const MANGEL_SUFFIX = ' – Mangel';
+      const BEWERTUNG = ['i.O.', 'n.i.O.'];
+      const BEWERTUNG_KLASSEN = ['ok', 'bad'];
+      const BEWERTUNG_ALT = new Map([
+        ['Ja', 'ok'],
+        ['Nein', 'bad'],
+        ['Mangel', 'bad'],
+      ]);
+      function bewertungArt(x) {
+        if (x === 'i.O.') {
+          return 'ok';
+        }
+        if (x === 'n.i.O.') {
+          return 'bad';
+        }
+        return BEWERTUNG_ALT.has(x) ? BEWERTUNG_ALT.get(x) : 'none';
+      }
+      function altwertHint(x) {
+        if (!x || BEWERTUNG.includes(x) || bewertungArt(x) === 'none') {
+          return '';
+        }
+        return `<div class="fhint">Altwert: ${esc(x)}</div>`;
+      }
       const ok = (id, col, label, pdf, hint, req = true) => ({
         id,
         col,
@@ -1402,10 +1424,18 @@
               {
                 id: 'erfolg',
                 col: 'Wartung erfolgreich',
-                label: 'Wartung erfolgreich',
-                type: 'yesno',
+                label: 'Gesamtbewertung',
+                type: 'bewertung',
                 req: true,
-                init: 'Ja',
+              },
+              {
+                id: 'erfolgM',
+                col: 'Wartung erfolgreich' + MANGEL_SUFFIX,
+                label: 'Mangel / Maßnahme',
+                type: 'text',
+                parent: 'erfolg',
+                ph: 'Was ist festzustellen, was ist zu tun?',
+                show: (v) => v.erfolg === 'n.i.O.',
               },
               {
                 id: 'bem',
@@ -1459,7 +1489,7 @@
             ['Stromaufnahme', ['i1', 'i2', 'i3']],
           ],
           'Wartungsabschluss & Abnahme': [
-            ['Zustand', ['betrieb', 'erfolg']],
+            ['Zustand', ['betrieb', 'erfolg', 'erfolgM']],
             ['Bemerkungen', ['bem']],
           ],
         };
@@ -1608,6 +1638,9 @@
       }
       function evalField(f, v) {
         const x = v[f.id];
+        if (f.type === 'bewertung') {
+          return bewertungArt(x);
+        }
         if (f.type === 'okfail')
           return x === 'i.O.' ? 'ok' : x === 'n.i.O.' ? 'bad' : x === 'entfällt' ? 'na' : 'none';
         if (f.bad && f.bad.includes(x)) return 'bad';
@@ -1624,6 +1657,7 @@
         return ALL_FIELDS.filter(
           (f) =>
             f.type !== 'calc' &&
+            f.type !== 'bewertung' &&
             f.type !== 'material' &&
             ['bad', 'warn'].includes(evalField(f, p.values)),
         ).map((f) => {
@@ -1680,6 +1714,7 @@
             (f) =>
               f.type !== 'calc' &&
               !f.parent &&
+              !(f.type === 'bewertung' && !BEWERTUNG.includes(p.values[f.id])) &&
               (f.type === 'material' ||
                 (p.vorbelegt ? !vorbelegtGleich(p, f.id) : f.init == null)) &&
               (f.type === 'material'
@@ -1723,6 +1758,7 @@
           dpv: v.dpv || '',
           co2: isN(v.co2) ? num(v.co2) : '',
           success: v.erfolg || '',
+          successMangel: v.erfolg === 'n.i.O.' ? String(v.erfolgM ?? '').trim() : '',
           betrieb: v.betrieb || '',
           remark: v.bem || '',
           techniker: v.monteur || '',
@@ -1936,7 +1972,7 @@
         if (p.status === 'draft') {
           badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
         } else {
-          badges = `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
+          badges = `${v.erfolg ? `<span class="badge ${bewertungArt(v.erfolg) === 'ok' ? 'ok' : 'bad'}">Gesamtbewertung: ${esc(v.erfolg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
         }
         const meta = [fmtDate(v.datum), v.agModell, v.monteur].filter(Boolean).map(esc).join(' · ');
         return `
@@ -2005,6 +2041,8 @@
             return `<div class="field">${materialHtml(p)}</div>`;
           case 'okfail':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
+          case 'bewertung':
+            return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(BEWERTUNG, BEWERTUNG_KLASSEN)}</div>${altwertHint(x)}${errHtml}</div>`;
           case 'yesno':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.warn)}</div>${errHtml}</div>`;
           case 'select': {
@@ -2161,9 +2199,9 @@
             [
               {
                 art: good ? 'ok' : bad ? 'bad' : '',
-                lab: r.resultLabel || 'Wartung erfolgreich',
+                lab: r.resultLabel || 'Gesamtbewertung',
                 val: res,
-                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`,
+                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`,
               },
               { lab: 'Nächste Wartung', val: nextDue.date, sub: nextDue.sub },
               {
@@ -2313,7 +2351,7 @@
         (e) => `<tr>
       <td>${esc(fmtDate(e.datum))}</td>
       <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.modell, e.monteur].filter(Boolean).join(' · '))}</span></td>
-      <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'Ja' ? 'ok' : 'bad'}">${esc(e.erfolg)}</span>` : ''}</td>
+      <td>${e.erfolg ? `<span class="badge ${bewertungArt(e.erfolg) === 'ok' ? 'ok' : 'bad'}">${esc(e.erfolg)}</span>` : ''}</td>
       <td style="text-align:right;white-space:nowrap">${
         e.pdfUrl
           ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`

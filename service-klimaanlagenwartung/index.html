@@ -633,6 +633,28 @@
    ===================================================================== */
       const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
       const MANGEL_SUFFIX = ' – Mangel';
+      const BEWERTUNG = ['i.O.', 'n.i.O.'];
+      const BEWERTUNG_KLASSEN = ['ok', 'bad'];
+      const BEWERTUNG_ALT = new Map([
+        ['Ja', 'ok'],
+        ['Nein', 'bad'],
+        ['Mangel', 'bad'],
+      ]);
+      function bewertungArt(x) {
+        if (x === 'i.O.') {
+          return 'ok';
+        }
+        if (x === 'n.i.O.') {
+          return 'bad';
+        }
+        return BEWERTUNG_ALT.has(x) ? BEWERTUNG_ALT.get(x) : 'none';
+      }
+      function altwertHint(x) {
+        if (!x || BEWERTUNG.includes(x) || bewertungArt(x) === 'none') {
+          return '';
+        }
+        return `<div class="fhint">Altwert: ${esc(x)}</div>`;
+      }
       const ok = (id, col, label, pdf, hint, extra) =>
         Object.assign({ id, col, label, pdf, hint, type: 'okfail' }, extra || {});
       const druck = (id, col, label, pdf, hint) => ({
@@ -1362,11 +1384,17 @@
               {
                 id: 'erg',
                 col: 'Wartungsstatus Gesamtergebnis',
-                label: 'Wartungsstatus Gesamtergebnis',
-                type: 'select',
-                opts: ['i.O.', 'n.i.O.'],
-                good: ['i.O.'],
-                bad: ['n.i.O.', 'Mangel'],
+                label: 'Gesamtbewertung',
+                type: 'bewertung',
+              },
+              {
+                id: 'ergM',
+                col: 'Wartungsstatus Gesamtergebnis' + MANGEL_SUFFIX,
+                label: 'Mangel / Maßnahme',
+                type: 'text',
+                parent: 'erg',
+                ph: 'Was ist festzustellen, was ist zu tun?',
+                show: (v) => v.erg === 'n.i.O.',
               },
               {
                 id: 'next',
@@ -1396,7 +1424,7 @@
             ['Messung & Dokumentation', ['mess', 'doku']],
           ],
           'Abschlussbeurteilung & Abnahme': [
-            ['Ergebnis', ['ftest', 'erg']],
+            ['Ergebnis', ['ftest', 'erg', 'ergM']],
             ['Termin & Bemerkungen', ['next', 'bem']],
           ],
         };
@@ -1470,7 +1498,10 @@
       function normVals(v) {
         let ch = false;
         ALL_FIELDS.forEach((f) => {
-          if ((f.type === 'okfail' || f.type === 'select') && v[f.id] === 'Mangel') {
+          if (
+            (f.type === 'okfail' || f.type === 'select' || f.type === 'bewertung') &&
+            v[f.id] === 'Mangel'
+          ) {
             v[f.id] = 'n.i.O.';
             ch = true;
           }
@@ -1590,6 +1621,9 @@
       }
       function evalField(f, v) {
         const x = v[f.id];
+        if (f.type === 'bewertung') {
+          return bewertungArt(x);
+        }
         if (f.type === 'okfail')
           return x === 'i.O.'
             ? 'ok'
@@ -1612,6 +1646,7 @@
         return ALL_FIELDS.filter(
           (f) =>
             f.type !== 'calc' &&
+            f.type !== 'bewertung' &&
             isVis(f, p.values) &&
             ['bad', 'warn'].includes(evalField(f, p.values)),
         ).map((f) => {
@@ -1668,6 +1703,7 @@
           fs.some(
             (f) =>
               !f.parent &&
+              !(f.type === 'bewertung' && !BEWERTUNG.includes(p.values[f.id])) &&
               (p.vorbelegt ? !vorbelegtGleich(p, f.id) : f.init == null) &&
               String(p.values[f.id] ?? '') !== '',
           )
@@ -1730,6 +1766,7 @@
           fgas: v.fgas || '',
           resultLabel: 'Gesamtergebnis Wartung',
           success: v.erg || '',
+          successMangel: v.erg === 'n.i.O.' ? String(v.ergM ?? '').trim() : '',
           subline: [v.ftest && 'Funktionstest: ' + v.ftest, v.next && 'Nächste Wartung: ' + v.next]
             .filter(Boolean)
             .join(' · '),
@@ -1952,7 +1989,7 @@
         if (p.status === 'draft') {
           badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
         } else {
-          badges = `${v.erg ? `<span class="badge ${v.erg === 'i.O.' ? 'ok' : 'bad'}">Gesamtergebnis: ${esc(nio(v.erg))}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
+          badges = `${v.erg ? `<span class="badge ${bewertungArt(v.erg) === 'ok' ? 'ok' : 'bad'}">Gesamtbewertung: ${esc(nio(v.erg))}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
         }
         return `
     <div class="card">
@@ -2049,6 +2086,8 @@
         switch (f.type) {
           case 'okfail':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
+          case 'bewertung':
+            return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(BEWERTUNG, BEWERTUNG_KLASSEN)}</div>${altwertHint(x)}${errHtml}</div>`;
           case 'yesno':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
           case 'select': {
@@ -2239,7 +2278,7 @@
                 art: good ? 'ok' : bad ? 'bad' : '',
                 lab: r.resultLabel || 'Wartung erfolgreich',
                 val: shown(res),
-                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}`,
+                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}`,
               },
               { lab: 'Nächste Wartung', val: nextDue.date, sub: nextDue.sub },
               {
@@ -2379,7 +2418,7 @@
         (e) => `<tr>
       <td>${esc(fmtDate(e.datum))}</td>
       <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.modell, e.monteur].filter(Boolean).join(' · '))}</span></td>
-      <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'i.O.' ? 'ok' : 'bad'}">${esc(nio(e.erfolg))}</span>` : ''}</td>
+      <td>${e.erfolg ? `<span class="badge ${bewertungArt(e.erfolg) === 'ok' ? 'ok' : 'bad'}">${esc(nio(e.erfolg))}</span>` : ''}</td>
       <td style="text-align:right;white-space:nowrap">${
         e.pdfUrl
           ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
