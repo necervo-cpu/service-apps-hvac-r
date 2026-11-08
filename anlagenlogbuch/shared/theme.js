@@ -1,4 +1,32 @@
 /* shared/theme.js – Hell/Dunkel-Umschalter (Knopf #themebtn). Das frühe Skript im <head> der App bleibt inline,
    damit beim Laden nichts aufblitzt. Am Seitenende laden (klassisches Skript, kein Modul). */
 
-(function(){var b=document.getElementById('themebtn');if(!b)return;var L={auto:['◐','Auto'],hell:['☀','Hell'],dunkel:['☾','Dunkel']};function g(){try{return localStorage.getItem('muther-theme')||'auto'}catch(e){return 'auto'}}function ap(t){var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');else r.removeAttribute('data-theme');b.textContent=L[t][0];b.title='Darstellung: '+L[t][1];b.setAttribute('aria-label','Darstellung: '+L[t][1]+' (tippen zum Wechseln)');}ap(g());b.addEventListener('click',function(){var n={auto:'hell',hell:'dunkel',dunkel:'auto'}[g()];try{localStorage.setItem('muther-theme',n)}catch(e){}ap(n);});})();
+(function () {
+  var b = document.getElementById('themebtn');
+  if (!b) return;
+  var L = { auto: ['◐', 'Auto'], hell: ['☀', 'Hell'], dunkel: ['☾', 'Dunkel'] };
+  function g() {
+    try {
+      return localStorage.getItem('muther-theme') || 'auto';
+    } catch (e) {
+      return 'auto';
+    }
+  }
+  function ap(t) {
+    var r = document.documentElement;
+    if (t === 'hell') r.setAttribute('data-theme', 'light');
+    else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+    else r.removeAttribute('data-theme');
+    b.textContent = L[t][0];
+    b.title = 'Darstellung: ' + L[t][1];
+    b.setAttribute('aria-label', 'Darstellung: ' + L[t][1] + ' (tippen zum Wechseln)');
+  }
+  ap(g());
+  b.addEventListener('click', function () {
+    var n = { auto: 'hell', hell: 'dunkel', dunkel: 'auto' }[g()];
+    try {
+      localStorage.setItem('muther-theme', n);
+    } catch (e) {}
+    ap(n);
+  });
+})();

@@ -1,484 +1,1632 @@
 <!doctype html>
 <html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Serv. RLT/KWL">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">
-<meta name="color-scheme" content="light dark">
-<script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" href="icon-180.png">
-<title>Service RLT- &amp; KWL-Anlagen</title>
-<script src="shared/lib/html2canvas.min.js" defer></script>
-<script src="shared/lib/jspdf.umd.min.js" defer></script>
-<link rel="stylesheet" href="shared/base.css">
-<link rel="stylesheet" href="shared/knoepfe.css">
-<link rel="stylesheet" href="shared/kacheln.css">
-<link rel="stylesheet" href="shared/pdf.css">
-<style>
-/* Felder */
-.ferr{color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
-.field.err input,.field.err textarea{border-color:var(--bad)}
-.inunit input{max-width:260px;font-size:22px}
-.inunit .unit{color:var(--muted);font-weight:600}
-.soll{font-size:14px;margin-top:6px}
-.calc{display:inline-block;padding:10px 14px;background:var(--gold-soft);border:1px solid var(--line);color:var(--ink);border-radius:10px;font-weight:700;min-width:120px}
-.calcnote{font-size:13px;color:var(--muted);margin-left:8px}
-@media(max-width:700px){.frow{flex-direction:column;align-items:stretch}.seg .btn{flex:1}}
-.sigwrap{border:2px dashed var(--line);border-radius:12px;background:#fff;margin-bottom:8px}
-canvas.sig{width:100%;height:170px;display:block;touch-action:none}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}}
-.err{color:var(--bad);font-weight:600;margin-top:10px;min-height:1.2em}
-a.jump{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--pri2);text-decoration-thickness:2px}
-input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:0;border-color:var(--pri2)}
-/* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
-#toast{position:fixed;left:50%;opacity:0;max-width:90vw;text-align:center;pointer-events:none}
-#toast.show{opacity:1}
-/* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
-.warnbox .btn{margin-top:10px}
-.bar .btn{flex:1;min-height:52px;font-weight:700;font-size:15px}
-.bar .btn.primary{border-color:var(--gold-dark)}
-body.hasbar main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
-/* PDF-Knopf mit Fortschritt */
-.bar .btn.pdfb{overflow:hidden}
-.pdfb .fill{position:absolute;inset:0;background:rgba(0,0,0,.14);transform:scaleX(0);transform-origin:left;transition:transform 220ms linear;pointer-events:none}
-.pdfb .l1,.pdfb .l2,.pdfb .lr{display:flex;align-items:center;gap:6px;position:relative;transition:opacity var(--t-fast),transform var(--t-fast) var(--out)}
-.pdfb .l2,.pdfb .lr{position:absolute;opacity:0;transform:translateY(8px)}
-.pdfb.run .l1,.pdfb.done .l1{opacity:0;transform:translateY(-8px)}
-.pdfb.run .lr{opacity:1;transform:none}.pdfb.done .lr{opacity:0}
-.pdfb.done .l2{opacity:1;transform:none}
-.pdfb.done .fill{opacity:0}
-/* Wert wechselt: kurzes Aufleuchten */
-.flash{animation:flash 900ms var(--out)}
-@keyframes flash{from{background-color:var(--flash)}}
-/* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
-/* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
-.entering .stag{opacity:0;transform:translateY(12px);animation:up var(--t-med) var(--out) forwards;animation-delay:calc(var(--i)*70ms + 120ms)}
-@keyframes up{to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.001ms!important;transition-delay:0ms!important;animation-duration:.001ms!important;animation-delay:0ms!important}.entering .stag{opacity:1;transform:none}}
-/* ===== Handy-Layout ===== */
-/* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
-input[type=date]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;min-height:50px;height:50px;text-align:left;margin:0}
-input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0;margin:0}
-input[type=date]::-webkit-datetime-edit{padding:0;text-align:left}
-/* Schmale Bildschirme (iPhone hochkant): Status kompakt, Tabellen als Karten */
-@media(max-width:480px){
-  .net:not(.off) .nt,.net:not(.off) .sep,.net .nl{display:none}
-  .net:not(.off) .nd{margin-right:0}.net:not(.off) .np{margin-left:5px}
-  .ib{width:40px;height:40px}header{gap:8px}header .tt h1{font-size:15px}
-}
-@media(max-width:600px){
-  header{padding-left:12px;padding-right:12px}
-  main,#stepwrap{padding-left:12px;padding-right:12px}
-  .card{padding:12px 14px}
-  .pagetitle{font-size:22px}
-  .card>table thead{display:none}
-  .card>table,.card>table tbody,.card>table tr,.card>table td{display:block;width:100%}
-  .card>table tr{padding:10px 0;border-bottom:1px solid var(--line)}
-  .card>table tr:last-child{border-bottom:0}
-  .card>table td{border:0;padding:2px 0;text-align:left!important;white-space:normal!important}
-  .card>table td:last-child{display:flex;flex-wrap:wrap;gap:8px;padding-top:8px}
-}
-/* ===== Ende Handy-Layout ===== */
-/* ===== Design 11/2026: Optik wie Startseite (Kacheln, Goldlinie), Handy-Feinschliff ===== */
-html{overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
-header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
-main,#stepwrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
-.bar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
-header .tt h1{font-size:17px;letter-spacing:-.01em}
-header .tt span{font-size:12.5px;opacity:.8}
-button,a,[role=button],label,.ib{touch-action:manipulation}
-.btn,.ib,.steps button{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-input,select,textarea{font-size:16px}
-.btn:focus-visible,.ib:focus-visible,.steps button:focus-visible,a.jump:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.sect{display:flex;align-items:center;gap:8px}
-.sect .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:11.5px;letter-spacing:0}
-.emptybox{border:1px dashed var(--line);border-radius:16px;padding:18px 14px;text-align:center;color:var(--muted);margin:8px 0;overflow-wrap:anywhere}
-h2{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin:24px 2px 10px}
-h2 .n{background:var(--gold-soft);color:var(--gold-text);border-radius:99px;padding:1px 8px;font-size:11.5px}
-.pcard{margin:0 0 10px}
-.phead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 14px;flex-wrap:wrap}
-.ptxt{min-width:0;flex:1 1 220px;overflow-wrap:anywhere}
-.pbadges{display:flex;flex-wrap:wrap;gap:6px}
-.pcard .btn.small{min-height:44px}
-/* Formular */
-.pagetitle{overflow-wrap:anywhere;letter-spacing:-.01em}
-.field label{overflow-wrap:anywhere}
-.inunit input{min-width:0}
-@media(max-width:480px){.seg .btn{min-width:0}.bar .btn{font-size:14.5px;padding-left:8px;padding-right:8px}}
-/* ===== Ende Design 11/2026 ===== */
-/* Bericht */
-/* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;
-  src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");
-  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;
-  src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");
-  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-.sheetwrap{background:var(--sheet);border-radius:12px;padding:16px 0 1px;overflow:hidden}
-@media print{
-  header,.noprint,#toast,.bar,#stepwrap{display:none!important}
-  html,body{background:#fff}
-  main{max-width:none;padding:0!important}
-  .stage{overflow:visible}
-  .sheetwrap{background:none;padding:0;border-radius:0}
-  .report{zoom:1!important}
-  .report .page{box-shadow:none;margin:0;break-after:page}
-  @page{size:A4;margin:0}
-}
-</style>
-<link rel="stylesheet" href="shared/ios.css">
-</head>
-<body>
-<header><div class="logo">R</div><div class="tt" id="ttl" data-act="home"><h1>Service RLT/KWL</h1><span id="hsub">Wartungsprotokolle</span></div><span id="net" class="net"></span>
-<button type="button" class="ib themebtn" id="themebtn" aria-label="Darstellung wechseln"></button>
-<button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></header>
-<div id="stepwrap" hidden></div>
-<div class="stage"><main id="app"></main></div>
-<div class="bar" id="bar" hidden></div>
-<div id="toast"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Serv. RLT/KWL" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('muther-theme');
+          var r = document.documentElement;
+          if (t === 'hell') r.setAttribute('data-theme', 'light');
+          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="icon" type="image/png" href="icon-180.png" />
+    <title>Service RLT- &amp; KWL-Anlagen</title>
+    <script src="shared/lib/html2canvas.min.js" defer></script>
+    <script src="shared/lib/jspdf.umd.min.js" defer></script>
+    <link rel="stylesheet" href="shared/base.css" />
+    <link rel="stylesheet" href="shared/knoepfe.css" />
+    <link rel="stylesheet" href="shared/kacheln.css" />
+    <link rel="stylesheet" href="shared/pdf.css" />
+    <style>
+      /* Felder */
+      .ferr {
+        color: var(--bad);
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+      .field.err input,
+      .field.err textarea {
+        border-color: var(--bad);
+      }
+      .inunit input {
+        max-width: 260px;
+        font-size: 22px;
+      }
+      .inunit .unit {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .soll {
+        font-size: 14px;
+        margin-top: 6px;
+      }
+      .calc {
+        display: inline-block;
+        padding: 10px 14px;
+        background: var(--gold-soft);
+        border: 1px solid var(--line);
+        color: var(--ink);
+        border-radius: 10px;
+        font-weight: 700;
+        min-width: 120px;
+      }
+      .calcnote {
+        font-size: 13px;
+        color: var(--muted);
+        margin-left: 8px;
+      }
+      @media (max-width: 700px) {
+        .frow {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .seg .btn {
+          flex: 1;
+        }
+      }
+      .sigwrap {
+        border: 2px dashed var(--line);
+        border-radius: 12px;
+        background: #fff;
+        margin-bottom: 8px;
+      }
+      canvas.sig {
+        width: 100%;
+        height: 170px;
+        display: block;
+        touch-action: none;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 16px;
+      }
+      @media (max-width: 640px) {
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .err {
+        color: var(--bad);
+        font-weight: 600;
+        margin-top: 10px;
+        min-height: 1.2em;
+      }
+      a.jump {
+        color: var(--ink);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+        text-decoration-color: var(--pri2);
+        text-decoration-thickness: 2px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 3px solid var(--gold);
+        outline-offset: 0;
+        border-color: var(--pri2);
+      }
+      /* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
+      #toast {
+        position: fixed;
+        left: 50%;
+        opacity: 0;
+        max-width: 90vw;
+        text-align: center;
+        pointer-events: none;
+      }
+      #toast.show {
+        opacity: 1;
+      }
+      /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
+      .bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 6;
+        padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+      }
+      .warnbox .btn {
+        margin-top: 10px;
+      }
+      .bar .btn {
+        flex: 1;
+        min-height: 52px;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .bar .btn.primary {
+        border-color: var(--gold-dark);
+      }
+      body.hasbar main {
+        padding-bottom: calc(110px + env(safe-area-inset-bottom));
+      }
+      /* PDF-Knopf mit Fortschritt */
+      .bar .btn.pdfb {
+        overflow: hidden;
+      }
+      .pdfb .fill {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.14);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 220ms linear;
+        pointer-events: none;
+      }
+      .pdfb .l1,
+      .pdfb .l2,
+      .pdfb .lr {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+        transition:
+          opacity var(--t-fast),
+          transform var(--t-fast) var(--out);
+      }
+      .pdfb .l2,
+      .pdfb .lr {
+        position: absolute;
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      .pdfb.run .l1,
+      .pdfb.done .l1 {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      .pdfb.run .lr {
+        opacity: 1;
+        transform: none;
+      }
+      .pdfb.done .lr {
+        opacity: 0;
+      }
+      .pdfb.done .l2 {
+        opacity: 1;
+        transform: none;
+      }
+      .pdfb.done .fill {
+        opacity: 0;
+      }
+      /* Wert wechselt: kurzes Aufleuchten */
+      .flash {
+        animation: flash 900ms var(--out);
+      }
+      @keyframes flash {
+        from {
+          background-color: var(--flash);
+        }
+      }
+      /* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
+      /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
+      .entering .stag {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: up var(--t-med) var(--out) forwards;
+        animation-delay: calc(var(--i) * 70ms + 120ms);
+      }
+      @keyframes up {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *:before,
+        *:after {
+          transition-duration: 0.001ms !important;
+          transition-delay: 0ms !important;
+          animation-duration: 0.001ms !important;
+          animation-delay: 0ms !important;
+        }
+        .entering .stag {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      /* ===== Handy-Layout ===== */
+      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
+      input[type='date'] {
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        min-height: 50px;
+        height: 50px;
+        text-align: left;
+        margin: 0;
+      }
+      input[type='date']::-webkit-date-and-time-value {
+        text-align: left;
+        min-width: 0;
+        margin: 0;
+      }
+      input[type='date']::-webkit-datetime-edit {
+        padding: 0;
+        text-align: left;
+      }
+      /* Schmale Bildschirme (iPhone hochkant): Status kompakt, Tabellen als Karten */
+      @media (max-width: 480px) {
+        .net:not(.off) .nt,
+        .net:not(.off) .sep,
+        .net .nl {
+          display: none;
+        }
+        .net:not(.off) .nd {
+          margin-right: 0;
+        }
+        .net:not(.off) .np {
+          margin-left: 5px;
+        }
+        .ib {
+          width: 40px;
+          height: 40px;
+        }
+        header {
+          gap: 8px;
+        }
+        header .tt h1 {
+          font-size: 15px;
+        }
+      }
+      @media (max-width: 600px) {
+        header {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+        main,
+        #stepwrap {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+        .card {
+          padding: 12px 14px;
+        }
+        .pagetitle {
+          font-size: 22px;
+        }
+        .card > table thead {
+          display: none;
+        }
+        .card > table,
+        .card > table tbody,
+        .card > table tr,
+        .card > table td {
+          display: block;
+          width: 100%;
+        }
+        .card > table tr {
+          padding: 10px 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .card > table tr:last-child {
+          border-bottom: 0;
+        }
+        .card > table td {
+          border: 0;
+          padding: 2px 0;
+          text-align: left !important;
+          white-space: normal !important;
+        }
+        .card > table td:last-child {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding-top: 8px;
+        }
+      }
+      /* ===== Ende Handy-Layout ===== */
+      /* ===== Design 11/2026: Optik wie Startseite (Kacheln, Goldlinie), Handy-Feinschliff ===== */
+      html {
+        overscroll-behavior-y: none;
+        -webkit-text-size-adjust: 100%;
+      }
+      header {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+      }
+      main,
+      #stepwrap {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+      }
+      .bar {
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+      }
+      header .tt h1 {
+        font-size: 17px;
+        letter-spacing: -0.01em;
+      }
+      header .tt span {
+        font-size: 12.5px;
+        opacity: 0.8;
+      }
+      button,
+      a,
+      [role='button'],
+      label,
+      .ib {
+        touch-action: manipulation;
+      }
+      .btn,
+      .ib,
+      .steps button {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+      .btn:focus-visible,
+      .ib:focus-visible,
+      .steps button:focus-visible,
+      a.jump:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+      .sect {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .sect .n {
+        background: var(--gold-soft);
+        color: var(--gold-text);
+        border-radius: 99px;
+        padding: 1px 8px;
+        font-size: 11.5px;
+        letter-spacing: 0;
+      }
+      .emptybox {
+        border: 1px dashed var(--line);
+        border-radius: 16px;
+        padding: 18px 14px;
+        text-align: center;
+        color: var(--muted);
+        margin: 8px 0;
+        overflow-wrap: anywhere;
+      }
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        font-weight: 700;
+        margin: 24px 2px 10px;
+      }
+      h2 .n {
+        background: var(--gold-soft);
+        color: var(--gold-text);
+        border-radius: 99px;
+        padding: 1px 8px;
+        font-size: 11.5px;
+      }
+      .pcard {
+        margin: 0 0 10px;
+      }
+      .phead {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px 14px;
+        flex-wrap: wrap;
+      }
+      .ptxt {
+        min-width: 0;
+        flex: 1 1 220px;
+        overflow-wrap: anywhere;
+      }
+      .pbadges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .pcard .btn.small {
+        min-height: 44px;
+      }
+      /* Formular */
+      .pagetitle {
+        overflow-wrap: anywhere;
+        letter-spacing: -0.01em;
+      }
+      .field label {
+        overflow-wrap: anywhere;
+      }
+      .inunit input {
+        min-width: 0;
+      }
+      @media (max-width: 480px) {
+        .seg .btn {
+          min-width: 0;
+        }
+        .bar .btn {
+          font-size: 14.5px;
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+      }
+      /* ===== Ende Design 11/2026 ===== */
+      /* Bericht */
+      /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+          U+FFFD;
+      }
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
+          U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+          U+A720-A7FF;
+      }
+      .sheetwrap {
+        background: var(--sheet);
+        border-radius: 12px;
+        padding: 16px 0 1px;
+        overflow: hidden;
+      }
+      @media print {
+        header,
+        .noprint,
+        #toast,
+        .bar,
+        #stepwrap {
+          display: none !important;
+        }
+        html,
+        body {
+          background: #fff;
+        }
+        main {
+          max-width: none;
+          padding: 0 !important;
+        }
+        .stage {
+          overflow: visible;
+        }
+        .sheetwrap {
+          background: none;
+          padding: 0;
+          border-radius: 0;
+        }
+        .report {
+          zoom: 1 !important;
+        }
+        .report .page {
+          box-shadow: none;
+          margin: 0;
+          break-after: page;
+        }
+        @page {
+          size: A4;
+          margin: 0;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="shared/ios.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">R</div>
+      <div class="tt" id="ttl" data-act="home">
+        <h1>Service RLT/KWL</h1>
+        <span id="hsub">Wartungsprotokolle</span>
+      </div>
+      <span id="net" class="net"></span>
+      <button
+        type="button"
+        class="ib themebtn"
+        id="themebtn"
+        aria-label="Darstellung wechseln"
+      ></button>
+      <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
+        <svg class="ico" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+          />
+        </svg>
+      </button>
+    </header>
+    <div id="stepwrap" hidden></div>
+    <div class="stage"><main id="app"></main></div>
+    <div class="bar" id="bar" hidden></div>
+    <div id="toast"></div>
 
-<script src="shared/core.js"></script>
-<script src="shared/pdf-bausteine.js"></script>
-<script src="shared/pdf.js"></script>
-<script src="shared/sync.js"></script>
-<script src="shared/settings.js"></script>
-<script src="shared/wizard.js"></script>
-<script src="shared/ios.js"></script>
-<script>
-'use strict';
+    <script src="shared/core.js"></script>
+    <script src="shared/pdf-bausteine.js"></script>
+    <script src="shared/pdf.js"></script>
+    <script src="shared/sync.js"></script>
+    <script src="shared/settings.js"></script>
+    <script src="shared/wizard.js"></script>
+    <script src="shared/ios.js"></script>
+    <script>
+      'use strict';
 
-/* =====================================================================
+      /* =====================================================================
    Feld-Definition – entspricht dem Blatt "Datenbank" in "Datenbank_RLT-KWL-Service".
    col = exakter Spaltenname im Google Sheet.
    group = Zwischenüberschrift in der App, show = nur anzeigen, wenn …
    table = Darstellung als Tabelle im PDF
    Die leeren Spalten "Bereich: …" im Sheet sind nur Trenner und werden nicht abgefragt.
    ===================================================================== */
-const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
-const ok = (id, col, label, pdf, hint, extra) => Object.assign({id, col, label, pdf, hint, type:'okfail'}, extra || {});
-const ANLAGENTYP = ['RLT mit WRG', 'RLT ohne WRG', 'KWL mit WRG', 'KWL ohne WRG', 'Teilklimaanlage', 'Vollklimaanlage'];
-const WRG_TYP = ['Rotations-WT', 'Kreuzstrom-WT', 'Platten-WT', 'KV-System', 'entfällt'];
-const FILTER = ['ePM1 70% (F7)', 'ePM1 50% (F7)', 'ePM2,5 50% (M6)', 'ePM10 50% (M5)', 'Coarse 70% (G4)', 'Coarse 90% (G4)'];
-const wrgShow = v => v.wrgTyp !== 'entfällt';
-const hwShow = v => v.hwChk !== 'Nein';
-const glyShow = v => v.glyChk !== 'Nein';
-const temp = (id, col, label, hint) => ({id, col, label, pdf:label, hint, group:'Temperaturen', type:'number', unit:'°C', min:-50, max:80});
-// Temperaturverhältnis Zuluftseite: η = (Zuluft − Außenluft) / (Abluft − Außenluft)
-const eta = v => isN(v.tAu) && isN(v.tZu) && isN(v.tAb) && num(v.tAb) !== num(v.tAu)
-  ? round((num(v.tZu) - num(v.tAu)) / (num(v.tAb) - num(v.tAu)) * 100, 0) : '';
-const HINWEIS = 'Die regelmäßige Wartung der Lüftungsanlage ist aus hygienischen sowie energetischen Gründen erforderlich (VDMA 24186-1). '
-  + 'Eine fachgerechte und fristgerechte Durchführung sichert Betriebssicherheit, hohe Luftqualität und einen effizienten Energieverbrauch. '
-  + 'Empfohlene Intervalle: Filterprüfung / Filterwechsel halbjährlich, Gesamtwartung nach VDMA-Checkliste jährlich.';
+      const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
+      const ok = (id, col, label, pdf, hint, extra) =>
+        Object.assign({ id, col, label, pdf, hint, type: 'okfail' }, extra || {});
+      const ANLAGENTYP = [
+        'RLT mit WRG',
+        'RLT ohne WRG',
+        'KWL mit WRG',
+        'KWL ohne WRG',
+        'Teilklimaanlage',
+        'Vollklimaanlage',
+      ];
+      const WRG_TYP = ['Rotations-WT', 'Kreuzstrom-WT', 'Platten-WT', 'KV-System', 'entfällt'];
+      const FILTER = [
+        'ePM1 70% (F7)',
+        'ePM1 50% (F7)',
+        'ePM2,5 50% (M6)',
+        'ePM10 50% (M5)',
+        'Coarse 70% (G4)',
+        'Coarse 90% (G4)',
+      ];
+      const wrgShow = (v) => v.wrgTyp !== 'entfällt';
+      const hwShow = (v) => v.hwChk !== 'Nein';
+      const glyShow = (v) => v.glyChk !== 'Nein';
+      const temp = (id, col, label, hint) => ({
+        id,
+        col,
+        label,
+        pdf: label,
+        hint,
+        group: 'Temperaturen',
+        type: 'number',
+        unit: '°C',
+        min: -50,
+        max: 80,
+      });
+      // Temperaturverhältnis Zuluftseite: η = (Zuluft − Außenluft) / (Abluft − Außenluft)
+      const eta = (v) =>
+        isN(v.tAu) && isN(v.tZu) && isN(v.tAb) && num(v.tAb) !== num(v.tAu)
+          ? round(((num(v.tZu) - num(v.tAu)) / (num(v.tAb) - num(v.tAu))) * 100, 0)
+          : '';
+      const HINWEIS =
+        'Die regelmäßige Wartung der Lüftungsanlage ist aus hygienischen sowie energetischen Gründen erforderlich (VDMA 24186-1). ' +
+        'Eine fachgerechte und fristgerechte Durchführung sichert Betriebssicherheit, hohe Luftqualität und einen effizienten Energieverbrauch. ' +
+        'Empfohlene Intervalle: Filterprüfung / Filterwechsel halbjährlich, Gesamtwartung nach VDMA-Checkliste jährlich.';
 
-const TEMPLATE = {
-  id: 'rlt-kwl', title: 'WARTUNGSPROTOKOLL • KWL & RLT',
-  pages: [
-    {title:'Stammdaten & Auftrag', short:'Stammdaten', header:true, fields:[
-      {id:'projekt', col:'Projekt-Nr.', label:'Projekt-Nr.', type:'text', hint:'Vorschlag kann überschrieben werden – wird auch der PDF-Dateiname',
-        init:() => 'KWL-' + today().replace(/-/g, '') + '-' + uid().slice(0, 4).toUpperCase()},
-      {id:'kunde', col:'Kunden-Nr.', label:'Kunden-Nr.', type:'text', ph:'z. B. KD-98101'},
-      {id:'datum', col:'Datum', label:'Datum', type:'date', notFuture:true, init:() => today()},
-      {id:'monteur', col:'Monteur', label:'Monteur', pdf:'Monteur / Prüfer', type:'text', init:() => settings.techniker},
-      {id:'standort', col:'Standort / Zusatzangaben', label:'Standort / Zusatzangaben', type:'longtext', wide:true, hint:'Aufstellort, Zugang, Ansprechpartner …', ph:'z. B. Technikzentrale OG 1'}
-    ]},
-    {title:'Anlagendaten', pdfTitle:'Anlagendaten (Lüftungs- & Klimaanlage)', short:'Anlage', fields:[
-      {id:'anlage', col:'Anlagenbezeichnung', label:'Anlagenbezeichnung', type:'text', ph:'z. B. Lüftungsanlage RLT-01 Büro'},
-      {id:'herst', col:'Hersteller', label:'Hersteller', type:'text', ph:'z. B. Systemair'},
-      {id:'modell', col:'Modell', label:'Modell', type:'text', ph:'z. B. Topvex FR06'},
-      {id:'sn', col:'Seriennummer', label:'Seriennummer', type:'text'},
-      {id:'baujahr', col:'Baujahr', label:'Baujahr', type:'text', ph:'z. B. 2023'},
-      {id:'typ', col:'Anlagentyp', label:'Anlagentyp', type:'select', opts:ANLAGENTYP, other:true},
-      {id:'wart', col:'Wartungsart / Hinweise', label:'Wartungsart / Hinweise', type:'longtext', wide:true, ph:'z. B. Jährliche Hauptwartung nach VDMA 24186-1'}
-    ]},
-    {title:'Luftfördereinrichtung', pdfTitle:'Luftfördereinrichtung / Ventilator (VDMA 24186-1)', short:'Ventilator', kind:'check', fields:[
-      ok('lfeVer', 'LFE: Verschmutzung & Befestigung', 'Verschmutzung, Beschädigung & Befestigung', 'Verschmutzung, Beschädigung & Befestigung', ''),
-      ok('lfeRein', 'LFE: Reinigung', 'Funktionserhaltendes Reinigen', 'Funktionserhaltendes Reinigen', ''),
-      ok('lfeLauf', 'LFE: Laufrad & Drehrichtung', 'Laufrad: Unwucht & Drehrichtung', 'Laufrad: Unwucht & Drehrichtung', ''),
-      ok('lfeSchau', 'LFE: Schaufelverstelleinrichtung', 'Schaufelverstelleinrichtung', 'Schaufelverstelleinrichtung', ''),
-      ok('lfeLagG', 'LFE: Lagergeräusch', 'Lager auf Geräusch geprüft', 'Lagergeräusch', ''),
-      ok('lfeLagS', 'LFE: Lagerschmierung', 'Lager mit Nachschmiereinrichtung gefettet', 'Lagerschmierung', 'Bei wartungsfreien Lagern „entfällt“'),
-      ok('lfeFlex', 'LFE: Flexible Verbindungen', 'Flexible Verbindungen dicht', 'Flexible Verbindungen dicht', ''),
-      ok('lfeSchw', 'LFE: Schwingungsdämpfer', 'Schwingungsdämpfer funktionsfähig', 'Schwingungsdämpfer', ''),
-      ok('lfeSchutz', 'LFE: Schutzeinrichtungen', 'Schutzeinrichtungen', 'Schutzeinrichtungen', 'Berührungsschutz, Schutzgitter'),
-      ok('lfeDrall', 'LFE: Drallregler', 'Drallregler', 'Drallregler', ''),
-      ok('lfeKond', 'LFE: Entwässerung / Kondensat', 'Entwässerung / Kondensatwanne', 'Entwässerung / Kondensatwanne', ''),
-      ok('lfeHyg', 'LFE: Hygienischer Zustand', 'Hygienischer Zustand des Ventilators', 'Hygienischer Zustand Ventilator', ''),
-      {id:'vol', legacy:true, col:'LFE: Volumenstrom [m³/h]', label:'Volumenstrom', type:'number', unit:'m³/h', min:0, max:1000000, ph:'z. B. 450'}
-    ]},
-    {title:'Wärmeübertrager', pdfTitle:'Wärmeübertrager (Lufterhitzer & Luftkühler)', short:'Wärmetauscher', kind:'check', fields:[
-      ok('wtZust', 'WT: Lufterhitzer Zustand', 'Lufterhitzer: Zustand & Dichtheit', 'Lufterhitzer: Zustand & Dichtheit', '', {group:'Lufterhitzer'}),
-      ok('wtRein', 'WT: Lufterhitzer Reinigung', 'Lufterhitzer: funktionserhaltende Reinigung', 'Lufterhitzer: Reinigung', '', {group:'Lufterhitzer'}),
-      ok('wtVent', 'WT: Vor-/Rücklauf Ventile', 'Vor- und Rücklauf / Ventile auf Funktion', 'Vor-/Rücklauf & Ventile', '', {group:'Lufterhitzer'}),
-      ok('wtFrost', 'WT: Frostschutzmittel', 'Frostschutzmittel kontrolliert', 'Frostschutzmittel', '', {group:'Lufterhitzer'}),
-      ok('wtEntl', 'WT: Entlüftung', 'Entlüftung Wärmeübertrager', 'Entlüftung', '', {group:'Lufterhitzer'}),
-      ok('wtEl', 'WT: Elektro-Erhitzer', 'Elektro-Lufterhitzer (Zunder / Sicherheit)', 'Elektro-Lufterhitzer', 'Nicht vorhanden → „entfällt“', {group:'Lufterhitzer'}),
-      ok('wtKuehl', 'WT: Luftkühler / Entfeuchter', 'Luftkühler / Entfeuchter geprüft & gereinigt', 'Luftkühler / Entfeuchter', '', {group:'Luftkühler'}),
-      ok('wtSiph', 'WT: Kondensatablauf & Siphon', 'Wasserablauf & Geruchverschluss (Siphon)', 'Kondensatablauf & Siphon', '', {group:'Luftkühler'}),
-      ok('wtTropf', 'WT: Tropfenabscheider', 'Tropfenabscheider', 'Tropfenabscheider', '', {group:'Luftkühler'})
-    ]},
-    {title:'Wärmerückgewinnung', pdfTitle:'Wärmerückgewinnung (WRG)', short:'WRG', fields:[
-      {id:'wrgTyp', col:'WRG: Bauart / Typ', label:'Bauart / Typ', pdf:'WRG Bauart / Typ', type:'select', opts:WRG_TYP, other:true, hint:'„entfällt“ blendet die weiteren WRG-Punkte aus'},
-      ok('wrgZust', 'WRG: Zustand & Reinigung', 'Zustand & Reinigung', 'WRG: Zustand & Reinigung', '', {show:wrgShow}),
-      ok('wrgRot', 'WRG: Rotor, Unwucht & Lager', 'Rotor, Unwucht & Lager', 'WRG: Rotor, Unwucht & Lager', 'Nur bei Rotations-WT, sonst „entfällt“', {show:wrgShow}),
-      ok('wrgDicht', 'WRG: Dichtelemente & Leckrate', 'Dichtelemente & Leckrate', 'WRG: Dichtelemente & Leckrate', '', {show:wrgShow})
-    ]},
-    {title:'Filtersystem', pdfTitle:'Filtersystem', short:'Filter',
-      table:{head:['Filter', 'Zustand / Wartung', 'Filterklasse / Typ', 'Differenzdruck'],
-        rows:[{label:'Zuluftfilter', ids:['fzZust', 'fzKl', 'fzDp']}, {label:'Abluftfilter', ids:['faZust', 'faKl', 'faDp']}]},
-      fields:[
-        ok('fzZust', 'Filter Zuluft: Zustand', 'Zustand / Wartung', 'Zuluftfilter Zustand', '', {group:'Zuluftfilter'}),
-        {id:'fzKl', col:'Filter Zuluft: Filterklasse / Typ', label:'Filterklasse / Typ', pdf:'Zuluftfilter Klasse', group:'Zuluftfilter', type:'select', opts:FILTER, other:true},
-        {id:'fzDp', col:'Filter Zuluft: Differenzdruck [Pa]', label:'Differenzdruck', pdf:'Zuluftfilter Differenzdruck', group:'Zuluftfilter', type:'number', unit:'Pa', min:0, max:5000, hint:'Bei laufender Anlage gemessen'},
-        ok('faZust', 'Filter Abluft: Zustand', 'Zustand / Wartung', 'Abluftfilter Zustand', '', {group:'Abluftfilter'}),
-        {id:'faKl', col:'Filter Abluft: Filterklasse / Typ', label:'Filterklasse / Typ', pdf:'Abluftfilter Klasse', group:'Abluftfilter', type:'select', opts:FILTER, other:true},
-        {id:'faDp', col:'Filter Abluft: Differenzdruck [Pa]', label:'Differenzdruck', pdf:'Abluftfilter Differenzdruck', group:'Abluftfilter', type:'number', unit:'Pa', min:0, max:5000, hint:'Bei laufender Anlage gemessen'}
-      ]},
-    {title:'Gehäuse, Klappen & Kammern', pdfTitle:'Gerätekammern, Klappen & Luftverteilung', short:'Gehäuse', kind:'check', fields:[
-      ok('wsg', 'Wetterschutzgitter: Zustand & Reinigung', 'Wetterschutzgitter: Zustand & Reinigung', 'Wetterschutzgitter', ''),
-      ok('jal', 'Jalousieklappen: Mechanik & Schmierung', 'Jalousieklappen: Mechanik & Schmierung', 'Jalousieklappen', ''),
-      ok('msr', 'Stellantriebe & MSR-Funktion', 'Stellantriebe & MSR-Funktion', 'Stellantriebe & MSR', ''),
-      ok('kamZ', 'Kammergehäuse: Zustand & Sauberkeit', 'Kammergehäuse: Zustand & Sauberkeit', 'Kammergehäuse: Zustand & Sauberkeit', ''),
-      ok('tuer', 'Türen, Verschlüsse & Dichtungen', 'Türen, Verschlüsse & Dichtungen', 'Türen, Verschlüsse & Dichtungen', ''),
-      ok('daemm', 'Kammern: Wärmedämmung', 'Kammern: Wärmedämmung', 'Kammern: Wärmedämmung', '')
-    ]},
-    {title:'Elektrik & Betriebsmesswerte', short:'Messwerte', fields:[
-      {id:'elAn', col:'Elektrische Anschlüsse geprüft', label:'Elektrische Anschlüsse geprüft', pdf:'Elektr. Anschlüsse geprüft', type:'yesno', group:'Elektrik', hint:'Sichtprüfung, Klemmen auf Festsitz'},
-      {id:'uNetz', col:'Netzspannung [V]', label:'Netzspannung', type:'number', unit:'V', min:0, max:1000, sRanges:[[207, 253], [360, 440]], group:'Elektrik', ph:'z. B. 400'},
-      {id:'iL1', col:'Stromaufnahme L1 [A]', label:'Stromaufnahme L1', type:'number', unit:'A', min:0, max:1000, group:'Elektrik'},
-      {id:'iL2', col:'Stromaufnahme L2 [A]', label:'Stromaufnahme L2', type:'number', unit:'A', min:0, max:1000, group:'Elektrik'},
-      {id:'iL3', col:'Stromaufnahme L3 [A]', label:'Stromaufnahme L3', type:'number', unit:'A', min:0, max:1000, group:'Elektrik'},
-      temp('tAu', 'Außenlufttemperatur [°C]', 'Außenlufttemperatur', ''),
-      temp('tZu', 'Zulufttemperatur [°C]', 'Zulufttemperatur', 'Für den WRG-Wirkungsgrad hinter der WRG bzw. vor dem Nacherhitzer messen'),
-      temp('tAb', 'Ablufttemperatur [°C]', 'Ablufttemperatur', ''),
-      temp('tFo', 'Fortlufttemperatur [°C]', 'Fortlufttemperatur', ''),
-      {id:'eta', col:'WRG-Wirkungsgrad [%]', label:'WRG-Wirkungsgrad η', type:'calc', unit:'%', group:'Temperaturen', calc:eta,
-        note:v => isN(v.eta) && (v.eta < 0 || v.eta > 100) ? 'unplausibel – Zuluft nach dem Nacherhitzer gemessen?' : '(Zuluft − Außenluft) / (Abluft − Außenluft)'}
-    ]},
-    {title:'Heizwasser & Frostschutz', pdfTitle:'Heizwasseranalyse (VDI 2035) & Glykol-Frostschutz', short:'Heizwasser', fields:[
-      {id:'hwChk', col:'Heizwasser VDI 2035 geprüft', label:'Heizwasser nach VDI 2035 geprüft', pdf:'Heizwasser geprüft', type:'yesno', group:'Heizwasser (VDI 2035)',
-        hint:'„Nein“ blendet die Heizwasser-Messwerte aus'},
-      {id:'leit', col:'Heizwasser: Leitwert [µS/cm]', label:'Elektrische Leitfähigkeit', pdf:'Elektr. Leitfähigkeit', type:'number', unit:'µS/cm', min:0, max:20000, sMax:100,
-        group:'Heizwasser (VDI 2035)', show:hwShow, hint:'Salzarme Fahrweise'},
-      {id:'ph', col:'Heizwasser: pH-Wert', label:'pH-Wert', pdf:'pH-Wert Heizwasser', type:'number', min:0, max:14, sMin:8.2, sMax:9.0, group:'Heizwasser (VDI 2035)', show:hwShow},
-      ok('wasser', 'Wasser-Zustand (VDI 2035)', 'Wasser-Zustand (VDI 2035)', 'Wasser-Zustand (VDI 2035)', 'Farbe, Trübung, Schwebstoffe', {group:'Heizwasser (VDI 2035)', show:hwShow}),
-      {id:'glyChk', col:'Frostschutz Glykol geprüft', label:'Frostschutz (Glykol) geprüft', pdf:'Frostschutz geprüft', type:'yesno', group:'Frostschutz (Glykol)',
-        hint:'„Nein“ blendet die Frostschutz-Messwerte aus'},
-      {id:'frost', col:'Frostschutz-Messwert [°C]', label:'Frostschutz-Messwert', type:'number', unit:'°C', min:-70, max:20, group:'Frostschutz (Glykol)', show:glyShow, ph:'z. B. -25'},
-      {id:'gly', col:'Frostschutz: Glykolanteil [%]', label:'Glykolanteil', type:'number', unit:'%', min:0, max:100, group:'Frostschutz (Glykol)', show:glyShow}
-    ]},
-    {title:'Wartungsabschluss & Abnahme', short:'Abschluss', final:true, fields:[
-      {id:'unterl', col:'Unterlagen & Typenschild geprüft', label:'Unterlagen & Typenschild geprüft', type:'yesno'},
-      {id:'ftest', col:'Funktionstest Gesamtanlage', label:'Funktionstest Gesamtanlage', pdf:'Funktionstest', type:'select', opts:['erfolgreich', 'nicht erfolgreich'],
-        good:['erfolgreich'], bad:['nicht erfolgreich']},
-      {id:'erfolg', col:'Wartung erfolgreich', label:'Wartung erfolgreich', type:'yesno'},
-      {id:'bem', col:'Bemerkungen / Mängel', label:'Bemerkungen / Mängel', type:'longtext', wide:true, hint:'Mängel, Nacharbeiten, ersetzte Teile, Hinweise für den Betreiber'}
-    ]}
-  ]
-};
-/* Gruppen je Seite (nur Darstellung: Überschrift + Karte). Reihenfolge der Felder bleibt, damit PDF und Sheet unverändert sind.
+      const TEMPLATE = {
+        id: 'rlt-kwl',
+        title: 'WARTUNGSPROTOKOLL • KWL & RLT',
+        pages: [
+          {
+            title: 'Stammdaten & Auftrag',
+            short: 'Stammdaten',
+            header: true,
+            fields: [
+              {
+                id: 'projekt',
+                col: 'Projekt-Nr.',
+                label: 'Projekt-Nr.',
+                type: 'text',
+                hint: 'Vorschlag kann überschrieben werden – wird auch der PDF-Dateiname',
+                init: () =>
+                  'KWL-' + today().replace(/-/g, '') + '-' + uid().slice(0, 4).toUpperCase(),
+              },
+              {
+                id: 'kunde',
+                col: 'Kunden-Nr.',
+                label: 'Kunden-Nr.',
+                type: 'text',
+                ph: 'z. B. KD-98101',
+              },
+              {
+                id: 'datum',
+                col: 'Datum',
+                label: 'Datum',
+                type: 'date',
+                notFuture: true,
+                init: () => today(),
+              },
+              {
+                id: 'monteur',
+                col: 'Monteur',
+                label: 'Monteur',
+                pdf: 'Monteur / Prüfer',
+                type: 'text',
+                init: () => settings.techniker,
+              },
+              {
+                id: 'standort',
+                col: 'Standort / Zusatzangaben',
+                label: 'Standort / Zusatzangaben',
+                type: 'longtext',
+                wide: true,
+                hint: 'Aufstellort, Zugang, Ansprechpartner …',
+                ph: 'z. B. Technikzentrale OG 1',
+              },
+            ],
+          },
+          {
+            title: 'Anlagendaten',
+            pdfTitle: 'Anlagendaten (Lüftungs- & Klimaanlage)',
+            short: 'Anlage',
+            fields: [
+              {
+                id: 'anlage',
+                col: 'Anlagenbezeichnung',
+                label: 'Anlagenbezeichnung',
+                type: 'text',
+                ph: 'z. B. Lüftungsanlage RLT-01 Büro',
+              },
+              {
+                id: 'herst',
+                col: 'Hersteller',
+                label: 'Hersteller',
+                type: 'text',
+                ph: 'z. B. Systemair',
+              },
+              {
+                id: 'modell',
+                col: 'Modell',
+                label: 'Modell',
+                type: 'text',
+                ph: 'z. B. Topvex FR06',
+              },
+              { id: 'sn', col: 'Seriennummer', label: 'Seriennummer', type: 'text' },
+              { id: 'baujahr', col: 'Baujahr', label: 'Baujahr', type: 'text', ph: 'z. B. 2023' },
+              {
+                id: 'typ',
+                col: 'Anlagentyp',
+                label: 'Anlagentyp',
+                type: 'select',
+                opts: ANLAGENTYP,
+                other: true,
+              },
+              {
+                id: 'wart',
+                col: 'Wartungsart / Hinweise',
+                label: 'Wartungsart / Hinweise',
+                type: 'longtext',
+                wide: true,
+                ph: 'z. B. Jährliche Hauptwartung nach VDMA 24186-1',
+              },
+            ],
+          },
+          {
+            title: 'Luftfördereinrichtung',
+            pdfTitle: 'Luftfördereinrichtung / Ventilator (VDMA 24186-1)',
+            short: 'Ventilator',
+            kind: 'check',
+            fields: [
+              ok(
+                'lfeVer',
+                'LFE: Verschmutzung & Befestigung',
+                'Verschmutzung, Beschädigung & Befestigung',
+                'Verschmutzung, Beschädigung & Befestigung',
+                '',
+              ),
+              ok(
+                'lfeRein',
+                'LFE: Reinigung',
+                'Funktionserhaltendes Reinigen',
+                'Funktionserhaltendes Reinigen',
+                '',
+              ),
+              ok(
+                'lfeLauf',
+                'LFE: Laufrad & Drehrichtung',
+                'Laufrad: Unwucht & Drehrichtung',
+                'Laufrad: Unwucht & Drehrichtung',
+                '',
+              ),
+              ok(
+                'lfeSchau',
+                'LFE: Schaufelverstelleinrichtung',
+                'Schaufelverstelleinrichtung',
+                'Schaufelverstelleinrichtung',
+                '',
+              ),
+              ok(
+                'lfeLagG',
+                'LFE: Lagergeräusch',
+                'Lager auf Geräusch geprüft',
+                'Lagergeräusch',
+                '',
+              ),
+              ok(
+                'lfeLagS',
+                'LFE: Lagerschmierung',
+                'Lager mit Nachschmiereinrichtung gefettet',
+                'Lagerschmierung',
+                'Bei wartungsfreien Lagern „entfällt“',
+              ),
+              ok(
+                'lfeFlex',
+                'LFE: Flexible Verbindungen',
+                'Flexible Verbindungen dicht',
+                'Flexible Verbindungen dicht',
+                '',
+              ),
+              ok(
+                'lfeSchw',
+                'LFE: Schwingungsdämpfer',
+                'Schwingungsdämpfer funktionsfähig',
+                'Schwingungsdämpfer',
+                '',
+              ),
+              ok(
+                'lfeSchutz',
+                'LFE: Schutzeinrichtungen',
+                'Schutzeinrichtungen',
+                'Schutzeinrichtungen',
+                'Berührungsschutz, Schutzgitter',
+              ),
+              ok('lfeDrall', 'LFE: Drallregler', 'Drallregler', 'Drallregler', ''),
+              ok(
+                'lfeKond',
+                'LFE: Entwässerung / Kondensat',
+                'Entwässerung / Kondensatwanne',
+                'Entwässerung / Kondensatwanne',
+                '',
+              ),
+              ok(
+                'lfeHyg',
+                'LFE: Hygienischer Zustand',
+                'Hygienischer Zustand des Ventilators',
+                'Hygienischer Zustand Ventilator',
+                '',
+              ),
+              {
+                id: 'vol',
+                legacy: true,
+                col: 'LFE: Volumenstrom [m³/h]',
+                label: 'Volumenstrom',
+                type: 'number',
+                unit: 'm³/h',
+                min: 0,
+                max: 1000000,
+                ph: 'z. B. 450',
+              },
+            ],
+          },
+          {
+            title: 'Wärmeübertrager',
+            pdfTitle: 'Wärmeübertrager (Lufterhitzer & Luftkühler)',
+            short: 'Wärmetauscher',
+            kind: 'check',
+            fields: [
+              ok(
+                'wtZust',
+                'WT: Lufterhitzer Zustand',
+                'Lufterhitzer: Zustand & Dichtheit',
+                'Lufterhitzer: Zustand & Dichtheit',
+                '',
+                { group: 'Lufterhitzer' },
+              ),
+              ok(
+                'wtRein',
+                'WT: Lufterhitzer Reinigung',
+                'Lufterhitzer: funktionserhaltende Reinigung',
+                'Lufterhitzer: Reinigung',
+                '',
+                { group: 'Lufterhitzer' },
+              ),
+              ok(
+                'wtVent',
+                'WT: Vor-/Rücklauf Ventile',
+                'Vor- und Rücklauf / Ventile auf Funktion',
+                'Vor-/Rücklauf & Ventile',
+                '',
+                { group: 'Lufterhitzer' },
+              ),
+              ok(
+                'wtFrost',
+                'WT: Frostschutzmittel',
+                'Frostschutzmittel kontrolliert',
+                'Frostschutzmittel',
+                '',
+                { group: 'Lufterhitzer' },
+              ),
+              ok('wtEntl', 'WT: Entlüftung', 'Entlüftung Wärmeübertrager', 'Entlüftung', '', {
+                group: 'Lufterhitzer',
+              }),
+              ok(
+                'wtEl',
+                'WT: Elektro-Erhitzer',
+                'Elektro-Lufterhitzer (Zunder / Sicherheit)',
+                'Elektro-Lufterhitzer',
+                'Nicht vorhanden → „entfällt“',
+                { group: 'Lufterhitzer' },
+              ),
+              ok(
+                'wtKuehl',
+                'WT: Luftkühler / Entfeuchter',
+                'Luftkühler / Entfeuchter geprüft & gereinigt',
+                'Luftkühler / Entfeuchter',
+                '',
+                { group: 'Luftkühler' },
+              ),
+              ok(
+                'wtSiph',
+                'WT: Kondensatablauf & Siphon',
+                'Wasserablauf & Geruchverschluss (Siphon)',
+                'Kondensatablauf & Siphon',
+                '',
+                { group: 'Luftkühler' },
+              ),
+              ok('wtTropf', 'WT: Tropfenabscheider', 'Tropfenabscheider', 'Tropfenabscheider', '', {
+                group: 'Luftkühler',
+              }),
+            ],
+          },
+          {
+            title: 'Wärmerückgewinnung',
+            pdfTitle: 'Wärmerückgewinnung (WRG)',
+            short: 'WRG',
+            fields: [
+              {
+                id: 'wrgTyp',
+                col: 'WRG: Bauart / Typ',
+                label: 'Bauart / Typ',
+                pdf: 'WRG Bauart / Typ',
+                type: 'select',
+                opts: WRG_TYP,
+                other: true,
+                hint: '„entfällt“ blendet die weiteren WRG-Punkte aus',
+              },
+              ok(
+                'wrgZust',
+                'WRG: Zustand & Reinigung',
+                'Zustand & Reinigung',
+                'WRG: Zustand & Reinigung',
+                '',
+                { show: wrgShow },
+              ),
+              ok(
+                'wrgRot',
+                'WRG: Rotor, Unwucht & Lager',
+                'Rotor, Unwucht & Lager',
+                'WRG: Rotor, Unwucht & Lager',
+                'Nur bei Rotations-WT, sonst „entfällt“',
+                { show: wrgShow },
+              ),
+              ok(
+                'wrgDicht',
+                'WRG: Dichtelemente & Leckrate',
+                'Dichtelemente & Leckrate',
+                'WRG: Dichtelemente & Leckrate',
+                '',
+                { show: wrgShow },
+              ),
+            ],
+          },
+          {
+            title: 'Filtersystem',
+            pdfTitle: 'Filtersystem',
+            short: 'Filter',
+            table: {
+              head: ['Filter', 'Zustand / Wartung', 'Filterklasse / Typ', 'Differenzdruck'],
+              rows: [
+                { label: 'Zuluftfilter', ids: ['fzZust', 'fzKl', 'fzDp'] },
+                { label: 'Abluftfilter', ids: ['faZust', 'faKl', 'faDp'] },
+              ],
+            },
+            fields: [
+              ok(
+                'fzZust',
+                'Filter Zuluft: Zustand',
+                'Zustand / Wartung',
+                'Zuluftfilter Zustand',
+                '',
+                { group: 'Zuluftfilter' },
+              ),
+              {
+                id: 'fzKl',
+                col: 'Filter Zuluft: Filterklasse / Typ',
+                label: 'Filterklasse / Typ',
+                pdf: 'Zuluftfilter Klasse',
+                group: 'Zuluftfilter',
+                type: 'select',
+                opts: FILTER,
+                other: true,
+              },
+              {
+                id: 'fzDp',
+                col: 'Filter Zuluft: Differenzdruck [Pa]',
+                label: 'Differenzdruck',
+                pdf: 'Zuluftfilter Differenzdruck',
+                group: 'Zuluftfilter',
+                type: 'number',
+                unit: 'Pa',
+                min: 0,
+                max: 5000,
+                hint: 'Bei laufender Anlage gemessen',
+              },
+              ok(
+                'faZust',
+                'Filter Abluft: Zustand',
+                'Zustand / Wartung',
+                'Abluftfilter Zustand',
+                '',
+                { group: 'Abluftfilter' },
+              ),
+              {
+                id: 'faKl',
+                col: 'Filter Abluft: Filterklasse / Typ',
+                label: 'Filterklasse / Typ',
+                pdf: 'Abluftfilter Klasse',
+                group: 'Abluftfilter',
+                type: 'select',
+                opts: FILTER,
+                other: true,
+              },
+              {
+                id: 'faDp',
+                col: 'Filter Abluft: Differenzdruck [Pa]',
+                label: 'Differenzdruck',
+                pdf: 'Abluftfilter Differenzdruck',
+                group: 'Abluftfilter',
+                type: 'number',
+                unit: 'Pa',
+                min: 0,
+                max: 5000,
+                hint: 'Bei laufender Anlage gemessen',
+              },
+            ],
+          },
+          {
+            title: 'Gehäuse, Klappen & Kammern',
+            pdfTitle: 'Gerätekammern, Klappen & Luftverteilung',
+            short: 'Gehäuse',
+            kind: 'check',
+            fields: [
+              ok(
+                'wsg',
+                'Wetterschutzgitter: Zustand & Reinigung',
+                'Wetterschutzgitter: Zustand & Reinigung',
+                'Wetterschutzgitter',
+                '',
+              ),
+              ok(
+                'jal',
+                'Jalousieklappen: Mechanik & Schmierung',
+                'Jalousieklappen: Mechanik & Schmierung',
+                'Jalousieklappen',
+                '',
+              ),
+              ok(
+                'msr',
+                'Stellantriebe & MSR-Funktion',
+                'Stellantriebe & MSR-Funktion',
+                'Stellantriebe & MSR',
+                '',
+              ),
+              ok(
+                'kamZ',
+                'Kammergehäuse: Zustand & Sauberkeit',
+                'Kammergehäuse: Zustand & Sauberkeit',
+                'Kammergehäuse: Zustand & Sauberkeit',
+                '',
+              ),
+              ok(
+                'tuer',
+                'Türen, Verschlüsse & Dichtungen',
+                'Türen, Verschlüsse & Dichtungen',
+                'Türen, Verschlüsse & Dichtungen',
+                '',
+              ),
+              ok(
+                'daemm',
+                'Kammern: Wärmedämmung',
+                'Kammern: Wärmedämmung',
+                'Kammern: Wärmedämmung',
+                '',
+              ),
+            ],
+          },
+          {
+            title: 'Elektrik & Betriebsmesswerte',
+            short: 'Messwerte',
+            fields: [
+              {
+                id: 'elAn',
+                col: 'Elektrische Anschlüsse geprüft',
+                label: 'Elektrische Anschlüsse geprüft',
+                pdf: 'Elektr. Anschlüsse geprüft',
+                type: 'yesno',
+                group: 'Elektrik',
+                hint: 'Sichtprüfung, Klemmen auf Festsitz',
+              },
+              {
+                id: 'uNetz',
+                col: 'Netzspannung [V]',
+                label: 'Netzspannung',
+                type: 'number',
+                unit: 'V',
+                min: 0,
+                max: 1000,
+                sRanges: [
+                  [207, 253],
+                  [360, 440],
+                ],
+                group: 'Elektrik',
+                ph: 'z. B. 400',
+              },
+              {
+                id: 'iL1',
+                col: 'Stromaufnahme L1 [A]',
+                label: 'Stromaufnahme L1',
+                type: 'number',
+                unit: 'A',
+                min: 0,
+                max: 1000,
+                group: 'Elektrik',
+              },
+              {
+                id: 'iL2',
+                col: 'Stromaufnahme L2 [A]',
+                label: 'Stromaufnahme L2',
+                type: 'number',
+                unit: 'A',
+                min: 0,
+                max: 1000,
+                group: 'Elektrik',
+              },
+              {
+                id: 'iL3',
+                col: 'Stromaufnahme L3 [A]',
+                label: 'Stromaufnahme L3',
+                type: 'number',
+                unit: 'A',
+                min: 0,
+                max: 1000,
+                group: 'Elektrik',
+              },
+              temp('tAu', 'Außenlufttemperatur [°C]', 'Außenlufttemperatur', ''),
+              temp(
+                'tZu',
+                'Zulufttemperatur [°C]',
+                'Zulufttemperatur',
+                'Für den WRG-Wirkungsgrad hinter der WRG bzw. vor dem Nacherhitzer messen',
+              ),
+              temp('tAb', 'Ablufttemperatur [°C]', 'Ablufttemperatur', ''),
+              temp('tFo', 'Fortlufttemperatur [°C]', 'Fortlufttemperatur', ''),
+              {
+                id: 'eta',
+                col: 'WRG-Wirkungsgrad [%]',
+                label: 'WRG-Wirkungsgrad η',
+                type: 'calc',
+                unit: '%',
+                group: 'Temperaturen',
+                calc: eta,
+                note: (v) =>
+                  isN(v.eta) && (v.eta < 0 || v.eta > 100)
+                    ? 'unplausibel – Zuluft nach dem Nacherhitzer gemessen?'
+                    : '(Zuluft − Außenluft) / (Abluft − Außenluft)',
+              },
+            ],
+          },
+          {
+            title: 'Heizwasser & Frostschutz',
+            pdfTitle: 'Heizwasseranalyse (VDI 2035) & Glykol-Frostschutz',
+            short: 'Heizwasser',
+            fields: [
+              {
+                id: 'hwChk',
+                col: 'Heizwasser VDI 2035 geprüft',
+                label: 'Heizwasser nach VDI 2035 geprüft',
+                pdf: 'Heizwasser geprüft',
+                type: 'yesno',
+                group: 'Heizwasser (VDI 2035)',
+                hint: '„Nein“ blendet die Heizwasser-Messwerte aus',
+              },
+              {
+                id: 'leit',
+                col: 'Heizwasser: Leitwert [µS/cm]',
+                label: 'Elektrische Leitfähigkeit',
+                pdf: 'Elektr. Leitfähigkeit',
+                type: 'number',
+                unit: 'µS/cm',
+                min: 0,
+                max: 20000,
+                sMax: 100,
+                group: 'Heizwasser (VDI 2035)',
+                show: hwShow,
+                hint: 'Salzarme Fahrweise',
+              },
+              {
+                id: 'ph',
+                col: 'Heizwasser: pH-Wert',
+                label: 'pH-Wert',
+                pdf: 'pH-Wert Heizwasser',
+                type: 'number',
+                min: 0,
+                max: 14,
+                sMin: 8.2,
+                sMax: 9.0,
+                group: 'Heizwasser (VDI 2035)',
+                show: hwShow,
+              },
+              ok(
+                'wasser',
+                'Wasser-Zustand (VDI 2035)',
+                'Wasser-Zustand (VDI 2035)',
+                'Wasser-Zustand (VDI 2035)',
+                'Farbe, Trübung, Schwebstoffe',
+                { group: 'Heizwasser (VDI 2035)', show: hwShow },
+              ),
+              {
+                id: 'glyChk',
+                col: 'Frostschutz Glykol geprüft',
+                label: 'Frostschutz (Glykol) geprüft',
+                pdf: 'Frostschutz geprüft',
+                type: 'yesno',
+                group: 'Frostschutz (Glykol)',
+                hint: '„Nein“ blendet die Frostschutz-Messwerte aus',
+              },
+              {
+                id: 'frost',
+                col: 'Frostschutz-Messwert [°C]',
+                label: 'Frostschutz-Messwert',
+                type: 'number',
+                unit: '°C',
+                min: -70,
+                max: 20,
+                group: 'Frostschutz (Glykol)',
+                show: glyShow,
+                ph: 'z. B. -25',
+              },
+              {
+                id: 'gly',
+                col: 'Frostschutz: Glykolanteil [%]',
+                label: 'Glykolanteil',
+                type: 'number',
+                unit: '%',
+                min: 0,
+                max: 100,
+                group: 'Frostschutz (Glykol)',
+                show: glyShow,
+              },
+            ],
+          },
+          {
+            title: 'Wartungsabschluss & Abnahme',
+            short: 'Abschluss',
+            final: true,
+            fields: [
+              {
+                id: 'unterl',
+                col: 'Unterlagen & Typenschild geprüft',
+                label: 'Unterlagen & Typenschild geprüft',
+                type: 'yesno',
+              },
+              {
+                id: 'ftest',
+                col: 'Funktionstest Gesamtanlage',
+                label: 'Funktionstest Gesamtanlage',
+                pdf: 'Funktionstest',
+                type: 'select',
+                opts: ['erfolgreich', 'nicht erfolgreich'],
+                good: ['erfolgreich'],
+                bad: ['nicht erfolgreich'],
+              },
+              {
+                id: 'erfolg',
+                col: 'Wartung erfolgreich',
+                label: 'Wartung erfolgreich',
+                type: 'yesno',
+              },
+              {
+                id: 'bem',
+                col: 'Bemerkungen / Mängel',
+                label: 'Bemerkungen / Mängel',
+                type: 'longtext',
+                wide: true,
+                hint: 'Mängel, Nacharbeiten, ersetzte Teile, Hinweise für den Betreiber',
+              },
+            ],
+          },
+        ],
+      };
+      /* Gruppen je Seite (nur Darstellung: Überschrift + Karte). Reihenfolge der Felder bleibt, damit PDF und Sheet unverändert sind.
    Seiten mit eigenen group-Angaben (Wärmeübertrager, Filter, Elektrik, Heizwasser) behalten sie; Stammdaten bleiben ohne Gruppen. */
-{
-  const G = {
-    'Anlagendaten': [['Anlage', ['anlage', 'herst', 'modell', 'sn', 'baujahr']], ['Typ & Wartung', ['typ', 'wart']]],
-    'Luftfördereinrichtung': [['Laufrad & Antrieb', ['lfeVer', 'lfeRein', 'lfeLauf', 'lfeSchau']], ['Lager', ['lfeLagG', 'lfeLagS']], ['Anschluss & Sicherheit', ['lfeFlex', 'lfeSchw', 'lfeSchutz', 'lfeDrall', 'lfeKond', 'lfeHyg']]],
-    'Wärmerückgewinnung': [['Bauart', ['wrgTyp']], ['Prüfpunkte', ['wrgZust', 'wrgRot', 'wrgDicht']]],
-    'Gehäuse, Klappen & Kammern': [['Außen & Mechanik', ['wsg', 'jal', 'msr']], ['Kammern', ['kamZ', 'tuer', 'daemm']]],
-    'Wartungsabschluss & Abnahme': [['Ergebnis', ['unterl', 'ftest', 'erfolg']], ['Bemerkungen', ['bem']]]
-  };
-  TEMPLATE.pages.forEach(pg => (G[pg.title] || []).forEach(([name, ids]) => ids.forEach(id => { pg.fields.find(f => f.id === id).group = name; })));
-}
-const ALL_FIELDS = TEMPLATE.pages.flatMap(pg => pg.fields);
-const FIELD = Object.fromEntries(ALL_FIELDS.map(f => [f.id, f]));
+      {
+        const G = {
+          Anlagendaten: [
+            ['Anlage', ['anlage', 'herst', 'modell', 'sn', 'baujahr']],
+            ['Typ & Wartung', ['typ', 'wart']],
+          ],
+          Luftfördereinrichtung: [
+            ['Laufrad & Antrieb', ['lfeVer', 'lfeRein', 'lfeLauf', 'lfeSchau']],
+            ['Lager', ['lfeLagG', 'lfeLagS']],
+            [
+              'Anschluss & Sicherheit',
+              ['lfeFlex', 'lfeSchw', 'lfeSchutz', 'lfeDrall', 'lfeKond', 'lfeHyg'],
+            ],
+          ],
+          Wärmerückgewinnung: [
+            ['Bauart', ['wrgTyp']],
+            ['Prüfpunkte', ['wrgZust', 'wrgRot', 'wrgDicht']],
+          ],
+          'Gehäuse, Klappen & Kammern': [
+            ['Außen & Mechanik', ['wsg', 'jal', 'msr']],
+            ['Kammern', ['kamZ', 'tuer', 'daemm']],
+          ],
+          'Wartungsabschluss & Abnahme': [
+            ['Ergebnis', ['unterl', 'ftest', 'erfolg']],
+            ['Bemerkungen', ['bem']],
+          ],
+        };
+        TEMPLATE.pages.forEach((pg) =>
+          (G[pg.title] || []).forEach(([name, ids]) =>
+            ids.forEach((id) => {
+              pg.fields.find((f) => f.id === id).group = name;
+            }),
+          ),
+        );
+      }
+      const ALL_FIELDS = TEMPLATE.pages.flatMap((pg) => pg.fields);
+      const FIELD = Object.fromEntries(ALL_FIELDS.map((f) => [f.id, f]));
 
-/* ---------- Speicher ---------- */
-/* LS steht in shared/core.js */
-LS.fullMsg += ' Übertragene Protokolle löschen.';
-const SETTINGS_FIELDS = [{id:'s_tech', key:'techniker', label:'Monteur (Vorbelegung)', placeholder:'z. B. C.Geuther'}];   // Einstellungsseite: shared/settings.js
-let settings  = Object.assign({url:'', token:'', firma:'', techniker:''}, LS.get('rlt.settings', {}));
-let protocols = LS.get('rlt.protocols', []);
-let dbCache   = LS.get('rlt.db', {at:null, list:[]});
-const save = () => LS.set('rlt.protocols', protocols);
+      /* ---------- Speicher ---------- */
+      /* LS steht in shared/core.js */
+      LS.fullMsg += ' Übertragene Protokolle löschen.';
+      const SETTINGS_FIELDS = [
+        {
+          id: 's_tech',
+          key: 'techniker',
+          label: 'Monteur (Vorbelegung)',
+          placeholder: 'z. B. C.Geuther',
+        },
+      ]; // Einstellungsseite: shared/settings.js
+      let settings = Object.assign(
+        { url: '', token: '', firma: '', techniker: '' },
+        LS.get('rlt.settings', {}),
+      );
+      let protocols = LS.get('rlt.protocols', []);
+      let dbCache = LS.get('rlt.db', { at: null, list: [] });
+      const save = () => LS.set('rlt.protocols', protocols);
 
-/* ---------- Helfer ---------- */
-/* $, esc, uid, today, fmtDateTime, isN, round, fmtNum, toast, RM, flash stehen in shared/core.js */
-const app = $('#app');
-function fmtDate(s){ if(!s) return ''; const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE'); }
-function num(v){ return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.')); }
-function safeImg(src){ return typeof src === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src) ? src : ''; }
-const isVis = (f, v) => (!f.legacy || String(v[f.id] ?? '') !== '') && (!f.show || f.show(v));   // Altfelder (legacy): nur im PDF/Auswertung, wenn befüllt
-let calcSeen = {};   // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
-function calcTouch(id, text, el){ const k = view.id + ':' + id; if(k in calcSeen && calcSeen[k] !== text) flash(el); calcSeen[k] = text; }
+      /* ---------- Helfer ---------- */
+      /* $, esc, uid, today, fmtDateTime, isN, round, fmtNum, toast, RM, flash stehen in shared/core.js */
+      const app = $('#app');
+      function fmtDate(s) {
+        if (!s) return '';
+        const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s);
+        return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE');
+      }
+      function num(v) {
+        return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
+      }
+      function safeImg(src) {
+        return typeof src === 'string' &&
+          /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src)
+          ? src
+          : '';
+      }
+      const isVis = (f, v) => (!f.legacy || String(v[f.id] ?? '') !== '') && (!f.show || f.show(v)); // Altfelder (legacy): nur im PDF/Auswertung, wenn befüllt
+      let calcSeen = {}; // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
+      function calcTouch(id, text, el) {
+        const k = view.id + ':' + id;
+        if (k in calcSeen && calcSeen[k] !== text) flash(el);
+        calcSeen[k] = text;
+      }
 
-/* ---------- Werte, Prüfung, Bewertung ---------- */
-function recompute(p){ ALL_FIELDS.forEach(f => { if(f.type === 'calc') p.values[f.id] = f.calc(p.values); }); }
-function display(f, x){
-  if(x === '' || x == null) return '';
-  if(f.type === 'date') return fmtDate(x);
-  if((f.type === 'number' || f.type === 'calc') && isN(x)) return fmtNum(String(x).trim()) + (f.unit ? ' ' + f.unit : '');
-  return String(x);
-}
-function sollText(f){
-  const u = f.unit ? ' ' + f.unit : '';
-  if(f.sRanges) return 'Soll ' + f.sRanges.map(r => `${fmtNum(r[0])} – ${fmtNum(r[1])}`).join(' oder ') + u;
-  if(f.sMin != null && f.sMax != null) return `Soll ${fmtNum(f.sMin)} – ${fmtNum(f.sMax)}${u}`;
-  if(f.sMax != null) return `Soll ≤ ${fmtNum(f.sMax)}${u}`;
-  if(f.sMin != null) return `Soll ≥ ${fmtNum(f.sMin)}${u}`;
-  return '';
-}
-function evalField(f, v){
-  const x = v[f.id];
-  if(f.type === 'okfail') return x === 'i.O.' ? 'ok' : x === 'n.i.O.' ? 'bad' : x === 'entfällt' ? 'na' : 'none';
-  if(f.bad && f.bad.includes(x)) return 'bad';
-  if(f.good && f.good.includes(x)) return 'ok';
-  if(f.type === 'number' && isN(x) && f.sRanges) return f.sRanges.some(r => num(x) >= r[0] && num(x) <= r[1]) ? 'ok' : 'warn';
-  if(f.type === 'number' && isN(x) && (f.sMin != null || f.sMax != null)){
-    const n = num(x);
-    return (f.sMin != null && n < f.sMin) || (f.sMax != null && n > f.sMax) ? 'warn' : 'ok';
-  }
-  return 'none';
-}
-function defects(p){
-  return ALL_FIELDS.filter(f => f.type !== 'calc' && isVis(f, p.values) && ['bad', 'warn'].includes(evalField(f, p.values)))
-    .map(f => `${f.pdf || f.label}: ${display(f, p.values[f.id])}` + (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''));
-}
-const PFLICHTFELDER = false;   // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
-function isRequired(f, p){ return PFLICHTFELDER && (!!f.req || (f.reqIf ? f.reqIf(p.values, p) : false)); }
-function fieldError(f, p){
-  if(f.type === 'calc' || f.legacy || !isVis(f, p.values)) return '';
-  const x = p.values[f.id], empty = String(x ?? '').trim() === '';
-  if(empty) return isRequired(f, p) ? (f.reqMsg || 'Pflichtfeld') : '';
-  if(f.type === 'number'){
-    if(!isN(x)) return 'Bitte eine gültige Zahl eingeben.';
-    const n = num(x);
-    if((f.min != null && n < f.min) || (f.max != null && n > f.max)) return `Unplausibler Wert (erlaubt ${fmtNum(f.min)} – ${fmtNum(f.max)} ${f.unit || ''})`;
-  }
-  if(f.type === 'date' && f.notFuture && x > today()) return 'Datum liegt in der Zukunft.';
-  return '';
-}
-function pageErrors(p, i){ return TEMPLATE.pages[i].fields.map(f => [f, fieldError(f, p)]).filter(e => e[1]); }
-function pageDone(p, i){
-  const fs = TEMPLATE.pages[i].fields.filter(f => f.type !== 'calc' && !f.legacy && isVis(f, p.values));
-  return fs.every(f => !fieldError(f, p)) && fs.some(f => String(p.values[f.id] ?? '') !== '');
-}
+      /* ---------- Werte, Prüfung, Bewertung ---------- */
+      function recompute(p) {
+        ALL_FIELDS.forEach((f) => {
+          if (f.type === 'calc') p.values[f.id] = f.calc(p.values);
+        });
+      }
+      function display(f, x) {
+        if (x === '' || x == null) return '';
+        if (f.type === 'date') return fmtDate(x);
+        if ((f.type === 'number' || f.type === 'calc') && isN(x))
+          return fmtNum(String(x).trim()) + (f.unit ? ' ' + f.unit : '');
+        return String(x);
+      }
+      function sollText(f) {
+        const u = f.unit ? ' ' + f.unit : '';
+        if (f.sRanges)
+          return (
+            'Soll ' + f.sRanges.map((r) => `${fmtNum(r[0])} – ${fmtNum(r[1])}`).join(' oder ') + u
+          );
+        if (f.sMin != null && f.sMax != null)
+          return `Soll ${fmtNum(f.sMin)} – ${fmtNum(f.sMax)}${u}`;
+        if (f.sMax != null) return `Soll ≤ ${fmtNum(f.sMax)}${u}`;
+        if (f.sMin != null) return `Soll ≥ ${fmtNum(f.sMin)}${u}`;
+        return '';
+      }
+      function evalField(f, v) {
+        const x = v[f.id];
+        if (f.type === 'okfail')
+          return x === 'i.O.' ? 'ok' : x === 'n.i.O.' ? 'bad' : x === 'entfällt' ? 'na' : 'none';
+        if (f.bad && f.bad.includes(x)) return 'bad';
+        if (f.good && f.good.includes(x)) return 'ok';
+        if (f.type === 'number' && isN(x) && f.sRanges)
+          return f.sRanges.some((r) => num(x) >= r[0] && num(x) <= r[1]) ? 'ok' : 'warn';
+        if (f.type === 'number' && isN(x) && (f.sMin != null || f.sMax != null)) {
+          const n = num(x);
+          return (f.sMin != null && n < f.sMin) || (f.sMax != null && n > f.sMax) ? 'warn' : 'ok';
+        }
+        return 'none';
+      }
+      function defects(p) {
+        return ALL_FIELDS.filter(
+          (f) =>
+            f.type !== 'calc' &&
+            isVis(f, p.values) &&
+            ['bad', 'warn'].includes(evalField(f, p.values)),
+        ).map(
+          (f) =>
+            `${f.pdf || f.label}: ${display(f, p.values[f.id])}` +
+            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''),
+        );
+      }
+      const PFLICHTFELDER = false; // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
+      function isRequired(f, p) {
+        return PFLICHTFELDER && (!!f.req || (f.reqIf ? f.reqIf(p.values, p) : false));
+      }
+      function fieldError(f, p) {
+        if (f.type === 'calc' || f.legacy || !isVis(f, p.values)) return '';
+        const x = p.values[f.id],
+          empty = String(x ?? '').trim() === '';
+        if (empty) return isRequired(f, p) ? f.reqMsg || 'Pflichtfeld' : '';
+        if (f.type === 'number') {
+          if (!isN(x)) return 'Bitte eine gültige Zahl eingeben.';
+          const n = num(x);
+          if ((f.min != null && n < f.min) || (f.max != null && n > f.max))
+            return `Unplausibler Wert (erlaubt ${fmtNum(f.min)} – ${fmtNum(f.max)} ${f.unit || ''})`;
+        }
+        if (f.type === 'date' && f.notFuture && x > today()) return 'Datum liegt in der Zukunft.';
+        return '';
+      }
+      function pageErrors(p, i) {
+        return TEMPLATE.pages[i].fields.map((f) => [f, fieldError(f, p)]).filter((e) => e[1]);
+      }
+      function pageDone(p, i) {
+        const fs = TEMPLATE.pages[i].fields.filter(
+          (f) => f.type !== 'calc' && !f.legacy && isVis(f, p.values),
+        );
+        return (
+          fs.every((f) => !fieldError(f, p)) && fs.some((f) => String(p.values[f.id] ?? '') !== '')
+        );
+      }
 
-/* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
-function buildReport(p){
-  const v = p.values;
-  const row = f => ({label:f.pdf || f.label, value:display(f, v[f.id]), eval:evalField(f, v), wide:!!f.wide});
-  const rowsOf = fs => fs.filter(f => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
-  const section = pg => {
-    const inTab = new Set(pg.table ? pg.table.rows.flatMap(r => r.ids) : []);
-    const rest = pg.fields.filter(f => !inTab.has(f.id));
-    const body = pg.table ? pg.table.rows
-      .filter(r => (!r.show || r.show(v)) && r.ids.some(id => String(v[id] ?? '') !== ''))
-      .map(r => ({label:r.label, cells:r.ids.map(id => ({value:display(FIELD[id], v[id]), eval:evalField(FIELD[id], v)}))})) : [];
-    return {title:pg.pdfTitle || pg.title, kind:pg.kind || 'grid',
-      table: body.length ? {head:pg.table.head, body} : null,
-      rows: rowsOf(rest.filter(f => f.type !== 'okfail')), checks: rowsOf(rest.filter(f => f.type === 'okfail'))};
-  };
-  return {
-    title: TEMPLATE.title, firma: settings.firma || '',
-    header: rowsOf(TEMPLATE.pages[0].fields),
-    sections: TEMPLATE.pages.filter(pg => !pg.header && !pg.final).map(section),
-    defects: defects(p), resultLabel: 'Wartung erfolgreich', success: v.erfolg || '',
-    subline: [v.ftest && 'Funktionstest: ' + v.ftest, v.unterl && 'Unterlagen & Typenschild: ' + v.unterl].filter(Boolean).join(' · '),
-    hinweis: HINWEIS, remark: v.bem || '', remarkLabel: 'Bemerkungen / Mängel',
-    techniker: v.monteur || '', kundeName: p.kundeName || '', id: v.projekt || p.id, completedAt: p.completedAt || ''
-  };
-}
-/* Spaltenwerte fürs Google Sheet (ausgeblendete Innengeräte werden geleert) */
-function buildCols(p){
-  return ALL_FIELDS.filter(f => f.col).map(f => {
-    const x = isVis(f, p.values) ? p.values[f.id] : '';
-    if(x === '' || x == null) return [f.col, '', ''];
-    if(f.type === 'date') return [f.col, x, 'date'];
-    if((f.type === 'number' || f.type === 'calc') && isN(x)) return [f.col, num(x), ''];
-    return [f.col, String(x), ''];
-  });
-}
+      /* Bericht-Datenstruktur – identisch genutzt von App-PDF und Apps-Script-PDF */
+      function buildReport(p) {
+        const v = p.values;
+        const row = (f) => ({
+          label: f.pdf || f.label,
+          value: display(f, v[f.id]),
+          eval: evalField(f, v),
+          wide: !!f.wide,
+        });
+        const rowsOf = (fs) => fs.filter((f) => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
+        const section = (pg) => {
+          const inTab = new Set(pg.table ? pg.table.rows.flatMap((r) => r.ids) : []);
+          const rest = pg.fields.filter((f) => !inTab.has(f.id));
+          const body = pg.table
+            ? pg.table.rows
+                .filter(
+                  (r) => (!r.show || r.show(v)) && r.ids.some((id) => String(v[id] ?? '') !== ''),
+                )
+                .map((r) => ({
+                  label: r.label,
+                  cells: r.ids.map((id) => ({
+                    value: display(FIELD[id], v[id]),
+                    eval: evalField(FIELD[id], v),
+                  })),
+                }))
+            : [];
+          return {
+            title: pg.pdfTitle || pg.title,
+            kind: pg.kind || 'grid',
+            table: body.length ? { head: pg.table.head, body } : null,
+            rows: rowsOf(rest.filter((f) => f.type !== 'okfail')),
+            checks: rowsOf(rest.filter((f) => f.type === 'okfail')),
+          };
+        };
+        return {
+          title: TEMPLATE.title,
+          firma: settings.firma || '',
+          header: rowsOf(TEMPLATE.pages[0].fields),
+          sections: TEMPLATE.pages.filter((pg) => !pg.header && !pg.final).map(section),
+          defects: defects(p),
+          resultLabel: 'Wartung erfolgreich',
+          success: v.erfolg || '',
+          subline: [
+            v.ftest && 'Funktionstest: ' + v.ftest,
+            v.unterl && 'Unterlagen & Typenschild: ' + v.unterl,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          hinweis: HINWEIS,
+          remark: v.bem || '',
+          remarkLabel: 'Bemerkungen / Mängel',
+          techniker: v.monteur || '',
+          kundeName: p.kundeName || '',
+          id: v.projekt || p.id,
+          completedAt: p.completedAt || '',
+        };
+      }
+      /* Spaltenwerte fürs Google Sheet (ausgeblendete Innengeräte werden geleert) */
+      function buildCols(p) {
+        return ALL_FIELDS.filter((f) => f.col).map((f) => {
+          const x = isVis(f, p.values) ? p.values[f.id] : '';
+          if (x === '' || x == null) return [f.col, '', ''];
+          if (f.type === 'date') return [f.col, x, 'date'];
+          if ((f.type === 'number' || f.type === 'calc') && isN(x)) return [f.col, num(x), ''];
+          return [f.col, String(x), ''];
+        });
+      }
 
-/* ---------- Navigation ---------- */
-let view = {name:'home'};
-let enterNext = false, enterT = null, navBusy = false, pdfBusy = null, pdfProg = 0, pdfTick = null, hsubAnim = null;
-function go(name, params){
-  const was = view.name;
-  view = Object.assign({name}, params || {});
-  if(name === 'wizard' && was !== 'wizard') calcSeen = {};
-  enterNext = name === 'wizard' || name === 'home';   // Karten beim Betreten gestaffelt einblenden
-  render(); window.scrollTo(0, 0);
-}
-function cur(){ return protocols.find(p => p.id === view.id); }
-function render(){
-  const enter = enterNext; enterNext = false;
-  app.innerHTML = (Views[view.name] || Views.home)();
-  if(!navBusy){   // Klassen nur zurücksetzen, wenn gerade kein Seitenübergang läuft
-    app.className = enter && !RM() ? 'entering' : '';
-    clearTimeout(enterT);
-    if(enter) enterT = setTimeout(() => { if(!navBusy) app.classList.remove('entering'); }, 900);
-  }
-  setHeader(true);
-  if(view.name === 'report') showReport();
-  if(After[view.name]) After[view.name]();
-  setSteps(); setBar();
-  iosAfterRender(view.name);
-  updateNet();
-}
-/* Kopf: Unterzeile = Projektnummer · Kunde (im Formular / Bericht), sonst Bereichsname */
-function hsubText(){
-  const p = (view.name === 'wizard' || (view.name === 'report' && !view.db)) ? cur() : null;
-  if(p) return (p.values.projekt || 'ohne Projektnummer') + (p.values.kunde ? ' · ' + p.values.kunde : '');
-  if(view.name === 'report' && view.db && view.rep) return view.rep.id || 'Bericht';
-  return view.name === 'settings' ? 'Einstellungen' : view.name === 'db' ? 'Datenbank / PDF' : 'Wartungsprotokolle';
-}
-/* Schrittanzeige: stepsRender in shared/wizard.js */
-function setSteps(){ const p = view.name === 'wizard' ? cur() : null; stepsRender(p && {key:p.id, pages:TEMPLATE.pages, index:p.page, done:k => pageDone(p, k) && !TEMPLATE.pages[k].final, pauseAct:'home'}); }
-/* Feste Leiste unten */
-function barHtml(){
-  if(view.name === 'wizard'){
-    const p = cur(); if(!p) return '';
-    const i = p.page, pg = TEMPLATE.pages[i];
-    return `<div><button class="btn" data-act="prev"${i === 0 ? ' disabled' : ''}>← Zurück</button>${pg.final ? '<button class="btn primary" data-act="finish">Abschließen ✓</button>' : '<button class="btn primary" data-act="next">Weiter →</button>'}</div>`;
-  }
-  if(view.name === 'report' && reportForView()){
-    const run = pdfBusy === viewKey();
-    return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
-  }
-  return '';
-}
-function setBar(){ barRender(barHtml()); }
-function wizSnapshot(){ const vid = view.id; return () => view.name === 'wizard' && view.id === vid; }
-function updateNet(){ netRender(protocols.filter(p => p.status === 'done' && !p.synced).length); }
+      /* ---------- Navigation ---------- */
+      let view = { name: 'home' };
+      let enterNext = false,
+        enterT = null,
+        navBusy = false,
+        pdfBusy = null,
+        pdfProg = 0,
+        pdfTick = null,
+        hsubAnim = null;
+      function go(name, params) {
+        const was = view.name;
+        view = Object.assign({ name }, params || {});
+        if (name === 'wizard' && was !== 'wizard') calcSeen = {};
+        enterNext = name === 'wizard' || name === 'home'; // Karten beim Betreten gestaffelt einblenden
+        render();
+        window.scrollTo(0, 0);
+      }
+      function cur() {
+        return protocols.find((p) => p.id === view.id);
+      }
+      function render() {
+        const enter = enterNext;
+        enterNext = false;
+        app.innerHTML = (Views[view.name] || Views.home)();
+        if (!navBusy) {
+          // Klassen nur zurücksetzen, wenn gerade kein Seitenübergang läuft
+          app.className = enter && !RM() ? 'entering' : '';
+          clearTimeout(enterT);
+          if (enter)
+            enterT = setTimeout(() => {
+              if (!navBusy) app.classList.remove('entering');
+            }, 900);
+        }
+        setHeader(true);
+        if (view.name === 'report') showReport();
+        if (After[view.name]) After[view.name]();
+        setSteps();
+        setBar();
+        iosAfterRender(view.name);
+        updateNet();
+      }
+      /* Kopf: Unterzeile = Projektnummer · Kunde (im Formular / Bericht), sonst Bereichsname */
+      function hsubText() {
+        const p = view.name === 'wizard' || (view.name === 'report' && !view.db) ? cur() : null;
+        if (p)
+          return (
+            (p.values.projekt || 'ohne Projektnummer') +
+            (p.values.kunde ? ' · ' + p.values.kunde : '')
+          );
+        if (view.name === 'report' && view.db && view.rep) return view.rep.id || 'Bericht';
+        return view.name === 'settings'
+          ? 'Einstellungen'
+          : view.name === 'db'
+            ? 'Datenbank / PDF'
+            : 'Wartungsprotokolle';
+      }
+      /* Schrittanzeige: stepsRender in shared/wizard.js */
+      function setSteps() {
+        const p = view.name === 'wizard' ? cur() : null;
+        stepsRender(
+          p && {
+            key: p.id,
+            pages: TEMPLATE.pages,
+            index: p.page,
+            done: (k) => pageDone(p, k) && !TEMPLATE.pages[k].final,
+            pauseAct: 'home',
+          },
+        );
+      }
+      /* Feste Leiste unten */
+      function barHtml() {
+        if (view.name === 'wizard') {
+          const p = cur();
+          if (!p) return '';
+          const i = p.page,
+            pg = TEMPLATE.pages[i];
+          return `<div><button class="btn" data-act="prev"${i === 0 ? ' disabled' : ''}>← Zurück</button>${pg.final ? '<button class="btn primary" data-act="finish">Abschließen ✓</button>' : '<button class="btn primary" data-act="next">Weiter →</button>'}</div>`;
+        }
+        if (view.name === 'report' && reportForView()) {
+          const run = pdfBusy === viewKey();
+          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+        }
+        return '';
+      }
+      function setBar() {
+        barRender(barHtml());
+      }
+      function wizSnapshot() {
+        const vid = view.id;
+        return () => view.name === 'wizard' && view.id === vid;
+      }
+      function updateNet() {
+        netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
+      }
 
-/* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
-function wizardHtml(p, i){
-  const pg = TEMPLATE.pages[i];
-  const allOk = pg.fields.some(f => f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]);
-  return `
+      /* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
+      function wizardHtml(p, i) {
+        const pg = TEMPLATE.pages[i];
+        const allOk = pg.fields.some(
+          (f) => f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id],
+        );
+        return `
     <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
-    ${iosGroups(pg.fields.filter(f => !f.legacy && isVis(f, p.values)), f => fieldHtml(f, p), 1)}
+    ${iosGroups(
+      pg.fields.filter((f) => !f.legacy && isVis(f, p.values)),
+      (f) => fieldHtml(f, p),
+      1,
+    )}
     ${pg.final ? finalHtml(p) : ''}
     <div class="err" id="pageerr"></div>`;
-}
+      }
 
-function settingsBody(){
-  return settingsConnectionHtml() + settingsGeneralHtml(SETTINGS_FIELDS) + settingsButtonsHtml() + settingsBackupHtml('Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.');
-}
-/* ---------- Ansichten ---------- */
-const Views = {
-  home(){
-    const drafts = protocols.filter(p => p.status === 'draft');
-    const done = protocols.filter(p => p.status === 'done').sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
-    const pending = done.filter(p => !p.synced).length;
-    return `
+      function settingsBody() {
+        return (
+          settingsConnectionHtml() +
+          settingsGeneralHtml(SETTINGS_FIELDS) +
+          settingsButtonsHtml() +
+          settingsBackupHtml(
+            'Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.',
+          )
+        );
+      }
+      /* ---------- Ansichten ---------- */
+      const Views = {
+        home() {
+          const drafts = protocols.filter((p) => p.status === 'draft');
+          const done = protocols
+            .filter((p) => p.status === 'done')
+            .sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
+          const pending = done.filter((p) => !p.synced).length;
+          return `
       <div class="kstart">
       <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA 24186-1 starten</small></span></button>
       <div class="qa">
@@ -491,19 +1639,19 @@ const Views = {
       ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
       <h2 class="sect">Abgeschlossen <span class="n">${done.length}</span></h2>
       ${done.length ? done.map(protoCard).join('') : '<div class="emptybox">Noch keine abgeschlossenen Wartungen.</div>'}`;
-  },
+        },
 
-  wizard(){
-    const p = cur();
-    if(!p) return '<p>Protokoll nicht gefunden.</p>';
-    return wizardHtml(p, p.page);
-  },
+        wizard() {
+          const p = cur();
+          if (!p) return '<p>Protokoll nicht gefunden.</p>';
+          return wizardHtml(p, p.page);
+        },
 
-  report(){
-    const r = reportForView();
-    if(!r) return '<p>Protokoll nicht gefunden.</p>';
-    const p = !view.db && protocols.find(x => x.id === view.id);
-    return `
+        report() {
+          const r = reportForView();
+          if (!r) return '<p>Protokoll nicht gefunden.</p>';
+          const p = !view.db && protocols.find((x) => x.id === view.id);
+          return `
       <div class="row noprint" style="margin-bottom:12px">
         <span id="pdfbar" class="row">${pdfBarHtml()}</span>
         ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
@@ -511,10 +1659,10 @@ const Views = {
       </div>
       <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
-  },
+        },
 
-  db(){
-    return `
+        db() {
+          return `
       <div class="row">
         <button class="btn" data-act="home">← Zurück</button>
         <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
@@ -522,22 +1670,26 @@ const Views = {
       <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
       <input id="dbsearch" type="search" placeholder="Suchen: Projekt-Nr., Kunden-Nr., Anlage, Monteur, Datum …" value="${esc(view.q || '')}">
       <div id="dblist">${dbList()}</div>`;
-  },
+        },
 
-  settings(){   // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
-    return `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` + settingsBody();
-  }
-};
+        settings() {
+          // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
+          return (
+            `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` +
+            settingsBody()
+          );
+        },
+      };
 
-function protoCard(p){
-  const v = p.values;
-  let badges;
-  if(p.status === 'draft'){
-    badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
-  } else {
-    badges = `${v.erfolg ? `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
-  }
-  return `
+      function protoCard(p) {
+        const v = p.values;
+        let badges;
+        if (p.status === 'draft') {
+          badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
+        } else {
+          badges = `${v.erfolg ? `<span class="badge ${v.erfolg === 'Ja' ? 'ok' : 'bad'}">Wartung erfolgreich: ${esc(v.erfolg)}</span> ` : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
+        }
+        return `
     <div class="card pcard">
       <div class="phead">
         <div class="ptxt"><b>${esc(v.projekt || 'Ohne Projekt-Nr.')}</b>${v.kunde ? ' · ' + esc(v.kunde) : ''}<br>
@@ -545,61 +1697,90 @@ function protoCard(p){
         <div class="pbadges">${badges}</div>
       </div>
       <div class="row btnrow" style="margin-top:12px">
-        ${p.status === 'draft'
-          ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
-          : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`}
+        ${
+          p.status === 'draft'
+            ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
+            : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`
+        }
         <button class="btn small danger" data-act="del" data-id="${p.id}">Löschen</button>
       </div>
     </div>`;
-}
-
-function fieldHtml(f, p){
-  const v = p.values, x = v[f.id] ?? '';
-  const err = view.tried ? fieldError(f, p) : '';
-  const req = isRequired(f, p) && f.type !== 'calc' ? ' *' : '';
-  const lab = `<label for="in-${f.id}">${esc(f.label)}${req}</label>${f.hint ? `<div class="fhint">${esc(f.hint)}</div>` : ''}`;
-  const errHtml = err ? `<div class="ferr">${esc(err)}</div>` : '';
-  const seg = (vals, cls) => `<div class="seg">${vals.map((o, k) => `<button class="btn ${cls[k]} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
-  let body;
-  switch(f.type){
-    case 'okfail': return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
-    case 'yesno':  return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
-    case 'select': {
-      // Auswahl mit Gut/Schlecht (z. B. Funktionstest): wie die Checklisten-Knöpfe in Grün/Rot
-      if(!f.other && (f.good || f.bad)){
-        const cls = f.opts.map(o => f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'na');
-        return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(f.opts, cls)}</div>${errHtml}</div>`;
       }
-      const custom = f.other && x && !f.opts.includes(x);
-      body = `<div class="opts">${f.opts.map(o => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
-        ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
-      break;
-    }
-    case 'number':
-      body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="unit">${esc(f.unit || '')}</span></div>
-        <div class="soll" id="soll-${f.id}">${sollHtml(f, v)}</div>`;
-      break;
-    case 'date':     body = `<input id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}" style="max-width:260px">`; break;
-    case 'longtext': body = `<textarea id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea>`; break;
-    case 'calc':     body = `<span class="calc" id="calc-${f.id}">${esc(display(f, x) || '—')}</span><span class="calcnote" id="note-${f.id}">${f.note ? esc(f.note(v)) : 'wird berechnet'}</span>`; break;
-    default:         body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
-  }
-  return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
-}
-function sollHtml(f, v){
-  const s = sollText(f), ev = evalField(f, v);
-  if(ev === 'warn') return `<span class="badge warn">außerhalb Sollbereich</span> <span class="muted">${esc(s)}</span>`;
-  if(ev === 'ok') return `<span class="badge ok">im Sollbereich</span> <span class="muted">${esc(s)}</span>`;
-  return s ? `<span class="muted">${esc(s)}</span>` : '';
-}
 
-function finalHtml(p){
-  const d = defects(p);
-  const missing = TEMPLATE.pages.slice(0, -1).map((pg, k) => [k, pageErrors(p, k)]).filter(x => x[1].length);
-  return `
-    ${missing.length ? `<div class="warnbox stag" style="--i:2"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing.map(([k, errs]) =>
-      `<li><a class="jump" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</a>: ${errs.map(e => esc(e[0].pdf || e[0].label)).join(', ')}</li>`).join('')}</ul></div>` : ''}
-    <div class="card stag" style="--i:3"><b>Auffälligkeiten:</b> ${d.length ? `<span class="badge bad">${d.length}</span><ul>${d.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<span class="badge ok">keine</span>'}</div>
+      function fieldHtml(f, p) {
+        const v = p.values,
+          x = v[f.id] ?? '';
+        const err = view.tried ? fieldError(f, p) : '';
+        const req = isRequired(f, p) && f.type !== 'calc' ? ' *' : '';
+        const lab = `<label for="in-${f.id}">${esc(f.label)}${req}</label>${f.hint ? `<div class="fhint">${esc(f.hint)}</div>` : ''}`;
+        const errHtml = err ? `<div class="ferr">${esc(err)}</div>` : '';
+        const seg = (vals, cls) =>
+          `<div class="seg">${vals.map((o, k) => `<button class="btn ${cls[k]} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+        let body;
+        switch (f.type) {
+          case 'okfail':
+            return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
+          case 'yesno':
+            return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
+          case 'select': {
+            // Auswahl mit Gut/Schlecht (z. B. Funktionstest): wie die Checklisten-Knöpfe in Grün/Rot
+            if (!f.other && (f.good || f.bad)) {
+              const cls = f.opts.map((o) =>
+                f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'na',
+              );
+              return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(f.opts, cls)}</div>${errHtml}</div>`;
+            }
+            const custom = f.other && x && !f.opts.includes(x);
+            body = `<div class="opts">${f.opts.map((o) => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+        ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
+            break;
+          }
+          case 'number':
+            body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="unit">${esc(f.unit || '')}</span></div>
+        <div class="soll" id="soll-${f.id}">${sollHtml(f, v)}</div>`;
+            break;
+          case 'date':
+            body = `<input id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}" style="max-width:260px">`;
+            break;
+          case 'longtext':
+            body = `<textarea id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea>`;
+            break;
+          case 'calc':
+            body = `<span class="calc" id="calc-${f.id}">${esc(display(f, x) || '—')}</span><span class="calcnote" id="note-${f.id}">${f.note ? esc(f.note(v)) : 'wird berechnet'}</span>`;
+            break;
+          default:
+            body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
+        }
+        return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
+      }
+      function sollHtml(f, v) {
+        const s = sollText(f),
+          ev = evalField(f, v);
+        if (ev === 'warn')
+          return `<span class="badge warn">außerhalb Sollbereich</span> <span class="muted">${esc(s)}</span>`;
+        if (ev === 'ok')
+          return `<span class="badge ok">im Sollbereich</span> <span class="muted">${esc(s)}</span>`;
+        return s ? `<span class="muted">${esc(s)}</span>` : '';
+      }
+
+      function finalHtml(p) {
+        const d = defects(p);
+        const missing = TEMPLATE.pages
+          .slice(0, -1)
+          .map((pg, k) => [k, pageErrors(p, k)])
+          .filter((x) => x[1].length);
+        return `
+    ${
+      missing.length
+        ? `<div class="warnbox stag" style="--i:2"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing
+            .map(
+              ([k, errs]) =>
+                `<li><a class="jump" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</a>: ${errs.map((e) => esc(e[0].pdf || e[0].label)).join(', ')}</li>`,
+            )
+            .join('')}</ul></div>`
+        : ''
+    }
+    <div class="card stag" style="--i:3"><b>Auffälligkeiten:</b> ${d.length ? `<span class="badge bad">${d.length}</span><ul>${d.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '<span class="badge ok">keine</span>'}</div>
     <div class="card stag" style="--i:4">
       <div class="grid2">
         <div>
@@ -609,454 +1790,886 @@ function finalHtml(p){
         </div>
       </div>
     </div>`;
-}
+      }
 
-/* @@quelle:reportParts */
-/* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Checklisten, Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
+      /* @@quelle:reportParts */
+      /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Checklisten, Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
    Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) unverändert entgegen.
    Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
-function reportParts(r){
-  const B = pdfBausteine(), {esc, nl, up, pill} = B;
-  const CHECKV = ['i.O.', 'Mangel', 'n.i.O.', 'entfällt'];
-  const isCheck = x => ['ok', 'bad', 'na'].includes(x.eval) || CHECKV.includes(x.value);
-  const evalOf = x => x.eval && x.eval !== 'none' ? x.eval : x.value === 'i.O.' ? 'ok' : x.value === 'Mangel' || x.value === 'n.i.O.' ? 'bad' : x.value === 'entfällt' ? 'na' : '';
-  const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
-  // „WARTUNGSPROTOKOLL • KÄLTETECHNISCHE ANLAGEN“ → Kopfzeile „WARTUNGSPROTOKOLL“, Titel „Kältetechnische Anlagen“
-  const tp = String(r.title || '').split(' • ');
-  const nice = s => s.split(' ').map(w => w.split('-').map(x => x.length >= 5 && x === x.toUpperCase() ? x[0] + x.slice(1).toLowerCase() : x).join('-')).join(' ');
-  const kicker = tp.length > 1 ? tp[0] : '', h1 = nice(tp.length > 1 ? tp.slice(1).join(' • ') : tp[0]);
-  const header = r.header || [];
-  // erstes Kopffeld, dessen Beschriftung passt (Nummern-Felder wie „Kundennummer“ ausgenommen)
-  const hv = re => (header.find(x => re.test(x.label) && !/nummer|nr\.?$/i.test(x.label) && x.value) || {}).value || '';
-  const datum = hv(/datum/i);
-  const stand = datum || (r.completedAt ? new Date(r.completedAt).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'}) : '');
-  const blocks = [];
+      function reportParts(r) {
+        const B = pdfBausteine(),
+          { esc, nl, up, pill } = B;
+        const CHECKV = ['i.O.', 'Mangel', 'n.i.O.', 'entfällt'];
+        const isCheck = (x) => ['ok', 'bad', 'na'].includes(x.eval) || CHECKV.includes(x.value);
+        const evalOf = (x) =>
+          x.eval && x.eval !== 'none'
+            ? x.eval
+            : x.value === 'i.O.'
+              ? 'ok'
+              : x.value === 'Mangel' || x.value === 'n.i.O.'
+                ? 'bad'
+                : x.value === 'entfällt'
+                  ? 'na'
+                  : '';
+        const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
+        // „WARTUNGSPROTOKOLL • KÄLTETECHNISCHE ANLAGEN“ → Kopfzeile „WARTUNGSPROTOKOLL“, Titel „Kältetechnische Anlagen“
+        const tp = String(r.title || '').split(' • ');
+        const nice = (s) =>
+          s
+            .split(' ')
+            .map((w) =>
+              w
+                .split('-')
+                .map((x) =>
+                  x.length >= 5 && x === x.toUpperCase() ? x[0] + x.slice(1).toLowerCase() : x,
+                )
+                .join('-'),
+            )
+            .join(' ');
+        const kicker = tp.length > 1 ? tp[0] : '',
+          h1 = nice(tp.length > 1 ? tp.slice(1).join(' • ') : tp[0]);
+        const header = r.header || [];
+        // erstes Kopffeld, dessen Beschriftung passt (Nummern-Felder wie „Kundennummer“ ausgenommen)
+        const hv = (re) =>
+          (header.find((x) => re.test(x.label) && !/nummer|nr\.?$/i.test(x.label) && x.value) || {})
+            .value || '';
+        const datum = hv(/datum/i);
+        const stand =
+          datum ||
+          (r.completedAt
+            ? new Date(r.completedAt).toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              })
+            : '');
+        const blocks = [];
 
-  // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
-  const res = String(r.success || ''), good = res === 'Ja' || res === 'i.O.', bad = !!res && !good;
-  const subs = String(r.subline || (r.betrieb ? 'Betriebszustand: ' + r.betrieb : '')).split(' · ').filter(Boolean);
-  const defects = r.defects || [];
-  // Datum für die Kacheln einheitlich TT.MM.JJJJ (Eingang: „31.8.2026“, „31.08.2026“ oder „2026-08-31“)
-  const p2 = x => String(x).padStart(2, '0');
-  const dm = String(stand || '').match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) || String(stand || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  const y0 = dm ? +(dm[1].length === 4 ? dm[1] : dm[3]) : 0, mo0 = dm ? +dm[2] - 1 : 0, d0 = dm ? +(dm[1].length === 4 ? dm[3] : dm[1]) : 0;
-  const tileDate = dm ? `${p2(d0)}.${p2(mo0 + 1)}.${y0}` : (stand || '');
-  // Nächste Wartung: kein Kältemittel → Wartungsdatum + 12 Monate (jährliche Wartung)
-  const nextDue = (() => {
-    if(!dm) return {date:'', sub:''};
-    const y = y0 + 1, d = Math.min(d0, new Date(y, mo0 + 1, 0).getDate());
-    return {date:`${p2(d)}.${p2(mo0 + 1)}.${y}`, sub:'jährliche Wartung'};
-  })();
-  blocks.push({html:B.kacheln([
-    {art: good ? 'ok' : bad ? 'bad' : '', lab: r.resultLabel || 'Wartung erfolgreich', val: res,
-     subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`},
-    {lab:'Nächste Wartung', val: nextDue.date, sub: nextDue.sub},
-    {art:'primary', lab:'Wartungsdatum', val: tileDate, sub: r.techniker ? 'Monteur: ' + r.techniker : ''}
-  ], {links:true})});
+        // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
+        const res = String(r.success || ''),
+          good = res === 'Ja' || res === 'i.O.',
+          bad = !!res && !good;
+        const subs = String(r.subline || (r.betrieb ? 'Betriebszustand: ' + r.betrieb : ''))
+          .split(' · ')
+          .filter(Boolean);
+        const defects = r.defects || [];
+        // Datum für die Kacheln einheitlich TT.MM.JJJJ (Eingang: „31.8.2026“, „31.08.2026“ oder „2026-08-31“)
+        const p2 = (x) => String(x).padStart(2, '0');
+        const dm =
+          String(stand || '').match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) ||
+          String(stand || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+        const y0 = dm ? +(dm[1].length === 4 ? dm[1] : dm[3]) : 0,
+          mo0 = dm ? +dm[2] - 1 : 0,
+          d0 = dm ? +(dm[1].length === 4 ? dm[3] : dm[1]) : 0;
+        const tileDate = dm ? `${p2(d0)}.${p2(mo0 + 1)}.${y0}` : stand || '';
+        // Nächste Wartung: kein Kältemittel → Wartungsdatum + 12 Monate (jährliche Wartung)
+        const nextDue = (() => {
+          if (!dm) return { date: '', sub: '' };
+          const y = y0 + 1,
+            d = Math.min(d0, new Date(y, mo0 + 1, 0).getDate());
+          return { date: `${p2(d)}.${p2(mo0 + 1)}.${y}`, sub: 'jährliche Wartung' };
+        })();
+        blocks.push({
+          html: B.kacheln(
+            [
+              {
+                art: good ? 'ok' : bad ? 'bad' : '',
+                lab: r.resultLabel || 'Wartung erfolgreich',
+                val: res,
+                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`,
+              },
+              { lab: 'Nächste Wartung', val: nextDue.date, sub: nextDue.sub },
+              {
+                art: 'primary',
+                lab: 'Wartungsdatum',
+                val: tileDate,
+                sub: r.techniker ? 'Monteur: ' + r.techniker : '',
+              },
+            ],
+            { links: true },
+          ),
+        });
 
-  // Auftrags- und Anlagendaten
-  if(header.length) blocks.push({html:B.abschnitt('Auftrags- & Anlagendaten', B.kv(header))});
+        // Auftrags- und Anlagendaten
+        if (header.length)
+          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(header)) });
 
-  // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
-  (r.sections || []).forEach(s => {
-    const all = (s.checks || []).concat(s.rows || []);
-    const ck = all.filter(isCheck), fl = all.filter(x => !isCheck(x));
-    const body = B.checkliste(ck.map(x => ({label:x.label, value:x.value, eval:evalOf(x)}))) + (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
-    if(s.table && s.table.body && s.table.body.length){
-      const t = s.table;
-      blocks.push(B.tabelle({titel:s.title, head:t.head.map((h, i) => i ? h : {t:h, w:'26%'}),
-        rows:t.body.map(b => [{t:b.label, cls:'lbl'}].concat(b.cells.map(c => ({t:c.value || '—', cls:'ev ' + (c.eval && c.eval !== 'none' ? c.eval : '')}))))}));
-      if(body) blocks.push({html:`<div class="sec-more">${body}</div>`});
-    } else {
-      blocks.push({html:B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>')});
-    }
-  });
+        // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
+        (r.sections || []).forEach((s) => {
+          const all = (s.checks || []).concat(s.rows || []);
+          const ck = all.filter(isCheck),
+            fl = all.filter((x) => !isCheck(x));
+          const body =
+            B.checkliste(ck.map((x) => ({ label: x.label, value: x.value, eval: evalOf(x) }))) +
+            (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
+          if (s.table && s.table.body && s.table.body.length) {
+            const t = s.table;
+            blocks.push(
+              B.tabelle({
+                titel: s.title,
+                head: t.head.map((h, i) => (i ? h : { t: h, w: '26%' })),
+                rows: t.body.map((b) =>
+                  [{ t: b.label, cls: 'lbl' }].concat(
+                    b.cells.map((c) => ({
+                      t: c.value || '—',
+                      cls: 'ev ' + (c.eval && c.eval !== 'none' ? c.eval : ''),
+                    })),
+                  ),
+                ),
+              }),
+            );
+            if (body) blocks.push({ html: `<div class="sec-more">${body}</div>` });
+          } else {
+            blocks.push({
+              html: B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>'),
+            });
+          }
+        });
 
-  if(defects.length) blocks.push({html:B.notiz({titel:'Auffälligkeiten', liste:defects, art:'def'})});
-  blocks.push({html:B.notiz({titel:r.remarkLabel || 'Bemerkungen / Mängel', text:r.remark})});
-  if(r.hinweis) blocks.push({html:B.rechtstext([{titel:'Betreiberhinweis.', text:r.hinweis}])});
-  const sig = r.sig || {};
-  blocks.push({html:B.unterschrift({tech:{bild:sig.tech, name:[r.techniker, stand].filter(Boolean).join(' · ')}, kunde:{bild:sig.kunde, name:r.kundeName},
-    labels:{tech:'Monteur / Prüfer', kunde:'Kunde / Betreiber'}})});
+        if (defects.length)
+          blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
+        blocks.push({
+          html: B.notiz({ titel: r.remarkLabel || 'Bemerkungen / Mängel', text: r.remark }),
+        });
+        if (r.hinweis)
+          blocks.push({ html: B.rechtstext([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
+        const sig = r.sig || {};
+        blocks.push({
+          html: B.unterschrift({
+            tech: { bild: sig.tech, name: [r.techniker, stand].filter(Boolean).join(' · ') },
+            kunde: { bild: sig.kunde, name: r.kundeName },
+            labels: { tech: 'Monteur / Prüfer', kunde: 'Kunde / Betreiber' },
+          }),
+        });
 
-  const kunde = hv(/kunde|betreiber/i), anlage = hv(/anlage|modell/i);
-  return {
-    blocks,
-    head:B.kopf({firma, kicker, titel:h1, nrLabel:'Projekt-Nr.', id:r.id, datum}),
-    smallHead:B.kopfKlein({firma, zeile:[kunde, anlage].filter(Boolean).join(' · '), titel:kicker ? nice(kicker) : h1, nrLabel:'Projekt-Nr.', id:r.id}),
-    foot:B.fuss({text:(kicker ? nice(kicker) + ' ' : '') + h1, stand}), id:esc(r.id)
-  };
-}
-/* @@ende */
+        const kunde = hv(/kunde|betreiber/i),
+          anlage = hv(/anlage|modell/i);
+        return {
+          blocks,
+          head: B.kopf({ firma, kicker, titel: h1, nrLabel: 'Projekt-Nr.', id: r.id, datum }),
+          smallHead: B.kopfKlein({
+            firma,
+            zeile: [kunde, anlage].filter(Boolean).join(' · '),
+            titel: kicker ? nice(kicker) : h1,
+            nrLabel: 'Projekt-Nr.',
+            id: r.id,
+          }),
+          foot: B.fuss({ text: (kicker ? nice(kicker) + ' ' : '') + h1, stand }),
+          id: esc(r.id),
+        };
+      }
+      /* @@ende */
 
-/* Bericht samt Unterschrift; PDF_OPTS: vor dem Rendern auf die Unterschrift (Bild) warten. layoutReport, reportPdfBlob, pdfName, isStandalone, pdfBase64 stehen in shared/pdf.js */
-const PDF_OPTS = {waitImages:true};
-function reportOf(p){ const r = buildReport(p); r.sig = p.sig; return r; }
-function reportForView(){
-  if(view.db) return view.rep;
-  const p = protocols.find(x => x.id === view.id);
-  if(!p) return null;
-  return reportOf(p);
-}
+      /* Bericht samt Unterschrift; PDF_OPTS: vor dem Rendern auf die Unterschrift (Bild) warten. layoutReport, reportPdfBlob, pdfName, isStandalone, pdfBase64 stehen in shared/pdf.js */
+      const PDF_OPTS = { waitImages: true };
+      function reportOf(p) {
+        const r = buildReport(p);
+        r.sig = p.sig;
+        return r;
+      }
+      function reportForView() {
+        if (view.db) return view.rep;
+        const p = protocols.find((x) => x.id === view.id);
+        if (!p) return null;
+        return reportOf(p);
+      }
 
-/* ---------- PDF-Erzeugung (offline, ohne Druckdialog – iOS druckt in Home-Bildschirm-Apps nicht) ---------- */
-let lastPdf = null;   // {key, file, url}
-const viewKey = () => view.db ? 'db:' + view.key : 'loc:' + view.id;
-function pdfBarHtml(){
-  if(!lastPdf || lastPdf.key !== viewKey()) return '';
-  // „Öffnen“ nur im normalen Browser – in der Home-Bildschirm-App gäbe es keinen Weg zurück
-  return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
-}
-function dbList(){
-  const q = (view.q || '').toLowerCase().trim();
-  const list = dbCache.list
-    .filter(e => !q || [e.projekt, e.kunde, e.monteur, e.modell, e.datum, fmtDate(e.datum)].join(' ').toLowerCase().includes(q))
-    .sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
-  if(!list.length) return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
-  return `<div class="card"><table>
+      /* ---------- PDF-Erzeugung (offline, ohne Druckdialog – iOS druckt in Home-Bildschirm-Apps nicht) ---------- */
+      let lastPdf = null; // {key, file, url}
+      const viewKey = () => (view.db ? 'db:' + view.key : 'loc:' + view.id);
+      function pdfBarHtml() {
+        if (!lastPdf || lastPdf.key !== viewKey()) return '';
+        // „Öffnen“ nur im normalen Browser – in der Home-Bildschirm-App gäbe es keinen Weg zurück
+        return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+      }
+      function dbList() {
+        const q = (view.q || '').toLowerCase().trim();
+        const list = dbCache.list
+          .filter(
+            (e) =>
+              !q ||
+              [e.projekt, e.kunde, e.monteur, e.modell, e.datum, fmtDate(e.datum)]
+                .join(' ')
+                .toLowerCase()
+                .includes(q),
+          )
+          .sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+        if (!list.length)
+          return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
+        return `<div class="card"><table>
     <thead><tr><th>Datum</th><th>Protokoll / Kunde</th><th>Erfolgreich</th><th></th></tr></thead>
-    <tbody>${list.map(e => `<tr>
+    <tbody>${list
+      .map(
+        (e) => `<tr>
       <td>${esc(fmtDate(e.datum))}</td>
       <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.modell, e.monteur].filter(Boolean).join(' · '))}</span></td>
       <td>${e.erfolg ? `<span class="badge ${e.erfolg === 'Ja' ? 'ok' : 'bad'}">${esc(e.erfolg)}</span>` : ''}</td>
-      <td style="text-align:right;white-space:nowrap">${e.pdfUrl
-        ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
-        : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
-        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`).join('')}</tbody></table></div>`;
-}
-
-/* ---------- Unterschrift ---------- */
-function initSig(canvas, p){
-  const key = canvas.dataset.sig;
-  const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = ctx.fillStyle = '#0b1f3a';
-  const src = safeImg(p.sig[key]);
-  if(src){ const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0, r.width, r.height); img.src = src; }
-  let drawing = false, last = null;
-  const pt = e => { const b = canvas.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
-  canvas.addEventListener('pointerdown', e => {
-    e.preventDefault(); drawing = true; last = pt(e); canvas.setPointerCapture(e.pointerId);
-    ctx.beginPath(); ctx.arc(last[0], last[1], 1.1, 0, Math.PI * 2); ctx.fill();
-  });
-  canvas.addEventListener('pointermove', e => {
-    if(!drawing) return;
-    const q = pt(e); ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); last = q;
-  });
-  const end = () => {
-    if(!drawing) return; drawing = false;
-    const out = document.createElement('canvas');
-    out.width = Math.round(r.width); out.height = Math.round(r.height);
-    out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
-    p.sig[key] = out.toDataURL('image/png'); save();
-  };
-  canvas.addEventListener('pointerup', end);
-  canvas.addEventListener('pointercancel', end);
-}
-const After = {
-  wizard(){
-    const p = cur();
-    if(p && TEMPLATE.pages[p.page].final) document.querySelectorAll('canvas.sig').forEach(c => initSig(c, p));
-    document.querySelectorAll('.calc').forEach(el => calcTouch(el.id.replace('calc-', ''), el.textContent, el));
-  }
-};
-
-/* ---------- Google-Sheet-Schnittstelle ---------- */
-/* api, syncing, syncCanStart, syncEnd, netRender stehen in shared/sync.js */
-/* Übertragene Protokolle werden 7 Tage nach der Übertragung aus der App entfernt (bleiben in der Datenbank) */
-const KEEP_SYNCED_DAYS = 7;
-function pruneSynced(){
-  const now = Date.now(), maxAge = KEEP_SYNCED_DAYS * 864e5;
-  let changed = false;
-  protocols.forEach(p => { if(p.status === 'done' && p.synced === true && !p.syncedAt){ p.syncedAt = new Date().toISOString(); changed = true; } });   // alte Einträge: Frist startet jetzt
-  const keep = protocols.filter(p => !(p.status === 'done' && p.synced === true && p.syncedAt && p.id !== view.id && now - new Date(p.syncedAt).getTime() > maxAge));
-  if(keep.length !== protocols.length){ protocols = keep; changed = true; }
-  if(changed) save();
-}
-async function syncAll(silent){
-  const list = protocols.filter(p => p.status === 'done' && !p.synced);
-  if(!syncCanStart(list.length > 0, silent)) return;
-  let okCount = 0, err = null;
-  for(const p of list){
-    try{
-      recompute(p);
-      await api('upsert', {
-        protocol: {id:p.id, templateId:TEMPLATE.id, values:p.values, kundeName:p.kundeName || '', completedAt:p.completedAt, sourceKey:p.sourceKey || '',
-                   summary:{report:buildReport(p)}, pdf:await pdfBase64(p, reportOf(p), PDF_OPTS)},
-        cols: buildCols(p)
-      });
-      p.synced = true; p.syncedAt = new Date().toISOString(); save(); okCount++;
-    }catch(e){ err = e; break; }
-  }
-  syncEnd();
-  pruneSynced();
-  if(err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
-  else if(okCount) toast(`${okCount} Protokoll(e) in die Datenbank übertragen.`);
-  if(view.name === 'home' || view.name === 'report') render(); else updateNet();
-}
-
-/* Wert aus einer alten Sheet-Zeile in das Eingabeformat der App bringen */
-function fromSheet(f, x){
-  if(x == null) return '';
-  if(typeof x === 'boolean') x = x ? 'Ja' : 'Nein';
-  if(typeof x === 'number' && f.type !== 'calc') return fmtNum(x);   // Eingabefelder erwarten Text mit Komma
-  x = String(x);
-  if(f.type === 'date'){ const m = x.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/); if(m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
-  if(f.type === 'okfail') return x === 'Ja' ? 'i.O.' : x === 'Nein' ? 'n.i.O.' : x;   // ältere Zeilen: Ja/Nein
-  return x;
-}
-
-/* ---------- Aktionen ---------- */
-const Actions = {
-  home(){ go('home'); },
-  settings(){ iosSheet.open(settingsBody(), render); },
-  db(){ go('db', {q:view.q}); },
-  sync(){ syncAll(false); },
-
-  new(){
-    const values = {};
-    ALL_FIELDS.forEach(f => { values[f.id] = f.init != null ? (typeof f.init === 'function' ? f.init() : f.init) : ''; });
-    const p = {id:uid(), templateId:TEMPLATE.id, values, sig:{}, kundeName:'', page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
-    recompute(p);
-    protocols.unshift(p); save();
-    go('wizard', {id:p.id});
-  },
-  resume(d){ go('wizard', {id:d.id}); },
-  report(d){ go('report', {id:d.id}); },
-  reopen(d){
-    const p = protocols.find(x => x.id === d.id);
-    if(!confirm('Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.')) return;
-    p.status = 'draft'; p.synced = false; p.page = TEMPLATE.pages.length - 1; save();
-    go('wizard', {id:p.id});
-  },
-  del(d){
-    const p = protocols.find(x => x.id === d.id);
-    const msg = p.synced ? 'Protokoll aus der App entfernen? (Es bleibt in der Datenbank erhalten.)'
-      : p.status === 'done' ? 'ACHTUNG: Dieses Protokoll ist noch NICHT in der Datenbank. Wirklich endgültig löschen?' : 'Entwurf löschen?';
-    if(!confirm(msg)) return;
-    protocols = protocols.filter(x => x.id !== d.id); save(); render();
-  },
-
-  set(d){
-    const p = cur();
-    p.values[d.f] = p.values[d.f] === d.v && !isRequired(FIELD[d.f], p) ? '' : d.v;   // erneutes Tippen wählt wieder ab
-    recompute(p); save(); render();
-  },
-  allok(){
-    const p = cur();
-    TEMPLATE.pages[p.page].fields.forEach(f => { if(f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id]) p.values[f.id] = 'i.O.'; });
-    save(); render();
-  },
-  next(){
-    const p = cur();
-    if(pageErrors(p, p.page).length){
-      view.tried = true; render();
-      $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.'; toast('Bitte die markierten Felder prüfen.');
-      const first = document.querySelector('.field.err'); if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
-      return;
-    }
-    stepTo('fwd', () => { p.page++; save(); view.tried = false; });
-  },
-  prev(){ const p = cur(); if(p.page > 0) stepTo('back', () => { p.page--; save(); view.tried = false; }); },
-  jump(d){
-    const p = cur(), t = Number(d.i);
-    if(t === p.page){ view.tried = true; render(); window.scrollTo(0, 0); return; }
-    stepTo(t > p.page ? 'fwd' : 'back', () => { p.page = t; save(); view.tried = true; });
-  },
-  sigclear(d){ const p = cur(); delete p.sig[d.sig]; save(); render(); },
-  finish(){
-    const p = cur();
-    recompute(p);
-    const bad = TEMPLATE.pages.findIndex((pg, k) => pageErrors(p, k).length);
-    if(bad >= 0){
-      p.page = bad; save(); view.tried = true; render(); window.scrollTo(0, 0);
-      toast(`Bitte „${TEMPLATE.pages[bad].title}“ prüfen.`);
-      return;
-    }
-    if(PFLICHTFELDER && !p.sig.tech){ $('#pageerr').textContent = 'Bitte als Monteur unterschreiben.'; toast('Bitte als Monteur unterschreiben.'); return; }
-    p.status = 'done'; p.completedAt = new Date().toISOString(); p.synced = false;
-    save();
-    iosCheck();
-    go('report', {id:p.id});
-    syncAll(true);
-  },
-
-  async makepdf(d, btn){
-    if(!window.jspdf || !window.html2canvas){ toast('PDF-Modul nicht geladen – App einmal online neu starten.'); return; }
-    if(btn && btn.classList.contains('done')) return;   // Doppelstart verhindern
-    const r = reportForView();
-    if(!r) return;
-    const name = pdfName(r.id, 'ohne-Protokollnummer') + '.pdf', key = viewKey();
-    if(pdfBusy){ toast(pdfBusy !== key ? 'Es wird gerade ein anderes PDF erstellt …' : 'PDF wird noch erstellt …'); return; }   // gleicher Bericht: Doppelstart still verhindern
-    const cb = () => $('#bar .pdfb');   // immer der aktuell im DOM befindliche Knopf (die Leiste wird bei Neuzeichnen neu gebaut)
-    const setP = v => { pdfProg = v; const f = viewKey() === key ? $('#bar .pdfb .fill') : null; if(f) f.style.transform = 'scaleX(' + v + ')'; };
-    pdfBusy = key; setP(.05); { const b = cb(); if(b) b.classList.add('run'); }
-    // Fortschritt ist geschätzt (der gemeinsame PDF-Code meldet keinen): nähert sich 92 %, springt bei Fertigstellung auf 100 %
-    pdfTick = setInterval(() => setP(pdfProg + (.92 - pdfProg) * .07), 250);
-    try{
-      const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
-      clearInterval(pdfTick); setP(1);
-      await new Promise(res => setTimeout(res, RM() ? 0 : 240));
-      if(lastPdf) URL.revokeObjectURL(lastPdf.url);
-      lastPdf = {key, file:new File([blob], name, {type:'application/pdf'}), url:URL.createObjectURL(blob)};
-      pdfBusy = null;
-      if(view.name === 'report' && viewKey() === key){
-        const bar = $('#pdfbar'); if(bar) bar.innerHTML = pdfBarHtml();
-        setBar();   // baut Leiste neu auf (mit Teilen-Knopf) -> neuen Knopf in den Fertig-Zustand setzen
-        const nb = cb();
-        if(nb){ nb.classList.remove('run'); nb.classList.add('done'); setTimeout(() => nb.classList.remove('done'), 2600); }
+      <td style="text-align:right;white-space:nowrap">${
+        e.pdfUrl
+          ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
+          : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`
       }
-      toast('PDF fertig – jetzt „Teilen“ antippen.');
-    }catch(e){ toast('PDF konnte nicht erstellt werden: ' + e.message); }
-    finally{
-      clearInterval(pdfTick); pdfBusy = null; pdfProg = 0;
-      const b = cb(); if(b && !b.classList.contains('done')){ b.classList.remove('run'); setP(0); }
-    }
-  },
-  async sharepdf(){
-    if(!lastPdf) return;
-    const files = [lastPdf.file];
-    if(navigator.canShare && navigator.canShare({files})){
-      try{ await navigator.share({files, title:lastPdf.file.name}); }
-      catch(e){ if(e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message); }
-    } else {
-      window.open(lastPdf.url, '_blank');
-    }
-  },
-  print(){
-    const r = reportForView();
-    const old = document.title;
-    document.title = pdfName(r.id, 'ohne-Protokollnummer');
-    window.print();
-    setTimeout(() => { document.title = old; }, 1500);
-  },
+        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`,
+      )
+      .join('')}</tbody></table></div>`;
+      }
 
-  async dbload(){
-    if(!navigator.onLine){ toast('Offline – zeige gespeicherten Stand.'); return; }
-    try{
-      toast('Lade Daten …');
-      const j = await api('list');
-      dbCache = {at:new Date().toISOString(), list:j.list};
-      LS.set('rlt.db', dbCache);
-      toast(`${j.list.length} Einträge geladen.`);
-      render();
-    }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
-  },
-  async dbreport(d){
-    if(!navigator.onLine){ toast('Zum Öffnen eines Protokolls aus der Datenbank wird Internet benötigt.'); return; }
-    try{ toast('Lade Protokoll …'); const j = await api('get', {key:d.key}); go('report', {db:true, rep:j.report, key:d.key, q:view.q}); }
-    catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
-  },
-  async dbedit(d){
-    if(!navigator.onLine){ toast('Zum Laden aus der Datenbank wird Internet benötigt.'); return; }
-    try{
-      toast('Lade Protokoll …');
-      const j = await api('load', {key:d.key});
-      const local = j.appId && protocols.find(x => x.id === j.appId);
-      if(local && local.status === 'done' && !local.synced && !confirm('In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?')) return;
-      if(local && local.status === 'draft' && !confirm('Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?')) return;
-      const values = {};
-      ALL_FIELDS.forEach(f => {
-        const x = j.values ? j.values[f.id] : (f.col ? j.cols[f.col] : '');
-        values[f.id] = j.values ? (x == null ? '' : x) : fromSheet(f, x);
+      /* ---------- Unterschrift ---------- */
+      function initSig(canvas, p) {
+        const key = canvas.dataset.sig;
+        const r = canvas.getBoundingClientRect(),
+          dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(r.width * dpr);
+        canvas.height = Math.round(r.height * dpr);
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = ctx.fillStyle = '#0b1f3a';
+        const src = safeImg(p.sig[key]);
+        if (src) {
+          const img = new Image();
+          img.onload = () => ctx.drawImage(img, 0, 0, r.width, r.height);
+          img.src = src;
+        }
+        let drawing = false,
+          last = null;
+        const pt = (e) => {
+          const b = canvas.getBoundingClientRect();
+          return [e.clientX - b.left, e.clientY - b.top];
+        };
+        canvas.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          drawing = true;
+          last = pt(e);
+          canvas.setPointerCapture(e.pointerId);
+          ctx.beginPath();
+          ctx.arc(last[0], last[1], 1.1, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        canvas.addEventListener('pointermove', (e) => {
+          if (!drawing) return;
+          const q = pt(e);
+          ctx.beginPath();
+          ctx.moveTo(last[0], last[1]);
+          ctx.lineTo(q[0], q[1]);
+          ctx.stroke();
+          last = q;
+        });
+        const end = () => {
+          if (!drawing) return;
+          drawing = false;
+          const out = document.createElement('canvas');
+          out.width = Math.round(r.width);
+          out.height = Math.round(r.height);
+          out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
+          p.sig[key] = out.toDataURL('image/png');
+          save();
+        };
+        canvas.addEventListener('pointerup', end);
+        canvas.addEventListener('pointercancel', end);
+      }
+      const After = {
+        wizard() {
+          const p = cur();
+          if (p && TEMPLATE.pages[p.page].final)
+            document.querySelectorAll('canvas.sig').forEach((c) => initSig(c, p));
+          document
+            .querySelectorAll('.calc')
+            .forEach((el) => calcTouch(el.id.replace('calc-', ''), el.textContent, el));
+        },
+      };
+
+      /* ---------- Google-Sheet-Schnittstelle ---------- */
+      /* api, syncing, syncCanStart, syncEnd, netRender stehen in shared/sync.js */
+      /* Übertragene Protokolle werden 7 Tage nach der Übertragung aus der App entfernt (bleiben in der Datenbank) */
+      const KEEP_SYNCED_DAYS = 7;
+      function pruneSynced() {
+        const now = Date.now(),
+          maxAge = KEEP_SYNCED_DAYS * 864e5;
+        let changed = false;
+        protocols.forEach((p) => {
+          if (p.status === 'done' && p.synced === true && !p.syncedAt) {
+            p.syncedAt = new Date().toISOString();
+            changed = true;
+          }
+        }); // alte Einträge: Frist startet jetzt
+        const keep = protocols.filter(
+          (p) =>
+            !(
+              p.status === 'done' &&
+              p.synced === true &&
+              p.syncedAt &&
+              p.id !== view.id &&
+              now - new Date(p.syncedAt).getTime() > maxAge
+            ),
+        );
+        if (keep.length !== protocols.length) {
+          protocols = keep;
+          changed = true;
+        }
+        if (changed) save();
+      }
+      async function syncAll(silent) {
+        const list = protocols.filter((p) => p.status === 'done' && !p.synced);
+        if (!syncCanStart(list.length > 0, silent)) return;
+        let okCount = 0,
+          err = null;
+        for (const p of list) {
+          try {
+            recompute(p);
+            await api('upsert', {
+              protocol: {
+                id: p.id,
+                templateId: TEMPLATE.id,
+                values: p.values,
+                kundeName: p.kundeName || '',
+                completedAt: p.completedAt,
+                sourceKey: p.sourceKey || '',
+                summary: { report: buildReport(p) },
+                pdf: await pdfBase64(p, reportOf(p), PDF_OPTS),
+              },
+              cols: buildCols(p),
+            });
+            p.synced = true;
+            p.syncedAt = new Date().toISOString();
+            save();
+            okCount++;
+          } catch (e) {
+            err = e;
+            break;
+          }
+        }
+        syncEnd();
+        pruneSynced();
+        if (err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
+        else if (okCount) toast(`${okCount} Protokoll(e) in die Datenbank übertragen.`);
+        if (view.name === 'home' || view.name === 'report') render();
+        else updateNet();
+      }
+
+      /* Wert aus einer alten Sheet-Zeile in das Eingabeformat der App bringen */
+      function fromSheet(f, x) {
+        if (x == null) return '';
+        if (typeof x === 'boolean') x = x ? 'Ja' : 'Nein';
+        if (typeof x === 'number' && f.type !== 'calc') return fmtNum(x); // Eingabefelder erwarten Text mit Komma
+        x = String(x);
+        if (f.type === 'date') {
+          const m = x.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+          if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+        }
+        if (f.type === 'okfail') return x === 'Ja' ? 'i.O.' : x === 'Nein' ? 'n.i.O.' : x; // ältere Zeilen: Ja/Nein
+        return x;
+      }
+
+      /* ---------- Aktionen ---------- */
+      const Actions = {
+        home() {
+          go('home');
+        },
+        settings() {
+          iosSheet.open(settingsBody(), render);
+        },
+        db() {
+          go('db', { q: view.q });
+        },
+        sync() {
+          syncAll(false);
+        },
+
+        new() {
+          const values = {};
+          ALL_FIELDS.forEach((f) => {
+            values[f.id] = f.init != null ? (typeof f.init === 'function' ? f.init() : f.init) : '';
+          });
+          const p = {
+            id: uid(),
+            templateId: TEMPLATE.id,
+            values,
+            sig: {},
+            kundeName: '',
+            page: 0,
+            status: 'draft',
+            createdAt: new Date().toISOString(),
+            synced: false,
+          };
+          recompute(p);
+          protocols.unshift(p);
+          save();
+          go('wizard', { id: p.id });
+        },
+        resume(d) {
+          go('wizard', { id: d.id });
+        },
+        report(d) {
+          go('report', { id: d.id });
+        },
+        reopen(d) {
+          const p = protocols.find((x) => x.id === d.id);
+          if (
+            !confirm(
+              'Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.',
+            )
+          )
+            return;
+          p.status = 'draft';
+          p.synced = false;
+          p.page = TEMPLATE.pages.length - 1;
+          save();
+          go('wizard', { id: p.id });
+        },
+        del(d) {
+          const p = protocols.find((x) => x.id === d.id);
+          const msg = p.synced
+            ? 'Protokoll aus der App entfernen? (Es bleibt in der Datenbank erhalten.)'
+            : p.status === 'done'
+              ? 'ACHTUNG: Dieses Protokoll ist noch NICHT in der Datenbank. Wirklich endgültig löschen?'
+              : 'Entwurf löschen?';
+          if (!confirm(msg)) return;
+          protocols = protocols.filter((x) => x.id !== d.id);
+          save();
+          render();
+        },
+
+        set(d) {
+          const p = cur();
+          p.values[d.f] = p.values[d.f] === d.v && !isRequired(FIELD[d.f], p) ? '' : d.v; // erneutes Tippen wählt wieder ab
+          recompute(p);
+          save();
+          render();
+        },
+        allok() {
+          const p = cur();
+          TEMPLATE.pages[p.page].fields.forEach((f) => {
+            if (f.type === 'okfail' && isVis(f, p.values) && !p.values[f.id])
+              p.values[f.id] = 'i.O.';
+          });
+          save();
+          render();
+        },
+        next() {
+          const p = cur();
+          if (pageErrors(p, p.page).length) {
+            view.tried = true;
+            render();
+            $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.';
+            toast('Bitte die markierten Felder prüfen.');
+            const first = document.querySelector('.field.err');
+            if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          stepTo('fwd', () => {
+            p.page++;
+            save();
+            view.tried = false;
+          });
+        },
+        prev() {
+          const p = cur();
+          if (p.page > 0)
+            stepTo('back', () => {
+              p.page--;
+              save();
+              view.tried = false;
+            });
+        },
+        jump(d) {
+          const p = cur(),
+            t = Number(d.i);
+          if (t === p.page) {
+            view.tried = true;
+            render();
+            window.scrollTo(0, 0);
+            return;
+          }
+          stepTo(t > p.page ? 'fwd' : 'back', () => {
+            p.page = t;
+            save();
+            view.tried = true;
+          });
+        },
+        sigclear(d) {
+          const p = cur();
+          delete p.sig[d.sig];
+          save();
+          render();
+        },
+        finish() {
+          const p = cur();
+          recompute(p);
+          const bad = TEMPLATE.pages.findIndex((pg, k) => pageErrors(p, k).length);
+          if (bad >= 0) {
+            p.page = bad;
+            save();
+            view.tried = true;
+            render();
+            window.scrollTo(0, 0);
+            toast(`Bitte „${TEMPLATE.pages[bad].title}“ prüfen.`);
+            return;
+          }
+          if (PFLICHTFELDER && !p.sig.tech) {
+            $('#pageerr').textContent = 'Bitte als Monteur unterschreiben.';
+            toast('Bitte als Monteur unterschreiben.');
+            return;
+          }
+          p.status = 'done';
+          p.completedAt = new Date().toISOString();
+          p.synced = false;
+          save();
+          iosCheck();
+          go('report', { id: p.id });
+          syncAll(true);
+        },
+
+        async makepdf(d, btn) {
+          if (!window.jspdf || !window.html2canvas) {
+            toast('PDF-Modul nicht geladen – App einmal online neu starten.');
+            return;
+          }
+          if (btn && btn.classList.contains('done')) return; // Doppelstart verhindern
+          const r = reportForView();
+          if (!r) return;
+          const name = pdfName(r.id, 'ohne-Protokollnummer') + '.pdf',
+            key = viewKey();
+          if (pdfBusy) {
+            toast(
+              pdfBusy !== key
+                ? 'Es wird gerade ein anderes PDF erstellt …'
+                : 'PDF wird noch erstellt …',
+            );
+            return;
+          } // gleicher Bericht: Doppelstart still verhindern
+          const cb = () => $('#bar .pdfb'); // immer der aktuell im DOM befindliche Knopf (die Leiste wird bei Neuzeichnen neu gebaut)
+          const setP = (v) => {
+            pdfProg = v;
+            const f = viewKey() === key ? $('#bar .pdfb .fill') : null;
+            if (f) f.style.transform = 'scaleX(' + v + ')';
+          };
+          pdfBusy = key;
+          setP(0.05);
+          {
+            const b = cb();
+            if (b) b.classList.add('run');
+          }
+          // Fortschritt ist geschätzt (der gemeinsame PDF-Code meldet keinen): nähert sich 92 %, springt bei Fertigstellung auf 100 %
+          pdfTick = setInterval(() => setP(pdfProg + (0.92 - pdfProg) * 0.07), 250);
+          try {
+            const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
+            clearInterval(pdfTick);
+            setP(1);
+            await new Promise((res) => setTimeout(res, RM() ? 0 : 240));
+            if (lastPdf) URL.revokeObjectURL(lastPdf.url);
+            lastPdf = {
+              key,
+              file: new File([blob], name, { type: 'application/pdf' }),
+              url: URL.createObjectURL(blob),
+            };
+            pdfBusy = null;
+            if (view.name === 'report' && viewKey() === key) {
+              const bar = $('#pdfbar');
+              if (bar) bar.innerHTML = pdfBarHtml();
+              setBar(); // baut Leiste neu auf (mit Teilen-Knopf) -> neuen Knopf in den Fertig-Zustand setzen
+              const nb = cb();
+              if (nb) {
+                nb.classList.remove('run');
+                nb.classList.add('done');
+                setTimeout(() => nb.classList.remove('done'), 2600);
+              }
+            }
+            toast('PDF fertig – jetzt „Teilen“ antippen.');
+          } catch (e) {
+            toast('PDF konnte nicht erstellt werden: ' + e.message);
+          } finally {
+            clearInterval(pdfTick);
+            pdfBusy = null;
+            pdfProg = 0;
+            const b = cb();
+            if (b && !b.classList.contains('done')) {
+              b.classList.remove('run');
+              setP(0);
+            }
+          }
+        },
+        async sharepdf() {
+          if (!lastPdf) return;
+          const files = [lastPdf.file];
+          if (navigator.canShare && navigator.canShare({ files })) {
+            try {
+              await navigator.share({ files, title: lastPdf.file.name });
+            } catch (e) {
+              if (e.name !== 'AbortError') toast('Teilen fehlgeschlagen: ' + e.message);
+            }
+          } else {
+            window.open(lastPdf.url, '_blank');
+          }
+        },
+        print() {
+          const r = reportForView();
+          const old = document.title;
+          document.title = pdfName(r.id, 'ohne-Protokollnummer');
+          window.print();
+          setTimeout(() => {
+            document.title = old;
+          }, 1500);
+        },
+
+        async dbload() {
+          if (!navigator.onLine) {
+            toast('Offline – zeige gespeicherten Stand.');
+            return;
+          }
+          try {
+            toast('Lade Daten …');
+            const j = await api('list');
+            dbCache = { at: new Date().toISOString(), list: j.list };
+            LS.set('rlt.db', dbCache);
+            toast(`${j.list.length} Einträge geladen.`);
+            render();
+          } catch (e) {
+            toast('Laden fehlgeschlagen: ' + e.message);
+          }
+        },
+        async dbreport(d) {
+          if (!navigator.onLine) {
+            toast('Zum Öffnen eines Protokolls aus der Datenbank wird Internet benötigt.');
+            return;
+          }
+          try {
+            toast('Lade Protokoll …');
+            const j = await api('get', { key: d.key });
+            go('report', { db: true, rep: j.report, key: d.key, q: view.q });
+          } catch (e) {
+            toast('Laden fehlgeschlagen: ' + e.message);
+          }
+        },
+        async dbedit(d) {
+          if (!navigator.onLine) {
+            toast('Zum Laden aus der Datenbank wird Internet benötigt.');
+            return;
+          }
+          try {
+            toast('Lade Protokoll …');
+            const j = await api('load', { key: d.key });
+            const local = j.appId && protocols.find((x) => x.id === j.appId);
+            if (
+              local &&
+              local.status === 'done' &&
+              !local.synced &&
+              !confirm(
+                'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
+              )
+            )
+              return;
+            if (
+              local &&
+              local.status === 'draft' &&
+              !confirm(
+                'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
+              )
+            )
+              return;
+            const values = {};
+            ALL_FIELDS.forEach((f) => {
+              const x = j.values ? j.values[f.id] : f.col ? j.cols[f.col] : '';
+              values[f.id] = j.values ? (x == null ? '' : x) : fromSheet(f, x);
+            });
+            const p = {
+              id: j.appId || uid(),
+              templateId: TEMPLATE.id,
+              values,
+              sig: {},
+              kundeName: j.kundeName || '',
+              sourceKey: d.key,
+              page: 0,
+              status: 'draft',
+              createdAt: new Date().toISOString(),
+              synced: false,
+            };
+            recompute(p);
+            protocols = protocols.filter((x) => x.id !== p.id);
+            protocols.unshift(p);
+            save();
+            toast('Geladen – nach dem Bearbeiten neu unterschreiben und abschließen.');
+            go('wizard', { id: p.id });
+          } catch (e) {
+            toast('Laden fehlgeschlagen: ' + e.message);
+          }
+        },
+        async drivepdf() {
+          try {
+            toast('PDF wird in Google Drive erstellt …');
+            const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
+            const b64 = await new Promise((res, rej) => {
+              const fr = new FileReader();
+              fr.onload = () => res(String(fr.result).split(',')[1]);
+              fr.onerror = rej;
+              fr.readAsDataURL(blob);
+            });
+            const j = await api('savepdf', { key: view.key, pdf: b64 });
+            const e = dbCache.list.find((x) => x.key === view.key);
+            if (e) {
+              e.pdfUrl = j.url;
+              LS.set('rlt.db', dbCache);
+            }
+            toast('PDF in Google Drive gespeichert.');
+            window.open(j.url, '_blank');
+          } catch (e) {
+            toast('Fehler: ' + e.message);
+          }
+        },
+
+        savesettings(d) {
+          settingsSave(SETTINGS_FIELDS, 'rlt.settings');
+          if (d !== 'silent') toast('Gespeichert.');
+        },
+        async ping() {
+          Actions.savesettings('silent');
+          try {
+            await api('ping');
+            toast('Verbindung zur Datenbank funktioniert ✓');
+            syncAll(true);
+          } catch (e) {
+            toast('Verbindung fehlgeschlagen: ' + e.message);
+          }
+        },
+        backup() {
+          backupDownload(
+            { app: 'rlt-kwl', exportedAt: new Date().toISOString(), protocols },
+            `rlt-kwl-backup-${today()}.json`,
+          );
+        },
+      };
+
+      /* ---------- Events ---------- */
+      document.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-act]');
+        if (!b || b.disabled) return;
+        const fn = Actions[b.dataset.act];
+        if (fn) {
+          e.preventDefault();
+          if (navBusy) return;
+          fn(b.dataset, b);
+        } // während eines Seitenübergangs Tipps ignorieren
       });
-      const p = {id:j.appId || uid(), templateId:TEMPLATE.id, values, sig:{}, kundeName:j.kundeName || '', sourceKey:d.key,
-                 page:0, status:'draft', createdAt:new Date().toISOString(), synced:false};
-      recompute(p);
-      protocols = protocols.filter(x => x.id !== p.id);
-      protocols.unshift(p); save();
-      toast('Geladen – nach dem Bearbeiten neu unterschreiben und abschließen.');
-      go('wizard', {id:p.id});
-    }catch(e){ toast('Laden fehlgeschlagen: ' + e.message); }
-  },
-  async drivepdf(){
-    try{
-      toast('PDF wird in Google Drive erstellt …');
-      const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
-      const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
-      const j = await api('savepdf', {key:view.key, pdf:b64});
-      const e = dbCache.list.find(x => x.key === view.key); if(e){ e.pdfUrl = j.url; LS.set('rlt.db', dbCache); }
-      toast('PDF in Google Drive gespeichert.');
-      window.open(j.url, '_blank');
-    }catch(e){ toast('Fehler: ' + e.message); }
-  },
+      app.addEventListener('input', (e) => {
+        const el = e.target;
+        if (el.dataset.f && view.name === 'wizard') {
+          const p = cur(),
+            f = FIELD[el.dataset.f];
+          p.values[f.id] = el.value;
+          recompute(p);
+          save();
+          if (f.id === 'projekt' || f.id === 'kunde') setHeader(false); // Kopf-Unterzeile mitführen (kein Neuzeichnen)
+          if (el.dataset.other)
+            document
+              .querySelectorAll(`[data-act=set][data-f="${f.id}"]`)
+              .forEach((b) => b.classList.toggle('sel', b.dataset.v === el.value));
+          if (f.type === 'number') $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
+          TEMPLATE.pages[p.page].fields
+            .filter((c) => c.type === 'calc')
+            .forEach((c) => {
+              const ce = $('#calc-' + c.id),
+                ne = $('#note-' + c.id);
+              if (ce) {
+                const t = display(c, p.values[c.id]) || '—';
+                ce.textContent = t;
+                calcTouch(c.id, t, ce);
+              }
+              if (ne && c.note) ne.textContent = c.note(p.values);
+            });
+        } else if (el.id === 'dbsearch') {
+          view.q = el.value;
+          $('#dblist').innerHTML = dbList();
+        }
+      });
+      document.addEventListener('change', (e) => {
+        const el = e.target;
+        if (el.id === 's_import' && el.files[0]) {
+          backupImport(el.files[0], 'protocols', protocols, 'Protokolle', (list) => {
+            protocols = list;
+            save();
+          });
+        }
+      });
+      /* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage) */
+      iosSwipe.init({
+        back() {
+          if (view.name === 'wizard') {
+            const p = cur();
+            if (!p) return null;
+            if (p.page > 0) {
+              const t = p.page - 1;
+              return {
+                html: wizardHtml(p, t),
+                go() {
+                  p.page = t;
+                  save();
+                  view.tried = false;
+                  render();
+                  window.scrollTo(0, 0);
+                },
+              };
+            }
+            return {
+              html: Views.home(),
+              go() {
+                Actions.home();
+              },
+            };
+          }
+          if (view.name === 'report') {
+            if (view.db)
+              return {
+                html: Views.db(),
+                go() {
+                  Actions.db();
+                },
+              };
+            return {
+              html: Views.home(),
+              go() {
+                Actions.home();
+              },
+            };
+          }
+          if (view.name === 'db' || view.name === 'settings')
+            return {
+              html: Views.home(),
+              go() {
+                Actions.home();
+              },
+            };
+          return null;
+        },
+      });
+      window.addEventListener('online', () => {
+        updateNet();
+        syncAll(true);
+      });
+      window.addEventListener('offline', updateNet);
+      let lastW = window.innerWidth;
+      window.addEventListener('resize', () => {
+        // Drehen des iPads: Unterschriftsfelder neu aufbauen
+        if (
+          window.innerWidth !== lastW &&
+          view.name === 'wizard' &&
+          cur() &&
+          TEMPLATE.pages[cur().page].final
+        )
+          render();
+        lastW = window.innerWidth;
+      });
 
-  savesettings(d){
-    settingsSave(SETTINGS_FIELDS, 'rlt.settings');
-    if(d !== 'silent') toast('Gespeichert.');
-  },
-  async ping(){
-    Actions.savesettings('silent');
-    try{ await api('ping'); toast('Verbindung zur Datenbank funktioniert ✓'); syncAll(true); }
-    catch(e){ toast('Verbindung fehlgeschlagen: ' + e.message); }
-  },
-  backup(){
-    backupDownload({app:'rlt-kwl', exportedAt:new Date().toISOString(), protocols}, `rlt-kwl-backup-${today()}.json`);
-  }
-};
-
-/* ---------- Events ---------- */
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-act]');
-  if(!b || b.disabled) return;
-  const fn = Actions[b.dataset.act];
-  if(fn){ e.preventDefault(); if(navBusy) return; fn(b.dataset, b); }   // während eines Seitenübergangs Tipps ignorieren
-});
-app.addEventListener('input', e => {
-  const el = e.target;
-  if(el.dataset.f && view.name === 'wizard'){
-    const p = cur(), f = FIELD[el.dataset.f];
-    p.values[f.id] = el.value;
-    recompute(p); save();
-    if(f.id === 'projekt' || f.id === 'kunde') setHeader(false);   // Kopf-Unterzeile mitführen (kein Neuzeichnen)
-    if(el.dataset.other) document.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach(b => b.classList.toggle('sel', b.dataset.v === el.value));
-    if(f.type === 'number') $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
-    TEMPLATE.pages[p.page].fields.filter(c => c.type === 'calc').forEach(c => {
-      const ce = $('#calc-' + c.id), ne = $('#note-' + c.id);
-      if(ce){ const t = display(c, p.values[c.id]) || '—'; ce.textContent = t; calcTouch(c.id, t, ce); }
-      if(ne && c.note) ne.textContent = c.note(p.values);
-    });
-  } else if(el.id === 'dbsearch'){
-    view.q = el.value; $('#dblist').innerHTML = dbList();
-  }
-});
-document.addEventListener('change', e => {
-  const el = e.target;
-  if(el.id === 's_import' && el.files[0]){
-    backupImport(el.files[0], 'protocols', protocols, 'Protokolle', list => { protocols = list; save(); });
-  }
-});
-/* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage) */
-iosSwipe.init({back(){
-  if(view.name === 'wizard'){
-    const p = cur(); if(!p) return null;
-    if(p.page > 0){ const t = p.page - 1; return {html: wizardHtml(p, t), go(){ p.page = t; save(); view.tried = false; render(); window.scrollTo(0, 0); }}; }
-    return {html: Views.home(), go(){ Actions.home(); }};
-  }
-  if(view.name === 'report'){
-    if(view.db) return {html: Views.db(), go(){ Actions.db(); }};
-    return {html: Views.home(), go(){ Actions.home(); }};
-  }
-  if(view.name === 'db' || view.name === 'settings') return {html: Views.home(), go(){ Actions.home(); }};
-  return null;
-}});
-window.addEventListener('online', () => { updateNet(); syncAll(true); });
-window.addEventListener('offline', updateNet);
-let lastW = window.innerWidth;
-window.addEventListener('resize', () => {   // Drehen des iPads: Unterschriftsfelder neu aufbauen
-  if(window.innerWidth !== lastW && view.name === 'wizard' && cur() && TEMPLATE.pages[cur().page].final) render();
-  lastW = window.innerWidth;
-});
-
-/* ---------- Start ---------- */
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
-if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-pruneSynced();
-render();
-syncAll(true);
-</script>
-<script src="shared/theme.js"></script>
-</body>
+      /* ---------- Start ---------- */
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http'))
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      if (navigator.storage && navigator.storage.persist)
+        navigator.storage.persist().catch(() => {});
+      pruneSynced();
+      render();
+      syncAll(true);
+    </script>
+    <script src="shared/theme.js"></script>
+  </body>
 </html>

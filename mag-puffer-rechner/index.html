@@ -1,627 +1,1986 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="MAG &amp; Puffer">
-<meta name="theme-color" content="#1a1a1a">
-<script>(function(){try{var t=localStorage.getItem('muther-theme');var r=document.documentElement;if(t==='hell')r.setAttribute('data-theme','light');else if(t==='dunkel')r.setAttribute('data-theme','dark');}catch(e){}})();</script>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" href="icon-180.png">
-<title>MAG &amp; Puffer</title>
-<link rel="stylesheet" href="shared/base.css">
-<link rel="stylesheet" href="shared/knoepfe.css">
-<style>
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 800;font-display:swap;src:url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-:root{--selbg:var(--pri);--selfg:#fff}
-:root[data-theme=dark]{--selbg:var(--gold);--selfg:var(--pri)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--selbg:var(--gold);--selfg:var(--pri)}}
-[hidden]{display:none!important}
-html,body{min-height:100vh;min-height:100dvh}
-body{touch-action:manipulation}
-button,select,input,summary,a{touch-action:manipulation}
-:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-header :focus-visible{outline-color:#fff}
-header{padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
-main{max-width:940px;padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
-.pagetitle{outline:none}
-.sub{color:var(--muted);margin:0 0 12px;font-size:15px;overflow-wrap:anywhere}
-/* Startseite */
-.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:14px}
-.hub{appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:14px;text-align:left;min-height:104px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;transition:transform var(--t-fast) var(--out)}
-.hub:active{transform:scale(.98)}
-.hico{width:52px;height:52px;border-radius:12px;background:var(--gold);color:#1a1a1a;display:grid;place-items:center;flex:none}
-.hico svg{width:28px;height:28px}
-.htx strong{display:block;font-size:18px;line-height:1.25}
-.htx small{display:block;font-size:14px;color:var(--muted);margin-top:2px}
-.cnt{display:inline-block;min-width:24px;text-align:center;margin-left:6px;padding:0 8px;border-radius:99px;background:var(--bdg);font-size:13px;font-weight:700;color:var(--ink)}
-/* Ansicht */
-.view[hidden]{display:none}
-@media(prefers-reduced-motion:no-preference){.view{animation:vin 160ms var(--out)}}
-@keyframes vin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-/* Aufbau: Ergebnis zuerst (Hochformat), Querformat: Eingaben links, Ergebnis rechts */
-.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0 18px}
-@media(min-width:860px) and (orientation:landscape){
-  main{max-width:1180px}
-  .layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
-  .inp{grid-column:1;grid-row:1}
-  .res{grid-column:2;grid-row:1;position:sticky;top:calc(84px + env(safe-area-inset-top));max-height:calc(100dvh - 100px - env(safe-area-inset-top));overflow:auto;padding-bottom:4px}
-}
-.card h3{font-size:13px;color:var(--muted)}
-.card h3.big3{font-size:17px;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;margin:0 0 6px}
-/* Felder */
-input,select{min-height:48px;font-size:16px}
-select{appearance:none;-webkit-appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-input:focus-visible,select:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
-input.bad{border-color:var(--bad);border-width:2px}
-.unit{color:var(--muted);font-size:15px;min-width:34px;font-weight:600}
-.field{padding:10px 0}
-.ferr{display:flex;gap:6px;align-items:flex-start;color:var(--bad);font-size:14px;font-weight:600;margin-top:6px}
-.ferr svg{width:18px;height:18px;margin-top:1px}
-.seg2{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
-.seg2 .btn{flex:1;min-width:110px;min-height:48px}
-.rowline{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:8px 10px;align-items:end;padding:12px 0;border-bottom:1px solid var(--line)}
-.rowline>div:first-child{grid-column:1 / -1}
-.rowline select{width:100%;text-overflow:ellipsis}
-.rowline:last-of-type{border-bottom:0}
-.rowline .ferr{grid-column:1 / -1;margin-top:0}
-.rowline label{font-size:14px}
-.ib2{appearance:none;-webkit-appearance:none;width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--ctl);color:var(--bad);display:grid;place-items:center;padding:0;cursor:pointer}
-.ib2:active{filter:brightness(.92)}
-.sum{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;padding:12px 14px;background:var(--calc);border-radius:12px;font-variant-numeric:tabular-nums}
-.sum{overflow-wrap:anywhere}
-.sum b{font-size:clamp(18px,3vw,22px);overflow-wrap:anywhere;min-width:0}
-.swrow{display:flex;align-items:center;gap:14px;min-height:56px;padding:8px 2px;cursor:pointer;border-bottom:1px solid var(--line);margin:0}
-.swrow:last-of-type{border-bottom:0}
-.swrow input{width:28px;height:28px;min-height:28px;flex:none;accent-color:var(--selbg)}
-.swrow span{font-size:17px}
-.swrow small{display:block;font-size:14px;color:var(--muted);font-weight:400}
-/* Ergebnis */
-.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0}
-@media(min-width:700px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(min-width:860px) and (orientation:landscape){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.rt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;font-variant-numeric:tabular-nums;min-width:0}
-.rt small{display:block;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.rt b{display:block;font-size:clamp(26px,4.2vw,38px);line-height:1.1;margin:6px 0 2px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-.rt span{display:block;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
-.rt span.ohne{margin-top:4px;font-weight:600;color:var(--wfg)}
-.rt.main{border-color:var(--gold);border-left:6px solid var(--gold);background:var(--gold-soft)}
-:root[data-theme=dark] .rt.main{background:var(--gold-soft)}
-.msg{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:15px;line-height:1.4}
-.msg svg{width:22px;height:22px;flex:none;margin-top:1px}
-.msg.warn{background:var(--wbg);border:1px solid var(--wbd);border-left:5px solid var(--warn);color:var(--wfg)}
-.msg.err{background:var(--ebg);border:1px solid var(--ebd);border-left:5px solid var(--bad);color:var(--efg)}
-.msg.info{background:var(--hbg);border:1px solid var(--line);border-left:5px solid var(--gold);color:var(--hfg)}
-.msg b{font-weight:700}
-.msg>div{min-width:0;overflow-wrap:anywhere}
-.rb{font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--wbg);color:var(--wfg);border:1px solid var(--wbd);white-space:nowrap}
-details.rw{border:1px solid var(--line);border-radius:16px;background:var(--card);margin:10px 0}
-details.rw summary{min-height:48px;display:flex;align-items:center;padding:0 14px;font-weight:700;cursor:pointer;list-style:none}
-details.rw summary::-webkit-details-marker{display:none}
-details.rw summary::after{content:"";margin-left:auto;width:10px;height:10px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg);transition:transform 150ms}
-details.rw[open] summary::after{transform:rotate(-135deg)}
-details.rw dl{margin:0;padding:0 14px 12px}
-details.rw dl>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
-details.rw dt{color:var(--muted);font-size:15px}
-details.rw dt small{display:block;font-size:13px}
-details.rw dd{margin:0;font-weight:700;white-space:nowrap}
-.pv{list-style:none;margin:8px 0;padding:0}
-.pv li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-.pv li:last-child{border-bottom:0}
-.pv li span.l{color:var(--ink);font-weight:600;min-width:0}
-.pv li span.v{font-weight:700;font-size:20px;text-align:right;overflow-wrap:anywhere}
-.pv li span.v.m{color:var(--muted);font-size:15px;font-weight:600}
-.savebox{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
-.savebox .row{align-items:end;flex-wrap:nowrap}
-.savebox .row>div{flex:1;min-width:0}
-.savebox .btn{flex:none}
-.newrow{margin-top:10px}
-.newrow .btn{width:100%}
-.ncbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:12px}
-.ncbox[hidden]{display:none}
-.ncbox span{font-weight:600;flex:1 1 140px}
-.ncbox .btn{min-height:44px;min-width:44px}
-@media(max-width:560px){.savebox .row{flex-wrap:wrap}.savebox .btn{width:100%}}
-.btn.wide{width:100%;margin-top:8px}
-/* Gespeichert */
-.sv{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;padding:12px}
-.svmain{appearance:none;-webkit-appearance:none;flex:1;min-width:200px;min-height:56px;text-align:left;background:none;border:0;color:var(--ink);font:inherit;padding:4px 6px;cursor:pointer;border-radius:10px}
-.sv{min-width:0}
-.svmain strong{display:block;font-size:17px;overflow-wrap:anywhere}
-.svmain{min-width:min(200px,100%);overflow-wrap:anywhere}
-.svmain small{display:block;color:var(--muted);font-size:14px}
-.svmain em{display:block;overflow-wrap:anywhere;font-style:normal;font-size:15px;margin-top:2px;font-variant-numeric:tabular-nums}
-.svact{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
-<link rel="stylesheet" href="shared/ios.css">
-</head>
-<body>
-<header>
-  <button class="ib" id="back" type="button" hidden aria-label="Zurück zur Startseite"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-  <div class="logo" aria-hidden="true">M</div>
-  <div class="tt"><h1 id="ttl">MAG &amp; Puffer</h1><span id="sub">Ausdehnungsgefäß und Pufferspeicher</span></div>
-  <button class="ib themebtn" id="themebtn" type="button"></button>
-</header>
-<main>
-  <section class="view" id="v-home" aria-labelledby="h-home"></section>
-  <section class="view" id="v-mag" hidden aria-labelledby="h-mag"></section>
-  <section class="view" id="v-puffer" hidden aria-labelledby="h-puffer"></section>
-  <section class="view" id="v-saved" hidden aria-labelledby="h-saved"></section>
-  <section class="view" id="v-settings" hidden aria-labelledby="h-settings"></section>
-</main>
-<div id="toast" role="status" aria-live="polite"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MAG &amp; Puffer" />
+    <meta name="theme-color" content="#1a1a1a" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('muther-theme');
+          var r = document.documentElement;
+          if (t === 'hell') r.setAttribute('data-theme', 'light');
+          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="icon" type="image/png" href="icon-180.png" />
+    <title>MAG &amp; Puffer</title>
+    <link rel="stylesheet" href="shared/base.css" />
+    <link rel="stylesheet" href="shared/knoepfe.css" />
+    <style>
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+          U+FFFD;
+      }
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
+          U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+          U+A720-A7FF;
+      }
+      :root {
+        --selbg: var(--pri);
+        --selfg: #fff;
+      }
+      :root[data-theme='dark'] {
+        --selbg: var(--gold);
+        --selfg: var(--pri);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --selbg: var(--gold);
+          --selfg: var(--pri);
+        }
+      }
+      [hidden] {
+        display: none !important;
+      }
+      html,
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      body {
+        touch-action: manipulation;
+      }
+      button,
+      select,
+      input,
+      summary,
+      a {
+        touch-action: manipulation;
+      }
+      :focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 2px;
+      }
+      header :focus-visible {
+        outline-color: #fff;
+      }
+      header {
+        padding-left: calc(16px + env(safe-area-inset-left));
+        padding-right: calc(16px + env(safe-area-inset-right));
+      }
+      main {
+        max-width: 940px;
+        padding-left: calc(16px + env(safe-area-inset-left));
+        padding-right: calc(16px + env(safe-area-inset-right));
+      }
+      .pagetitle {
+        outline: none;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 12px;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+      }
+      /* Startseite */
+      .tgrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .hub {
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-align: left;
+        min-height: 104px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        color: var(--ink);
+        font: inherit;
+        cursor: pointer;
+        transition: transform var(--t-fast) var(--out);
+      }
+      .hub:active {
+        transform: scale(0.98);
+      }
+      .hico {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: var(--gold);
+        color: #1a1a1a;
+        display: grid;
+        place-items: center;
+        flex: none;
+      }
+      .hico svg {
+        width: 28px;
+        height: 28px;
+      }
+      .htx strong {
+        display: block;
+        font-size: 18px;
+        line-height: 1.25;
+      }
+      .htx small {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .cnt {
+        display: inline-block;
+        min-width: 24px;
+        text-align: center;
+        margin-left: 6px;
+        padding: 0 8px;
+        border-radius: 99px;
+        background: var(--bdg);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      /* Ansicht */
+      .view[hidden] {
+        display: none;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .view {
+          animation: vin 160ms var(--out);
+        }
+      }
+      @keyframes vin {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      /* Aufbau: Ergebnis zuerst (Hochformat), Querformat: Eingaben links, Ergebnis rechts */
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0 18px;
+      }
+      @media (min-width: 860px) and (orientation: landscape) {
+        main {
+          max-width: 1180px;
+        }
+        .layout {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          align-items: start;
+        }
+        .inp {
+          grid-column: 1;
+          grid-row: 1;
+        }
+        .res {
+          grid-column: 2;
+          grid-row: 1;
+          position: sticky;
+          top: calc(84px + env(safe-area-inset-top));
+          max-height: calc(100dvh - 100px - env(safe-area-inset-top));
+          overflow: auto;
+          padding-bottom: 4px;
+        }
+      }
+      .card h3 {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .card h3.big3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        text-transform: none;
+        letter-spacing: 0;
+        margin: 0 0 6px;
+      }
+      /* Felder */
+      input,
+      select {
+        min-height: 48px;
+        font-size: 16px;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 36px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+      }
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 1px;
+      }
+      input.bad {
+        border-color: var(--bad);
+        border-width: 2px;
+      }
+      .unit {
+        color: var(--muted);
+        font-size: 15px;
+        min-width: 34px;
+        font-weight: 600;
+      }
+      .field {
+        padding: 10px 0;
+      }
+      .ferr {
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
+        color: var(--bad);
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+      .ferr svg {
+        width: 18px;
+        height: 18px;
+        margin-top: 1px;
+      }
+      .seg2 {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 6px 0 8px;
+      }
+      .seg2 .btn {
+        flex: 1;
+        min-width: 110px;
+        min-height: 48px;
+      }
+      .rowline {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 48px;
+        gap: 8px 10px;
+        align-items: end;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .rowline > div:first-child {
+        grid-column: 1 / -1;
+      }
+      .rowline select {
+        width: 100%;
+        text-overflow: ellipsis;
+      }
+      .rowline:last-of-type {
+        border-bottom: 0;
+      }
+      .rowline .ferr {
+        grid-column: 1 / -1;
+        margin-top: 0;
+      }
+      .rowline label {
+        font-size: 14px;
+      }
+      .ib2 {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--ctl);
+        color: var(--bad);
+        display: grid;
+        place-items: center;
+        padding: 0;
+        cursor: pointer;
+      }
+      .ib2:active {
+        filter: brightness(0.92);
+      }
+      .sum {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        padding: 12px 14px;
+        background: var(--calc);
+        border-radius: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+      .sum {
+        overflow-wrap: anywhere;
+      }
+      .sum b {
+        font-size: clamp(18px, 3vw, 22px);
+        overflow-wrap: anywhere;
+        min-width: 0;
+      }
+      .swrow {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 56px;
+        padding: 8px 2px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--line);
+        margin: 0;
+      }
+      .swrow:last-of-type {
+        border-bottom: 0;
+      }
+      .swrow input {
+        width: 28px;
+        height: 28px;
+        min-height: 28px;
+        flex: none;
+        accent-color: var(--selbg);
+      }
+      .swrow span {
+        font-size: 17px;
+      }
+      .swrow small {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      /* Ergebnis */
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 10px 0;
+      }
+      @media (min-width: 700px) {
+        .tiles {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      @media (min-width: 860px) and (orientation: landscape) {
+        .tiles {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .rt {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        font-variant-numeric: tabular-nums;
+        min-width: 0;
+      }
+      .rt small {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .rt b {
+        display: block;
+        font-size: clamp(26px, 4.2vw, 38px);
+        line-height: 1.1;
+        margin: 6px 0 2px;
+        overflow-wrap: anywhere;
+        font-variant-numeric: tabular-nums;
+      }
+      .rt span {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+      }
+      .rt span.ohne {
+        margin-top: 4px;
+        font-weight: 600;
+        color: var(--wfg);
+      }
+      .rt.main {
+        border-color: var(--gold);
+        border-left: 6px solid var(--gold);
+        background: var(--gold-soft);
+      }
+      :root[data-theme='dark'] .rt.main {
+        background: var(--gold-soft);
+      }
+      .msg {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin: 10px 0;
+        font-size: 15px;
+        line-height: 1.4;
+      }
+      .msg svg {
+        width: 22px;
+        height: 22px;
+        flex: none;
+        margin-top: 1px;
+      }
+      .msg.warn {
+        background: var(--wbg);
+        border: 1px solid var(--wbd);
+        border-left: 5px solid var(--warn);
+        color: var(--wfg);
+      }
+      .msg.err {
+        background: var(--ebg);
+        border: 1px solid var(--ebd);
+        border-left: 5px solid var(--bad);
+        color: var(--efg);
+      }
+      .msg.info {
+        background: var(--hbg);
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--gold);
+        color: var(--hfg);
+      }
+      .msg b {
+        font-weight: 700;
+      }
+      .msg > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .rb {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 99px;
+        background: var(--wbg);
+        color: var(--wfg);
+        border: 1px solid var(--wbd);
+        white-space: nowrap;
+      }
+      details.rw {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        margin: 10px 0;
+      }
+      details.rw summary {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        font-weight: 700;
+        cursor: pointer;
+        list-style: none;
+      }
+      details.rw summary::-webkit-details-marker {
+        display: none;
+      }
+      details.rw summary::after {
+        content: '';
+        margin-left: auto;
+        width: 10px;
+        height: 10px;
+        border-right: 2px solid var(--ink);
+        border-bottom: 2px solid var(--ink);
+        transform: rotate(45deg);
+        transition: transform 150ms;
+      }
+      details.rw[open] summary::after {
+        transform: rotate(-135deg);
+      }
+      details.rw dl {
+        margin: 0;
+        padding: 0 14px 12px;
+      }
+      details.rw dl > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border-top: 1px solid var(--line);
+        font-variant-numeric: tabular-nums;
+      }
+      details.rw dt {
+        color: var(--muted);
+        font-size: 15px;
+      }
+      details.rw dt small {
+        display: block;
+        font-size: 13px;
+      }
+      details.rw dd {
+        margin: 0;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .pv {
+        list-style: none;
+        margin: 8px 0;
+        padding: 0;
+      }
+      .pv li {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-variant-numeric: tabular-nums;
+      }
+      .pv li:last-child {
+        border-bottom: 0;
+      }
+      .pv li span.l {
+        color: var(--ink);
+        font-weight: 600;
+        min-width: 0;
+      }
+      .pv li span.v {
+        font-weight: 700;
+        font-size: 20px;
+        text-align: right;
+        overflow-wrap: anywhere;
+      }
+      .pv li span.v.m {
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .savebox {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px dashed var(--line);
+      }
+      .savebox .row {
+        align-items: end;
+        flex-wrap: nowrap;
+      }
+      .savebox .row > div {
+        flex: 1;
+        min-width: 0;
+      }
+      .savebox .btn {
+        flex: none;
+      }
+      .newrow {
+        margin-top: 10px;
+      }
+      .newrow .btn {
+        width: 100%;
+      }
+      .ncbox {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--warn);
+        border-radius: 12px;
+      }
+      .ncbox[hidden] {
+        display: none;
+      }
+      .ncbox span {
+        font-weight: 600;
+        flex: 1 1 140px;
+      }
+      .ncbox .btn {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      @media (max-width: 560px) {
+        .savebox .row {
+          flex-wrap: wrap;
+        }
+        .savebox .btn {
+          width: 100%;
+        }
+      }
+      .btn.wide {
+        width: 100%;
+        margin-top: 8px;
+      }
+      /* Gespeichert */
+      .sv {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        flex-wrap: wrap;
+        padding: 12px;
+      }
+      .svmain {
+        appearance: none;
+        -webkit-appearance: none;
+        flex: 1;
+        min-width: 200px;
+        min-height: 56px;
+        text-align: left;
+        background: none;
+        border: 0;
+        color: var(--ink);
+        font: inherit;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 10px;
+      }
+      .sv {
+        min-width: 0;
+      }
+      .svmain strong {
+        display: block;
+        font-size: 17px;
+        overflow-wrap: anywhere;
+      }
+      .svmain {
+        min-width: min(200px, 100%);
+        overflow-wrap: anywhere;
+      }
+      .svmain small {
+        display: block;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .svmain em {
+        display: block;
+        overflow-wrap: anywhere;
+        font-style: normal;
+        font-size: 15px;
+        margin-top: 2px;
+        font-variant-numeric: tabular-nums;
+      }
+      .svact {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="shared/ios.css" />
+  </head>
+  <body>
+    <header>
+      <button class="ib" id="back" type="button" hidden aria-label="Zurück zur Startseite">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+      </button>
+      <div class="logo" aria-hidden="true">M</div>
+      <div class="tt">
+        <h1 id="ttl">MAG &amp; Puffer</h1>
+        <span id="sub">Ausdehnungsgefäß und Pufferspeicher</span>
+      </div>
+      <button class="ib themebtn" id="themebtn" type="button"></button>
+    </header>
+    <main>
+      <section class="view" id="v-home" aria-labelledby="h-home"></section>
+      <section class="view" id="v-mag" hidden aria-labelledby="h-mag"></section>
+      <section class="view" id="v-puffer" hidden aria-labelledby="h-puffer"></section>
+      <section class="view" id="v-saved" hidden aria-labelledby="h-saved"></section>
+      <section class="view" id="v-settings" hidden aria-labelledby="h-settings"></section>
+    </main>
+    <div id="toast" role="status" aria-live="polite"></div>
 
-<script src="shared/core.js"></script>
-<script src="engine.js"></script>
-<script>
-(function(){
-'use strict';
-const E = window.MagEngine;
-const KEY_DRAFT = 'mag-entwurf', KEY_SAVED = 'mag-gespeichert', KEY_SET = 'mag-settings';
+    <script src="shared/core.js"></script>
+    <script src="engine.js"></script>
+    <script>
+      (function () {
+        'use strict';
+        const E = window.MagEngine;
+        const KEY_DRAFT = 'mag-entwurf',
+          KEY_SAVED = 'mag-gespeichert',
+          KEY_SET = 'mag-settings';
 
-/* ---------- Hilfen ---------- */
-// Zahl aus Text: Komma und Punkt als Dezimaltrenner. Leer = NaN.
-const TAUSENDER = /^[1-9]\d{0,2}(\.\d{3})+$/;
-function num(v){
-  if (v === '' || v == null) return NaN;
-  const s = String(v).trim();
-  if (!/^\d+([.,]\d+)?$/.test(s) || TAUSENDER.test(s)) return NaN; // kein Minus, kein Tausenderpunkt, keine 1e3 / 0x10
-  return Number(s.replace(',', '.'));
-}
-window.num = num; // core.js (isN) erwartet num()
-const empty = v => v == null || String(v).trim() === '';
-const toE = v => empty(v) ? '' : num(v);
-const f = (v, d) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
-const isObj = o => o && typeof o === 'object' && !Array.isArray(o);
+        /* ---------- Hilfen ---------- */
+        // Zahl aus Text: Komma und Punkt als Dezimaltrenner. Leer = NaN.
+        const TAUSENDER = /^[1-9]\d{0,2}(\.\d{3})+$/;
+        function num(v) {
+          if (v === '' || v == null) return NaN;
+          const s = String(v).trim();
+          if (!/^\d+([.,]\d+)?$/.test(s) || TAUSENDER.test(s)) return NaN; // kein Minus, kein Tausenderpunkt, keine 1e3 / 0x10
+          return Number(s.replace(',', '.'));
+        }
+        window.num = num; // core.js (isN) erwartet num()
+        const empty = (v) => v == null || String(v).trim() === '';
+        const toE = (v) => (empty(v) ? '' : num(v));
+        const f = (v, d) =>
+          Number(v).toLocaleString('de-DE', {
+            minimumFractionDigits: d || 0,
+            maximumFractionDigits: d || 0,
+          });
+        const isObj = (o) => o && typeof o === 'object' && !Array.isArray(o);
 
-const I = {
-  back: '<path d="m15 18-6-6 6-6"/>',
-  warn: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
-  err: '<circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/>',
-  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-5M12 8h.01"/>',
-  trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  mag: '<circle cx="12" cy="13" r="7"/><path d="M12 3v3M9 13h6"/>',
-  puf: '<rect x="6" y="3" width="12" height="18" rx="3"/><path d="M6 9h12M6 15h12"/>',
-  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
-  set: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
-  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
-};
-const ic = (n, cls) => '<svg class="' + (cls || 'ico') + '" viewBox="0 0 24 24" aria-hidden="true">' + I[n] + '</svg>';
-const msg = (type, html) => '<div class="msg ' + type + '">' + ic(type === 'warn' ? 'warn' : type === 'err' ? 'err' : 'info') + '<div>' + html + '</div></div>';
+        const I = {
+          back: '<path d="m15 18-6-6 6-6"/>',
+          warn: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+          err: '<circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/>',
+          info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-5M12 8h.01"/>',
+          trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
+          plus: '<path d="M12 5v14M5 12h14"/>',
+          mag: '<circle cx="12" cy="13" r="7"/><path d="M12 3v3M9 13h6"/>',
+          puf: '<rect x="6" y="3" width="12" height="18" rx="3"/><path d="M6 9h12M6 15h12"/>',
+          save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+          set: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+          arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+        };
+        const ic = (n, cls) =>
+          '<svg class="' +
+          (cls || 'ico') +
+          '" viewBox="0 0 24 24" aria-hidden="true">' +
+          I[n] +
+          '</svg>';
+        const msg = (type, html) =>
+          '<div class="msg ' +
+          type +
+          '">' +
+          ic(type === 'warn' ? 'warn' : type === 'err' ? 'err' : 'info') +
+          '<div>' +
+          html +
+          '</div></div>';
 
-/* ---------- Zustand ---------- */
-const ERZ = { wp: 'Wärmepumpe', kessel: 'Gas-/Öl-Kessel', pellet: 'Pellet', holz: 'Scheitholz' };
-const erlaubt = k => E.VARIANTEN_JE_ERZEUGER[S.erzeuger].indexOf(k) >= 0;
-const DEF = () => ({
-  erzeuger: 'wp',
-  mag: { mode: 'direkt', direkt: '', hf: [{ typ: 'radiator', kW: '' }], ro: [{ typ: 'cu-15x1', m: '' }], pufferL: '', wpL: '', T: '', H: '', psv: '3', psvFrei: '' },
-  puf: { sperrzeit: { on: true, Q: '', h: '', dT: '' }, takt: { on: false, Pmin: '', min: '', dT: '' }, abtauung: { on: false, P: '', l: '', anr: '' }, foerderung: { on: false, P: '', l: '' }, bimschv: { on: false, P: '', V: '' } },
-  name: ''
-});
-function merge(d, s){
-  const prim = x => typeof x === 'string' || typeof x === 'number';
-  if (Array.isArray(d)) return Array.isArray(s) ? s.filter(isObj).map(x => { const o = {}; for (const k in x) if (prim(x[k])) o[k] = String(x[k]); return o; }) : d;
-  if (isObj(d)) { const o = {}; for (const k in d) o[k] = merge(d[k], isObj(s) ? s[k] : undefined); return o; }
-  if (typeof d === 'boolean') return typeof s === 'boolean' ? s : d;
-  return prim(s) ? String(s) : d;
-}
-function loadState(s){ const o = merge(DEF(), s); if (o.mag.mode !== 'direkt' && o.mag.mode !== 'schaetzen') o.mag.mode = 'direkt'; if (!ERZ[o.erzeuger]) o.erzeuger = 'wp'; return o; }
-let S = loadState(LS.get(KEY_DRAFT, null));
-let ST = merge({ p0min: '0,7', lkw: '20' }, LS.get(KEY_SET, null));
-let SAVED = LS.get(KEY_SAVED, []); if (!Array.isArray(SAVED)) SAVED = [];
-SAVED = SAVED.filter(s => s && typeof s === 'object' && s.id);
-let lastMag = null, lastPuf = null, view = 'home', confirmId = null, magDetOpen = false;
+        /* ---------- Zustand ---------- */
+        const ERZ = {
+          wp: 'Wärmepumpe',
+          kessel: 'Gas-/Öl-Kessel',
+          pellet: 'Pellet',
+          holz: 'Scheitholz',
+        };
+        const erlaubt = (k) => E.VARIANTEN_JE_ERZEUGER[S.erzeuger].indexOf(k) >= 0;
+        const DEF = () => ({
+          erzeuger: 'wp',
+          mag: {
+            mode: 'direkt',
+            direkt: '',
+            hf: [{ typ: 'radiator', kW: '' }],
+            ro: [{ typ: 'cu-15x1', m: '' }],
+            pufferL: '',
+            wpL: '',
+            T: '',
+            H: '',
+            psv: '3',
+            psvFrei: '',
+          },
+          puf: {
+            sperrzeit: { on: true, Q: '', h: '', dT: '' },
+            takt: { on: false, Pmin: '', min: '', dT: '' },
+            abtauung: { on: false, P: '', l: '', anr: '' },
+            foerderung: { on: false, P: '', l: '' },
+            bimschv: { on: false, P: '', V: '' },
+          },
+          name: '',
+        });
+        function merge(d, s) {
+          const prim = (x) => typeof x === 'string' || typeof x === 'number';
+          if (Array.isArray(d))
+            return Array.isArray(s)
+              ? s.filter(isObj).map((x) => {
+                  const o = {};
+                  for (const k in x) if (prim(x[k])) o[k] = String(x[k]);
+                  return o;
+                })
+              : d;
+          if (isObj(d)) {
+            const o = {};
+            for (const k in d) o[k] = merge(d[k], isObj(s) ? s[k] : undefined);
+            return o;
+          }
+          if (typeof d === 'boolean') return typeof s === 'boolean' ? s : d;
+          return prim(s) ? String(s) : d;
+        }
+        function loadState(s) {
+          const o = merge(DEF(), s);
+          if (o.mag.mode !== 'direkt' && o.mag.mode !== 'schaetzen') o.mag.mode = 'direkt';
+          if (!ERZ[o.erzeuger]) o.erzeuger = 'wp';
+          return o;
+        }
+        let S = loadState(LS.get(KEY_DRAFT, null));
+        let ST = merge({ p0min: '0,7', lkw: '20' }, LS.get(KEY_SET, null));
+        let SAVED = LS.get(KEY_SAVED, []);
+        if (!Array.isArray(SAVED)) SAVED = [];
+        SAVED = SAVED.filter((s) => s && typeof s === 'object' && s.id);
+        let lastMag = null,
+          lastPuf = null,
+          view = 'home',
+          confirmId = null,
+          magDetOpen = false;
 
-const root = p => p.startsWith('st.') ? ST : S;
-const parts = p => (p.startsWith('st.') ? p.slice(3) : p).split('.');
-function get(p){ let o = root(p); for (const k of parts(p)) { if (o == null) return undefined; o = o[k]; } return o; }
-function set(p, v){ const ks = parts(p); let o = root(p); for (let i = 0; i < ks.length - 1; i++) o = o[ks[i]]; o[ks[ks.length - 1]] = v; }
-const saveDraft = () => LS.set(KEY_DRAFT, S);
-const saveSet = () => LS.set(KEY_SET, ST);
+        const root = (p) => (p.startsWith('st.') ? ST : S);
+        const parts = (p) => (p.startsWith('st.') ? p.slice(3) : p).split('.');
+        function get(p) {
+          let o = root(p);
+          for (const k of parts(p)) {
+            if (o == null) return undefined;
+            o = o[k];
+          }
+          return o;
+        }
+        function set(p, v) {
+          const ks = parts(p);
+          let o = root(p);
+          for (let i = 0; i < ks.length - 1; i++) o = o[ks[i]];
+          o[ks[ks.length - 1]] = v;
+        }
+        const saveDraft = () => LS.set(KEY_DRAFT, S);
+        const saveSet = () => LS.set(KEY_SET, ST);
 
-const p0min = () => { const n = num(ST.p0min); return (empty(ST.p0min) || !isFinite(n) || n < 0) ? E.P0_MIN_STANDARD : n; };
-const lkw = () => { const n = num(ST.lkw); return (empty(ST.lkw) || !isFinite(n) || n <= 0) ? E.L_PRO_KW_STANDARD : n; };
+        const p0min = () => {
+          const n = num(ST.p0min);
+          return empty(ST.p0min) || !isFinite(n) || n < 0 ? E.P0_MIN_STANDARD : n;
+        };
+        const lkw = () => {
+          const n = num(ST.lkw);
+          return empty(ST.lkw) || !isFinite(n) || n <= 0 ? E.L_PRO_KW_STANDARD : n;
+        };
 
-/* ---------- Prüfregeln ---------- */
-const R = {
-  'mag.direkt': 'gt0', 'mag.hf.#.kW': 'ge0', 'mag.ro.#.m': 'ge0', 'mag.pufferL': 'ge0', 'mag.wpL': 'ge0',
-  'mag.T': 'T', 'mag.H': 'ge0', 'mag.psvFrei': 'gt0',
-  'puf.sperrzeit.Q': 'gt0', 'puf.sperrzeit.h': 'gt0', 'puf.sperrzeit.dT': 'gt0',
-  'puf.takt.Pmin': 'gt0', 'puf.takt.min': 'gt0', 'puf.takt.dT': 'gt0',
-  'puf.abtauung.P': 'gt0', 'puf.abtauung.l': 'gt0', 'puf.abtauung.anr': 'ge0',
-  'puf.foerderung.P': 'gt0', 'puf.foerderung.l': 'gt0', 'puf.bimschv.P': 'gt0', 'puf.bimschv.V': 'gt0',
-  'st.p0min': 'ge0', 'st.lkw': 'gt0'
-};
-function chk(p){
-  const rule = R[p.replace(/\.\d+\./g, '.#.')];
-  const v = get(p);
-  if (!rule || empty(v)) return '';
-  const n = num(v);
-  if (TAUSENDER.test(String(v).trim())) return 'Bitte ohne Tausenderpunkt eingeben';
-  if (!isFinite(n)) return String(v).trim().startsWith('-') ? 'Bitte einen Wert ab 0 eingeben.' : 'Bitte eine Zahl eingeben (z. B. 12,5).';
-  if (rule === 'ge0' && n < 0) return 'Bitte einen Wert ab 0 eingeben.';
-  if (rule === 'gt0' && n <= 0) return 'Bitte einen Wert größer 0 eingeben.';
-  if (rule === 'T' && (n < 10 || n > 100)) return 'Bitte einen Wert zwischen 10 und 100 °C eingeben.';
-  return '';
-}
-function showErr(p, m){
-  const el = document.getElementById('e-' + p), inp = document.getElementById('f-' + p);
-  if (el) { el.hidden = !m; el.innerHTML = m ? ic('err') + '<span>' + esc(m) + '</span>' : ''; }
-  if (inp) { inp.classList.toggle('bad', !!m); if (m) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); }
-}
-const errCount = paths => paths.filter(p => chk(p)).length;
+        /* ---------- Prüfregeln ---------- */
+        const R = {
+          'mag.direkt': 'gt0',
+          'mag.hf.#.kW': 'ge0',
+          'mag.ro.#.m': 'ge0',
+          'mag.pufferL': 'ge0',
+          'mag.wpL': 'ge0',
+          'mag.T': 'T',
+          'mag.H': 'ge0',
+          'mag.psvFrei': 'gt0',
+          'puf.sperrzeit.Q': 'gt0',
+          'puf.sperrzeit.h': 'gt0',
+          'puf.sperrzeit.dT': 'gt0',
+          'puf.takt.Pmin': 'gt0',
+          'puf.takt.min': 'gt0',
+          'puf.takt.dT': 'gt0',
+          'puf.abtauung.P': 'gt0',
+          'puf.abtauung.l': 'gt0',
+          'puf.abtauung.anr': 'ge0',
+          'puf.foerderung.P': 'gt0',
+          'puf.foerderung.l': 'gt0',
+          'puf.bimschv.P': 'gt0',
+          'puf.bimschv.V': 'gt0',
+          'st.p0min': 'ge0',
+          'st.lkw': 'gt0',
+        };
+        function chk(p) {
+          const rule = R[p.replace(/\.\d+\./g, '.#.')];
+          const v = get(p);
+          if (!rule || empty(v)) return '';
+          const n = num(v);
+          if (TAUSENDER.test(String(v).trim())) return 'Bitte ohne Tausenderpunkt eingeben';
+          if (!isFinite(n))
+            return String(v).trim().startsWith('-')
+              ? 'Bitte einen Wert ab 0 eingeben.'
+              : 'Bitte eine Zahl eingeben (z. B. 12,5).';
+          if (rule === 'ge0' && n < 0) return 'Bitte einen Wert ab 0 eingeben.';
+          if (rule === 'gt0' && n <= 0) return 'Bitte einen Wert größer 0 eingeben.';
+          if (rule === 'T' && (n < 10 || n > 100))
+            return 'Bitte einen Wert zwischen 10 und 100 °C eingeben.';
+          return '';
+        }
+        function showErr(p, m) {
+          const el = document.getElementById('e-' + p),
+            inp = document.getElementById('f-' + p);
+          if (el) {
+            el.hidden = !m;
+            el.innerHTML = m ? ic('err') + '<span>' + esc(m) + '</span>' : '';
+          }
+          if (inp) {
+            inp.classList.toggle('bad', !!m);
+            if (m) inp.setAttribute('aria-invalid', 'true');
+            else inp.removeAttribute('aria-invalid');
+          }
+        }
+        const errCount = (paths) => paths.filter((p) => chk(p)).length;
 
-/* ---------- Eingabe-Bausteine ---------- */
-const F = (k, label, unit, hint, ph) =>
-  '<div class="field"><label for="f-' + k + '">' + label + (unit ? ' (' + unit + ')' : '') + '</label>' +
-  (hint ? '<div class="fhint">' + hint + '</div>' : '') +
-  '<div class="inunit"><input id="f-' + k + '" data-k="' + k + '" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="' + (ph || '') + '" aria-describedby="e-' + k + '">' +
-  (unit ? '<span class="unit" aria-hidden="true">' + unit + '</span>' : '') + '</div>' +
-  '<div class="ferr" id="e-' + k + '" role="alert" hidden></div></div>';
-const FN = k => '<div class="field"><label for="f-name-' + k + '">Name (Kunde / Projekt), optional</label><input id="f-name-' + k + '" data-k="name" type="text" autocomplete="off" maxlength="80" placeholder="z. B. Familie Muster"></div>';
+        /* ---------- Eingabe-Bausteine ---------- */
+        const F = (k, label, unit, hint, ph) =>
+          '<div class="field"><label for="f-' +
+          k +
+          '">' +
+          label +
+          (unit ? ' (' + unit + ')' : '') +
+          '</label>' +
+          (hint ? '<div class="fhint">' + hint + '</div>' : '') +
+          '<div class="inunit"><input id="f-' +
+          k +
+          '" data-k="' +
+          k +
+          '" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="' +
+          (ph || '') +
+          '" aria-describedby="e-' +
+          k +
+          '">' +
+          (unit ? '<span class="unit" aria-hidden="true">' + unit + '</span>' : '') +
+          '</div>' +
+          '<div class="ferr" id="e-' +
+          k +
+          '" role="alert" hidden></div></div>';
+        const FN = (k) =>
+          '<div class="field"><label for="f-name-' +
+          k +
+          '">Name (Kunde / Projekt), optional</label><input id="f-name-' +
+          k +
+          '" data-k="name" type="text" autocomplete="off" maxlength="80" placeholder="z. B. Familie Muster"></div>';
 
-const HF_LABEL = { radiator: 'Radiator', plattenheizkoerper: 'Plattenheizkörper', konvektor: 'Konvektor', fussbodenheizung: 'Fußbodenheizung' };
-const RO_LABEL = { 'cu-15x1': 'Cu 15×1', 'cu-18x1': 'Cu 18×1', 'cu-22x1': 'Cu 22×1', 'cu-28x1.5': 'Cu 28×1,5', 'cu-35x1.5': 'Cu 35×1,5', 'cu-42x1.5': 'Cu 42×1,5',
-  'stahl-dn20': 'Stahl DN 20', 'stahl-dn25': 'Stahl DN 25', 'stahl-dn32': 'Stahl DN 32', 'pex-16x2': 'PE-X 16×2', 'pex-17x2': 'PE-X 17×2', 'pex-20x2': 'PE-X 20×2' };
-const opts = (map, vals, unit) => Object.keys(vals).map(k => '<option value="' + k + '">' + (map[k] || k) + ' (' + f(vals[k], vals[k] < 1 ? 3 : 1) + ' l/' + unit + ')</option>').join('');
+        const HF_LABEL = {
+          radiator: 'Radiator',
+          plattenheizkoerper: 'Plattenheizkörper',
+          konvektor: 'Konvektor',
+          fussbodenheizung: 'Fußbodenheizung',
+        };
+        const RO_LABEL = {
+          'cu-15x1': 'Cu 15×1',
+          'cu-18x1': 'Cu 18×1',
+          'cu-22x1': 'Cu 22×1',
+          'cu-28x1.5': 'Cu 28×1,5',
+          'cu-35x1.5': 'Cu 35×1,5',
+          'cu-42x1.5': 'Cu 42×1,5',
+          'stahl-dn20': 'Stahl DN 20',
+          'stahl-dn25': 'Stahl DN 25',
+          'stahl-dn32': 'Stahl DN 32',
+          'pex-16x2': 'PE-X 16×2',
+          'pex-17x2': 'PE-X 17×2',
+          'pex-20x2': 'PE-X 20×2',
+        };
+        const opts = (map, vals, unit) =>
+          Object.keys(vals)
+            .map(
+              (k) =>
+                '<option value="' +
+                k +
+                '">' +
+                (map[k] || k) +
+                ' (' +
+                f(vals[k], vals[k] < 1 ? 3 : 1) +
+                ' l/' +
+                unit +
+                ')</option>',
+            )
+            .join('');
 
-function rowsHtml(){
-  const m = S.mag;
-  const hf = m.hf.map((r, i) =>
-    '<div class="rowline"><div><label for="f-mag.hf.' + i + '.typ">Heizfläche ' + (i + 1) + ': Art</label><select id="f-mag.hf.' + i + '.typ" data-k="mag.hf.' + i + '.typ">' + opts(HF_LABEL, E.HEIZFLAECHEN, 'kW') + '</select></div>' +
-    '<div class="fa"><label for="f-mag.hf.' + i + '.kW">Leistung (kW)</label><input id="f-mag.hf.' + i + '.kW" data-k="mag.hf.' + i + '.kW" inputmode="decimal" autocomplete="off" aria-describedby="e-mag.hf.' + i + '.kW"></div>' +
-    '<button class="ib2" type="button" data-a="del" data-l="hf" data-i="' + i + '" aria-label="Heizfläche ' + (i + 1) + ' entfernen">' + ic('trash') + '</button>' +
-    '<div class="ferr" id="e-mag.hf.' + i + '.kW" role="alert" hidden></div></div>').join('');
-  const ro = m.ro.map((r, i) =>
-    '<div class="rowline"><div><label for="f-mag.ro.' + i + '.typ">Rohr ' + (i + 1) + ': Art</label><select id="f-mag.ro.' + i + '.typ" data-k="mag.ro.' + i + '.typ">' + opts(RO_LABEL, E.ROHRE, 'm') + '</select></div>' +
-    '<div class="fa"><label for="f-mag.ro.' + i + '.m">Länge (m)</label><input id="f-mag.ro.' + i + '.m" data-k="mag.ro.' + i + '.m" inputmode="decimal" autocomplete="off" aria-describedby="e-mag.ro.' + i + '.m"></div>' +
-    '<button class="ib2" type="button" data-a="del" data-l="ro" data-i="' + i + '" aria-label="Rohr ' + (i + 1) + ' entfernen">' + ic('trash') + '</button>' +
-    '<div class="ferr" id="e-mag.ro.' + i + '.m" role="alert" hidden></div></div>').join('');
-  document.getElementById('hfRows').innerHTML = hf || '<p class="muted">Keine Heizfläche eingetragen.</p>';
-  document.getElementById('roRows').innerHTML = ro || '<p class="muted">Kein Rohr eingetragen.</p>';
-  fill();
-}
-function fill(){
-  document.querySelectorAll('[data-k]').forEach(el => {
-    const v = get(el.dataset.k);
-    if (el.type === 'checkbox') el.checked = !!v; else if (document.activeElement !== el) el.value = v == null ? '' : v;
-  });
-}
+        function rowsHtml() {
+          const m = S.mag;
+          const hf = m.hf
+            .map(
+              (r, i) =>
+                '<div class="rowline"><div><label for="f-mag.hf.' +
+                i +
+                '.typ">Heizfläche ' +
+                (i + 1) +
+                ': Art</label><select id="f-mag.hf.' +
+                i +
+                '.typ" data-k="mag.hf.' +
+                i +
+                '.typ">' +
+                opts(HF_LABEL, E.HEIZFLAECHEN, 'kW') +
+                '</select></div>' +
+                '<div class="fa"><label for="f-mag.hf.' +
+                i +
+                '.kW">Leistung (kW)</label><input id="f-mag.hf.' +
+                i +
+                '.kW" data-k="mag.hf.' +
+                i +
+                '.kW" inputmode="decimal" autocomplete="off" aria-describedby="e-mag.hf.' +
+                i +
+                '.kW"></div>' +
+                '<button class="ib2" type="button" data-a="del" data-l="hf" data-i="' +
+                i +
+                '" aria-label="Heizfläche ' +
+                (i + 1) +
+                ' entfernen">' +
+                ic('trash') +
+                '</button>' +
+                '<div class="ferr" id="e-mag.hf.' +
+                i +
+                '.kW" role="alert" hidden></div></div>',
+            )
+            .join('');
+          const ro = m.ro
+            .map(
+              (r, i) =>
+                '<div class="rowline"><div><label for="f-mag.ro.' +
+                i +
+                '.typ">Rohr ' +
+                (i + 1) +
+                ': Art</label><select id="f-mag.ro.' +
+                i +
+                '.typ" data-k="mag.ro.' +
+                i +
+                '.typ">' +
+                opts(RO_LABEL, E.ROHRE, 'm') +
+                '</select></div>' +
+                '<div class="fa"><label for="f-mag.ro.' +
+                i +
+                '.m">Länge (m)</label><input id="f-mag.ro.' +
+                i +
+                '.m" data-k="mag.ro.' +
+                i +
+                '.m" inputmode="decimal" autocomplete="off" aria-describedby="e-mag.ro.' +
+                i +
+                '.m"></div>' +
+                '<button class="ib2" type="button" data-a="del" data-l="ro" data-i="' +
+                i +
+                '" aria-label="Rohr ' +
+                (i + 1) +
+                ' entfernen">' +
+                ic('trash') +
+                '</button>' +
+                '<div class="ferr" id="e-mag.ro.' +
+                i +
+                '.m" role="alert" hidden></div></div>',
+            )
+            .join('');
+          document.getElementById('hfRows').innerHTML =
+            hf || '<p class="muted">Keine Heizfläche eingetragen.</p>';
+          document.getElementById('roRows').innerHTML =
+            ro || '<p class="muted">Kein Rohr eingetragen.</p>';
+          fill();
+        }
+        function fill() {
+          document.querySelectorAll('[data-k]').forEach((el) => {
+            const v = get(el.dataset.k);
+            if (el.type === 'checkbox') el.checked = !!v;
+            else if (document.activeElement !== el) el.value = v == null ? '' : v;
+          });
+        }
 
-/* ---------- Ansichten aufbauen ---------- */
-function build(){
-  document.getElementById('v-home').innerHTML =
-    '<h2 class="pagetitle" id="h-home" tabindex="-1" style="margin-top:14px">Was möchten Sie berechnen?</h2>' +
-    '<p class="sub">Nur Wasser (kein Glykol). Alle Werte sind Richtwerte.</p>' + ncBox('home', '') +
-    '<div class="tgrid">' +
-    hub('mag', 'mag', 'Ausdehnungsgefäß (MAG)', 'Nenngröße, Vordruck, Fülldruck') +
-    hub('puffer', 'puf', 'Pufferspeicher', 'Varianten je Wärmeerzeuger') +
-    hub('saved', 'save', 'Gespeicherte Berechnungen<span class="cnt" id="cnt" hidden></span>', 'Öffnen oder löschen') +
-    hub('settings', 'set', 'Einstellungen', 'Standardwerte, Hell/Dunkel') + '</div>';
+        /* ---------- Ansichten aufbauen ---------- */
+        function build() {
+          document.getElementById('v-home').innerHTML =
+            '<h2 class="pagetitle" id="h-home" tabindex="-1" style="margin-top:14px">Was möchten Sie berechnen?</h2>' +
+            '<p class="sub">Nur Wasser (kein Glykol). Alle Werte sind Richtwerte.</p>' +
+            ncBox('home', '') +
+            '<div class="tgrid">' +
+            hub('mag', 'mag', 'Ausdehnungsgefäß (MAG)', 'Nenngröße, Vordruck, Fülldruck') +
+            hub('puffer', 'puf', 'Pufferspeicher', 'Varianten je Wärmeerzeuger') +
+            hub(
+              'saved',
+              'save',
+              'Gespeicherte Berechnungen<span class="cnt" id="cnt" hidden></span>',
+              'Öffnen oder löschen',
+            ) +
+            hub('settings', 'set', 'Einstellungen', 'Standardwerte, Hell/Dunkel') +
+            '</div>';
 
-  document.getElementById('v-mag').innerHTML = '<h2 class="pagetitle" id="h-mag" tabindex="-1" style="margin-top:14px">Ausdehnungsgefäß (MAG)</h2>' +
-    '<div class="layout"><div class="res"><div id="magOut"></div>' +
-    '<div class="savebox">' + '<div class="row"><div>' + FN('mag') + '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('mag') + '</div></div>' +
-    '<div class="inp">' + erzCard() +
-    '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2 opts" role="group" aria-label="Art der Eingabe">' +
-    '<button class="btn" type="button" data-a="mode" data-v="direkt">Direkt eingeben</button><button class="btn" type="button" data-a="mode" data-v="schaetzen">Schätzen</button></div>' +
-    '<div id="sec-direkt">' + F('mag.direkt', 'Anlagenvolumen', 'l', 'Wasserinhalt ohne Puffer und Wärmeerzeuger') + '</div>' +
-    '<div id="sec-est"><h3 class="big3">Heizflächen</h3><div id="hfRows"></div>' +
-    '<button class="btn small wide" type="button" data-a="add" data-l="hf">' + ic('plus') + 'Heizfläche hinzufügen</button>' +
-    '<h3 class="big3" style="margin-top:18px">Rohre</h3><div id="roRows"></div>' +
-    '<button class="btn small wide" type="button" data-a="add" data-l="ro">' + ic('plus') + 'Rohr hinzufügen</button>' +
-    '</div>' +
-    F('mag.pufferL', 'Puffer-Inhalt', 'l', 'Falls ein Pufferspeicher verbaut wird (wird immer addiert)') + F('mag.wpL', 'Inhalt Wärmeerzeuger', 'l', 'Wasserinhalt laut Datenblatt (Kessel, Wärmepumpe) (wird immer addiert)') +
-    '<div class="sum" aria-live="polite"><span>Summe <span class="rb" id="volRb">Richtwert</span></span><b id="volSum">–</b></div></div>' +
-    '<div class="card"><h3>Anlage</h3>' + F('mag.T', 'Max. Vorlauftemperatur', '°C', 'Zwischen 10 und 100 °C') + '<div id="festHint" hidden>' + msg('info', E.HINWEISE.festbrennstoff) + '</div>' + F('mag.H', 'Statische Höhe', 'm', 'Höhe vom Gefäß bis zum höchsten Punkt der Anlage') +
-    '<div class="field"><label id="l-psv">Sicherheitsventil (Ansprechdruck, bar)</label><div class="seg2 opts" role="group" aria-labelledby="l-psv">' +
-    ['2,5', '3', '4', '6'].map(v => '<button class="btn" type="button" data-a="psv" data-v="' + v + '">' + v + ' bar</button>').join('') +
-    '<button class="btn" type="button" data-a="psv" data-v="frei">Anderer Wert</button></div>' +
-    '<div id="psvFreiBox">' + F('mag.psvFrei', 'Ansprechdruck', 'bar', '') + '</div></div></div>' +
-    '</div></div>';
+          document.getElementById('v-mag').innerHTML =
+            '<h2 class="pagetitle" id="h-mag" tabindex="-1" style="margin-top:14px">Ausdehnungsgefäß (MAG)</h2>' +
+            '<div class="layout"><div class="res"><div id="magOut"></div>' +
+            '<div class="savebox">' +
+            '<div class="row"><div>' +
+            FN('mag') +
+            '</div><button class="btn primary" type="button" data-a="save" data-t="mag">' +
+            ic('save') +
+            'Berechnung speichern</button></div>' +
+            newBtn('mag') +
+            '</div></div>' +
+            '<div class="inp">' +
+            erzCard() +
+            '<div class="card"><h3>Anlagenvolumen</h3><div class="seg2 opts" role="group" aria-label="Art der Eingabe">' +
+            '<button class="btn" type="button" data-a="mode" data-v="direkt">Direkt eingeben</button><button class="btn" type="button" data-a="mode" data-v="schaetzen">Schätzen</button></div>' +
+            '<div id="sec-direkt">' +
+            F('mag.direkt', 'Anlagenvolumen', 'l', 'Wasserinhalt ohne Puffer und Wärmeerzeuger') +
+            '</div>' +
+            '<div id="sec-est"><h3 class="big3">Heizflächen</h3><div id="hfRows"></div>' +
+            '<button class="btn small wide" type="button" data-a="add" data-l="hf">' +
+            ic('plus') +
+            'Heizfläche hinzufügen</button>' +
+            '<h3 class="big3" style="margin-top:18px">Rohre</h3><div id="roRows"></div>' +
+            '<button class="btn small wide" type="button" data-a="add" data-l="ro">' +
+            ic('plus') +
+            'Rohr hinzufügen</button>' +
+            '</div>' +
+            F(
+              'mag.pufferL',
+              'Puffer-Inhalt',
+              'l',
+              'Falls ein Pufferspeicher verbaut wird (wird immer addiert)',
+            ) +
+            F(
+              'mag.wpL',
+              'Inhalt Wärmeerzeuger',
+              'l',
+              'Wasserinhalt laut Datenblatt (Kessel, Wärmepumpe) (wird immer addiert)',
+            ) +
+            '<div class="sum" aria-live="polite"><span>Summe <span class="rb" id="volRb">Richtwert</span></span><b id="volSum">–</b></div></div>' +
+            '<div class="card"><h3>Anlage</h3>' +
+            F('mag.T', 'Max. Vorlauftemperatur', '°C', 'Zwischen 10 und 100 °C') +
+            '<div id="festHint" hidden>' +
+            msg('info', E.HINWEISE.festbrennstoff) +
+            '</div>' +
+            F('mag.H', 'Statische Höhe', 'm', 'Höhe vom Gefäß bis zum höchsten Punkt der Anlage') +
+            '<div class="field"><label id="l-psv">Sicherheitsventil (Ansprechdruck, bar)</label><div class="seg2 opts" role="group" aria-labelledby="l-psv">' +
+            ['2,5', '3', '4', '6']
+              .map(
+                (v) =>
+                  '<button class="btn" type="button" data-a="psv" data-v="' +
+                  v +
+                  '">' +
+                  v +
+                  ' bar</button>',
+              )
+              .join('') +
+            '<button class="btn" type="button" data-a="psv" data-v="frei">Anderer Wert</button></div>' +
+            '<div id="psvFreiBox">' +
+            F('mag.psvFrei', 'Ansprechdruck', 'bar', '') +
+            '</div></div></div>' +
+            '</div></div>';
 
-  document.getElementById('v-puffer').innerHTML = '<h2 class="pagetitle" id="h-puffer" tabindex="-1" style="margin-top:14px">Pufferspeicher</h2>' +
-    '<div class="layout"><div class="res"><div id="pufOut"></div><button class="btn primary wide" type="button" data-a="take" id="takeBtn" hidden>' + ic('arrow') + 'In MAG-Berechnung übernehmen</button>' +
-    '<div class="savebox"><div class="row"><div>' + FN('puffer') + '</div><button class="btn dark" type="button" data-a="save" data-t="puffer">' + ic('save') + 'Berechnung speichern</button></div>' + newBtn('puffer') + '</div></div>' +
-    '<div class="inp">' + erzCard() + '<div class="card"><h3>Varianten</h3>' +
-    sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') + sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') + sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') +
-    sw('foerderung', 'Mindestvolumen Förderung', 'Richtwert 30 l je kW Nennleistung') + sw('bimschv', 'Mindestvolumen 1. BImSchV', 'Nach Füllraum und Nennleistung') + '</div>' +
-    '<div class="card" id="c-sperrzeit"><h3>Sperrzeit</h3>' + F('puf.sperrzeit.Q', 'Heizleistung', 'kW', 'Leistung, die während der Sperre fehlt') + F('puf.sperrzeit.h', 'Sperrzeit', 'h', 'Dauer der Sperre in Stunden') + F('puf.sperrzeit.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') + '</div>' +
-    '<div class="card" id="c-takt"><h3>Takt</h3>' + F('puf.takt.Pmin', 'Kleinste Leistung der Wärmepumpe', 'kW', '') + F('puf.takt.min', 'Mindestlaufzeit', 'min', 'Laut Hersteller, oft 6 bis 10 min') + F('puf.takt.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') + '<div id="keHint" hidden>' + msg('info', E.HINWEISE.kessel) + '</div></div>' +
-    '<div class="card" id="c-abtauung"><h3>Abtauung</h3>' + F('puf.abtauung.P', 'Nennleistung', 'kW', '') + F('puf.abtauung.l', 'Liter je kW', 'l/kW', 'Leer lassen = Standardwert aus den Einstellungen', '') +
-    F('puf.abtauung.anr', 'Anrechenbares Volumen', 'l', 'Optional: Wasser, das ohnehin im Heizkreis umläuft') + '</div>' +
-    '<div class="card" id="c-foerderung"><h3>Mindestvolumen Förderung</h3>' + F('puf.foerderung.P', 'Nennleistung', 'kW', '') + F('puf.foerderung.l', 'Liter je kW', 'l/kW', 'Leer lassen = 30', '30') +
-    msg('info', E.HINWEISE.foerderung) + '</div>' +
-    '<div class="card" id="c-bimschv"><h3>Mindestvolumen 1. BImSchV</h3>' + F('puf.bimschv.P', 'Nennleistung', 'kW', 'Rechnet mit 55 l je kW') + F('puf.bimschv.V', 'Brennstofffüllraum', 'l', 'Rechnet mit 12 l je Liter Füllraum') +
-    msg('info', E.HINWEISE.bimschv) + '</div></div></div>';
+          document.getElementById('v-puffer').innerHTML =
+            '<h2 class="pagetitle" id="h-puffer" tabindex="-1" style="margin-top:14px">Pufferspeicher</h2>' +
+            '<div class="layout"><div class="res"><div id="pufOut"></div><button class="btn primary wide" type="button" data-a="take" id="takeBtn" hidden>' +
+            ic('arrow') +
+            'In MAG-Berechnung übernehmen</button>' +
+            '<div class="savebox"><div class="row"><div>' +
+            FN('puffer') +
+            '</div><button class="btn dark" type="button" data-a="save" data-t="puffer">' +
+            ic('save') +
+            'Berechnung speichern</button></div>' +
+            newBtn('puffer') +
+            '</div></div>' +
+            '<div class="inp">' +
+            erzCard() +
+            '<div class="card"><h3>Varianten</h3>' +
+            sw('sperrzeit', 'Sperrzeit', 'Überbrücken der EVU-Sperre') +
+            sw('takt', 'Takt', 'Taktschutz bei kleinster Leistung') +
+            sw('abtauung', 'Abtauung', 'Energie für die Abtauung der Wärmepumpe') +
+            sw('foerderung', 'Mindestvolumen Förderung', 'Richtwert 30 l je kW Nennleistung') +
+            sw('bimschv', 'Mindestvolumen 1. BImSchV', 'Nach Füllraum und Nennleistung') +
+            '</div>' +
+            '<div class="card" id="c-sperrzeit"><h3>Sperrzeit</h3>' +
+            F('puf.sperrzeit.Q', 'Heizleistung', 'kW', 'Leistung, die während der Sperre fehlt') +
+            F('puf.sperrzeit.h', 'Sperrzeit', 'h', 'Dauer der Sperre in Stunden') +
+            F('puf.sperrzeit.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') +
+            '</div>' +
+            '<div class="card" id="c-takt"><h3>Takt</h3>' +
+            F('puf.takt.Pmin', 'Kleinste Leistung der Wärmepumpe', 'kW', '') +
+            F('puf.takt.min', 'Mindestlaufzeit', 'min', 'Laut Hersteller, oft 6 bis 10 min') +
+            F('puf.takt.dT', 'Spreizung ΔT', 'K', 'Typisch 5 K') +
+            '<div id="keHint" hidden>' +
+            msg('info', E.HINWEISE.kessel) +
+            '</div></div>' +
+            '<div class="card" id="c-abtauung"><h3>Abtauung</h3>' +
+            F('puf.abtauung.P', 'Nennleistung', 'kW', '') +
+            F(
+              'puf.abtauung.l',
+              'Liter je kW',
+              'l/kW',
+              'Leer lassen = Standardwert aus den Einstellungen',
+              '',
+            ) +
+            F(
+              'puf.abtauung.anr',
+              'Anrechenbares Volumen',
+              'l',
+              'Optional: Wasser, das ohnehin im Heizkreis umläuft',
+            ) +
+            '</div>' +
+            '<div class="card" id="c-foerderung"><h3>Mindestvolumen Förderung</h3>' +
+            F('puf.foerderung.P', 'Nennleistung', 'kW', '') +
+            F('puf.foerderung.l', 'Liter je kW', 'l/kW', 'Leer lassen = 30', '30') +
+            msg('info', E.HINWEISE.foerderung) +
+            '</div>' +
+            '<div class="card" id="c-bimschv"><h3>Mindestvolumen 1. BImSchV</h3>' +
+            F('puf.bimschv.P', 'Nennleistung', 'kW', 'Rechnet mit 55 l je kW') +
+            F('puf.bimschv.V', 'Brennstofffüllraum', 'l', 'Rechnet mit 12 l je Liter Füllraum') +
+            msg('info', E.HINWEISE.bimschv) +
+            '</div></div></div>';
 
-  document.getElementById('v-saved').innerHTML = '<h2 class="pagetitle" id="h-saved" tabindex="-1" style="margin-top:14px">Gespeicherte Berechnungen</h2><div id="savedList"></div>';
+          document.getElementById('v-saved').innerHTML =
+            '<h2 class="pagetitle" id="h-saved" tabindex="-1" style="margin-top:14px">Gespeicherte Berechnungen</h2><div id="savedList"></div>';
 
-  document.getElementById('v-settings').innerHTML = '<h2 class="pagetitle" id="h-settings" tabindex="-1" style="margin-top:14px">Einstellungen</h2>' +
-    '<div class="card"><h3>Standardwerte</h3>' + F('st.p0min', 'Vordruck-Untergrenze', 'bar', 'Der Vordruck wird nie niedriger berechnet. Standard 0,7 bar.', '0,7') +
-    F('st.lkw', 'Abtauung: Liter je kW', 'l/kW', 'Wird bei der Abtauung benutzt, wenn nichts anderes eingetragen ist. Standard 20.', '20') +
-    '<button class="btn wide" type="button" data-a="resetset">Standardwerte wiederherstellen</button></div>' +
-    '<div class="card"><h3>Darstellung</h3><p class="muted" style="margin:0 0 8px">Auto folgt der Einstellung des iPad.</p><button class="btn wide" type="button" data-a="theme" id="themeSet"></button></div>';
-  rowsHtml();
-}
-function ncBox(id, v){ return '<div class="ncbox" id="nc-' + id + '" role="alertdialog" aria-label="Eingaben verwerfen?" hidden><span>Eingaben verwerfen?</span><button class="btn" type="button" data-a="ncno">Abbrechen</button><button class="btn danger" type="button" data-a="ncyes" data-v="' + v + '">Ja, verwerfen</button></div>'; }
-function newBtn(v){ return '<div class="newrow"><button class="btn wide" type="button" id="btn-new-' + v + '" data-a="newcalc" data-v="' + v + '" style="margin-top:0">Neue Berechnung</button>' + ncBox(v, v) + '</div>'; }
-function hub(v, icon, title, sub){
-  return '<button class="hub" type="button" data-a="' + (v === 'mag' || v === 'puffer' ? 'hubnew' : 'nav') + '" data-v="' + v + '"><span class="hico">' + ic(icon, '') + '</span><span class="htx"><strong>' + title + '</strong><small>' + sub + '</small></span></button>';
-}
-function erzCard(){
-  return '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2 opts" role="group" aria-label="Wärmeerzeuger">' +
-    Object.keys(ERZ).map(k => '<button class="btn" type="button" data-a="erz" data-v="' + k + '">' + ERZ[k] + '</button>').join('') + '</div></div>';
-}
-function setText(sel, t){ const el = document.querySelector(sel); if (el) el.textContent = t; }
-function sw(k, t, s){ return '<label class="swrow" id="sw-' + k + '"><input type="checkbox" role="switch" data-c="puf.' + k + '.on" data-k="puf.' + k + '.on"><span>' + t + '<small>' + s + '</small></span></label>'; }
+          document.getElementById('v-settings').innerHTML =
+            '<h2 class="pagetitle" id="h-settings" tabindex="-1" style="margin-top:14px">Einstellungen</h2>' +
+            '<div class="card"><h3>Standardwerte</h3>' +
+            F(
+              'st.p0min',
+              'Vordruck-Untergrenze',
+              'bar',
+              'Der Vordruck wird nie niedriger berechnet. Standard 0,7 bar.',
+              '0,7',
+            ) +
+            F(
+              'st.lkw',
+              'Abtauung: Liter je kW',
+              'l/kW',
+              'Wird bei der Abtauung benutzt, wenn nichts anderes eingetragen ist. Standard 20.',
+              '20',
+            ) +
+            '<button class="btn wide" type="button" data-a="resetset">Standardwerte wiederherstellen</button></div>' +
+            '<div class="card"><h3>Darstellung</h3><p class="muted" style="margin:0 0 8px">Auto folgt der Einstellung des iPad.</p><button class="btn wide" type="button" data-a="theme" id="themeSet"></button></div>';
+          rowsHtml();
+        }
+        function ncBox(id, v) {
+          return (
+            '<div class="ncbox" id="nc-' +
+            id +
+            '" role="alertdialog" aria-label="Eingaben verwerfen?" hidden><span>Eingaben verwerfen?</span><button class="btn" type="button" data-a="ncno">Abbrechen</button><button class="btn danger" type="button" data-a="ncyes" data-v="' +
+            v +
+            '">Ja, verwerfen</button></div>'
+          );
+        }
+        function newBtn(v) {
+          return (
+            '<div class="newrow"><button class="btn wide" type="button" id="btn-new-' +
+            v +
+            '" data-a="newcalc" data-v="' +
+            v +
+            '" style="margin-top:0">Neue Berechnung</button>' +
+            ncBox(v, v) +
+            '</div>'
+          );
+        }
+        function hub(v, icon, title, sub) {
+          return (
+            '<button class="hub" type="button" data-a="' +
+            (v === 'mag' || v === 'puffer' ? 'hubnew' : 'nav') +
+            '" data-v="' +
+            v +
+            '"><span class="hico">' +
+            ic(icon, '') +
+            '</span><span class="htx"><strong>' +
+            title +
+            '</strong><small>' +
+            sub +
+            '</small></span></button>'
+          );
+        }
+        function erzCard() {
+          return (
+            '<div class="card"><h3>Wärmeerzeuger</h3><div class="seg2 opts" role="group" aria-label="Wärmeerzeuger">' +
+            Object.keys(ERZ)
+              .map(
+                (k) =>
+                  '<button class="btn" type="button" data-a="erz" data-v="' +
+                  k +
+                  '">' +
+                  ERZ[k] +
+                  '</button>',
+              )
+              .join('') +
+            '</div></div>'
+          );
+        }
+        function setText(sel, t) {
+          const el = document.querySelector(sel);
+          if (el) el.textContent = t;
+        }
+        function sw(k, t, s) {
+          return (
+            '<label class="swrow" id="sw-' +
+            k +
+            '"><input type="checkbox" role="switch" data-c="puf.' +
+            k +
+            '.on" data-k="puf.' +
+            k +
+            '.on"><span>' +
+            t +
+            '<small>' +
+            s +
+            '</small></span></label>'
+          );
+        }
 
-/* ---------- UI-Zustand ---------- */
-function refreshUI(){
-  const m = S.mag;
-  document.querySelectorAll('[data-a=mode]').forEach(b => { const on = b.dataset.v === m.mode; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
-  document.querySelectorAll('[data-a=psv]').forEach(b => { const on = b.dataset.v === m.psv; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
-  document.getElementById('sec-direkt').hidden = m.mode !== 'direkt';
-  document.getElementById('sec-est').hidden = m.mode !== 'schaetzen';
-  document.getElementById('psvFreiBox').hidden = m.psv !== 'frei';
-  document.querySelectorAll('[data-a=erz]').forEach(b => { const on = b.dataset.v === S.erzeuger; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
-  ['sperrzeit', 'takt', 'abtauung', 'foerderung', 'bimschv'].forEach(k => {
-    const ok = erlaubt(k);
-    document.getElementById('sw-' + k).hidden = !ok;
-    document.getElementById('c-' + k).hidden = !(ok && S.puf[k].on);
-  });
-  document.getElementById('festHint').hidden = !(S.erzeuger === 'pellet' || S.erzeuger === 'holz');
-  document.getElementById('keHint').hidden = S.erzeuger !== 'kessel';
-  const wpE = S.erzeuger === 'wp';
-  setText('label[for="f-puf.takt.Pmin"]', 'Kleinste Leistung ' + (wpE ? 'der Wärmepumpe' : 'des Kessels') + ' (kW)');
-  const tm = document.getElementById('f-puf.takt.min');
-  if (tm) { tm.placeholder = ''; const h = tm.closest('.field').querySelector('.fhint'); if (h) h.textContent = wpE ? 'Laut Hersteller, oft 6 bis 10 min' : 'Laut Hersteller, oft ' + (S.erzeuger === 'pellet' ? 'etwa 30' : 'etwa 10') + ' min'; }
-  const lf = document.getElementById('f-puf.abtauung.l'); if (lf) lf.placeholder = f(lkw(), lkw() % 1 ? 1 : 0);
-  const th = document.getElementById('themebtn'), ts = document.getElementById('themeSet'); if (ts && th) ts.textContent = (th.title || 'Darstellung') + ' – tippen zum Wechseln';
-  const c = document.getElementById('cnt'); if (c) { c.hidden = !SAVED.length; c.textContent = SAVED.length; }
-}
-function validateAll(){ document.querySelectorAll('input[data-k]').forEach(el => { if (el.type !== 'checkbox' && el.type !== 'text') showErr(el.dataset.k, chk(el.dataset.k)); }); }
+        /* ---------- UI-Zustand ---------- */
+        function refreshUI() {
+          const m = S.mag;
+          document.querySelectorAll('[data-a=mode]').forEach((b) => {
+            const on = b.dataset.v === m.mode;
+            b.classList.toggle('sel', on);
+            b.setAttribute('aria-pressed', on);
+          });
+          document.querySelectorAll('[data-a=psv]').forEach((b) => {
+            const on = b.dataset.v === m.psv;
+            b.classList.toggle('sel', on);
+            b.setAttribute('aria-pressed', on);
+          });
+          document.getElementById('sec-direkt').hidden = m.mode !== 'direkt';
+          document.getElementById('sec-est').hidden = m.mode !== 'schaetzen';
+          document.getElementById('psvFreiBox').hidden = m.psv !== 'frei';
+          document.querySelectorAll('[data-a=erz]').forEach((b) => {
+            const on = b.dataset.v === S.erzeuger;
+            b.classList.toggle('sel', on);
+            b.setAttribute('aria-pressed', on);
+          });
+          ['sperrzeit', 'takt', 'abtauung', 'foerderung', 'bimschv'].forEach((k) => {
+            const ok = erlaubt(k);
+            document.getElementById('sw-' + k).hidden = !ok;
+            document.getElementById('c-' + k).hidden = !(ok && S.puf[k].on);
+          });
+          document.getElementById('festHint').hidden = !(
+            S.erzeuger === 'pellet' || S.erzeuger === 'holz'
+          );
+          document.getElementById('keHint').hidden = S.erzeuger !== 'kessel';
+          const wpE = S.erzeuger === 'wp';
+          setText(
+            'label[for="f-puf.takt.Pmin"]',
+            'Kleinste Leistung ' + (wpE ? 'der Wärmepumpe' : 'des Kessels') + ' (kW)',
+          );
+          const tm = document.getElementById('f-puf.takt.min');
+          if (tm) {
+            tm.placeholder = '';
+            const h = tm.closest('.field').querySelector('.fhint');
+            if (h)
+              h.textContent = wpE
+                ? 'Laut Hersteller, oft 6 bis 10 min'
+                : 'Laut Hersteller, oft ' +
+                  (S.erzeuger === 'pellet' ? 'etwa 30' : 'etwa 10') +
+                  ' min';
+          }
+          const lf = document.getElementById('f-puf.abtauung.l');
+          if (lf) lf.placeholder = f(lkw(), lkw() % 1 ? 1 : 0);
+          const th = document.getElementById('themebtn'),
+            ts = document.getElementById('themeSet');
+          if (ts && th) ts.textContent = (th.title || 'Darstellung') + ' – tippen zum Wechseln';
+          const c = document.getElementById('cnt');
+          if (c) {
+            c.hidden = !SAVED.length;
+            c.textContent = SAVED.length;
+          }
+        }
+        function validateAll() {
+          document.querySelectorAll('input[data-k]').forEach((el) => {
+            if (el.type !== 'checkbox' && el.type !== 'text')
+              showErr(el.dataset.k, chk(el.dataset.k));
+          });
+        }
 
-/* ---------- MAG rechnen ---------- */
-function volInput(){
-  const m = S.mag;
-  const extra = { pufferL: toE(m.pufferL), wpInhaltL: toE(m.wpL) };
-  if (m.mode === 'direkt') return Object.assign({ direkt: toE(m.direkt) }, extra);
-  return { heizflaechen: m.hf.map(r => ({ typ: r.typ, kW: toE(r.kW) })), rohre: m.ro.map(r => ({ typ: r.typ, m: toE(r.m) })), pufferL: toE(m.pufferL), wpInhaltL: toE(m.wpL) };
-}
-function magPaths(){
-  const m = S.mag; let p = m.mode === 'direkt' ? ['mag.direkt'] : [];
-  if (m.mode !== 'direkt') { m.hf.forEach((_, i) => p.push('mag.hf.' + i + '.kW')); m.ro.forEach((_, i) => p.push('mag.ro.' + i + '.m')); }
-  p.push('mag.pufferL', 'mag.wpL', 'mag.T', 'mag.H'); if (m.psv === 'frei') p.push('mag.psvFrei');
-  return p;
-}
-function calcMag(){
-  const m = S.mag, vol = E.anlagenvolumen(volInput());
-  const out = { state: 'empty', missing: [], vol, res: null };
-  const basis = vol.teile ? (vol.teile.direkt || ((vol.teile.heizflaechen || 0) + (vol.teile.rohre || 0))) : 0; // Puffer/WP allein reichen nicht
-  if ((!vol.ok || !(basis > 0)) && !errCount(magPaths())) out.missing.push('Anlagenvolumen');
-  if (empty(m.T)) out.missing.push('max. Vorlauftemperatur');
-  if (empty(m.H)) out.missing.push('statische Höhe');
-  if (m.psv === 'frei' && empty(m.psvFrei)) out.missing.push('Ansprechdruck des Sicherheitsventils');
-  if (errCount(magPaths())) { out.state = 'invalid'; }
-  else if (out.missing.length) out.state = 'empty';
-  else {
-    const res = E.mag({ anlagenvolumenL: vol.volumenL, temperaturC: num(m.T), hoeheM: num(m.H), psvBar: num(m.psv === 'frei' ? m.psvFrei : m.psv), p0minBar: p0min() });
-    out.res = res; out.state = res.ok ? 'ok' : 'error';
-  }
-  lastMag = out; return out;
-}
-function renderMag(){
-  const o = calcMag(), m = S.mag, vs = document.getElementById('volSum');
-  vs.textContent = o.vol.ok ? f(o.vol.volumenL, 1) + ' l' : '–';
-  document.getElementById('volRb').hidden = !(o.vol.ok && o.vol.richtwert);
-  let h = '';
-  if (o.state === 'empty') h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte noch eintragen: ' + o.missing.join(', ') + '.');
-  else if (o.state === 'invalid') h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte die markierten Felder korrigieren.');
-  else if (o.state === 'error') h = o.res.fehler.map(t => msg('err', '<b>Fehler:</b> ' + esc(t))).join('');
-  else {
-    const r = o.res;
-    h = '<div class="tiles">' +
-      '<div class="rt main"><small>Nenngröße MAG</small><b>' + (r.Vn ? f(r.Vn) : '&gt;&nbsp;1.000') + '</b><span>Liter (mind. ' + f(r.VnMin, 1) + ' l)</span></div>' +
-      '<div class="rt"><small>Vordruck p0</small><b>' + f(r.p0, 2) + '</b><span>bar, vor Einbau einstellen</span></div>' +
-      '<div class="rt"><small>Fülldruck pa</small><b>' + (r.pa == null ? '–' : f(r.pa, 2)) + '</b><span>bar' + (r.paEmpfehlung ? ', Empfehlung mind. ' + f(r.paEmpfehlung, 2) : '') + '</span></div>' +
-      '<div class="rt"><small>Enddruck pe</small><b>' + f(r.pe, 2) + '</b><span>bar</span></div></div>';
-    h += r.warnungen.map(t => msg('warn', '<b>Hinweis:</b> ' + esc(t))).join('');
-    h += msg('info', 'Vordruck vor Einbau am Gefäß einstellen (ab Werk meist 1,5 bar).');
-    h += '<p class="sub" style="margin:8px 2px">Anlagenvolumen: <b>' + volText(o.vol) + '</b>' + (o.vol.richtwert ? ' <span class="rb">Richtwert</span>' : '') + '</p>';
-    h += '<details class="rw"' + (magDetOpen ? ' open' : '') + '><summary>Rechenweg</summary><dl>' +
-      row('Ausdehnung n', 'bei ' + f(num(m.T), 1) + ' °C, bezogen auf 10 °C', f(r.n, 2) + ' %') +
-      row('Ausdehnungsvolumen Ve', 'n · Anlagenvolumen', f(r.Ve, 1) + ' l') +
-      row('Wasservorlage Vv', 'mind. 0,5 % des Volumens, mind. 3 l', f(r.Vv, 1) + ' l') +
-      row('Mindest-Nenninhalt Vn,min', '(Ve + Vv) · (pe + 1) / (pe − p0)', f(r.VnMin, 1) + ' l') + '</dl></details>';
-  }
-  setOut('magOut', h);
-}
-const fv = x => Number(x).toLocaleString('de-DE', { maximumFractionDigits: 1 });
-function volText(v){
-  const t = v.teile || {}, p = [];
-  if (t.direkt > 0) p.push(fv(t.direkt) + ' l'); else { if (t.heizflaechen > 0) p.push('Heizflächen ' + fv(t.heizflaechen) + ' l'); if (t.rohre > 0) p.push('Rohre ' + fv(t.rohre) + ' l'); }
-  if (t.puffer > 0) p.push('Puffer ' + fv(t.puffer) + ' l');
-  if (t.wp > 0) p.push('Wärmeerzeuger ' + fv(t.wp) + ' l');
-  return esc(p.length > 1 ? p.join(' + ') + ' = ' + fv(v.volumenL) + ' l' : fv(v.volumenL) + ' l');
-}
-const row = (t, s, v) => '<div><dt>' + t + '<small>' + s + '</small></dt><dd>' + v + '</dd></div>';
+        /* ---------- MAG rechnen ---------- */
+        function volInput() {
+          const m = S.mag;
+          const extra = { pufferL: toE(m.pufferL), wpInhaltL: toE(m.wpL) };
+          if (m.mode === 'direkt') return Object.assign({ direkt: toE(m.direkt) }, extra);
+          return {
+            heizflaechen: m.hf.map((r) => ({ typ: r.typ, kW: toE(r.kW) })),
+            rohre: m.ro.map((r) => ({ typ: r.typ, m: toE(r.m) })),
+            pufferL: toE(m.pufferL),
+            wpInhaltL: toE(m.wpL),
+          };
+        }
+        function magPaths() {
+          const m = S.mag;
+          let p = m.mode === 'direkt' ? ['mag.direkt'] : [];
+          if (m.mode !== 'direkt') {
+            m.hf.forEach((_, i) => p.push('mag.hf.' + i + '.kW'));
+            m.ro.forEach((_, i) => p.push('mag.ro.' + i + '.m'));
+          }
+          p.push('mag.pufferL', 'mag.wpL', 'mag.T', 'mag.H');
+          if (m.psv === 'frei') p.push('mag.psvFrei');
+          return p;
+        }
+        function calcMag() {
+          const m = S.mag,
+            vol = E.anlagenvolumen(volInput());
+          const out = { state: 'empty', missing: [], vol, res: null };
+          const basis = vol.teile
+            ? vol.teile.direkt || (vol.teile.heizflaechen || 0) + (vol.teile.rohre || 0)
+            : 0; // Puffer/WP allein reichen nicht
+          if ((!vol.ok || !(basis > 0)) && !errCount(magPaths()))
+            out.missing.push('Anlagenvolumen');
+          if (empty(m.T)) out.missing.push('max. Vorlauftemperatur');
+          if (empty(m.H)) out.missing.push('statische Höhe');
+          if (m.psv === 'frei' && empty(m.psvFrei))
+            out.missing.push('Ansprechdruck des Sicherheitsventils');
+          if (errCount(magPaths())) {
+            out.state = 'invalid';
+          } else if (out.missing.length) out.state = 'empty';
+          else {
+            const res = E.mag({
+              anlagenvolumenL: vol.volumenL,
+              temperaturC: num(m.T),
+              hoeheM: num(m.H),
+              psvBar: num(m.psv === 'frei' ? m.psvFrei : m.psv),
+              p0minBar: p0min(),
+            });
+            out.res = res;
+            out.state = res.ok ? 'ok' : 'error';
+          }
+          lastMag = out;
+          return out;
+        }
+        function renderMag() {
+          const o = calcMag(),
+            m = S.mag,
+            vs = document.getElementById('volSum');
+          vs.textContent = o.vol.ok ? f(o.vol.volumenL, 1) + ' l' : '–';
+          document.getElementById('volRb').hidden = !(o.vol.ok && o.vol.richtwert);
+          let h = '';
+          if (o.state === 'empty')
+            h = msg(
+              'info',
+              '<b>Noch kein Ergebnis.</b> Bitte noch eintragen: ' + o.missing.join(', ') + '.',
+            );
+          else if (o.state === 'invalid')
+            h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte die markierten Felder korrigieren.');
+          else if (o.state === 'error')
+            h = o.res.fehler.map((t) => msg('err', '<b>Fehler:</b> ' + esc(t))).join('');
+          else {
+            const r = o.res;
+            h =
+              '<div class="tiles">' +
+              '<div class="rt main"><small>Nenngröße MAG</small><b>' +
+              (r.Vn ? f(r.Vn) : '&gt;&nbsp;1.000') +
+              '</b><span>Liter (mind. ' +
+              f(r.VnMin, 1) +
+              ' l)</span></div>' +
+              '<div class="rt"><small>Vordruck p0</small><b>' +
+              f(r.p0, 2) +
+              '</b><span>bar, vor Einbau einstellen</span></div>' +
+              '<div class="rt"><small>Fülldruck pa</small><b>' +
+              (r.pa == null ? '–' : f(r.pa, 2)) +
+              '</b><span>bar' +
+              (r.paEmpfehlung ? ', Empfehlung mind. ' + f(r.paEmpfehlung, 2) : '') +
+              '</span></div>' +
+              '<div class="rt"><small>Enddruck pe</small><b>' +
+              f(r.pe, 2) +
+              '</b><span>bar</span></div></div>';
+            h += r.warnungen.map((t) => msg('warn', '<b>Hinweis:</b> ' + esc(t))).join('');
+            h += msg('info', 'Vordruck vor Einbau am Gefäß einstellen (ab Werk meist 1,5 bar).');
+            h +=
+              '<p class="sub" style="margin:8px 2px">Anlagenvolumen: <b>' +
+              volText(o.vol) +
+              '</b>' +
+              (o.vol.richtwert ? ' <span class="rb">Richtwert</span>' : '') +
+              '</p>';
+            h +=
+              '<details class="rw"' +
+              (magDetOpen ? ' open' : '') +
+              '><summary>Rechenweg</summary><dl>' +
+              row(
+                'Ausdehnung n',
+                'bei ' + f(num(m.T), 1) + ' °C, bezogen auf 10 °C',
+                f(r.n, 2) + ' %',
+              ) +
+              row('Ausdehnungsvolumen Ve', 'n · Anlagenvolumen', f(r.Ve, 1) + ' l') +
+              row('Wasservorlage Vv', 'mind. 0,5 % des Volumens, mind. 3 l', f(r.Vv, 1) + ' l') +
+              row(
+                'Mindest-Nenninhalt Vn,min',
+                '(Ve + Vv) · (pe + 1) / (pe − p0)',
+                f(r.VnMin, 1) + ' l',
+              ) +
+              '</dl></details>';
+          }
+          setOut('magOut', h);
+        }
+        const fv = (x) => Number(x).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+        function volText(v) {
+          const t = v.teile || {},
+            p = [];
+          if (t.direkt > 0) p.push(fv(t.direkt) + ' l');
+          else {
+            if (t.heizflaechen > 0) p.push('Heizflächen ' + fv(t.heizflaechen) + ' l');
+            if (t.rohre > 0) p.push('Rohre ' + fv(t.rohre) + ' l');
+          }
+          if (t.puffer > 0) p.push('Puffer ' + fv(t.puffer) + ' l');
+          if (t.wp > 0) p.push('Wärmeerzeuger ' + fv(t.wp) + ' l');
+          return esc(
+            p.length > 1 ? p.join(' + ') + ' = ' + fv(v.volumenL) + ' l' : fv(v.volumenL) + ' l',
+          );
+        }
+        const row = (t, s, v) =>
+          '<div><dt>' + t + '<small>' + s + '</small></dt><dd>' + v + '</dd></div>';
 
-/* ---------- Puffer rechnen ---------- */
-const PV = [
-  { k: 'sperrzeit', label: 'Sperrzeit', req: ['Q', 'h', 'dT'], eng: p => ({ aktiv: true, leistungKW: num(p.Q), stunden: num(p.h), deltaT: num(p.dT) }) },
-  { k: 'takt', label: 'Takt', req: ['Pmin', 'min', 'dT'], eng: p => ({ aktiv: true, pminKW: num(p.Pmin), minuten: num(p.min), deltaT: num(p.dT) }) },
-  { k: 'abtauung', label: 'Abtauung', req: ['P'], eng: p => ({ aktiv: true, nennleistungKW: num(p.P), lProKW: empty(p.l) ? lkw() : num(p.l), anrechenbaresVolumenL: empty(p.anr) ? '' : num(p.anr) }) },
-  { k: 'foerderung', label: 'Förderung', req: ['P'], opt: ['l'], eng: p => ({ aktiv: true, nennleistungKW: num(p.P), lProKW: empty(p.l) ? '' : num(p.l) }) },
-  { k: 'bimschv', label: '1. BImSchV', req: [], any: ['P', 'V'], eng: p => ({ aktiv: true, nennleistungKW: empty(p.P) ? '' : num(p.P), fuellraumL: empty(p.V) ? '' : num(p.V) }) }
-];
-function calcPuf(){
-  const P = S.puf, out = { rows: [], res: null, active: 0 }, input = { erzeuger: S.erzeuger };
-  PV.forEach(v => {
-    const p = P[v.k]; if (!p.on || !erlaubt(v.k)) return;
-    out.active++;
-    const paths = v.req.concat(v.any || [], v.opt || []).map(x => 'puf.' + v.k + '.' + x).concat(v.k === 'abtauung' ? ['puf.abtauung.l', 'puf.abtauung.anr'] : []);
-    const bad = errCount(paths), miss = v.req.filter(x => empty(p[x])).concat(v.any && v.any.every(x => empty(p[x])) ? ['any'] : []);
-    const r = { key: v.k, label: v.label, state: bad ? 'invalid' : miss.length ? 'empty' : 'ok' };
-    if (r.state === 'ok') { input[v.k] = v.eng(p); const one = { erzeuger: S.erzeuger }; one[v.k] = v.eng(p); r.litres = E.puffer(one).werte[v.k]; }
-    out.rows.push(r);
-  });
-  if (Object.keys(input).length > 1) {
-    out.res = E.puffer(input);
-    if (out.res.ok) { let best = null; out.rows.forEach(r => { if (r.litres != null && (best == null || r.litres > best.litres)) best = r; }); out.best = best; }
-  }
-  lastPuf = out; return out;
-}
-function renderPuf(){
-  const o = calcPuf();
-  let h = '';
-  if (!o.active) h = msg('info', '<b>Noch kein Ergebnis.</b> Bitte mindestens eine Variante (' + E.VARIANTEN_JE_ERZEUGER[S.erzeuger].map(k => PV.find(v => v.k === k).label).join(', ') + ') einschalten.');
-  else {
-    h = '<ul class="pv" aria-label="Ergebnis je Variante">' + o.rows.map(r => '<li><span class="l">' + r.label + '</span>' + (r.state === 'ok' ?
-      '<span class="v">' + (r.litres > 0 ? 'ca. ' + f(Math.ceil(r.litres)) + ' l' : '0 l') + '</span>' :
-      '<span class="v m">' + (r.state === 'invalid' ? 'Eingabe prüfen' : 'noch unvollständig') + '</span>') + '</li>').join('') + '</ul>';
-    if (o.res && o.res.ok) {
-      const r = o.res, ok = r.vorschlagL > 0, unvoll = o.rows.filter(x => x.state !== 'ok');
-      h += '<div class="tiles"><div class="rt main" style="grid-column:1/-1"><small>Vorschlag Pufferspeicher</small><b>' + (ok ? f(r.vorschlagL) + ' l' : 'Kein Puffer nötig') + '</b><span>' +
-        (o.best && ok ? 'Maßgebend: ' + o.best.label + ' (' + f(Math.ceil(r.maxL)) + ' l berechnet)' : 'Nächste Standardgröße') + '</span>' +
-        (unvoll.length ? '<span class="ohne">Ohne: ' + unvoll.map(x => x.label).join(', ') + '</span>' : '') + '</div></div>';
-      h += r.warnungen.map(t => msg('warn', '<b>Hinweis:</b> ' + esc(t))).join('');
-    } else h += msg('info', '<b>Noch kein Ergebnis.</b> Bitte die Felder der eingeschalteten Varianten ausfüllen.');
-  }
-  setOut('pufOut', h);
-  document.getElementById('takeBtn').hidden = !(o.res && o.res.ok && o.res.vorschlagL > 0);
-}
-// Ergebnisbereich nur ersetzen, wenn sich der Inhalt geändert hat (bleibt sonst unberührt, z. B. aufgeklappter Rechenweg)
-function setOut(id, h){ const el = document.getElementById(id); if (el._h !== h) { el.innerHTML = h; el._h = h; } }
+        /* ---------- Puffer rechnen ---------- */
+        const PV = [
+          {
+            k: 'sperrzeit',
+            label: 'Sperrzeit',
+            req: ['Q', 'h', 'dT'],
+            eng: (p) => ({
+              aktiv: true,
+              leistungKW: num(p.Q),
+              stunden: num(p.h),
+              deltaT: num(p.dT),
+            }),
+          },
+          {
+            k: 'takt',
+            label: 'Takt',
+            req: ['Pmin', 'min', 'dT'],
+            eng: (p) => ({
+              aktiv: true,
+              pminKW: num(p.Pmin),
+              minuten: num(p.min),
+              deltaT: num(p.dT),
+            }),
+          },
+          {
+            k: 'abtauung',
+            label: 'Abtauung',
+            req: ['P'],
+            eng: (p) => ({
+              aktiv: true,
+              nennleistungKW: num(p.P),
+              lProKW: empty(p.l) ? lkw() : num(p.l),
+              anrechenbaresVolumenL: empty(p.anr) ? '' : num(p.anr),
+            }),
+          },
+          {
+            k: 'foerderung',
+            label: 'Förderung',
+            req: ['P'],
+            opt: ['l'],
+            eng: (p) => ({
+              aktiv: true,
+              nennleistungKW: num(p.P),
+              lProKW: empty(p.l) ? '' : num(p.l),
+            }),
+          },
+          {
+            k: 'bimschv',
+            label: '1. BImSchV',
+            req: [],
+            any: ['P', 'V'],
+            eng: (p) => ({
+              aktiv: true,
+              nennleistungKW: empty(p.P) ? '' : num(p.P),
+              fuellraumL: empty(p.V) ? '' : num(p.V),
+            }),
+          },
+        ];
+        function calcPuf() {
+          const P = S.puf,
+            out = { rows: [], res: null, active: 0 },
+            input = { erzeuger: S.erzeuger };
+          PV.forEach((v) => {
+            const p = P[v.k];
+            if (!p.on || !erlaubt(v.k)) return;
+            out.active++;
+            const paths = v.req
+              .concat(v.any || [], v.opt || [])
+              .map((x) => 'puf.' + v.k + '.' + x)
+              .concat(v.k === 'abtauung' ? ['puf.abtauung.l', 'puf.abtauung.anr'] : []);
+            const bad = errCount(paths),
+              miss = v.req
+                .filter((x) => empty(p[x]))
+                .concat(v.any && v.any.every((x) => empty(p[x])) ? ['any'] : []);
+            const r = {
+              key: v.k,
+              label: v.label,
+              state: bad ? 'invalid' : miss.length ? 'empty' : 'ok',
+            };
+            if (r.state === 'ok') {
+              input[v.k] = v.eng(p);
+              const one = { erzeuger: S.erzeuger };
+              one[v.k] = v.eng(p);
+              r.litres = E.puffer(one).werte[v.k];
+            }
+            out.rows.push(r);
+          });
+          if (Object.keys(input).length > 1) {
+            out.res = E.puffer(input);
+            if (out.res.ok) {
+              let best = null;
+              out.rows.forEach((r) => {
+                if (r.litres != null && (best == null || r.litres > best.litres)) best = r;
+              });
+              out.best = best;
+            }
+          }
+          lastPuf = out;
+          return out;
+        }
+        function renderPuf() {
+          const o = calcPuf();
+          let h = '';
+          if (!o.active)
+            h = msg(
+              'info',
+              '<b>Noch kein Ergebnis.</b> Bitte mindestens eine Variante (' +
+                E.VARIANTEN_JE_ERZEUGER[S.erzeuger]
+                  .map((k) => PV.find((v) => v.k === k).label)
+                  .join(', ') +
+                ') einschalten.',
+            );
+          else {
+            h =
+              '<ul class="pv" aria-label="Ergebnis je Variante">' +
+              o.rows
+                .map(
+                  (r) =>
+                    '<li><span class="l">' +
+                    r.label +
+                    '</span>' +
+                    (r.state === 'ok'
+                      ? '<span class="v">' +
+                        (r.litres > 0 ? 'ca. ' + f(Math.ceil(r.litres)) + ' l' : '0 l') +
+                        '</span>'
+                      : '<span class="v m">' +
+                        (r.state === 'invalid' ? 'Eingabe prüfen' : 'noch unvollständig') +
+                        '</span>') +
+                    '</li>',
+                )
+                .join('') +
+              '</ul>';
+            if (o.res && o.res.ok) {
+              const r = o.res,
+                ok = r.vorschlagL > 0,
+                unvoll = o.rows.filter((x) => x.state !== 'ok');
+              h +=
+                '<div class="tiles"><div class="rt main" style="grid-column:1/-1"><small>Vorschlag Pufferspeicher</small><b>' +
+                (ok ? f(r.vorschlagL) + ' l' : 'Kein Puffer nötig') +
+                '</b><span>' +
+                (o.best && ok
+                  ? 'Maßgebend: ' + o.best.label + ' (' + f(Math.ceil(r.maxL)) + ' l berechnet)'
+                  : 'Nächste Standardgröße') +
+                '</span>' +
+                (unvoll.length
+                  ? '<span class="ohne">Ohne: ' + unvoll.map((x) => x.label).join(', ') + '</span>'
+                  : '') +
+                '</div></div>';
+              h += r.warnungen.map((t) => msg('warn', '<b>Hinweis:</b> ' + esc(t))).join('');
+            } else
+              h += msg(
+                'info',
+                '<b>Noch kein Ergebnis.</b> Bitte die Felder der eingeschalteten Varianten ausfüllen.',
+              );
+          }
+          setOut('pufOut', h);
+          document.getElementById('takeBtn').hidden = !(o.res && o.res.ok && o.res.vorschlagL > 0);
+        }
+        // Ergebnisbereich nur ersetzen, wenn sich der Inhalt geändert hat (bleibt sonst unberührt, z. B. aufgeklappter Rechenweg)
+        function setOut(id, h) {
+          const el = document.getElementById(id);
+          if (el._h !== h) {
+            el.innerHTML = h;
+            el._h = h;
+          }
+        }
 
-function recalc(){ renderMag(); renderPuf(); }
+        function recalc() {
+          renderMag();
+          renderPuf();
+        }
 
-/* ---------- Speichern ---------- */
-function summary(t){
-  const ez = ERZ[S.erzeuger] + ' · ';
-  if (t === 'mag') { const r = lastMag && lastMag.res; if (!r || !r.ok) return null;
-    return ez + 'MAG ' + (r.Vn ? f(r.Vn) + ' l' : '> 1.000 l') + ' · p0 ' + f(r.p0, 2) + ' · pa ' + (r.pa == null ? '–' : f(r.pa, 2)) + ' · pe ' + f(r.pe, 2) + ' bar'; }
-  const r = lastPuf && lastPuf.res; if (!r || !r.ok) return null;
-  return ez + (r.vorschlagL > 0 ? 'Puffer ' + f(r.vorschlagL) + ' l' + (lastPuf.best ? ' (' + lastPuf.best.label + ')' : '') : 'Kein Puffer nötig');
-}
-function emptyState(){
-  const n = DEF(); n.erzeuger = S.erzeuger;
-  if (!E.VARIANTEN_JE_ERZEUGER[n.erzeuger].some(k => n.puf[k].on)) n.puf[E.VARIANTEN_JE_ERZEUGER[n.erzeuger][0]].on = true;
-  return n;
-}
-function isDirty(){
-  const cur = JSON.stringify(S);
-  if (cur === JSON.stringify(emptyState())) return false;
-  return !SAVED.some(x => x && x.state && JSON.stringify(loadState(x.state)) === cur); // gespeichert/geöffnet = nicht ungespeichert
-}
-function hideNc(){ document.querySelectorAll('.ncbox').forEach(b => { b.hidden = true; }); }
-function newCalc(target){
-  hideNc();
-  S = emptyState(); saveDraft(); rowsHtml(); fill(); validateAll(); refreshUI(); recalc();
-  if (target && view !== target) nav(target);
-  window.scrollTo(0, 0); toast('Neue Berechnung gestartet');
-}
-function saveCalc(t){
-  const s = summary(t);
-  if (!s) { toast(t === 'mag' ? 'Bitte zuerst ein Ergebnis berechnen.' : 'Bitte zuerst alle Felder der Varianten ausfüllen.'); return; }
-  SAVED.unshift({ id: uid(), name: (S.name || '').trim(), ts: new Date().toISOString(), typ: t, kurz: s, state: JSON.parse(JSON.stringify(S)) });
-  if (LS.set(KEY_SAVED, SAVED)) { toast('Berechnung gespeichert.'); refreshUI(); } else SAVED.shift();
-}
-function renderSaved(){
-  const el = document.getElementById('savedList');
-  if (!SAVED.length) { el.innerHTML = msg('info', '<b>Noch nichts gespeichert.</b> Auf den Rechner-Seiten „Berechnung speichern“ antippen.'); return; }
-  el.innerHTML = SAVED.map(s => {
-    const nm = s.name ? esc(String(s.name)) : 'Ohne Namen', sid = esc(String(s.id));
-    const kurz = s.kurz ? esc(String(s.kurz).replace(/&gt;/g, '>')) : '–';
-    const act = confirmId === s.id
-      ? '<div class="svact"><span style="font-weight:600">Wirklich löschen?</span><button class="btn" type="button" data-a="delno">Abbrechen</button><button class="btn danger" type="button" data-a="delyes" data-id="' + sid + '">' + ic('trash') + 'Löschen</button></div>'
-      : '<div class="svact"><button class="btn danger" type="button" data-a="delsaved" data-id="' + sid + '" aria-label="' + nm + ' löschen">' + ic('trash') + 'Löschen</button></div>';
-    return '<div class="card sv"><button class="svmain" type="button" data-a="open" data-id="' + sid + '"><strong>' + nm + '</strong><small>' + esc(fmtDateTime(s.ts)) + '</small><em>' + kurz + '</em></button>' + act + '</div>';
-  }).join('');
-}
+        /* ---------- Speichern ---------- */
+        function summary(t) {
+          const ez = ERZ[S.erzeuger] + ' · ';
+          if (t === 'mag') {
+            const r = lastMag && lastMag.res;
+            if (!r || !r.ok) return null;
+            return (
+              ez +
+              'MAG ' +
+              (r.Vn ? f(r.Vn) + ' l' : '> 1.000 l') +
+              ' · p0 ' +
+              f(r.p0, 2) +
+              ' · pa ' +
+              (r.pa == null ? '–' : f(r.pa, 2)) +
+              ' · pe ' +
+              f(r.pe, 2) +
+              ' bar'
+            );
+          }
+          const r = lastPuf && lastPuf.res;
+          if (!r || !r.ok) return null;
+          return (
+            ez +
+            (r.vorschlagL > 0
+              ? 'Puffer ' +
+                f(r.vorschlagL) +
+                ' l' +
+                (lastPuf.best ? ' (' + lastPuf.best.label + ')' : '')
+              : 'Kein Puffer nötig')
+          );
+        }
+        function emptyState() {
+          const n = DEF();
+          n.erzeuger = S.erzeuger;
+          if (!E.VARIANTEN_JE_ERZEUGER[n.erzeuger].some((k) => n.puf[k].on))
+            n.puf[E.VARIANTEN_JE_ERZEUGER[n.erzeuger][0]].on = true;
+          return n;
+        }
+        function isDirty() {
+          const cur = JSON.stringify(S);
+          if (cur === JSON.stringify(emptyState())) return false;
+          return !SAVED.some((x) => x && x.state && JSON.stringify(loadState(x.state)) === cur); // gespeichert/geöffnet = nicht ungespeichert
+        }
+        function hideNc() {
+          document.querySelectorAll('.ncbox').forEach((b) => {
+            b.hidden = true;
+          });
+        }
+        function newCalc(target) {
+          hideNc();
+          S = emptyState();
+          saveDraft();
+          rowsHtml();
+          fill();
+          validateAll();
+          refreshUI();
+          recalc();
+          if (target && view !== target) nav(target);
+          window.scrollTo(0, 0);
+          toast('Neue Berechnung gestartet');
+        }
+        function saveCalc(t) {
+          const s = summary(t);
+          if (!s) {
+            toast(
+              t === 'mag'
+                ? 'Bitte zuerst ein Ergebnis berechnen.'
+                : 'Bitte zuerst alle Felder der Varianten ausfüllen.',
+            );
+            return;
+          }
+          SAVED.unshift({
+            id: uid(),
+            name: (S.name || '').trim(),
+            ts: new Date().toISOString(),
+            typ: t,
+            kurz: s,
+            state: JSON.parse(JSON.stringify(S)),
+          });
+          if (LS.set(KEY_SAVED, SAVED)) {
+            toast('Berechnung gespeichert.');
+            refreshUI();
+          } else SAVED.shift();
+        }
+        function renderSaved() {
+          const el = document.getElementById('savedList');
+          if (!SAVED.length) {
+            el.innerHTML = msg(
+              'info',
+              '<b>Noch nichts gespeichert.</b> Auf den Rechner-Seiten „Berechnung speichern“ antippen.',
+            );
+            return;
+          }
+          el.innerHTML = SAVED.map((s) => {
+            const nm = s.name ? esc(String(s.name)) : 'Ohne Namen',
+              sid = esc(String(s.id));
+            const kurz = s.kurz ? esc(String(s.kurz).replace(/&gt;/g, '>')) : '–';
+            const act =
+              confirmId === s.id
+                ? '<div class="svact"><span style="font-weight:600">Wirklich löschen?</span><button class="btn" type="button" data-a="delno">Abbrechen</button><button class="btn danger" type="button" data-a="delyes" data-id="' +
+                  sid +
+                  '">' +
+                  ic('trash') +
+                  'Löschen</button></div>'
+                : '<div class="svact"><button class="btn danger" type="button" data-a="delsaved" data-id="' +
+                  sid +
+                  '" aria-label="' +
+                  nm +
+                  ' löschen">' +
+                  ic('trash') +
+                  'Löschen</button></div>';
+            return (
+              '<div class="card sv"><button class="svmain" type="button" data-a="open" data-id="' +
+              sid +
+              '"><strong>' +
+              nm +
+              '</strong><small>' +
+              esc(fmtDateTime(s.ts)) +
+              '</small><em>' +
+              kurz +
+              '</em></button>' +
+              act +
+              '</div>'
+            );
+          }).join('');
+        }
 
-/* ---------- Navigation ---------- */
-const TITLES = { home: ['MAG & Puffer', 'Ausdehnungsgefäß und Pufferspeicher'], mag: ['Ausdehnungsgefäß', 'MAG berechnen'], puffer: ['Pufferspeicher', 'Puffer berechnen'], saved: ['Gespeichert', 'Gespeicherte Berechnungen'], settings: ['Einstellungen', 'Standardwerte und Darstellung'] };
-function show(v){
-  if (!TITLES[v]) v = 'home';
-  hideNc();
-  view = v;
-  Object.keys(TITLES).forEach(k => { document.getElementById('v-' + k).hidden = k !== v; });
-  document.getElementById('ttl').textContent = TITLES[v][0];
-  document.getElementById('sub').textContent = TITLES[v][1];
-  document.getElementById('back').hidden = v === 'home';
-  if (v === 'saved') renderSaved();
-  refreshUI(); fill(); window.scrollTo(0, 0);
-  const h = document.getElementById('h-' + v); if (h) h.focus({ preventScroll: true });
-}
-const nav = v => { if (location.hash.slice(1) === v || (v === 'home' && !location.hash)) show(v); else location.hash = v === 'home' ? '' : v; };
-window.addEventListener('hashchange', () => show(location.hash.slice(1) || 'home'));
+        /* ---------- Navigation ---------- */
+        const TITLES = {
+          home: ['MAG & Puffer', 'Ausdehnungsgefäß und Pufferspeicher'],
+          mag: ['Ausdehnungsgefäß', 'MAG berechnen'],
+          puffer: ['Pufferspeicher', 'Puffer berechnen'],
+          saved: ['Gespeichert', 'Gespeicherte Berechnungen'],
+          settings: ['Einstellungen', 'Standardwerte und Darstellung'],
+        };
+        function show(v) {
+          if (!TITLES[v]) v = 'home';
+          hideNc();
+          view = v;
+          Object.keys(TITLES).forEach((k) => {
+            document.getElementById('v-' + k).hidden = k !== v;
+          });
+          document.getElementById('ttl').textContent = TITLES[v][0];
+          document.getElementById('sub').textContent = TITLES[v][1];
+          document.getElementById('back').hidden = v === 'home';
+          if (v === 'saved') renderSaved();
+          refreshUI();
+          fill();
+          window.scrollTo(0, 0);
+          const h = document.getElementById('h-' + v);
+          if (h) h.focus({ preventScroll: true });
+        }
+        const nav = (v) => {
+          if (location.hash.slice(1) === v || (v === 'home' && !location.hash)) show(v);
+          else location.hash = v === 'home' ? '' : v;
+        };
+        window.addEventListener('hashchange', () => show(location.hash.slice(1) || 'home'));
 
-/* ---------- Ereignisse ---------- */
-function onField(el){
-  const k = el.dataset.k; if (!k) return;
-  const v = el.type === 'checkbox' ? el.checked : el.value;
-  set(k, v);
-  document.querySelectorAll('[data-k="' + k + '"]').forEach(o => { if (o !== el && o.type !== 'checkbox') o.value = v; });
-  if (el.type !== 'checkbox' && el.type !== 'text') showErr(k, chk(k));
-  if (k.startsWith('st.')) saveSet(); else saveDraft();
-  refreshUI(); recalc();
-}
-document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.k) onField(e.target); });
-document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.k && (t.tagName === 'SELECT' || t.type === 'checkbox')) onField(t); }); // Textfelder: nur input (kein Neu-Rendern bei blur)
-document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('rw')) magDetOpen = e.target.open; }, true);
+        /* ---------- Ereignisse ---------- */
+        function onField(el) {
+          const k = el.dataset.k;
+          if (!k) return;
+          const v = el.type === 'checkbox' ? el.checked : el.value;
+          set(k, v);
+          document.querySelectorAll('[data-k="' + k + '"]').forEach((o) => {
+            if (o !== el && o.type !== 'checkbox') o.value = v;
+          });
+          if (el.type !== 'checkbox' && el.type !== 'text') showErr(k, chk(k));
+          if (k.startsWith('st.')) saveSet();
+          else saveDraft();
+          refreshUI();
+          recalc();
+        }
+        document.addEventListener('input', (e) => {
+          if (e.target.dataset && e.target.dataset.k) onField(e.target);
+        });
+        document.addEventListener('change', (e) => {
+          const t = e.target;
+          if (t.dataset && t.dataset.k && (t.tagName === 'SELECT' || t.type === 'checkbox'))
+            onField(t);
+        }); // Textfelder: nur input (kein Neu-Rendern bei blur)
+        document.addEventListener(
+          'toggle',
+          (e) => {
+            if (e.target.classList && e.target.classList.contains('rw')) magDetOpen = e.target.open;
+          },
+          true,
+        );
 
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-a]'); if (!b) return;
-  const a = b.dataset.a, d = b.dataset;
-  if (a === 'nav') nav(d.v);
-  else if (a === 'mode') { S.mag.mode = d.v; saveDraft(); refreshUI(); recalc(); }
-  else if (a === 'erz') {
-    S.erzeuger = d.v;
-    if (!E.VARIANTEN_JE_ERZEUGER[d.v].some(k => S.puf[k].on)) S.puf[E.VARIANTEN_JE_ERZEUGER[d.v][0]].on = true; // sonst wäre keine Variante aktiv
-    saveDraft(); fill(); refreshUI(); recalc();
-  }
-  else if (a === 'psv') { S.mag.psv = d.v; saveDraft(); refreshUI(); recalc(); }
-  else if (a === 'add') { const l = S.mag[d.l]; l.push(d.l === 'hf' ? { typ: 'radiator', kW: '' } : { typ: 'cu-15x1', m: '' }); saveDraft(); rowsHtml(); recalc(); }
-  else if (a === 'del') { S.mag[d.l].splice(Number(d.i), 1); saveDraft(); rowsHtml(); validateAll(); recalc(); }
-  else if (a === 'hubnew') { if (isDirty()) { hideNc(); const bx = document.getElementById('nc-home'); bx.querySelector('[data-a="ncyes"]').dataset.v = d.v; bx.hidden = false; } else newCalc(d.v); }
-  else if (a === 'newcalc') { if (isDirty()) { hideNc(); document.getElementById('nc-' + d.v).hidden = false; } else newCalc(d.v); }
-  else if (a === 'ncyes') newCalc(d.v || null);
-  else if (a === 'ncno') hideNc();
-  else if (a === 'save') saveCalc(d.t);
-  else if (a === 'take') {
-    const r = lastPuf && lastPuf.res; if (!r || !r.ok || !(r.vorschlagL > 0)) return;
-    S.mag.pufferL = String(r.vorschlagL); saveDraft();
-    nav('mag'); fill(); validateAll(); recalc(); toast('Puffer ' + f(r.vorschlagL) + ' l in die MAG-Berechnung übernommen.');
-  }
-  else if (a === 'open') {
-    const s = SAVED.find(x => x.id === d.id); if (!s) return;
-    S = loadState(s.state); saveDraft(); rowsHtml(); fill(); validateAll(); refreshUI(); recalc();
-    nav(s.typ === 'puffer' ? 'puffer' : 'mag');
-  }
-  else if (a === 'delsaved') { confirmId = d.id; renderSaved(); }
-  else if (a === 'delno') { confirmId = null; renderSaved(); }
-  else if (a === 'delyes') { SAVED = SAVED.filter(x => x.id !== d.id); confirmId = null; LS.set(KEY_SAVED, SAVED); renderSaved(); refreshUI(); toast('Berechnung gelöscht.'); }
-  else if (a === 'resetset') { ST.p0min = '0,7'; ST.lkw = '20'; saveSet(); fill(); validateAll(); refreshUI(); recalc(); toast('Standardwerte wiederhergestellt.'); }
-  else if (a === 'theme') { document.getElementById('themebtn').click(); refreshUI(); }
-});
-document.getElementById('back').addEventListener('click', () => nav('home'));
+        document.addEventListener('click', (e) => {
+          const b = e.target.closest('[data-a]');
+          if (!b) return;
+          const a = b.dataset.a,
+            d = b.dataset;
+          if (a === 'nav') nav(d.v);
+          else if (a === 'mode') {
+            S.mag.mode = d.v;
+            saveDraft();
+            refreshUI();
+            recalc();
+          } else if (a === 'erz') {
+            S.erzeuger = d.v;
+            if (!E.VARIANTEN_JE_ERZEUGER[d.v].some((k) => S.puf[k].on))
+              S.puf[E.VARIANTEN_JE_ERZEUGER[d.v][0]].on = true; // sonst wäre keine Variante aktiv
+            saveDraft();
+            fill();
+            refreshUI();
+            recalc();
+          } else if (a === 'psv') {
+            S.mag.psv = d.v;
+            saveDraft();
+            refreshUI();
+            recalc();
+          } else if (a === 'add') {
+            const l = S.mag[d.l];
+            l.push(d.l === 'hf' ? { typ: 'radiator', kW: '' } : { typ: 'cu-15x1', m: '' });
+            saveDraft();
+            rowsHtml();
+            recalc();
+          } else if (a === 'del') {
+            S.mag[d.l].splice(Number(d.i), 1);
+            saveDraft();
+            rowsHtml();
+            validateAll();
+            recalc();
+          } else if (a === 'hubnew') {
+            if (isDirty()) {
+              hideNc();
+              const bx = document.getElementById('nc-home');
+              bx.querySelector('[data-a="ncyes"]').dataset.v = d.v;
+              bx.hidden = false;
+            } else newCalc(d.v);
+          } else if (a === 'newcalc') {
+            if (isDirty()) {
+              hideNc();
+              document.getElementById('nc-' + d.v).hidden = false;
+            } else newCalc(d.v);
+          } else if (a === 'ncyes') newCalc(d.v || null);
+          else if (a === 'ncno') hideNc();
+          else if (a === 'save') saveCalc(d.t);
+          else if (a === 'take') {
+            const r = lastPuf && lastPuf.res;
+            if (!r || !r.ok || !(r.vorschlagL > 0)) return;
+            S.mag.pufferL = String(r.vorschlagL);
+            saveDraft();
+            nav('mag');
+            fill();
+            validateAll();
+            recalc();
+            toast('Puffer ' + f(r.vorschlagL) + ' l in die MAG-Berechnung übernommen.');
+          } else if (a === 'open') {
+            const s = SAVED.find((x) => x.id === d.id);
+            if (!s) return;
+            S = loadState(s.state);
+            saveDraft();
+            rowsHtml();
+            fill();
+            validateAll();
+            refreshUI();
+            recalc();
+            nav(s.typ === 'puffer' ? 'puffer' : 'mag');
+          } else if (a === 'delsaved') {
+            confirmId = d.id;
+            renderSaved();
+          } else if (a === 'delno') {
+            confirmId = null;
+            renderSaved();
+          } else if (a === 'delyes') {
+            SAVED = SAVED.filter((x) => x.id !== d.id);
+            confirmId = null;
+            LS.set(KEY_SAVED, SAVED);
+            renderSaved();
+            refreshUI();
+            toast('Berechnung gelöscht.');
+          } else if (a === 'resetset') {
+            ST.p0min = '0,7';
+            ST.lkw = '20';
+            saveSet();
+            fill();
+            validateAll();
+            refreshUI();
+            recalc();
+            toast('Standardwerte wiederhergestellt.');
+          } else if (a === 'theme') {
+            document.getElementById('themebtn').click();
+            refreshUI();
+          }
+        });
+        document.getElementById('back').addEventListener('click', () => nav('home'));
 
-window.__magRefresh = refreshUI;
-/* ---------- Start ---------- */
-build();
-recalc();
-validateAll();
-show(location.hash.slice(1) || 'home');
-})();
-</script>
-<script src="shared/theme.js"></script>
-<script>if(window.__magRefresh)window.__magRefresh();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
-</body>
+        window.__magRefresh = refreshUI;
+        /* ---------- Start ---------- */
+        build();
+        recalc();
+        validateAll();
+        show(location.hash.slice(1) || 'home');
+      })();
+    </script>
+    <script src="shared/theme.js"></script>
+    <script>
+      if (window.__magRefresh) window.__magRefresh();
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    </script>
+  </body>
 </html>

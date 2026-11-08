@@ -5,7 +5,7 @@
    aus der App (SETTINGS_FIELDS: Array von {id, key, label, placeholder}).
    Laden: vor dem App-Skript, nach core.js und sync.js (klassisches Skript, kein Modul). */
 
-function settingsConnectionHtml(){
+function settingsConnectionHtml() {
   return `
       <h2>Datenbank-Verbindung</h2>
       <div class="card">
@@ -16,22 +16,29 @@ function settingsConnectionHtml(){
       </div>`;
 }
 
-function settingsGeneralHtml(fields){
-  return `
+function settingsGeneralHtml(fields) {
+  return (
+    `
       <h2>Allgemein</h2>
       <div class="card">
         <label>Firmenkopf im PDF (mehrzeilig möglich)</label><textarea id="s_firma" style="min-height:110px" placeholder="z. B. Firmenname&#10;Straße&#10;PLZ Ort · Telefon">${esc(settings.firma)}</textarea>` +
-    fields.map(f => `
-        <label style="margin-top:14px">${esc(f.label)}</label><input id="${f.id}" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}">`).join('') + `
-      </div>`;
+    fields
+      .map(
+        (f) => `
+        <label style="margin-top:14px">${esc(f.label)}</label><input id="${f.id}" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}">`,
+      )
+      .join('') +
+    `
+      </div>`
+  );
 }
 
-function settingsButtonsHtml(){
+function settingsButtonsHtml() {
   return `
       <div class="row"><button class="btn primary" data-act="savesettings">Speichern</button><button class="btn" data-act="ping">Speichern &amp; Verbindung testen</button></div>`;
 }
 
-function settingsBackupHtml(text){
+function settingsBackupHtml(text) {
   return `
       <h2>Datensicherung</h2>
       <div class="card">
@@ -43,33 +50,39 @@ function settingsBackupHtml(text){
       </div>`;
 }
 
-function settingsSave(fields, storageKey){
+function settingsSave(fields, storageKey) {
   settings.url = $('#s_url').value.trim();
   settings.token = $('#s_token').value.trim();
   settings.firma = $('#s_firma').value.trim();
-  fields.forEach(f => { settings[f.key] = $('#' + f.id).value.trim(); });
+  fields.forEach((f) => {
+    settings[f.key] = $('#' + f.id).value.trim();
+  });
   LS.set(storageKey, settings);
 }
 
-function backupDownload(obj, fileName){
+function backupDownload(obj, fileName) {
   const data = JSON.stringify(obj, null, 1);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
   a.download = fileName;
-  document.body.appendChild(a); a.click(); a.remove();
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
-function backupImport(file, listKey, current, label, apply){
+function backupImport(file, listKey, current, label, apply) {
   const r = new FileReader();
   r.onload = () => {
-    try{
+    try {
       const d = JSON.parse(r.result);
-      if(!Array.isArray(d[listKey])) throw new Error('Keine gültige Backup-Datei');
-      const byId = new Map(current.map(p => [p.id, p]));
-      d[listKey].forEach(p => byId.set(p.id, p));
+      if (!Array.isArray(d[listKey])) throw new Error('Keine gültige Backup-Datei');
+      const byId = new Map(current.map((p) => [p.id, p]));
+      d[listKey].forEach((p) => byId.set(p.id, p));
       apply([...byId.values()]);
       toast(`Backup importiert: ${d[listKey].length} ${label}.`);
-    }catch(err){ toast('Import fehlgeschlagen: ' + err.message); }
+    } catch (err) {
+      toast('Import fehlgeschlagen: ' + err.message);
+    }
   };
   r.readAsText(file);
 }
