@@ -2325,7 +2325,8 @@
           const body =
             B.checkliste(
               ck.map((x) => ({
-                label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+                label: x.label,
+                mangel: x.mangel,
                 value: shown(x.value),
                 eval: evalOf(x),
               })),

@@ -1922,7 +1922,8 @@
 
         (r.sections || []).forEach((s) => {
           const items = (s.checks || []).map((x) => ({
-            label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+            label: x.label,
+            mangel: x.mangel,
             value: x.value,
             eval: ['ok', 'bad', 'na'].includes(x.eval) ? x.eval : '',
           }));

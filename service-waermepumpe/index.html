@@ -1056,11 +1056,9 @@
                 col: 'RCD-Typ / FI-Schutz',
                 label: 'RCD-Typ / FI-Schutz',
                 pdf: 'RCD-Schutz',
-                type: 'select',
-                opts: ['Typ A / 40A / 30mA', 'Typ B / 40A / 30mA'],
-                other: true,
+                type: 'text',
+                ph: 'z. B. Typ A / 40 A / 30 mA',
                 req: true,
-                init: 'Typ A / 40A / 30mA',
               },
               ok(
                 'elAnschl',
@@ -2245,7 +2243,8 @@
           const body =
             B.checkliste(
               ck.map((x) => ({
-                label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+                label: x.label,
+                mangel: x.mangel,
                 value: x.value,
                 eval: evalOf(x),
               })),

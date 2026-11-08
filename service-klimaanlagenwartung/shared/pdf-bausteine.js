@@ -90,7 +90,7 @@ function pdfBausteine() {
       ? `<div class="checks2">${items
           .map((x) => {
             const k = x.eval || 'na';
-            return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}</span><span class="a">${esc(x.value || '—')}</span></div>`;
+            return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}${x.mangel ? `<span class="m">Mangel: ${esc(x.mangel)}</span>` : ''}</span><span class="a">${esc(x.value || '—')}</span></div>`;
           })
           .join('')}</div>`
       : '';
