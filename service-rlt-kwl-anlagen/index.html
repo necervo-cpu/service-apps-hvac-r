@@ -38,6 +38,9 @@
         font-weight: 600;
         margin-top: 6px;
       }
+      .mangel {
+        margin-top: 4px;
+      }
       .field.err input,
       .field.err textarea {
         border-color: var(--bad);
@@ -585,6 +588,7 @@
    Die leeren Spalten "Bereich: …" im Sheet sind nur Trenner und werden nicht abgefragt.
    ===================================================================== */
       const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
+      const MANGEL_SUFFIX = ' – Mangel';
       const ok = (id, col, label, pdf, hint, extra) =>
         Object.assign({ id, col, label, pdf, hint, type: 'okfail' }, extra || {});
       const ANLAGENTYP = [
@@ -676,7 +680,7 @@
                 label: 'Standort / Zusatzangaben',
                 type: 'longtext',
                 wide: true,
-                hint: 'Aufstellort, Zugang, Ansprechpartner …',
+                hint: 'Aufstellort, Zugang, Hinweise …',
                 ph: 'z. B. Technikzentrale OG 1',
               },
             ],
@@ -1300,6 +1304,26 @@
           ),
         );
       }
+      TEMPLATE.pages.forEach((pg) => {
+        pg.fields = pg.fields.flatMap((f) => {
+          if (f.type !== 'okfail' || f.legacy) {
+            return [f];
+          }
+          const mangel = {
+            id: f.id + 'M',
+            col: f.col + MANGEL_SUFFIX,
+            label: 'Mangel / Maßnahme',
+            type: 'text',
+            parent: f.id,
+            ph: 'Was ist festzustellen, was ist zu tun?',
+            show: (v) => v[f.id] === 'n.i.O.' && (!f.show || f.show(v)),
+          };
+          if (f.group) {
+            mangel.group = f.group;
+          }
+          return [f, mangel];
+        });
+      });
       const ALL_FIELDS = TEMPLATE.pages.flatMap((pg) => pg.fields);
       const FIELD = Object.fromEntries(ALL_FIELDS.map((f) => [f.id, f]));
 
@@ -1392,11 +1416,14 @@
             f.type !== 'calc' &&
             isVis(f, p.values) &&
             ['bad', 'warn'].includes(evalField(f, p.values)),
-        ).map(
-          (f) =>
+        ).map((f) => {
+          const mangel = String(p.values[f.id + 'M'] ?? '').trim();
+          return (
             `${f.pdf || f.label}: ${display(f, p.values[f.id])}` +
-            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''),
-        );
+            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : '') +
+            (f.type === 'okfail' && mangel ? ` – ${mangel}` : '')
+          );
+        });
       }
       const PFLICHTFELDER = false; // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
       function isRequired(f, p) {
@@ -1424,7 +1451,8 @@
           (f) => f.type !== 'calc' && !f.legacy && isVis(f, p.values),
         );
         return (
-          fs.every((f) => !fieldError(f, p)) && fs.some((f) => String(p.values[f.id] ?? '') !== '')
+          fs.every((f) => !fieldError(f, p)) &&
+          fs.some((f) => !f.parent && String(p.values[f.id] ?? '') !== '')
         );
       }
 
@@ -1436,8 +1464,11 @@
           value: display(f, v[f.id]),
           eval: evalField(f, v),
           wide: !!f.wide,
+          mangel:
+            f.type === 'okfail' && v[f.id] === 'n.i.O.' ? String(v[f.id + 'M'] ?? '').trim() : '',
         });
-        const rowsOf = (fs) => fs.filter((f) => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
+        const rowsOf = (fs) =>
+          fs.filter((f) => !f.parent && isVis(f, v) && !(f.wide && !v[f.id])).map(row);
         const section = (pg) => {
           const inTab = new Set(pg.table ? pg.table.rows.flatMap((r) => r.ids) : []);
           const rest = pg.fields.filter((f) => !inTab.has(f.id));
@@ -1751,7 +1782,7 @@
           default:
             body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
         }
-        return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
+        return `<div class="field ${err ? 'err' : ''}${f.parent ? ' mangel' : ''}">${lab}${body}${errHtml}</div>`;
       }
       function sollHtml(f, v) {
         const s = sollText(f),
@@ -1900,7 +1931,13 @@
           const ck = all.filter(isCheck),
             fl = all.filter((x) => !isCheck(x));
           const body =
-            B.checkliste(ck.map((x) => ({ label: x.label, value: x.value, eval: evalOf(x) }))) +
+            B.checkliste(
+              ck.map((x) => ({
+                label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+                value: x.value,
+                eval: evalOf(x),
+              })),
+            ) +
             (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
           if (s.table && s.table.body && s.table.body.length) {
             const t = s.table;

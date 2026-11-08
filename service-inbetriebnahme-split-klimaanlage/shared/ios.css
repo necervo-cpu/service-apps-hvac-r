@@ -165,8 +165,8 @@ body::before {
 }
 .seg .btn.sel.neutral,
 .seg .btn.sel:not(.ok):not(.bad):not(.na):not(.warn) {
-  background: var(--ios-card);
-  color: var(--ios-ink);
+  background: var(--ios-gold);
+  color: #1a1a1a;
 }
 .opts .btn {
   transition:

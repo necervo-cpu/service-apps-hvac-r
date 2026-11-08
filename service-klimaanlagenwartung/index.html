@@ -41,6 +41,9 @@
         font-weight: 600;
         margin-top: 6px;
       }
+      .mangel {
+        margin-top: 4px;
+      }
       .field.err input,
       .field.err textarea {
         border-color: var(--bad);
@@ -629,6 +632,7 @@
    Checklisten: i.O. / n.i.O. / entfällt – wie die Auswahllisten im Sheet (alter Wert „Mangel“ wird beim Laden zu „n.i.O.“).
    ===================================================================== */
       const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
+      const MANGEL_SUFFIX = ' – Mangel';
       const ok = (id, col, label, pdf, hint, extra) =>
         Object.assign({ id, col, label, pdf, hint, type: 'okfail' }, extra || {});
       const druck = (id, col, label, pdf, hint) => ({
@@ -1404,6 +1408,29 @@
           ),
         );
       }
+      TEMPLATE.pages.forEach((pg) => {
+        pg.fields = pg.fields.flatMap((f) => {
+          if (f.type !== 'okfail' || f.legacy) {
+            return [f];
+          }
+          const mangel = {
+            id: f.id + 'M',
+            col: f.col + MANGEL_SUFFIX,
+            label: 'Mangel / Maßnahme',
+            type: 'text',
+            parent: f.id,
+            ph: 'Was ist festzustellen, was ist zu tun?',
+            show: (v) => v[f.id] === 'n.i.O.' && (!f.show || f.show(v)),
+          };
+          if (f.group) {
+            mangel.group = f.group;
+          }
+          if (f.dev) {
+            mangel.dev = f.dev;
+          }
+          return [f, mangel];
+        });
+      });
       const ALL_FIELDS = TEMPLATE.pages.flatMap((pg) => pg.fields);
       const FIELD = Object.fromEntries(ALL_FIELDS.map((f) => [f.id, f]));
       // Auffälligkeiten: Bauteil voranstellen (Dichtheit gibt es bei Verdichter, Verflüssiger und Verdampfer)
@@ -1587,11 +1614,14 @@
             f.type !== 'calc' &&
             isVis(f, p.values) &&
             ['bad', 'warn'].includes(evalField(f, p.values)),
-        ).map(
-          (f) =>
+        ).map((f) => {
+          const mangel = String(p.values[f.id + 'M'] ?? '').trim();
+          return (
             `${f.dev ? devLabel(p.values, f.dev) + ' – ' : CHECK_PAGE[f.id] ? CHECK_PAGE[f.id] + ' – ' : ''}${f.pdf || f.label}: ${nio(display(f, p.values[f.id]))}` +
-            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''),
-        );
+            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : '') +
+            (f.type === 'okfail' && mangel ? ` – ${mangel}` : '')
+          );
+        });
       }
       const PFLICHTFELDER = false; // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
       function isRequired(f, p) {
@@ -1621,7 +1651,7 @@
         // Grün erst, wenn der Monteur selbst etwas eingetragen hat – vorausgefüllte Felder (init) zählen nicht
         return (
           fs.every((f) => !fieldError(f, p)) &&
-          fs.some((f) => f.init == null && String(p.values[f.id] ?? '') !== '')
+          fs.some((f) => !f.parent && f.init == null && String(p.values[f.id] ?? '') !== '')
         );
       }
 
@@ -1633,8 +1663,11 @@
           value: display(f, v[f.id]),
           eval: evalField(f, v),
           wide: !!f.wide,
+          mangel:
+            f.type === 'okfail' && v[f.id] === 'n.i.O.' ? String(v[f.id + 'M'] ?? '').trim() : '',
         });
-        const rowsOf = (fs) => fs.filter((f) => isVis(f, v) && !(f.wide && !v[f.id])).map(row);
+        const rowsOf = (fs) =>
+          fs.filter((f) => !f.parent && isVis(f, v) && !(f.wide && !v[f.id])).map(row);
         const section = (pg, fs, title) => {
           fs = fs || pg.fields;
           const inTab = new Set(pg.table ? pg.table.rows.flatMap((r) => r.ids) : []);
@@ -1936,11 +1969,10 @@
         const s = vStat(p, n);
         return `<span class="badge ${s[0]}">${s[1]}</span>`;
       };
-      function vcardHtml(p, n, open) {
-        const v = p.values,
-          fs = DEV_FIELDS[n].filter((f) => !f.legacy && isVis(f, v));
+      function vFieldsHtml(p, n) {
         let g = null;
-        const body = fs
+        return DEV_FIELDS[n]
+          .filter((f) => !f.legacy && isVis(f, p.values))
           .map((f) => {
             let h = '';
             if (f.group && f.group !== g) {
@@ -1950,12 +1982,16 @@
             return h + fieldHtml(f, p);
           })
           .join('');
+      }
+      function vcardHtml(p, n, open) {
+        const v = p.values,
+          fs = DEV_FIELDS[n].filter((f) => !f.legacy && isVis(f, v));
         const anyOpen = fs.some((f) => f.type === 'okfail' && !v[f.id]);
         return `<div class="card vcard${open ? ' open' : ''}" id="vc-${n}" data-n="${n}">
     <button type="button" class="vh" data-act="togglev" data-n="${n}" aria-expanded="${open}" aria-controls="vb-${n}"><span class="n">${n}</span><span class="m"><b id="vt-${n}">${esc(vTitle(v, n))}</b><span id="vs-${n}">${vStatHtml(p, n)}</span></span>${CHEV}</button>
     <div class="vbw" id="vb-${n}"><div class="vbody"><div class="vin">
       <div class="row" style="margin:6px 0 4px"><button type="button" class="btn small" data-act="allokv" data-n="${n}" id="vk-${n}"${anyOpen ? '' : ' hidden'}>Offene Punkte auf i.O.</button></div>
-      ${body}
+      <div id="vf-${n}">${vFieldsHtml(p, n)}</div>
     </div></div></div>
   </div>`;
       }
@@ -1973,13 +2009,7 @@
       function vSync(p, n) {
         const card = document.getElementById('vc-' + n);
         if (!card) return;
-        DEV_FIELDS[n]
-          .filter((f) => f.type === 'okfail')
-          .forEach((f) =>
-            card
-              .querySelectorAll(`[data-act=set][data-f="${f.id}"]`)
-              .forEach((b) => b.classList.toggle('sel', b.dataset.v === p.values[f.id])),
-          );
+        document.getElementById('vf-' + n).innerHTML = vFieldsHtml(p, n);
         document.getElementById('vs-' + n).innerHTML = vStatHtml(p, n);
         document.getElementById('vk-' + n).hidden = !DEV_FIELDS[n].some(
           (f) => f.type === 'okfail' && !p.values[f.id],
@@ -2031,7 +2061,7 @@
           default:
             body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
         }
-        return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
+        return `<div class="field ${err ? 'err' : ''}${f.parent ? ' mangel' : ''}">${lab}${body}${errHtml}</div>`;
       }
       function sollHtml(f, v) {
         const s = sollText(f),
@@ -2218,7 +2248,11 @@
             fl = all.filter((x) => !isCheck(x) && !(measEmpty && meas.has(x)));
           const body =
             B.checkliste(
-              ck.map((x) => ({ label: x.label, value: shown(x.value), eval: evalOf(x) })),
+              ck.map((x) => ({
+                label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+                value: shown(x.value),
+                eval: evalOf(x),
+              })),
             ) +
             (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
           if (s.table && s.table.body && s.table.body.length) {

@@ -23,6 +23,7 @@
     druck: { unit: 'bar', min: 0, max: 6, sMin: 1.0, sMax: 2.5 },
     mag: { unit: 'bar', min: 0, max: 4 },
     lf: { unit: 'µS/cm', min: 0, max: 5000 },
+    ph: { unit: '', min: 0, max: 14, sMin: 8.2, sMax: 10.0 },
     gasFliess: { unit: 'mbar', min: 0, max: 100, sMin: 17, sMax: 25 },
     gasRuhe: { unit: 'mbar', min: 0, max: 100 },
     ion: { unit: 'µA', min: 0, max: 100 },

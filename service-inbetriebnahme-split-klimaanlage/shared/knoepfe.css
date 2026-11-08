@@ -19,6 +19,10 @@
   gap: 6px;
   flex-shrink: 0;
 }
+.seg + input[data-other],
+.opts + input[data-other] {
+  margin-top: 12px;
+}
 .opts {
   display: flex;
   flex-wrap: wrap;

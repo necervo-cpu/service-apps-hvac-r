@@ -40,6 +40,9 @@
         font-weight: 600;
         margin-top: 6px;
       }
+      .mangel {
+        margin-top: 4px;
+      }
       .field.err input,
       .field.err textarea {
         border-color: var(--bad);
@@ -585,6 +588,70 @@
           margin: 0;
         }
       }
+      :root {
+        --mat-ease: cubic-bezier(0.25, 1, 0.5, 1);
+        --mat-dur-in: 220ms;
+        --mat-dur-pulse: 200ms;
+        --mat-in-shift: 8px;
+        --mat-pulse-scale: 1.12;
+      }
+      .fx-in {
+        animation: mat-in var(--mat-dur-in) var(--mat-ease);
+      }
+      .fx-pulse {
+        animation: mat-pulse var(--mat-dur-pulse) var(--mat-ease);
+      }
+      @keyframes mat-in {
+        from {
+          opacity: 0;
+          transform: translateY(var(--mat-in-shift));
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes mat-pulse {
+        from {
+          transform: scale(var(--mat-pulse-scale));
+        }
+        to {
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fx-in,
+        .fx-pulse {
+          animation: none;
+        }
+      }
+      .matrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .matrow .mt {
+        flex: 1;
+        min-width: 0;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .matrow input {
+        width: 88px;
+        max-width: 88px;
+        flex: none;
+      }
+      .matadd {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .matadd input {
+        flex: 1;
+        min-width: 0;
+      }
     </style>
     <link rel="stylesheet" href="shared/ios.css" />
   </head>
@@ -632,6 +699,7 @@
    ===================================================================== */
       const GWP = { R290: 3, R32: 675, R410A: 2088, R454B: 466, R134a: 1430, R407C: 1774 };
       const OK3 = ['i.O.', 'n.i.O.', 'entfällt'];
+      const MANGEL_SUFFIX = ' – Mangel';
       const ok = (id, col, label, pdf, hint, req = true) => ({
         id,
         col,
@@ -1301,6 +1369,18 @@
             ],
           },
           {
+            title: 'Benötigtes Material',
+            short: 'Material',
+            fields: [
+              {
+                id: 'material',
+                col: 'Material',
+                label: 'Benötigtes Material',
+                type: 'material',
+              },
+            ],
+          },
+          {
             title: 'Wartungsabschluss & Abnahme',
             short: 'Abschluss',
             final: true,
@@ -1391,6 +1471,26 @@
           ),
         );
       }
+      TEMPLATE.pages.forEach((pg) => {
+        pg.fields = pg.fields.flatMap((f) => {
+          if (f.type !== 'okfail') {
+            return [f];
+          }
+          const mangel = {
+            id: f.id + 'M',
+            col: f.col + MANGEL_SUFFIX,
+            label: 'Mangel / Maßnahme',
+            type: 'text',
+            parent: f.id,
+            ph: 'Was ist festzustellen, was ist zu tun?',
+            show: (v) => v[f.id] === 'n.i.O.',
+          };
+          if (f.group) {
+            mangel.group = f.group;
+          }
+          return [f, mangel];
+        });
+      });
       const ALL_FIELDS = TEMPLATE.pages.flatMap((pg) => pg.fields);
       const FIELD = Object.fromEntries(ALL_FIELDS.map((f) => [f.id, f]));
 
@@ -1435,6 +1535,55 @@
         calcSeen[k] = text;
       }
 
+      function materialListe(v) {
+        if (!Array.isArray(v.material)) {
+          return [];
+        }
+        return v.material
+          .filter((m) => m && String(m.teil ?? '').trim() !== '')
+          .map((m) => ({ teil: String(m.teil).trim(), menge: String(m.menge ?? '').trim() }));
+      }
+      function materialText(v) {
+        return materialListe(v)
+          .map((m) => (m.menge ? `${m.teil} ×${m.menge}` : m.teil))
+          .join('; ');
+      }
+      const MENGE_VOLL = /^\d+([.,]\d+)?$/;
+      const MENGE_TIPP = /^\d*[.,]?\d*$/;
+      function parseMenge(s) {
+        const t = String(s ?? '').trim();
+        if (!MENGE_VOLL.test(t)) {
+          return null;
+        }
+        return parseFloat(t.replace(',', '.'));
+      }
+      function fmtMenge(n) {
+        return String(Math.round(n * 1000) / 1000).replace('.', ',');
+      }
+      function materialName(s) {
+        return String(s ?? '')
+          .replace(/;/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+      function materialAusText(text) {
+        return String(text ?? '')
+          .split(';')
+          .map((t) => t.trim())
+          .filter((t) => t !== '')
+          .map((t) => {
+            const m = t.match(/^(.*) ×(\d+(?:[.,]\d+)?)$/);
+            return m ? { teil: m[1].trim(), menge: m[2] } : { teil: t, menge: '' };
+          })
+          .filter((m) => m.teil !== '');
+      }
+      function materialArray(p) {
+        if (!Array.isArray(p.values.material)) {
+          p.values.material = [];
+        }
+        return p.values.material;
+      }
+
       /* ---------- Werte, Prüfung, Bewertung ---------- */
       function recompute(p) {
         ALL_FIELDS.forEach((f) => {
@@ -1473,19 +1622,28 @@
       }
       function defects(p) {
         return ALL_FIELDS.filter(
-          (f) => f.type !== 'calc' && ['bad', 'warn'].includes(evalField(f, p.values)),
-        ).map(
           (f) =>
-            `${f.pdf || f.label}: ${display(f, p.values[f.id])}` +
-            (evalField(f, p.values) === 'warn' ? ` (${sollText(f)})` : ''),
-        );
+            f.type !== 'calc' &&
+            f.type !== 'material' &&
+            ['bad', 'warn'].includes(evalField(f, p.values)),
+        ).map((f) => {
+          let text = `${f.pdf || f.label}: ${display(f, p.values[f.id])}`;
+          if (evalField(f, p.values) === 'warn') {
+            text += ` (${sollText(f)})`;
+          }
+          const mangel = String(p.values[f.id + 'M'] ?? '').trim();
+          if (f.type === 'okfail' && mangel) {
+            text += ` – ${mangel}`;
+          }
+          return text;
+        });
       }
       const PFLICHTFELDER = false; // true = Pflichtfelder (req/reqIf) und Monteur-Unterschrift werden wieder erzwungen
       function isRequired(f, p) {
         return PFLICHTFELDER && (!!f.req || (f.reqIf ? f.reqIf(p.values, p) : false));
       }
       function fieldError(f, p) {
-        if (f.type === 'calc') return '';
+        if (f.type === 'calc' || f.type === 'material') return '';
         const x = p.values[f.id],
           empty = String(x ?? '').trim() === '';
         if (empty) return isRequired(f, p) ? f.reqMsg || 'Pflichtfeld' : '';
@@ -1505,7 +1663,13 @@
         return (
           TEMPLATE.pages[i].fields.every((f) => f.type === 'calc' || !fieldError(f, p)) &&
           TEMPLATE.pages[i].fields.some(
-            (f) => f.type !== 'calc' && f.init == null && String(p.values[f.id] ?? '') !== '',
+            (f) =>
+              f.type !== 'calc' &&
+              !f.parent &&
+              (f.init == null || f.type === 'material') &&
+              (f.type === 'material'
+                ? materialListe(p.values).length > 0
+                : String(p.values[f.id] ?? '') !== ''),
           )
         );
       }
@@ -1515,24 +1679,31 @@
         const v = p.values;
         const rowsOf = (pg) =>
           pg.fields
-            .filter((f) => !(f.wide && !v[f.id]) && !(f.show && !f.show(v) && !v[f.id]))
+            .filter(
+              (f) => !f.parent && !(f.wide && !v[f.id]) && !(f.show && !f.show(v) && !v[f.id]),
+            )
             .map((f) => ({
               label: f.pdf || f.label,
               value: display(f, v[f.id]),
               eval: evalField(f, v),
               wide: !!f.wide,
+              mangel:
+                f.type === 'okfail' && v[f.id] === 'n.i.O.'
+                  ? String(v[f.id + 'M'] ?? '').trim()
+                  : '',
             }));
         return {
           title: TEMPLATE.title,
           firma: settings.firma || '',
           header: rowsOf(TEMPLATE.pages[0]),
           sections: TEMPLATE.pages
-            .filter((pg) => !pg.header && !pg.final)
+            .filter((pg) => !pg.header && !pg.final && pg.fields[0].type !== 'material')
             .map((pg) => ({
               title: pg.pdfTitle || pg.title,
               kind: pg.kind || 'grid',
               rows: rowsOf(pg),
             })),
+          material: materialListe(v),
           defects: defects(p),
           dpv: v.dpv || '',
           co2: isN(v.co2) ? num(v.co2) : '',
@@ -1548,7 +1719,10 @@
       /* Spaltenwerte fürs Google Sheet */
       function buildCols(p) {
         return ALL_FIELDS.filter((f) => f.col).map((f) => {
-          const x = p.values[f.id];
+          if (f.type === 'material') {
+            return [f.col, materialText(p.values), ''];
+          }
+          const x = f.parent && p.values[f.parent] !== 'n.i.O.' ? '' : p.values[f.id];
           if (x === '' || x == null) return [f.col, '', ''];
           if (f.type === 'date') return [f.col, x, 'date'];
           if ((f.type === 'number' || f.type === 'calc') && isN(x)) return [f.col, num(x), ''];
@@ -1653,7 +1827,8 @@
       /* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
       function wizardHtml(p, i) {
         const pg = TEMPLATE.pages[i];
-        const allOk = pg.kind === 'check' && pg.fields.some((f) => !p.values[f.id]);
+        const allOk =
+          pg.kind === 'check' && pg.fields.some((f) => f.type === 'okfail' && !p.values[f.id]);
         return `
     <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
     ${iosGroups(
@@ -1765,6 +1940,41 @@
     </div>`;
       }
 
+      function playFx(el, cls) {
+        if (!el) {
+          return;
+        }
+        el.classList.add(cls);
+        el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+      }
+      function materialFeedback(teil, fx) {
+        const input = app.querySelector(`.matrow input[data-i="${fx.i}"]`);
+        const zeile = input ? input.closest('.matrow') : null;
+        if (!RM()) {
+          if (fx.art === 'neu') {
+            playFx(zeile, 'fx-in');
+          } else {
+            playFx(input, 'fx-pulse');
+          }
+        }
+        toast(fx.art === 'plus' ? `${teil} hinzugefügt (×${fx.menge})` : `${teil} hinzugefügt`);
+      }
+      function materialHtml(p) {
+        const liste = materialArray(p);
+        const zeilen = liste
+          .map(
+            (m, i) => `<div class="matrow">
+        <span class="mt">${esc(m.teil)}</span>
+        <input data-mat="menge" data-i="${i}" inputmode="decimal" maxlength="12" value="${esc(m.menge)}" placeholder="Menge" aria-label="Menge ${esc(m.teil)}" autocomplete="off">
+        <button type="button" class="btn small danger" data-act="matdel" data-i="${i}" aria-label="${esc(m.teil)} entfernen">Entfernen</button>
+      </div>`,
+          )
+          .join('');
+        return `<div class="fhint">Benötigtes Material eintragen.</div>
+      <div>${zeilen || '<div class="emptybox">Noch kein Material eingetragen.</div>'}</div>
+      <div class="matadd"><input id="matfree" maxlength="80" placeholder="Eigenes Material …" autocomplete="off"><button type="button" class="btn" data-act="matfree">Hinzufügen</button></div>`;
+      }
+
       function fieldHtml(f, p) {
         const v = p.values,
           x = v[f.id] ?? '';
@@ -1776,6 +1986,8 @@
           `<div class="seg">${vals.map((o, k) => `<button class="btn ${cls[k]} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
         let body;
         switch (f.type) {
+          case 'material':
+            return `<div class="field">${materialHtml(p)}</div>`;
           case 'okfail':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div>${errHtml}</div>`;
           case 'yesno':
@@ -1802,7 +2014,7 @@
           default:
             body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
         }
-        return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
+        return `<div class="field ${err ? 'err' : ''}${f.parent ? ' mangel' : ''}">${lab}${body}${errHtml}</div>`;
       }
       function sollHtml(f, v) {
         const s = sollText(f),
@@ -1960,7 +2172,13 @@
           const ck = all.filter(isCheck),
             fl = all.filter((x) => !isCheck(x));
           const body =
-            B.checkliste(ck.map((x) => ({ label: x.label, value: x.value, eval: evalOf(x) }))) +
+            B.checkliste(
+              ck.map((x) => ({
+                label: x.label + (x.mangel ? ' – Mangel: ' + x.mangel : ''),
+                value: x.value,
+                eval: evalOf(x),
+              })),
+            ) +
             (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
           if (s.table && s.table.body && s.table.body.length) {
             const t = s.table;
@@ -1985,6 +2203,20 @@
             });
           }
         });
+
+        if ((r.material || []).length) {
+          blocks.push(
+            B.tabelle({
+              titel: 'Benötigtes Material',
+              head: [{ t: 'Pos.', w: '10%' }, 'Bezeichnung', { t: 'Menge', w: '20%' }],
+              rows: r.material.map((m, i) => [
+                { t: String(i + 1) },
+                { t: m.teil, cls: 'lbl' },
+                { t: m.menge || '—' },
+              ]),
+            }),
+          );
+        }
 
         if (defects.length)
           blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
@@ -2214,7 +2446,42 @@
       }
 
       /* ---------- Aktionen ---------- */
+      function renderMat(leeren) {
+        const feld = $('#matfree');
+        const text = feld && !leeren ? feld.value : '';
+        render();
+        const neu = $('#matfree');
+        if (neu && text) {
+          neu.value = text;
+        }
+      }
       const Actions = {
+        matfree() {
+          const feld = $('#matfree');
+          const teil = feld ? materialName(feld.value) : '';
+          if (!teil) {
+            toast('Bitte eine Bezeichnung eingeben.');
+            return;
+          }
+          const liste = materialArray(cur());
+          const vorhanden = liste.find((m) => m.teil.toLowerCase() === teil.toLowerCase());
+          let fx;
+          if (vorhanden) {
+            vorhanden.menge = fmtMenge((parseMenge(vorhanden.menge) || 0) + 1);
+            fx = { art: 'plus', i: liste.indexOf(vorhanden), menge: vorhanden.menge };
+          } else {
+            liste.push({ teil, menge: '1' });
+            fx = { art: 'neu', i: liste.length - 1, menge: '1' };
+          }
+          save();
+          renderMat(true);
+          materialFeedback(vorhanden ? vorhanden.teil : teil, fx);
+        },
+        matdel(d) {
+          materialArray(cur()).splice(Number(d.i), 1);
+          save();
+          renderMat();
+        },
         home() {
           go('home');
         },
@@ -2526,6 +2793,16 @@
             ALL_FIELDS.forEach((f) => {
               let x = j.values ? j.values[f.id] : f.col ? j.cols[f.col] : '';
               if (x == null) x = '';
+              if (f.type === 'material') {
+                if (Array.isArray(x)) {
+                  values[f.id] = x;
+                } else if (j.cols && typeof j.cols[f.col] === 'string' && j.cols[f.col].trim()) {
+                  values[f.id] = materialAusText(j.cols[f.col]);
+                } else {
+                  values[f.id] = [];
+                }
+                return;
+              }
               if (typeof x === 'number' && f.type !== 'calc') x = fmtNum(x); // Eingabefelder erwarten Text mit Komma
               if (typeof x === 'boolean') x = x ? 'Ja' : 'Nein';
               values[f.id] = f.type === 'calc' ? x : String(x);
@@ -2603,8 +2880,27 @@
           fn(b.dataset, b);
         } // während eines Seitenübergangs Tipps ignorieren
       });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target && e.target.id === 'matfree') {
+          e.preventDefault();
+          Actions.matfree();
+        }
+      });
       app.addEventListener('input', (e) => {
         const el = e.target;
+        if (el.dataset.mat === 'menge' && view.name === 'wizard') {
+          const m = materialArray(cur())[Number(el.dataset.i)];
+          if (m) {
+            if (MENGE_TIPP.test(el.value)) {
+              m.menge = el.value;
+              save();
+            } else {
+              el.value = m.menge;
+              toast('Bitte eine Menge als positive Zahl eingeben, z. B. 2,5.');
+            }
+          }
+          return;
+        }
         if (el.dataset.f && view.name === 'wizard') {
           const p = cur(),
             f = FIELD[el.dataset.f];
@@ -2634,6 +2930,21 @@
       });
       document.addEventListener('change', (e) => {
         const el = e.target;
+        if (el.dataset && el.dataset.mat === 'menge' && view.name === 'wizard') {
+          const m = materialArray(cur())[Number(el.dataset.i)];
+          const n = parseMenge(el.value.replace(/[.,]$/, ''));
+          if (m && el.value.trim() !== '') {
+            if (n === null) {
+              toast('Bitte eine Menge als positive Zahl eingeben, z. B. 2,5.');
+              el.value = m.menge;
+            } else {
+              m.menge = fmtMenge(n);
+              el.value = m.menge;
+              save();
+            }
+          }
+          return;
+        }
         if (el.id === 's_import' && el.files[0]) {
           backupImport(el.files[0], 'protocols', protocols, 'Protokolle', (list) => {
             protocols = list;

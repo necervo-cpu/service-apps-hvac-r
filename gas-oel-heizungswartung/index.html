@@ -587,49 +587,20 @@
       }
       :root {
         --mat-ease: cubic-bezier(0.25, 1, 0.5, 1);
-        --mat-dur-tap: 160ms;
         --mat-dur-in: 220ms;
         --mat-dur-pulse: 200ms;
-        --mat-tap-scale: 0.96;
         --mat-in-shift: 8px;
         --mat-pulse-scale: 1.12;
-      }
-      .opts .btn.chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .opts .btn.chip.added {
-        box-shadow: inset 0 0 0 2px var(--ok);
-      }
-      .chip .chk,
-      .chip .cbadge {
-        color: var(--ok);
-        font-weight: 700;
-      }
-      .chip .cbadge {
-        font-variant-numeric: tabular-nums;
       }
       .typinfo {
         color: var(--muted);
         font-weight: 600;
-      }
-      .fx-tap {
-        animation: mat-tap var(--mat-dur-tap) var(--mat-ease);
       }
       .fx-in {
         animation: mat-in var(--mat-dur-in) var(--mat-ease);
       }
       .fx-pulse {
         animation: mat-pulse var(--mat-dur-pulse) var(--mat-ease);
-      }
-      @keyframes mat-tap {
-        from {
-          transform: scale(var(--mat-tap-scale));
-        }
-        to {
-          transform: none;
-        }
       }
       @keyframes mat-in {
         from {
@@ -650,7 +621,6 @@
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .fx-tap,
         .fx-in,
         .fx-pulse {
           animation: none;
@@ -744,24 +714,6 @@
       ];
       const BEWERTUNG_KURZ = ['Betriebssicher', 'Folgeauftrag nötig', 'Gesperrt'];
       const BEWERTUNG_KLASSEN = ['ok', 'warn', 'bad'];
-      const MATERIAL = {
-        gas: [
-          'Dichtungssatz Brenner',
-          'Zündelektrode',
-          'Ionisationselektrode',
-          'Siphondichtung',
-          'Brennerdichtung / Wärmetauscherdichtung',
-          'Neutralisationsgranulat',
-        ],
-        oel: [
-          'Öldüse',
-          'Ölfiltereinsatz',
-          'O-Ring-Satz Vorfilter',
-          'Zündelektroden',
-          'Dichtungssatz Brenner',
-          'Fotowiderstand / UV-Zelle',
-        ],
-      };
       const MANGEL_SUFFIX = ' – Mangel';
       const KEEP_SYNCED_DAYS = 7;
       const SPEICHER = {
@@ -828,9 +780,9 @@
               {
                 id: 'kunde',
                 col: 'Kunde / Objekt',
-                label: 'Kunde / Objekt',
+                label: 'Kundennummer',
                 type: 'text',
-                ph: 'Name, Anschrift der Anlage',
+                ph: 'z. B. 10234',
               },
               {
                 id: 'datum',
@@ -1048,6 +1000,10 @@
                 'Heizwasser nach VDI 2035',
               ),
               messwert('lf', 'Leitfähigkeit Heizwasser', { hint: 'Nach VDI 2035', ph: '300' }),
+              messwert('ph', 'pH-Wert Heizwasser', {
+                hint: 'Sollbereich 8,2–10,0 (VDI 2035)',
+                ph: '9,0',
+              }),
               ...pruefpunkt(
                 'hPumpen',
                 'Umwälzpumpen, Mischer, Rückflussverhinderer, Schmutzfänger / Magnetitabscheider geprüft',
@@ -1159,7 +1115,7 @@
           ],
           'Hydraulik & Sicherheit': [
             ['Ausdehnung & Sicherheit', ['hMag', 'hSv']],
-            ['Heizwasser', ['hDruck', 'lf']],
+            ['Heizwasser', ['hDruck', 'lf', 'ph']],
             ['Pumpen & Regelung', ['hPumpen', 'hRegel']],
           ],
           Messwerte: [
@@ -1636,7 +1592,7 @@
         <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
       </div>
       <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
-      <input id="dbsearch" type="search" placeholder="Suchen: Protokoll-Nr., Kunde, Techniker, Modell, Datum …" value="${esc(view.q || '')}">
+      <input id="dbsearch" type="search" placeholder="Suchen: Protokoll-Nr., Kundennummer, Techniker, Modell, Datum …" value="${esc(view.q || '')}">
       <div id="dblist">${dbList()}</div>`;
         },
 
@@ -1696,13 +1652,9 @@
         el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
       }
       function materialFeedback(teil, fx) {
-        const chip = [...app.querySelectorAll('[data-act="matadd"]')].find(
-          (b) => b.dataset.t === teil,
-        );
         const input = app.querySelector(`.matrow input[data-i="${fx.i}"]`);
         const zeile = input ? input.closest('.matrow') : null;
         if (!RM()) {
-          playFx(chip, 'fx-tap');
           if (fx.art === 'neu') {
             playFx(zeile, 'fx-in');
           } else {
@@ -1712,17 +1664,7 @@
         toast(fx.art === 'plus' ? `${teil} hinzugefügt (×${fx.menge})` : `${teil} hinzugefügt`);
       }
       function materialHtml(p) {
-        const v = p.values;
         const liste = materialArray(p);
-        const chips = (MATERIAL[v.typ] || MATERIAL.gas)
-          .map((t) => {
-            const m = liste.find((x) => x.teil === t);
-            const menge = m ? parseInt(m.menge, 10) || 0 : 0;
-            const haken = m ? '<span class="chk" aria-hidden="true">✓</span>' : '';
-            const badge = menge > 0 ? `<span class="cbadge">×${menge}</span>` : '';
-            return `<button type="button" class="btn chip${m ? ' added' : ''}" data-act="matadd" data-t="${esc(t)}">${haken}<span>${esc(t)}</span>${badge}</button>`;
-          })
-          .join('');
         const zeilen = liste
           .map(
             (m, i) => `<div class="matrow">
@@ -1732,8 +1674,7 @@
       </div>`,
           )
           .join('');
-        return `<div class="fhint">Schnellauswahl antippen oder eigenes Material eintragen.</div>
-      <div class="opts">${chips}</div>
+        return `<div class="fhint">Benötigtes Material eintragen.</div>
       <div>${zeilen || '<div class="emptybox">Noch kein Material eingetragen.</div>'}</div>
       <div class="matadd"><input id="matfree" placeholder="Eigenes Material …" autocomplete="off"><button type="button" class="btn" data-act="matfree">Hinzufügen</button></div>`;
       }
@@ -2040,7 +1981,7 @@
         const lim = view.lim || 100;
         const shown = list.slice(0, lim);
         return `<div class="card"><table>
-    <thead><tr><th>Datum</th><th>Protokoll / Kunde</th><th>Bewertung</th><th></th></tr></thead>
+    <thead><tr><th>Datum</th><th>Protokoll / Kundennr.</th><th>Bewertung</th><th></th></tr></thead>
     <tbody>${shown
       .map(
         (e) => `<tr>
@@ -2285,21 +2226,6 @@
           p.values[d.f] = gleich ? '' : d.v;
           save();
           render();
-        },
-        matadd(d) {
-          const liste = materialArray(cur());
-          const vorhanden = liste.find((m) => m.teil === d.t);
-          let fx;
-          if (vorhanden) {
-            vorhanden.menge = String((parseInt(vorhanden.menge, 10) || 0) + 1);
-            fx = { art: 'plus', i: liste.indexOf(vorhanden), menge: vorhanden.menge };
-          } else {
-            liste.push({ teil: d.t, menge: '1' });
-            fx = { art: 'neu', i: liste.length - 1, menge: '1' };
-          }
-          save();
-          render();
-          materialFeedback(d.t, fx);
         },
         matfree() {
           const feld = $('#matfree');
