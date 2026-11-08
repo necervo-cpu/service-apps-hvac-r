@@ -1502,8 +1502,11 @@
         return (
           fs.every((f) => !fieldError(f, p)) &&
           fs.some(
-            (f) => !f.parent &&
-              !(f.type === 'bewertung' && !BEWERTUNG.includes(p.values[f.id])) && !vorbelegtGleich(p, f.id) && String(p.values[f.id] ?? '') !== '',
+            (f) =>
+              !f.parent &&
+              !(f.type === 'bewertung' && !BEWERTUNG.includes(p.values[f.id])) &&
+              !vorbelegtGleich(p, f.id) &&
+              String(p.values[f.id] ?? '') !== '',
           )
         );
       }
@@ -1810,15 +1813,33 @@
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
           case 'select': {
             // Auswahl mit Gut/Schlecht (z. B. Funktionstest): wie die Checklisten-Knöpfe in Grün/Rot
-            if (!f.other && (f.good || f.bad)) {
+            if (!f.other && (f.good || f.bad) && f.opts.length < 3) {
               const cls = f.opts.map((o) =>
                 f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : 'na',
               );
               return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${seg(f.opts, cls)}</div>${errHtml}</div>`;
             }
             const custom = f.other && x && !f.opts.includes(x);
-            body = `<div class="opts">${f.opts.map((o) => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
-        ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
+            let auswahl;
+            if (f.opts.length >= 3) {
+              const tones = f.opts.map((o) => {
+                if (f.good && f.good.includes(o)) {
+                  return 'ok';
+                }
+                if (f.bad && f.bad.includes(o)) {
+                  return 'bad';
+                }
+                if (o === 'entfällt') {
+                  return 'na';
+                }
+                return '';
+              });
+              auswahl = iosSelect(f, x, f.opts, tones, isRequired(f, p));
+            } else {
+              auswahl = `<div class="opts">${f.opts.map((o) => `<button class="btn ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+            }
+            body = `${auswahl}
+        ${f.other ? `<input id="in-${f.id}-o" aria-label="Anderer Wert" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
             break;
           }
           case 'number':
@@ -2678,6 +2699,10 @@
       });
       document.addEventListener('change', (e) => {
         const el = e.target;
+        if (el.dataset && el.dataset.pick && view.name === 'wizard') {
+          Actions.set({ f: el.dataset.pick, v: el.value });
+          return;
+        }
         if (el.id === 's_import' && el.files[0]) {
           backupImport(el.files[0], 'protocols', protocols, 'Protokolle', (list) => {
             protocols = list;

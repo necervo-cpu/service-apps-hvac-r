@@ -1950,9 +1950,15 @@
         switch (f.type) {
           case 'yesno':
             return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
-          case 'select':
-            body = `<div class="opts">${f.opts.map((o) => `<button class="btn ${tone(o)} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+          case 'select': {
+            if (f.opts.length >= 3) {
+              const tones = f.opts.map((o) => tone(o));
+              body = iosSelect(f, x, f.opts, tones, PFLICHTFELDER && !!f.req);
+            } else {
+              body = `<div class="opts">${f.opts.map((o) => `<button class="btn ${tone(o)} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+            }
             break;
+          }
           case 'number':
             body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="unit">${esc(f.unit || '')}</span></div>`;
             break;
@@ -3156,6 +3162,10 @@
       });
       document.addEventListener('change', (e) => {
         const el = e.target;
+        if (el.dataset && el.dataset.pick && view.name === 'wizard') {
+          Actions.set({ f: el.dataset.pick, v: el.value });
+          return;
+        }
         if (el.dataset.f && view.name === 'wizard') {
           const c = ctx(),
             f = c.tpl.F[el.dataset.f];

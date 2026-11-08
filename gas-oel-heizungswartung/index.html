@@ -1755,11 +1755,25 @@
           case 'select': {
             const opts = optsOf(f, v);
             const custom = f.other && x && !opts.includes(x);
-            const auswahl = f.seg
-              ? seg(opts, [])
-              : `<div class="opts">${buttons(opts, [], 'set')}</div>`;
+            let auswahl;
+            if (opts.length >= 3) {
+              const tones = opts.map((o) => {
+                if (f.good && f.good.includes(o)) {
+                  return 'ok';
+                }
+                if (f.bad && f.bad.includes(o)) {
+                  return 'bad';
+                }
+                return '';
+              });
+              auswahl = iosSelect(f, x, opts, tones, isRequired(f));
+            } else if (f.seg) {
+              auswahl = seg(opts, []);
+            } else {
+              auswahl = `<div class="opts">${buttons(opts, [], 'set')}</div>`;
+            }
             body = `${auswahl}
-        ${f.other ? `<input id="in-${f.id}" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
+        ${f.other ? `<input id="in-${f.id}-o" aria-label="Anderer Wert" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
             break;
           }
           case 'number': {
@@ -2678,6 +2692,10 @@
       });
       document.addEventListener('change', (e) => {
         const el = e.target;
+        if (el.dataset && el.dataset.pick && view.name === 'wizard') {
+          Actions.set({ f: el.dataset.pick, v: el.value });
+          return;
+        }
         if (el.id === 's_import' && el.files[0]) {
           backupImport(el.files[0], 'protocols', protocols, 'Protokolle', (list) => {
             protocols = list;

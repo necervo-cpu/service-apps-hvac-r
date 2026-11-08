@@ -1,7 +1,7 @@
 /* shared/ios.js – Apple-Bedienung für alle Apps (klassisches Skript, kein Modul, kein eigenes render()).
    Einbinden: <script src="shared/ios.js"></script> NACH shared/wizard.js (und nach core.js); dazu shared/ios.css
    NACH dem App-<style>. Die Datei legt nur diese globalen Namen an (alles andere steckt in einer Funktion):
-   iosGroups, iosSwitch, iosAfterRender, iosCheck, iosSheet, iosSwipe, iosRubber.
+   iosGroups, iosSwitch, iosSelect, iosAfterRender, iosCheck, iosSheet, iosSwipe, iosRubber.
    Eigenes esc() im Skript, weil Kalkulation/Daikin kein core.js haben.
    Die App ruft die Funktionen selbst auf; es werden keine App-Funktionen überschrieben oder umhüllt.
 
@@ -17,6 +17,14 @@
      warn = true (oder Liste, die 'Ja' enthält), wenn „Ja“ orange statt grün sein soll (Liste mit 'Nein': Nein orange).
      Gewähltes „Nein“ ist grau (Klasse na), „Ja“ grün. Leer = nichts gewählt, nichts vorbelegt. Antippen sendet data-act="set" data-f data-v; erneutes Tippen
      auf die gewählte Antwort wählt sie in den Apps wieder ab (Actions.set).
+
+   iosSelect(f, x, opts, tones, req) -> HTML-Text einer Auswahlliste (natives <select class="pick">, id in-<f.id>, data-pick)
+     f = Feld (braucht f.id, optional f.other), x = aktueller Wert, opts = Liste der Optionen,
+     tones = Liste gleicher Länge mit 'ok' | 'bad' | 'na' | 'warn' | '' je Option (Farbton des gewählten Werts),
+     req = true: Platzhalter „Bitte wählen“ nicht wählbar, sonst wählbar (= Wert löschen).
+     Unbekannter Altwert ohne f.other erscheint als „Wert (Altwert)“. Bei f.other und eigenem Wert zeigt die Liste den Platzhalter.
+     Kein data-f / data-act am <select>: die App liest die Wahl im change-Ereignis über data-pick.
+     Ein Eingabefeld [data-other] direkt danach hält die Liste beim Tippen synchron (Wert und Farbton).
 
    iosAfterRender(viewName)
      Nach jedem render() aufrufen (nach setSteps/setBar). Setzt den großen Titel (#app .pagetitle), der beim
@@ -97,6 +105,54 @@
       `<button type="button" class="btn ${cls}${x === v ? ' sel' : ''}" aria-pressed="${x === v}" data-act="set" data-f="${esc(f.id)}" data-v="${v}">${v}</button>`;
     return `<div class="seg" role="group" aria-label="${esc(f.label || 'Ja/Nein')}">${one('Ja', wJa ? 'warn' : 'ok')}${one('Nein', wNein ? 'warn' : 'na')}</div>`;
   }
+
+  /* ---------- Auswahlliste (natives Dropdown) ---------- */
+  function iosSelect(f, x, opts, tones, req) {
+    const list = Array.isArray(opts) ? opts : [];
+    const toneList = Array.isArray(tones) ? tones : [];
+    const value = x == null ? '' : String(x);
+    const index = list.indexOf(value);
+    const known = index >= 0;
+    const legacy = value !== '' && !known && !f.other;
+    const tone = known ? toneList[index] || '' : '';
+    const classes = ['pick'];
+    if (known) {
+      classes.push('tone-' + (tone || 'set'));
+    } else if (legacy) {
+      classes.push('tone-set');
+    }
+    const placeholder = `<option value=""${req ? ' disabled' : ''}${known || legacy ? '' : ' selected'}>Bitte wählen</option>`;
+    const options = list
+      .map((o, k) => {
+        const selected = o === value ? ' selected' : '';
+        return `<option value="${esc(o)}" data-tone="${esc(toneList[k] || '')}"${selected}>${esc(o)}</option>`;
+      })
+      .join('');
+    const extra = legacy
+      ? `<option value="${esc(value)}" selected>${esc(value)} (Altwert)</option>`
+      : '';
+    return `<select id="in-${esc(f.id)}" data-pick="${esc(f.id)}" class="${classes.join(' ')}">${placeholder}${options}${extra}</select>`;
+  }
+  function syncPick(other) {
+    const select = other.parentNode && other.parentNode.querySelector('select[data-pick]');
+    if (!select) {
+      return;
+    }
+    const match = Array.from(select.options).find((o) => o.value !== '' && o.value === other.value);
+    select.value = match ? match.value : '';
+    ['tone-set', 'tone-ok', 'tone-bad', 'tone-na', 'tone-warn'].forEach((c) => {
+      select.classList.remove(c);
+    });
+    if (match) {
+      select.classList.add('tone-' + (match.dataset.tone || 'set'));
+    }
+  }
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el && el.matches && el.matches('input[data-other]')) {
+      syncPick(el);
+    }
+  });
 
   /* ---------- Großer Titel -> klein in der Kopfleiste ---------- */
   let io = null,
@@ -498,6 +554,7 @@
 
   window.iosGroups = iosGroups;
   window.iosSwitch = iosSwitch;
+  window.iosSelect = iosSelect;
   window.iosAfterRender = iosAfterRender;
   window.iosCheck = iosCheck;
   window.iosSheet = iosSheet;
