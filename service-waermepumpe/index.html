@@ -2177,7 +2177,7 @@
             : '');
         const blocks = [];
 
-        // Kacheln: Ergebnis · Nächste Wartung · Wartungsdatum (+ Monteur)
+        // Kacheln: Gesamtbewertung · Datum · Monteur
         const res = String(r.success || ''),
           good = res === 'Ja' || res === 'i.O.',
           bad = !!res && !good;
@@ -2217,39 +2217,155 @@
                 art: good ? 'ok' : bad ? 'bad' : '',
                 lab: r.resultLabel || 'Gesamtbewertung',
                 val: res,
-                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}${subs.length ? `<div>${esc(subs.join(' · '))}</div>` : ''}`,
+                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}`,
               },
-              { lab: 'Nächste Wartung', val: nextDue.date, sub: nextDue.sub },
-              {
-                art: 'primary',
-                lab: 'Wartungsdatum',
-                val: tileDate,
-                sub: r.techniker ? 'Monteur: ' + r.techniker : '',
-              },
+              { lab: 'Datum', val: tileDate },
+              { lab: 'Monteur / Prüfer', val: r.techniker },
             ],
             { links: true },
           ),
         });
 
-        // Auftrags- und Anlagendaten
-        if (header.length)
-          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(header)) });
+        // Auftrags- und Anlagendaten (Kunden-Nr. steht schon im Kopf)
+        const kundenNr = (header.find((x) => /^kunden-?nr/i.test(x.label) && x.value) || {}).value;
+        const headerRows = header.filter((x) => !(kundenNr && /^kunden-?nr/i.test(x.label)));
+        if (headerRows.length)
+          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(headerRows)) });
 
         // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
-        (r.sections || []).forEach((s) => {
+        const lastCheck = (r.sections || []).reduce(
+          (m, s, i) => ((s.checks || []).concat(s.rows || []).some(isCheck) ? i : m),
+          -1,
+        );
+        // Paarweise Tabellen nach Vorlage (nur Darstellung): Anlagendaten, Elektrik, Betriebsdaten.
+        // Zuordnung über den Inhalt der Zeilen (App-Beschriftung und Sheet-Spaltenkopf), nicht über den Abschnittstitel
+        const unitOf = (label) => (String(label).match(/\(([^)]*)\)\s*$/) || [])[1] || '';
+        const plain = (label) => String(label).replace(/\s*\([^)]*\)\s*$/, '');
+        const valOf = (x) => {
+          if (!x || !x.value) return '—';
+          const u = unitOf(x.label);
+          return u && /^-?[\d.,]+$/.test(String(x.value).trim()) ? `${x.value} ${u}` : x.value;
+        };
+        const AG = '(?:AG|Außeneinheit)',
+          IG = '(?:IG|Inneneinheit)',
+          EH = '(?: \\([^)]*\\))?$';
+        const re = (src) => new RegExp('^' + src, 'i');
+        const pairTable = (fl) => {
+          const used = [];
+          const take = (rx) => {
+            const x = fl.find((f) => rx.test(f.label) && !used.includes(f));
+            if (x) used.push(x);
+            return x;
+          };
+          const k = (t) => ({ t, cls: 'k' });
+          const cell = (t, bold) => (bold ? { html: `<b>${esc(t)}</b>` } : { t });
+          const both = (name, a, b) => {
+            const x = take(re(a)),
+              y = take(re(b));
+            return x || y ? [k(name), cell(valOf(x)), cell(valOf(y))] : null;
+          };
+          const pair4 = (a, b, bold) => {
+            const x = take(re(a)),
+              y = take(re(b));
+            if (!x && !y) return null;
+            return [
+              k(x ? plain(x.label) : '—'),
+              cell(valOf(x), bold),
+              k(y ? plain(y.label) : '—'),
+              cell(valOf(y), bold),
+            ];
+          };
+          const specs = [
+            () => ({
+              head: [{ t: '', w: '28%' }, 'Außeneinheit (AG)', 'Inneneinheit (IG)'],
+              rows: [
+                both('Modell', `${AG} Modell`, `${IG} Modell`),
+                both('Seriennummer', `${AG} Seriennummer`, `${IG} Seriennummer`),
+                both('Herstellungsdatum', `${AG} Herstellungsdatum`, `${IG} Herstellungsdatum`),
+              ],
+            }),
+            () => {
+              const rows = [
+                both(
+                  'Außeneinheit',
+                  `Netzspannung ${AG}${EH}`,
+                  `(?:Sicherung|Absicherung) ${AG}${EH}`,
+                ),
+                both(
+                  'Außeneinheit Steuerstrom',
+                  `Netzspannung ${AG} Steuerstrom`,
+                  `(?:Sicherung|Absicherung) ${AG} Steuerstrom`,
+                ),
+                both(
+                  'Inneneinheit',
+                  `Netzspannung ${IG}${EH}`,
+                  `(?:Sicherung|Absicherung) ${IG}${EH}`,
+                ),
+                both('Heizstab', 'Netzspannung Heizstab', '(?:Sicherung|Absicherung) Heizstab'),
+              ];
+              const rcd = take(re('RCD'));
+              if (rcd) rows.push([k('RCD-Schutz'), { t: valOf(rcd), span: 2 }]);
+              return {
+                head: [{ t: 'Stromkreis', w: '34%' }, 'Netzspannung', 'Absicherung'],
+                rows,
+              };
+            },
+            () => {
+              const rows = [
+                pair4('Lufteinlass', 'Vorlauf'),
+                pair4('Luftauslass', 'R[üu]cklauf'),
+                pair4('Luft-Spreizung', 'Spreizung VL', true),
+              ];
+              const amp = ['L1', 'L2', 'L3'].map((n) =>
+                take(re(`(?:Stromaufnahme|Betriebsstrom) ${n}`)),
+              );
+              if (amp.some(Boolean))
+                rows.push([
+                  k('Stromaufnahme L1 / L2 / L3'),
+                  { t: amp.map(valOf).join(' / '), span: 3 },
+                ]);
+              return {
+                head: [
+                  { t: 'Luftseite', w: '28%' },
+                  { t: 'Wert', w: '22%' },
+                  { t: 'Heizwasser', w: '28%' },
+                  { t: 'Wert', w: '22%' },
+                ],
+                rows,
+              };
+            },
+          ];
+          for (const make of specs) {
+            used.length = 0;
+            const spec = make();
+            const rows = spec.rows.filter(Boolean);
+            if (rows.length)
+              return { head: spec.head, rows, rest: fl.filter((x) => !used.includes(x)) };
+          }
+          return null;
+        };
+        (r.sections || []).forEach((s, si) => {
           const all = (s.checks || []).concat(s.rows || []);
           const ck = all.filter(isCheck),
             fl = all.filter((x) => !isCheck(x));
-          const body =
-            B.checkliste(
-              ck.map((x) => ({
-                label: x.label,
-                mangel: x.mangel,
-                value: x.value,
-                eval: evalOf(x),
-              })),
-            ) +
-            (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
+          const ckHtml = B.checkliste(
+            ck.map((x) => ({
+              label: x.label,
+              mangel: x.mangel,
+              value: x.value,
+              eval: evalOf(x),
+            })),
+            { nrPrefix: true, legende: si === lastCheck },
+          );
+          const pt = s.table ? null : pairTable(fl);
+          const flRest = pt ? pt.rest : fl;
+          const ptHtml =
+            pt && ckHtml ? B.tabelle({ titel: '', head: pt.head, rows: pt.rows }).html : '';
+          const flHtml =
+            (ck.length && (flRest.length || ptHtml) ? B.zwischenTitel('Messwerte & Angaben') : '') +
+            ptHtml +
+            B.kv(flRest);
+          const body = ckHtml + flHtml;
           if (s.table && s.table.body && s.table.body.length) {
             const t = s.table;
             blocks.push(
@@ -2267,6 +2383,12 @@
               }),
             );
             if (body) blocks.push({ html: `<div class="sec-more">${body}</div>` });
+          } else if (pt && !ckHtml) {
+            blocks.push(B.tabelle({ titel: s.title, head: pt.head, rows: pt.rows }));
+            if (flHtml) blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
+          } else if (ckHtml) {
+            blocks.push({ split: true, html: B.abschnitt(s.title, ckHtml) });
+            if (flHtml) blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
           } else {
             blocks.push({
               html: B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>'),
@@ -2290,9 +2412,19 @@
 
         if (defects.length)
           blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
-        blocks.push({
-          html: B.notiz({ titel: r.remarkLabel || 'Bemerkungen / Mängel', text: r.remark }),
-        });
+        const abschluss = [
+          { label: 'Betriebszustand', value: r.betrieb || subs.join(' · ') },
+          {
+            label: r.resultLabel || 'Gesamtbewertung',
+            value: [res, r.successMangel].filter(Boolean).join(' – '),
+          },
+          {
+            label: 'Nächste Wartung',
+            value: [nextDue.date, nextDue.sub].filter(Boolean).join(' · '),
+          },
+          { label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark, wide: true },
+        ];
+        blocks.push({ html: B.abschnitt('Wartungsabschluss', B.kv(abschluss)) });
         if (r.hinweis)
           blocks.push({ html: B.rechtstext([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
         const sig = r.sig || {};
@@ -2309,7 +2441,15 @@
           anlage = hv(/anlage|modell/i);
         return {
           blocks,
-          head: B.kopf({ firma, kicker, titel: h1, nrLabel: 'Projekt-Nr.', id: r.id, datum }),
+          head: B.kopf({
+            firma,
+            kicker,
+            titel: h1,
+            nummern: [
+              { label: 'Projekt-Nr.', wert: r.id },
+              { label: 'Kunden-Nr.', wert: kundenNr },
+            ],
+          }),
           smallHead: B.kopfKlein({
             firma,
             zeile: [kunde, anlage].filter(Boolean).join(' · '),

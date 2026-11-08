@@ -1751,7 +1751,6 @@
           kicker: 'Auslegung',
           titel: TITEL,
           id,
-          datum,
           untertitel: 'Interne Kalkulation',
         });
         const smallHead = B.kopfKlein({
@@ -1762,26 +1761,25 @@
         });
         const foot = B.fuss({ text: 'Auslegung ' + TITEL, stand: datum });
         const blocks = [];
+        const tiles = [
+          {
+            art: 'ok',
+            lab: 'Ergebnis',
+            val: 'Freigegeben',
+            sub: 'Kombination freigegeben: Ja – alle geprüften Daikin-Vorgaben eingehalten',
+          },
+        ];
+        if (datum) {
+          tiles.push({ lab: 'Datum', val: datum });
+        }
+        if (p.bearbeiter) {
+          tiles.push({ lab: 'Bearbeiter', val: p.bearbeiter });
+        }
         blocks.push({
-          html: B.kacheln([
-            {
-              art: 'ok',
-              lab: 'Ergebnis',
-              val: 'Freigegeben',
-              sub: 'Kombination freigegeben: Ja – alle geprüften Daikin-Vorgaben eingehalten',
-            },
-            {
-              art: 'primary',
-              lab: 'Außengerät',
-              val: o.id,
-              sub: `${x.empfohlen ? 'Empfehlung' : 'Manuell gewählt'} · ${fmt(o.kuehlen_kw)} kW kühlen`,
-            },
-            {
-              lab: 'Innengeräte',
-              val: fmt(x.sum) + ' kW',
-              sub: `von max. ${fmt(x.sumMax)} kW · ${x.rows.length} ${x.rows.length === 1 ? 'Raum' : 'Räume'}`,
-            },
-          ]),
+          html: B.kacheln(tiles, {
+            links: true,
+            spalten: ['1fr', '1.25fr 1fr', '1.25fr 1fr 1fr'][tiles.length - 1],
+          }),
         });
         blocks.push({
           html: B.abschnitt(

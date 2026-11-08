@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder config.js die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
-const CACHE = 'kalk-wp-v32';
+const CACHE = 'kalk-wp-v33';
 const ASSETS = [
   './',
   './index.html',

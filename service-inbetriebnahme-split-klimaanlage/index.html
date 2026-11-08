@@ -2003,7 +2003,7 @@
             : '');
         const blocks = [];
 
-        // Kacheln: Ergebnis · Auffälligkeiten · Nächste Wartung (bzw. Datum)
+        // Kacheln: Ergebnis · Datum · Monteur
         const res = String(r.success || ''),
           good = res === 'Ja' || res === 'i.O.',
           bad = !!res && !good;
@@ -2013,7 +2013,6 @@
         const next = subs.find((s) => /^Nächste Wartung:/.test(s)),
           other = subs.filter((s) => s !== next);
         const defects = r.defects || [];
-        const monteur = r.techniker ? 'Monteur: ' + r.techniker : '';
         blocks.push({
           html: B.kacheln(
             [
@@ -2023,45 +2022,45 @@
                 val: res,
                 subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}`,
               },
-              {
-                lab: 'Auffälligkeiten',
-                val: String(defects.length),
-                sub: defects.length
-                  ? defects[0] + (defects.length > 1 ? ` (+${defects.length - 1} weitere)` : '')
-                  : 'keine',
-              },
-              next
-                ? {
-                    art: 'primary',
-                    lab: 'Nächste Wartung',
-                    val: next.replace(/^Nächste Wartung:\s*/, ''),
-                    sub: monteur,
-                  }
-                : { art: 'primary', lab: 'Datum', val: datum, sub: monteur },
+              { lab: 'Datum', val: datum || stand },
+              { lab: 'Monteur / Prüfer', val: r.techniker },
             ],
             { links: true },
           ),
         });
 
-        // Auftrags- und Anlagendaten
-        if (header.length)
-          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(header)) });
+        // Auftrags- und Anlagendaten (Kunden-Nr. steht schon im Kopf)
+        const kundenNr = (
+          header.find((x) => /^kunden[ -]?(nr|nummer)/i.test(x.label) && x.value) || {}
+        ).value;
+        const headerRows = header.filter(
+          (x) => !(kundenNr && /^kunden[ -]?(nr|nummer)/i.test(x.label)),
+        );
+        if (headerRows.length)
+          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(headerRows)) });
 
         // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
-        (r.sections || []).forEach((s) => {
+        const lastCheck = (r.sections || []).reduce(
+          (m, s, i) => ((s.checks || []).concat(s.rows || []).some(isCheck) ? i : m),
+          -1,
+        );
+        (r.sections || []).forEach((s, si) => {
           const all = (s.checks || []).concat(s.rows || []);
           const ck = all.filter(isCheck),
             fl = all.filter((x) => !isCheck(x));
-          const body =
-            B.checkliste(
-              ck.map((x) => ({
-                label: x.label,
-                mangel: x.mangel,
-                value: x.value,
-                eval: evalOf(x),
-              })),
-            ) +
-            (fl.length ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl) : '');
+          const ckHtml = B.checkliste(
+            ck.map((x) => ({
+              label: x.label,
+              mangel: x.mangel,
+              value: x.value,
+              eval: evalOf(x),
+            })),
+            { nrPrefix: true, legende: si === lastCheck },
+          );
+          const flHtml = fl.length
+            ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl)
+            : '';
+          const body = ckHtml + flHtml;
           if (s.table && s.table.body && s.table.body.length) {
             const t = s.table;
             blocks.push(
@@ -2079,6 +2078,9 @@
               }),
             );
             if (body) blocks.push({ html: `<div class="sec-more">${body}</div>` });
+          } else if (ckHtml) {
+            blocks.push({ split: true, html: B.abschnitt(s.title, ckHtml) });
+            if (flHtml) blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
           } else {
             blocks.push({
               html: B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>'),
@@ -2088,9 +2090,19 @@
 
         if (defects.length)
           blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
-        blocks.push({
-          html: B.notiz({ titel: r.remarkLabel || 'Bemerkungen / Mängel', text: r.remark }),
+        const abschluss = [];
+        if (next) {
+          abschluss.push({
+            label: 'Nächste Wartung',
+            value: next.replace(/^Nächste Wartung:\s*/, ''),
+          });
+        }
+        abschluss.push({
+          label: r.remarkLabel || 'Bemerkungen / Mängel',
+          value: r.remark,
+          wide: true,
         });
+        blocks.push({ html: B.abschnitt('Abschluss', B.kv(abschluss)) });
         if (r.hinweis)
           blocks.push({ html: B.rechtstext([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
         const sig = r.sig || {};
@@ -2106,7 +2118,15 @@
           anlage = hv(/anlage|modell/i);
         return {
           blocks,
-          head: B.kopf({ firma, kicker, titel: h1, nrLabel: 'Projekt-Nr.', id: r.id, datum }),
+          head: B.kopf({
+            firma,
+            kicker,
+            titel: h1,
+            nummern: [
+              { label: 'Projekt-Nr.', wert: r.id },
+              { label: 'Kunden-Nr.', wert: kundenNr },
+            ],
+          }),
           smallHead: B.kopfKlein({
             firma,
             zeile: [kunde, anlage].filter(Boolean).join(' · '),

@@ -41,36 +41,48 @@ function pdfBausteine() {
   const h2 = (title, ref) =>
     `<h2><span class="no">${++n}</span><span class="tt">${esc(title)}</span>${ref ? `<span class="ref">${esc(ref)}</span>` : ''}</h2>`;
 
-  /* Kopf Seite 1. firma: Text mit Zeilenumbrüchen oder Liste; kicker/titel: Kopfzeile + Titel; nrLabel: z. B. „Projekt-Nr.“, „Logbuch-Nr.“;
-     datum: optional (datumLabel: Text davor, z. B. „Stand“); untertitel: optional kleine Zeile unter der Nummer (z. B. Rechtsgrundlage); untertitelUnten: Untertitel über die volle Breite unter der Kopflinie (Logbuch) */
+  /* Kopf Seite 1. firma: Text mit Zeilenumbrüchen oder Liste (erste Zeile fett; leer = Block entfällt, Nummern bleiben rechts);
+     kicker/titel: kleine Zeile über dem Titel + Titel (H1); nrLabel/id: z. B. „Projekt-Nr.“; nummern (optional): [{label, wert}] statt nrLabel/id,
+     Einträge ohne Wert entfallen (z. B. Kunden-Nr.); datum: optional (datumLabel: Text davor, Standard „Datum“);
+     untertitel: optionale Zeile unter dem Titel (untertitelUnten wird weiter angenommen, Position ist gleich) */
+  const idsHtml = (nummern, nrLabel, id, datum, datumLabel) => {
+    const rows = (nummern || [{ label: nrLabel, wert: id }]).slice();
+    if (datum) rows.push({ label: datumLabel || 'Datum', wert: datum });
+    const ok = rows.filter((x) => x && x.wert);
+    return ok.length
+      ? `<div class="ids">${ok.map((x) => `<span>${esc(x.label)}</span><b>${esc(x.wert)}</b>`).join('')}</div>`
+      : '';
+  };
+  const firmHtml = (f) =>
+    f.length
+      ? `<div class="firm"><b>${esc(f[0])}</b>${f
+          .slice(1)
+          .map((t) => `<span>${esc(t)}</span>`)
+          .join('')}</div>`
+      : '';
   const kopf = ({
     firma,
     kicker,
     titel,
     nrLabel = 'Projekt-Nr.',
     id,
+    nummern,
     datum,
     datumLabel,
     untertitel,
-    untertitelUnten,
-  }) => {
+  }) =>
+    `<div class="head"><div class="head-top">${firmHtml(lines(firma))}${idsHtml(nummern, nrLabel, id, datum, datumLabel)}</div>
+      <div class="titelblock">${kicker ? `<div class="kicker">${up(kicker)}</div>` : ''}<h1>${esc(titel)}</h1>${untertitel ? `<div class="law">${esc(untertitel)}</div>` : ''}</div></div>`;
+  /* Kopf der Folgeseiten ohne Titel. zeile: zweite Zeile links (z. B. Kunde · Anlage); ohne Firma und ohne Zeile entfällt der linke Block */
+  const kopfKlein = ({ firma, zeile, nrLabel = 'Projekt-Nr.', id, nummern }) => {
     const f = lines(firma);
-    return `<div class="head"><div class="firm">${f[0] ? `<b>${esc(f[0])}</b>` : ''}${f
-      .slice(1)
-      .map((s) => `<span>${esc(s)}</span>`)
-      .join('')}</div>
-      <div class="doc">${kicker ? `<div class="kicker">${up(kicker)}</div>` : ''}<h1>${esc(titel)}</h1><div class="meta">${esc(nrLabel)} <b>${esc(id)}</b>${datum ? ` · ${datumLabel ? esc(datumLabel) + ' ' : ''}<b>${esc(datum)}</b>` : ''}</div>${untertitel && !untertitelUnten ? `<div class="law">${esc(untertitel)}</div>` : ''}</div></div>${
-        untertitel && untertitelUnten
-          ? `
-      <div class="law">${esc(untertitel)}</div>`
-          : ''
-      }`;
-  };
-  /* Kopf der Folgeseiten. zeile: zweite Firmenzeile (z. B. Kunde · Anlage; Klima nutzt hier „Kunden Nr.“) */
-  const kopfKlein = ({ firma, zeile, titel, nrLabel = 'Projekt-Nr.', id }) => {
-    const f = lines(firma);
-    return `<div class="head small"><div class="firm">${f[0] ? `<b>${esc(f[0])}</b>` : ''}<span>${esc(zeile || '')}</span></div>
-      <div class="doc"><h1>${esc(titel)}</h1><div class="meta">${esc(nrLabel)} <b>${esc(id)}</b></div></div></div>`;
+    const z = String(zeile || '').trim();
+    const links = f.length
+      ? `<div class="firm"><b>${esc(f[0])}</b>${z ? `<span>${esc(z)}</span>` : ''}</div>`
+      : z
+        ? `<div class="firm"><span>${esc(z)}</span></div>`
+        : '';
+    return `<div class="head small"><div class="head-top">${links}${idsHtml(nummern, nrLabel, id)}</div></div>`;
   };
   /* Fußzeile (linker Text); „Nr · Seite x von y“ ergänzt layoutReport. text: z. B. Titel, stand: Datum (optional) */
   const fuss = ({ text, stand }) => esc(text) + (stand ? ' · ' + esc(stand) : '');
@@ -79,25 +91,70 @@ function pdfBausteine() {
   const abschnitt = (titel, inhalt, { ref } = {}) =>
     `<div class="sec">${h2(titel, ref)}${inhalt}</div>`;
   const zwischenTitel = (text) => `<div class="sub-h">${up(text)}</div>`;
-  /* Feldliste (4 Spalten): rows = [{label, value, wide, eval:'warn'}] */
-  const kv = (rows) =>
-    rows.length
-      ? `<dl class="kv">${rows.map((x) => `<div${x.wide ? ' class="wide"' : ''}><dt>${up(x.label)}</dt><dd class="${x.value ? '' : 'empty'} ${x.eval === 'warn' ? 'warn' : ''}">${x.value ? nl(x.value) : '—'}</dd></div>`).join('')}</dl>`
+  /* Feldliste als Tabellenzeilen (in Karte): Bezeichnung | Wert | Bezeichnung | Wert; wide = eigene Zeile über die volle Breite.
+     rows = [{label, value, wide, eval:'warn'}] */
+  const kv = (rows) => {
+    if (!rows.length) return '';
+    const k = (x) => `<td class="k">${esc(x.label)}</td>`;
+    const v = (x, span) =>
+      `<td class="v${x.value ? '' : ' empty'}${x.eval === 'warn' ? ' warn' : ''}"${span ? ` colspan="${span}"` : ''}>${x.value ? nl(x.value) : '—'}</td>`;
+    const out = [];
+    let wait = null;
+    const flush = () => {
+      if (wait) out.push(`<tr>${k(wait)}${v(wait, 3)}</tr>`);
+      wait = null;
+    };
+    rows.forEach((x) => {
+      if (x.wide) {
+        flush();
+        out.push(`<tr>${k(x)}${v(x, 3)}</tr>`);
+      } else if (wait) {
+        out.push(`<tr>${k(wait)}${v(wait)}${k(x)}${v(x)}</tr>`);
+        wait = null;
+      } else wait = x;
+    });
+    flush();
+    return `<div class="box"><table class="kv"><colgroup><col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%"></colgroup><tbody>${out.join('')}</tbody></table></div>`;
+  };
+  /* Punkt mit fester Farbe (SVG, kein CSS-Kreis – html2canvas) */
+  const dot = (farbe, px = 9) =>
+    `<svg width="${px}" height="${px}" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="${COL[farbe] || COL.na}"/></svg>`;
+  /* Checkliste als Tabelle Nr. | Prüfpunkt | i.O. | n.i.O. | entf.
+     items = [{label, value, eval:'ok'|'bad'|'na', mangel (Text), hinweis (Text, optional)}]; Altwert „Mangel“ zählt als n.i.O.
+     nrPrefix (optional): Abschnittsnummer für 5.1, 5.2 …; true = Nummer des Abschnitts, der gleich danach folgt
+     legende (optional): true = Zeile „i.O. = in Ordnung …“ unter der Tabelle */
+  const checkliste = (items, { nrPrefix, legende } = {}) => {
+    if (!items.length) return '';
+    const pre = nrPrefix === true ? n + 1 : nrPrefix || '';
+    const kind = (x) =>
+      x.eval === 'ok' || x.eval === 'bad' || x.eval === 'na'
+        ? x.eval
+        : x.value === 'Mangel'
+          ? 'bad'
+          : '';
+    const rows = items
+      .map((x, i) => {
+        const k = kind(x);
+        const nr = pre ? `${pre}.${i + 1}` : String(i + 1);
+        const cell = (col) => `<td class="c">${k === col ? dot(col) : ''}</td>`;
+        const extra = (cls, wort, text) =>
+          `<tr class="${cls}"><td></td><td colspan="4"><b>${wort}${pre ? ' ' + nr : ''}:</b> ${esc(text)}</td></tr>`;
+        return (
+          `<tr><td class="nr">${nr}</td><td>${esc(x.label)}${k === '' && x.value && x.value !== '—' ? ' – ' + esc(x.value) : ''}</td>${cell('ok')}${cell('bad')}${cell('na')}</tr>` +
+          (x.mangel ? extra('mangel', 'Mangel', x.mangel) : '') +
+          (x.hinweis ? extra('hinweis', 'Hinweis', x.hinweis) : '')
+        );
+      })
+      .join('');
+    const leg = legende
+      ? `<div class="legend"><span>${dot('ok', 7)}i.O. = in Ordnung</span><span>${dot('bad', 7)}n.i.O. = nicht in Ordnung</span><span>${dot('na', 7)}entf. = entfällt</span></div>`
       : '';
-  /* Checkliste (2 Spalten): items = [{label, value (Anzeige), eval:'ok'|'bad'|'na'}] */
-  const checkliste = (items) =>
-    items.length
-      ? `<div class="checks2">${items
-          .map((x) => {
-            const k = x.eval || 'na';
-            return `<div class="ci ${k}">${icon(k, 12)}<span class="t">${esc(x.label)}${x.mangel ? `<span class="m">Mangel: ${esc(x.mangel)}</span>` : ''}</span><span class="a">${esc(x.value || '—')}</span></div>`;
-          })
-          .join('')}</div>`
-      : '';
+    return `<div class="box"><table class="chk"><thead><tr><th class="nr">NR.</th><th>PRÜFPUNKT</th><th class="c">I.O.</th><th class="c">N.I.O.</th><th class="c">ENTF.</th></tr></thead><tbody>${rows}</tbody></table></div>${leg}`;
+  };
 
   /* Umbrechbare Tabelle als Block (layoutReport: split:true, Überschrift hat Klasse „tt“ für „(Fortsetzung)“).
      head: Liste aus Text oder {t, w:'26%', num:true}; rows: Liste aus Zellen-Listen oder {cls:'sum'|'tot', cells:[…]};
-     Zelle: Text oder {t, cls:'lbl'|'ev ok'|'num'|'date', html:'…' (Rohtext statt t)} */
+     Zelle: Text oder {t, span:Spalten, cls:'k'|'lbl'|'ev ok'|'num'|'date', html:'…' (Rohtext statt t)} */
   const tabelle = ({ titel, ref, head, rows }) => {
     const th = head
       .map((h) => {
@@ -107,7 +164,7 @@ function pdfBausteine() {
       .join('');
     const td = (c) => {
       c = typeof c === 'object' && c ? c : { t: c };
-      return `<td${c.cls ? ` class="${c.cls}"` : ''}>${c.html != null ? c.html : esc(c.t)}</td>`;
+      return `<td${c.cls ? ` class="${c.cls}"` : ''}${c.span ? ` colspan="${c.span}"` : ''}>${c.html != null ? c.html : esc(c.t)}</td>`;
     };
     const tr = (r) => {
       const o = Array.isArray(r) ? { cells: r } : r;
@@ -115,7 +172,7 @@ function pdfBausteine() {
     };
     return {
       split: true,
-      html: `<div class="sec">${h2(titel, ref)}<table><thead><tr>${th}</tr></thead><tbody>${rows.map(tr).join('')}</tbody></table></div>`,
+      html: `<div class="sec">${titel ? h2(titel, ref) : ''}<div class="box"><table><thead><tr>${th}</tr></thead><tbody>${rows.map(tr).join('')}</tbody></table></div></div>`,
     };
   };
 
@@ -160,6 +217,7 @@ function pdfBausteine() {
     up,
     icon,
     pill,
+    dot,
     kopf,
     kopfKlein,
     fuss,

@@ -1892,35 +1892,39 @@
 
         const stufe = ARTEN[r.bewertungStufe] ? r.bewertungStufe : -1;
         const art = stufe < 0 ? '' : ARTEN[stufe];
+        const mangelText =
+          r.bewertungMangel || (['i.O.', 'n.i.O.'].includes(r.bewertung) ? '' : r.bewertung || '');
         blocks.push({
           html: B.kacheln(
             [
               {
                 art,
-                lab: 'Ergebnis',
+                lab: 'Gesamtbewertung',
                 val: stufe < 0 ? '' : KURZ[stufe],
                 subHtml:
                   stufe < 0
                     ? ''
-                    : `${pill(art, PILLS[stufe], art === 'warn' ? 'clock' : undefined)}<div>${esc(r.bewertungMangel || (['i.O.', 'n.i.O.'].includes(r.bewertung) ? '' : r.bewertung || ''))}</div>`,
+                    : `${pill(art, PILLS[stufe], art === 'warn' ? 'clock' : undefined)}<div>${esc(mangelText)}</div>`,
               },
-              { lab: 'Nächste Wartung', val: naechste, sub: naechste ? 'jährliche Wartung' : '' },
-              {
-                art: 'primary',
-                lab: 'Wartungsdatum',
-                val: tileDate,
-                sub: r.techniker ? 'Techniker: ' + r.techniker : '',
-              },
+              { lab: 'Datum', val: tileDate },
+              { lab: 'Techniker', val: r.techniker },
             ],
             { links: true },
           ),
         });
 
-        if (header.length) {
-          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(header)) });
+        const kundenRe = /^(kunden-?(nr\.?|nummer)|kunde \/ objekt)/i;
+        const kundenNr = (header.find((x) => kundenRe.test(x.label) && x.value) || {}).value;
+        const headerRows = header.filter((x) => !(kundenNr && kundenRe.test(x.label)));
+        if (headerRows.length) {
+          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(headerRows)) });
         }
 
-        (r.sections || []).forEach((s) => {
+        const lastCheck = (r.sections || []).reduce(
+          (m, s, i) => ((s.checks || []).length ? i : m),
+          -1,
+        );
+        (r.sections || []).forEach((s, si) => {
           const items = (s.checks || []).map((x) => ({
             label: x.label,
             mangel: x.mangel,
@@ -1928,14 +1932,20 @@
             eval: ['ok', 'bad', 'na'].includes(x.eval) ? x.eval : '',
           }));
           const rows = s.rows || [];
-          const body =
-            B.checkliste(items) +
-            (rows.length
-              ? (items.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(rows)
-              : '');
-          blocks.push({
-            html: B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>'),
-          });
+          const ckHtml = B.checkliste(items, { nrPrefix: true, legende: si === lastCheck });
+          const flHtml = rows.length
+            ? (items.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(rows)
+            : '';
+          if (ckHtml) {
+            blocks.push({ split: true, html: B.abschnitt(s.title, ckHtml) });
+            if (flHtml) {
+              blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
+            }
+          } else {
+            blocks.push({
+              html: B.abschnitt(s.title, flHtml || '<div class="none">Keine Angaben</div>'),
+            });
+          }
         });
 
         const material = r.material || [];
@@ -1957,19 +1967,25 @@
         if (defects.length) {
           blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
         }
-        blocks.push({
-          html: B.notiz({
-            titel: 'Festgestellte Mängel / Noch auszuführende Arbeiten (Folgeauftrag)',
-            text: r.remark,
-          }),
-        });
+        const abschluss = [
+          {
+            label: 'Nächste Wartung',
+            value: [naechste, naechste ? 'jährliche Wartung' : ''].filter(Boolean).join(' · '),
+          },
+          {
+            label: 'Festgestellte Mängel / Noch auszuführende Arbeiten (Folgeauftrag)',
+            value: r.remark,
+            wide: true,
+          },
+        ];
         if (r.absprachen) {
-          blocks.push({
-            html: B.notiz({ titel: 'Absprachen & Abweichungen', text: r.absprachen }),
-          });
+          abschluss.push({ label: 'Absprachen & Abweichungen', value: r.absprachen, wide: true });
         }
+        blocks.push({ html: B.abschnitt('Wartungsabschluss', B.kv(abschluss)) });
         if (r.hinweis) {
-          blocks.push({ html: B.notiz({ titel: 'Hinweise für den Betreiber', text: r.hinweis }) });
+          blocks.push({
+            html: B.rechtstext([{ titel: 'Hinweise für den Betreiber.', text: r.hinweis }]),
+          });
         }
         const sig = r.sig || {};
         blocks.push({
@@ -1984,7 +2000,15 @@
         const anlage = hv(/^modell/i);
         return {
           blocks,
-          head: B.kopf({ firma, kicker, titel: h1, nrLabel: 'Protokoll-Nr.', id: r.id, datum }),
+          head: B.kopf({
+            firma,
+            kicker,
+            titel: h1,
+            nummern: [
+              { label: 'Protokoll-Nr.', wert: r.id },
+              { label: 'Kunden-Nr.', wert: kundenNr },
+            ],
+          }),
           smallHead: B.kopfKlein({
             firma,
             zeile: [kunde, anlage].filter(Boolean).join(' · '),

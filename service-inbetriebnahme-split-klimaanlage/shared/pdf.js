@@ -119,29 +119,35 @@ function layoutReport(r, host) {
       return;
     }
     // Tabelle zeilenweise verteilen; auf der Folgeseite Überschrift „(Fortsetzung)“ und Tabellenkopf wiederholen
-    const rows = [...node.querySelectorAll('tbody > tr')];
+    // Zeilen mit Klasse „mangel“/„hinweis“ bleiben bei der Zeile davor
+    const rows = [];
+    node.querySelectorAll('tbody > tr').forEach((tr) => {
+      if (rows.length && /\b(mangel|hinweis)\b/.test(tr.className)) rows[rows.length - 1].push(tr);
+      else rows.push([tr]);
+    });
     const shell = (cont) => {
       const s = node.cloneNode(true);
       s.querySelector('tbody').innerHTML = '';
-      if (cont) s.querySelector('.tt').textContent += ' (Fortsetzung)';
+      const tt = s.querySelector('.tt');
+      if (cont && tt) tt.textContent += ' (Fortsetzung)';
       return s;
     };
     let part = shell(false),
       placed = 0;
     body.appendChild(part);
-    rows.forEach((tr) => {
-      part.querySelector('tbody').appendChild(tr);
+    rows.forEach((grp) => {
+      grp.forEach((tr) => part.querySelector('tbody').appendChild(tr));
       if (fits()) {
         placed++;
         return;
       }
-      tr.remove();
+      grp.forEach((tr) => tr.remove());
       if (!placed) part.remove();
       const cont = placed > 0;
       newPage();
       part = shell(cont);
       body.appendChild(part);
-      part.querySelector('tbody').appendChild(tr);
+      grp.forEach((tr) => part.querySelector('tbody').appendChild(tr));
       placed = 1;
     });
   });
