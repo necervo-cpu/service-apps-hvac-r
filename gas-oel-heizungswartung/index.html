@@ -707,13 +707,24 @@
       };
       const BRENNER_OPTS = ['Gelbbrenner', 'Blaubrenner'];
       const SPRUEHMUSTER = ['S', 'H', 'B', 'W'];
-      const BEWERTUNG = [
-        'Betriebssicher / ohne Mängel',
-        'Wartungsempfehlung / Folgeauftrag nötig',
-        'Bedenkliche Mängel / gesperrt',
-      ];
-      const BEWERTUNG_KURZ = ['Betriebssicher', 'Folgeauftrag nötig', 'Gesperrt'];
-      const BEWERTUNG_KLASSEN = ['ok', 'warn', 'bad'];
+      const BEWERTUNG = ['i.O.', 'n.i.O.'];
+      const BEWERTUNG_KLASSEN = ['ok', 'bad'];
+      const BEWERTUNG_STUFEN = ['ok', 'warn', 'bad'];
+      const BEWERTUNG_KURZ = ['i.O.', 'Folgeauftrag nötig', 'n.i.O.'];
+      const BEWERTUNG_ALT = new Map([
+        ['Betriebssicher / ohne Mängel', 0],
+        ['Wartungsempfehlung / Folgeauftrag nötig', 1],
+        ['Bedenkliche Mängel / gesperrt', 2],
+      ]);
+      function bewertungStufe(x) {
+        if (x === 'i.O.') {
+          return 0;
+        }
+        if (x === 'n.i.O.') {
+          return 2;
+        }
+        return BEWERTUNG_ALT.has(x) ? BEWERTUNG_ALT.get(x) : -1;
+      }
       const MANGEL_SUFFIX = ' – Mangel';
       const KEEP_SYNCED_DAYS = 7;
       const SPEICHER = {
@@ -1094,6 +1105,14 @@
                 type: 'bewertung',
                 opts: BEWERTUNG,
               },
+              {
+                id: 'bewertungM',
+                col: 'Gesamtbewertung' + MANGEL_SUFFIX,
+                label: 'Mangel / Maßnahme',
+                type: 'text',
+                parent: 'bewertung',
+                ph: 'Was ist festzustellen, was ist zu tun?',
+              },
             ],
           },
         ],
@@ -1127,7 +1146,7 @@
           Material: [['Verwendetes Material', ['material']]],
           Abschluss: [
             ['Bemerkungen', ['bem', 'abspr', 'hinw']],
-            ['Bewertung', ['bewertung']],
+            ['Bewertung', ['bewertung', 'bewertungM']],
           ],
         };
         TEMPLATE.pages.forEach((pg) => {
@@ -1248,8 +1267,8 @@
           return x === 'entfällt' ? 'na' : 'none';
         }
         if (f.type === 'bewertung') {
-          const k = BEWERTUNG.indexOf(x);
-          return k < 0 ? 'none' : BEWERTUNG_KLASSEN[k];
+          const k = bewertungStufe(x);
+          return k < 0 ? 'none' : BEWERTUNG_STUFEN[k];
         }
         if (f.regel) {
           return bewerteMesswert(f.regel, x, kontext(v));
@@ -1351,7 +1370,7 @@
             }
             return { title: titleOf(pg), kind: pg.kind || 'werte', checks, rows };
           });
-        const stufe = BEWERTUNG.indexOf(v.bewertung);
+        const stufe = bewertungStufe(v.bewertung);
         return {
           title: TEMPLATE.title,
           typ: v.typ || '',
@@ -1360,8 +1379,9 @@
           sections,
           material: materialListe(v),
           defects: defects(p),
-          bewertung: stufe < 0 ? '' : BEWERTUNG[stufe],
+          bewertung: stufe < 0 ? '' : v.bewertung,
           bewertungStufe: stufe,
+          bewertungMangel: v.bewertung === 'n.i.O.' ? String(v.bewertungM ?? '').trim() : '',
           remark: v.bem || '',
           absprachen: v.abspr || '',
           hinweis: v.hinw || '',
@@ -1605,11 +1625,11 @@
       };
 
       function bewertungBadge(text) {
-        const k = BEWERTUNG.indexOf(text);
+        const k = bewertungStufe(text);
         if (k < 0) {
           return '';
         }
-        return `<span class="badge ${BEWERTUNG_KLASSEN[k]}">${esc(BEWERTUNG_KURZ[k])}</span>`;
+        return `<span class="badge ${BEWERTUNG_STUFEN[k]}">${esc(BEWERTUNG_KURZ[k])}</span>`;
       }
       function protoCard(p) {
         const v = p.values;
@@ -1679,6 +1699,12 @@
       <div class="matadd"><input id="matfree" placeholder="Eigenes Material …" autocomplete="off"><button type="button" class="btn" data-act="matfree">Hinzufügen</button></div>`;
       }
 
+      function altwertHint(x) {
+        if (!x || BEWERTUNG.includes(x) || bewertungStufe(x) < 0) {
+          return '';
+        }
+        return `<div class="fhint">Altwert: ${esc(x)}</div>`;
+      }
       function fieldHtml(f, p) {
         const v = p.values;
         const x = wert(f, v);
@@ -1704,7 +1730,7 @@
           case 'yesno':
             return `<div class="field"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.warn)}</div></div>`;
           case 'bewertung':
-            return `<div class="field"><div>${lab}</div><div class="opts">${buttons(BEWERTUNG, BEWERTUNG_KLASSEN, 'set')}</div></div>`;
+            return `<div class="field"><div class="frow"><div>${lab}</div>${seg(BEWERTUNG, BEWERTUNG_KLASSEN)}</div>${altwertHint(x)}</div>`;
           case 'material':
             return `<div class="field">${materialHtml(p)}</div>`;
           case 'select': {
@@ -1785,9 +1811,9 @@
         const B = pdfBausteine();
         const { esc, pill } = B;
         const TYP_H1 = { gas: 'Gasheizung', oel: 'Ölheizung' };
-        const KURZ = ['Betriebssicher', 'Folgeauftrag nötig', 'Gesperrt'];
+        const KURZ = ['i.O.', 'Folgeauftrag nötig', 'n.i.O.'];
         const ARTEN = ['ok', 'warn', 'bad'];
-        const PILLS = ['in Ordnung', 'Folgeauftrag', 'gesperrt'];
+        const PILLS = ['in Ordnung', 'Folgeauftrag', 'nicht in Ordnung'];
         const firma = r.firma || '';
         const kopfzeile = String(r.title || 'WARTUNGSPROTOKOLL').split(' • ')[0];
         const kicker = kopfzeile;
@@ -1843,7 +1869,7 @@
                 subHtml:
                   stufe < 0
                     ? ''
-                    : `${pill(art, PILLS[stufe], art === 'warn' ? 'clock' : undefined)}<div>${esc(r.bewertung || '')}</div>`,
+                    : `${pill(art, PILLS[stufe], art === 'warn' ? 'clock' : undefined)}<div>${esc(r.bewertungMangel || (['i.O.', 'n.i.O.'].includes(r.bewertung) ? '' : r.bewertung || ''))}</div>`,
               },
               { lab: 'Nächste Wartung', val: naechste, sub: naechste ? 'jährliche Wartung' : '' },
               {
