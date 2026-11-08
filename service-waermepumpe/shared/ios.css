@@ -123,6 +123,17 @@ body::before {
   pointer-events: none;
 }
 
+/* ===== Hinweis-Box .warnbox: einheitliche, kleinere Schrift in allen Apps ===== */
+.warnbox {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.warnbox .btn {
+  margin-top: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+}
+
 /* ===== Startblock mittig ab 700px (nur oben auf der Startseite; alles andere bleibt linksbündig) ===== */
 @media (min-width: 700px) {
   .kstart {
