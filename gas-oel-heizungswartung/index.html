@@ -585,6 +585,77 @@
           margin: 0;
         }
       }
+      :root {
+        --mat-ease: cubic-bezier(0.25, 1, 0.5, 1);
+        --mat-dur-tap: 160ms;
+        --mat-dur-in: 220ms;
+        --mat-dur-pulse: 200ms;
+        --mat-tap-scale: 0.96;
+        --mat-in-shift: 8px;
+        --mat-pulse-scale: 1.12;
+      }
+      .opts .btn.chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .opts .btn.chip.added {
+        box-shadow: inset 0 0 0 2px var(--ok);
+      }
+      .chip .chk,
+      .chip .cbadge {
+        color: var(--ok);
+        font-weight: 700;
+      }
+      .chip .cbadge {
+        font-variant-numeric: tabular-nums;
+      }
+      .typinfo {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .fx-tap {
+        animation: mat-tap var(--mat-dur-tap) var(--mat-ease);
+      }
+      .fx-in {
+        animation: mat-in var(--mat-dur-in) var(--mat-ease);
+      }
+      .fx-pulse {
+        animation: mat-pulse var(--mat-dur-pulse) var(--mat-ease);
+      }
+      @keyframes mat-tap {
+        from {
+          transform: scale(var(--mat-tap-scale));
+        }
+        to {
+          transform: none;
+        }
+      }
+      @keyframes mat-in {
+        from {
+          opacity: 0;
+          transform: translateY(var(--mat-in-shift));
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes mat-pulse {
+        from {
+          transform: scale(var(--mat-pulse-scale));
+        }
+        to {
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fx-tap,
+        .fx-in,
+        .fx-pulse {
+          animation: none;
+        }
+      }
       .matrow {
         display: flex;
         align-items: center;
@@ -1617,14 +1688,40 @@
     </div>`;
       }
 
+      function playFx(el, cls) {
+        if (!el) {
+          return;
+        }
+        el.classList.add(cls);
+        el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+      }
+      function materialFeedback(teil, fx) {
+        const chip = [...app.querySelectorAll('[data-act="matadd"]')].find(
+          (b) => b.dataset.t === teil,
+        );
+        const input = app.querySelector(`.matrow input[data-i="${fx.i}"]`);
+        const zeile = input ? input.closest('.matrow') : null;
+        if (!RM()) {
+          playFx(chip, 'fx-tap');
+          if (fx.art === 'neu') {
+            playFx(zeile, 'fx-in');
+          } else {
+            playFx(input, 'fx-pulse');
+          }
+        }
+        toast(fx.art === 'plus' ? `${teil} hinzugefügt (×${fx.menge})` : `${teil} hinzugefügt`);
+      }
       function materialHtml(p) {
         const v = p.values;
         const liste = materialArray(p);
         const chips = (MATERIAL[v.typ] || MATERIAL.gas)
-          .map(
-            (t) =>
-              `<button type="button" class="btn" data-act="matadd" data-t="${esc(t)}">${esc(t)}</button>`,
-          )
+          .map((t) => {
+            const m = liste.find((x) => x.teil === t);
+            const menge = m ? parseInt(m.menge, 10) || 0 : 0;
+            const haken = m ? '<span class="chk" aria-hidden="true">✓</span>' : '';
+            const badge = menge > 0 ? `<span class="cbadge">×${menge}</span>` : '';
+            return `<button type="button" class="btn chip${m ? ' added' : ''}" data-act="matadd" data-t="${esc(t)}">${haken}<span>${esc(t)}</span>${badge}</button>`;
+          })
           .join('');
         const zeilen = liste
           .map(
@@ -1662,7 +1759,7 @@
           case 'okfail':
             return `<div class="field"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div></div>`;
           case 'typ':
-            return `<div class="field"><div class="frow"><div>${lab}</div>${seg(['gas', 'oel'], [], 'settyp', [TYP_NAME.gas, TYP_NAME.oel])}</div></div>`;
+            return `<div class="field"><div class="frow"><div>${lab}</div><span class="typinfo">${esc(TYP_NAME[x] || '')}</span></div></div>`;
           case 'yesno':
             return `<div class="field"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.warn)}</div></div>`;
           case 'bewertung':
@@ -2189,30 +2286,20 @@
           save();
           render();
         },
-        settyp(d) {
-          const p = cur();
-          const neu = d.v === 'oel' ? 'oel' : 'gas';
-          if (p.values.typ === neu) {
-            return;
-          }
-          const frage = `Anlagenart auf „${TYP_NAME[neu]}“ ändern? Eingetragene Werte bleiben gespeichert, die Punkte der anderen Anlagenart werden ausgeblendet und nicht gedruckt.`;
-          if (!confirm(frage)) {
-            return;
-          }
-          p.values.typ = neu;
-          save();
-          render();
-        },
         matadd(d) {
           const liste = materialArray(cur());
           const vorhanden = liste.find((m) => m.teil === d.t);
+          let fx;
           if (vorhanden) {
             vorhanden.menge = String((parseInt(vorhanden.menge, 10) || 0) + 1);
+            fx = { art: 'plus', i: liste.indexOf(vorhanden), menge: vorhanden.menge };
           } else {
             liste.push({ teil: d.t, menge: '1' });
+            fx = { art: 'neu', i: liste.length - 1, menge: '1' };
           }
           save();
           render();
+          materialFeedback(d.t, fx);
         },
         matfree() {
           const feld = $('#matfree');
@@ -2221,9 +2308,11 @@
             toast('Bitte eine Bezeichnung eingeben.');
             return;
           }
-          materialArray(cur()).push({ teil, menge: '1' });
+          const liste = materialArray(cur());
+          liste.push({ teil, menge: '1' });
           save();
           render();
+          materialFeedback(teil, { art: 'neu', i: liste.length - 1, menge: '1' });
         },
         matdel(d) {
           materialArray(cur()).splice(Number(d.i), 1);
