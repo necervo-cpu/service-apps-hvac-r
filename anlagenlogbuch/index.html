@@ -1478,11 +1478,25 @@
       function pageErrors(c, i) {
         return c.tpl.pages[i].fields.map((f) => [f, fieldError(f, c.obj)]).filter((e) => e[1]);
       }
+      function vorbelegtGleich(o, id) {
+        return (
+          !!o.vorbelegt &&
+          JSON.stringify(o.values[id] ?? '') === JSON.stringify(o.vorbelegt[id] ?? '')
+        );
+      }
+      function vorbelegtErfassen(o) {
+        o.vorbelegt = {};
+        Object.keys(o.values).forEach((id) => {
+          if (JSON.stringify(o.values[id] ?? '') !== '""') {
+            o.vorbelegt[id] = o.values[id];
+          }
+        });
+      }
       function pageDone(c, i) {
         const fs = c.tpl.pages[i].fields.filter((f) => f.type !== 'auto' && isVis(f, c.obj.values));
         return (
           fs.every((f) => !fieldError(f, c.obj)) &&
-          fs.some((f) => String(c.obj.values[f.id] ?? '') !== '')
+          fs.some((f) => !vorbelegtGleich(c.obj, f.id) && String(c.obj.values[f.id] ?? '') !== '')
         );
       }
 
@@ -2676,6 +2690,7 @@
             synced: false,
           };
           recompute(p, STAMM);
+          vorbelegtErfassen(p);
           books.unshift(p);
           save();
           go('wizard', { id: p.id });
@@ -2700,6 +2715,7 @@
           };
           e.values.km = p.values.km || '';
           recompute(e, EINTRAG, p.values);
+          vorbelegtErfassen(e);
           p.entries.push(e);
           save();
           go('wizard', { id: p.id, eid: e.id });

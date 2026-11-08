@@ -1644,6 +1644,20 @@
       function pageErrors(p, i) {
         return TEMPLATE.pages[i].fields.map((f) => [f, fieldError(f, p)]).filter((e) => e[1]);
       }
+      function vorbelegtGleich(p, id) {
+        return (
+          !!p.vorbelegt &&
+          JSON.stringify(p.values[id] ?? '') === JSON.stringify(p.vorbelegt[id] ?? '')
+        );
+      }
+      function vorbelegtErfassen(p) {
+        p.vorbelegt = {};
+        Object.keys(p.values).forEach((id) => {
+          if (JSON.stringify(p.values[id] ?? '') !== '""') {
+            p.vorbelegt[id] = p.values[id];
+          }
+        });
+      }
       function pageDone(p, i) {
         const fs = TEMPLATE.pages[i].fields.filter(
           (f) => f.type !== 'calc' && !f.legacy && isVis(f, p.values),
@@ -1651,7 +1665,12 @@
         // Grün erst, wenn der Monteur selbst etwas eingetragen hat – vorausgefüllte Felder (init) zählen nicht
         return (
           fs.every((f) => !fieldError(f, p)) &&
-          fs.some((f) => !f.parent && f.init == null && String(p.values[f.id] ?? '') !== '')
+          fs.some(
+            (f) =>
+              !f.parent &&
+              (p.vorbelegt ? !vorbelegtGleich(p, f.id) : f.init == null) &&
+              String(p.values[f.id] ?? '') !== '',
+          )
         );
       }
 
@@ -2564,6 +2583,7 @@
           };
           recompute(p);
           autoNext(p);
+          vorbelegtErfassen(p);
           protocols.unshift(p);
           save();
           go('wizard', { id: p.id });

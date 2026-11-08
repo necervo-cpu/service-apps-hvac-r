@@ -1333,12 +1333,31 @@
         }
         return String(v[f.id] ?? '') !== '';
       }
+      function vorbelegtGleich(p, id) {
+        return (
+          !!p.vorbelegt &&
+          JSON.stringify(p.values[id] ?? '') === JSON.stringify(p.vorbelegt[id] ?? '')
+        );
+      }
+      function vorbelegtErfassen(p) {
+        p.vorbelegt = {};
+        Object.keys(p.values).forEach((id) => {
+          if (JSON.stringify(p.values[id] ?? '') !== '""') {
+            p.vorbelegt[id] = p.values[id];
+          }
+        });
+      }
       function pageDone(p, i) {
         const v = p.values;
         const felder = TEMPLATE.pages[i].fields.filter((f) => aktiv(f, v));
         return (
           felder.every((f) => !fieldError(f, p)) &&
-          felder.some((f) => (f.init == null || f.type === 'material') && hatInhalt(f, v))
+          felder.some(
+            (f) =>
+              (f.type === 'material' ||
+                (p.vorbelegt ? !vorbelegtGleich(p, f.id) : f.init == null)) &&
+              hatInhalt(f, v),
+          )
         );
       }
 
@@ -2206,6 +2225,7 @@
             createdAt: new Date().toISOString(),
             synced: false,
           };
+          vorbelegtErfassen(p);
           protocols.unshift(p);
           save();
           go('wizard', { id: p.id });

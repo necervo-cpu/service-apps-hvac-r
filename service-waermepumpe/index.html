@@ -1659,6 +1659,20 @@
       function pageErrors(p, i) {
         return TEMPLATE.pages[i].fields.map((f) => [f, fieldError(f, p)]).filter((e) => e[1]);
       }
+      function vorbelegtGleich(p, id) {
+        return (
+          !!p.vorbelegt &&
+          JSON.stringify(p.values[id] ?? '') === JSON.stringify(p.vorbelegt[id] ?? '')
+        );
+      }
+      function vorbelegtErfassen(p) {
+        p.vorbelegt = {};
+        Object.keys(p.values).forEach((id) => {
+          if (JSON.stringify(p.values[id] ?? '') !== '""') {
+            p.vorbelegt[id] = p.values[id];
+          }
+        });
+      }
       function pageDone(p, i) {
         return (
           TEMPLATE.pages[i].fields.every((f) => f.type === 'calc' || !fieldError(f, p)) &&
@@ -1666,7 +1680,8 @@
             (f) =>
               f.type !== 'calc' &&
               !f.parent &&
-              (f.init == null || f.type === 'material') &&
+              (f.type === 'material' ||
+                (p.vorbelegt ? !vorbelegtGleich(p, f.id) : f.init == null)) &&
               (f.type === 'material'
                 ? materialListe(p.values).length > 0
                 : String(p.values[f.id] ?? '') !== ''),
@@ -2516,6 +2531,7 @@
             synced: false,
           };
           recompute(p);
+          vorbelegtErfassen(p);
           protocols.unshift(p);
           save();
           go('wizard', { id: p.id });

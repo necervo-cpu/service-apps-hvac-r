@@ -1446,13 +1446,29 @@
       function pageErrors(p, i) {
         return TEMPLATE.pages[i].fields.map((f) => [f, fieldError(f, p)]).filter((e) => e[1]);
       }
+      function vorbelegtGleich(p, id) {
+        return (
+          !!p.vorbelegt &&
+          JSON.stringify(p.values[id] ?? '') === JSON.stringify(p.vorbelegt[id] ?? '')
+        );
+      }
+      function vorbelegtErfassen(p) {
+        p.vorbelegt = {};
+        Object.keys(p.values).forEach((id) => {
+          if (JSON.stringify(p.values[id] ?? '') !== '""') {
+            p.vorbelegt[id] = p.values[id];
+          }
+        });
+      }
       function pageDone(p, i) {
         const fs = TEMPLATE.pages[i].fields.filter(
           (f) => f.type !== 'calc' && !f.legacy && isVis(f, p.values),
         );
         return (
           fs.every((f) => !fieldError(f, p)) &&
-          fs.some((f) => !f.parent && String(p.values[f.id] ?? '') !== '')
+          fs.some(
+            (f) => !f.parent && !vorbelegtGleich(p, f.id) && String(p.values[f.id] ?? '') !== '',
+          )
         );
       }
 
@@ -2232,6 +2248,7 @@
             synced: false,
           };
           recompute(p);
+          vorbelegtErfassen(p);
           protocols.unshift(p);
           save();
           go('wizard', { id: p.id });
