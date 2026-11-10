@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder config.js die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
-const CACHE = 'kalk-klima-v33';
+const CACHE = 'kalk-klima-v34';
 const ASSETS = [
   './',
   './index.html',

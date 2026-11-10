@@ -1,0 +1,3778 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#f8f7f4"
+      data-orig="#f8f7f4"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#121212"
+      data-orig="#121212"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Elektro &amp; MSR" />
+    <title>Elektrotechnik &amp; MSR – Vorschau</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('muther-theme');
+          var r = document.documentElement;
+          if (t === 'hell') r.setAttribute('data-theme', 'light');
+          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(../../shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+          U+FFFD;
+      }
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(../../shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+          U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+      :root {
+        --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+        --gold: #dccc4b;
+        --gold-dark: #c4b53e;
+        --gold-text: #6f6112;
+        --gold-soft: #faf6dc;
+        --on-gold: #1a1a1a;
+
+        --bg: #f8f7f4;
+        --card: #ffffff;
+        --ink: #1a1a1a;
+        --ink-2: #3a3a3a;
+        --muted: #6b6a66;
+        --line: #eceae3;
+        --line-strong: #d6d3c9;
+        --ctl: #ffffff;
+        --track: #e6e3da;
+        --seg-track: #ecebe5;
+        --seg-on: #ffffff;
+        --seg-shadow: 0 1px 3px rgba(26, 26, 26, 0.14), 0 0 0 0.5px rgba(26, 26, 26, 0.06);
+        --glass: rgba(248, 247, 244, 0.74);
+        --glass-edge: rgba(26, 26, 26, 0.08);
+        --hero-bg: var(--card);
+        --hero-edge: var(--line);
+        --hero-ink: var(--ink);
+        --hero-muted: var(--muted);
+        --bad: #b42318;
+        --bad-bg: #fdecea;
+        --warn: #7a4e00;
+        --warn-bg: #fdf3d6;
+        --ok: #1e7a46;
+        --ok-bg: #e3f4ea;
+
+        --r-card: 16px;
+        --r-ctl: 12px;
+        --r-small: 8px;
+        --r-pill: 999px;
+
+        --s1: 4px;
+        --s2: 8px;
+        --s3: 12px;
+        --s4: 16px;
+        --s5: 24px;
+        --s6: 32px;
+        --s7: 48px;
+
+        --touch: 44px;
+        --shadow-hero: 0 4px 16px rgba(0, 0, 0, 0.08);
+        --shadow-thumb: 0 2px 6px rgba(0, 0, 0, 0.25);
+        --shadow-toast: 0 8px 24px rgba(0, 0, 0, 0.3);
+        --ctl-h: 48px;
+        --r-seg-inner: 10px;
+        --r-logo: 9px;
+        --thumb: 28px;
+        --einheit-w: 48px;
+        --glass-blur: blur(20px) saturate(180%);
+        --toast-bg: #111111;
+        --toast-ink: #ffffff;
+        --btn-shine: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        --track-display: -0.03em;
+        --track-title: -0.02em;
+        --track-small: 0.01em;
+        --press: 0.98;
+        --press-icon: 0.94;
+        --pruefstand-platz: 144px;
+        --fs-hero: clamp(32px, 11vw, 44px);
+        --press-in: var(--duration-quick);
+        --press-out: var(--duration-fast);
+
+        --duration-micro: 80ms;
+        --duration-quick: 150ms;
+        --duration-fast: 250ms;
+        --duration-medium: 350ms;
+        --duration-slow: 400ms;
+        --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+        --distance-micro: 4px;
+        --distance-small: 6px;
+        --distance-base: 8px;
+        --blur-small: 2px;
+        --scale-medium: 0.97;
+        --acc-expand: var(--duration-fast);
+        --acc-collapse: var(--duration-fast);
+        --acc-chevron: var(--duration-fast);
+        --acc-ease: var(--ease-smooth-out);
+        --seg-dur: var(--duration-fast);
+        --seg-ease: var(--ease-smooth-out);
+        --subtle-dur: var(--duration-fast);
+        --subtle-ease: var(--ease-smooth-out);
+        --subtle-distance: var(--distance-micro);
+        --shake-dur-a: var(--duration-micro);
+        --shake-dur-b: 60ms;
+        --shake-distance: var(--distance-base);
+        --shake-overshoot: 2px;
+        --shake-ease: var(--ease-smooth-out);
+        --toast-open: var(--duration-slow);
+        --toast-close: var(--duration-medium);
+        --check-laenge: 22;
+
+        --safe-t: env(safe-area-inset-top, 0px);
+        --safe-b: env(safe-area-inset-bottom, 0px);
+        --safe-l: env(safe-area-inset-left, 0px);
+        --safe-r: env(safe-area-inset-right, 0px);
+        --gutter: 16px;
+        --max-breite: 1040px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --gold-text: #dccc4b;
+          --gold-soft: #3a3516;
+          --bg: #121212;
+          --card: #1e1e1e;
+          --ink: #ffffff;
+          --ink-2: #ece9e0;
+          --muted: #c2c0b6;
+          --line: #3a3833;
+          --line-strong: #5e5b52;
+          --ctl: #262522;
+          --track: #46443e;
+          --seg-track: #2a2926;
+          --seg-on: #4c4a43;
+          --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          --glass: rgba(18, 18, 18, 0.74);
+          --glass-edge: rgba(255, 255, 255, 0.14);
+          --bad: #ff8a80;
+          --bad-bg: #3f1d1a;
+          --warn: #ffc65c;
+          --warn-bg: #3d3010;
+          --ok: #62d994;
+          --ok-bg: #14301f;
+        }
+      }
+
+      :root[data-theme='dark'] {
+        --gold-text: #dccc4b;
+        --gold-soft: #3a3516;
+        --bg: #121212;
+        --card: #1e1e1e;
+        --ink: #ffffff;
+        --ink-2: #ece9e0;
+        --muted: #c2c0b6;
+        --line: #3a3833;
+        --line-strong: #5e5b52;
+        --ctl: #262522;
+        --track: #46443e;
+        --seg-track: #2a2926;
+        --seg-on: #4c4a43;
+        --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        --glass: rgba(18, 18, 18, 0.74);
+        --glass-edge: rgba(255, 255, 255, 0.14);
+        --bad: #ff8a80;
+        --bad-bg: #3f1d1a;
+        --warn: #ffc65c;
+        --warn-bg: #3d3010;
+        --ok: #62d994;
+        --ok-bg: #14301f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      html {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+        scrollbar-gutter: stable;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select {
+        font-family: inherit;
+      }
+
+      button {
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        cursor: pointer;
+      }
+
+      input {
+        font-size: 16px;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--gold-dark);
+        outline-offset: 2px;
+      }
+
+      .kopf {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        padding-top: var(--safe-t);
+        padding-left: var(--safe-l);
+        padding-right: var(--safe-r);
+        background: var(--glass);
+        -webkit-backdrop-filter: var(--glass-blur);
+        backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--glass-edge);
+      }
+
+      .kopf-innen {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        gap: var(--s3);
+        padding: 0 var(--gutter);
+        max-width: var(--max-breite);
+        margin: 0 auto;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        border-radius: var(--r-logo);
+        background: var(--gold);
+        color: var(--on-gold);
+        font-weight: 800;
+        font-size: 17px;
+      }
+
+      .kopf-titel {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .kopf-titel strong {
+        display: block;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: var(--track-title);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .kopf-titel span {
+        display: block;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.2;
+      }
+
+      .icon-knopf {
+        width: var(--touch);
+        height: var(--touch);
+        flex: none;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: var(--r-pill);
+        background: transparent;
+        color: var(--ink);
+        transition:
+          transform var(--press-out) var(--ease-smooth-out),
+          background var(--press-out) var(--ease-smooth-out);
+      }
+
+      .icon-knopf:active {
+        transition-duration: var(--press-in);
+        transform: scale(var(--press-icon));
+        background: var(--seg-track);
+      }
+
+      svg.ico {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: none;
+      }
+
+      main {
+        max-width: var(--max-breite);
+        margin: 0 auto;
+        padding: var(--s4) calc(var(--gutter) + var(--safe-l)) calc(var(--pruefstand-platz) + var(--safe-b))
+          calc(var(--gutter) + var(--safe-l));
+        outline: none;
+      }
+
+      h1 {
+        margin: var(--s2) 0 var(--s4);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: var(--track-title);
+        line-height: 1.2;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .modul-wahl {
+        margin-bottom: var(--s4);
+      }
+
+      .raster {
+        display: grid;
+        gap: var(--s4);
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .spalte {
+        display: grid;
+        gap: var(--s4);
+        align-content: start;
+        min-width: 0;
+      }
+
+      .karte {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-card);
+        padding: var(--s4);
+      }
+
+      .karte-kopf {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--s3);
+        margin-bottom: var(--s3);
+      }
+
+      .karte-kopf small {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .ergebnis {
+        background: var(--hero-bg);
+        color: var(--hero-ink);
+        border: 1px solid var(--hero-edge);
+        border-radius: var(--r-card);
+        padding: var(--s4);
+        box-shadow: var(--shadow-hero);
+      }
+
+      .ergebnis-label {
+        margin: 0;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--hero-muted);
+      }
+
+      .ergebnis-zeile {
+        display: flex;
+        align-items: baseline;
+        gap: var(--s2);
+        flex-wrap: wrap;
+      }
+
+      .ergebnis-zahl {
+        font-size: var(--fs-hero);
+        font-weight: 800;
+        letter-spacing: var(--track-display);
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+
+      .ergebnis-zahl.leer {
+        color: var(--hero-muted);
+      }
+
+      .ergebnis-einheit {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--gold-text);
+      }
+
+      .ergebnis-neben {
+        margin: var(--s1) 0 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink-2);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .meldungen {
+        display: grid;
+        gap: var(--s2);
+        margin-top: var(--s3);
+      }
+
+      .meldungen:empty {
+        display: none;
+      }
+
+      .meldung span,
+      .ampel li span,
+      .karte-kopf h2,
+      .karte-kopf small,
+      .feld-label,
+      .feld-hinweis,
+      .feld-fehler,
+      .chip small,
+      .seg button {
+        overflow-wrap: anywhere;
+      }
+
+      .meldung {
+        display: flex;
+        gap: var(--s2);
+        align-items: flex-start;
+        margin: 0;
+        padding: var(--s2) var(--s3);
+        border-radius: var(--r-ctl);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      .meldung svg.ico {
+        width: 20px;
+        height: 20px;
+        margin-top: 1px;
+      }
+
+      .meldung.fehler {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+
+      .meldung.hinweis {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+
+      .meldung.ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+
+      .meldung.info {
+        background: var(--gold-soft);
+        color: var(--ink-2);
+        border-left: 4px solid var(--gold);
+        border-radius: var(--r-small);
+      }
+
+      .seg {
+        position: relative;
+        display: flex;
+        gap: 2px;
+        padding: 2px;
+        border-radius: var(--r-ctl);
+        background: var(--seg-track);
+      }
+
+      .seg button {
+        flex: 1;
+        min-width: 0;
+        min-height: var(--touch);
+        position: relative;
+        z-index: 1;
+        padding: 0 var(--s2);
+        border: 0;
+        border-radius: var(--r-seg-inner);
+        background: transparent;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition:
+          color var(--press-out) var(--ease-smooth-out),
+          transform var(--press-out) var(--ease-smooth-out);
+      }
+
+      .seg button:active {
+        transition-duration: var(--press-in);
+        transform: scale(var(--press));
+      }
+
+      .seg button[aria-checked='true'] {
+        color: var(--ink);
+      }
+
+      .seg-pille {
+        position: absolute;
+        top: 2px;
+        bottom: 2px;
+        left: 0;
+        width: 0;
+        border-radius: var(--r-seg-inner);
+        background: var(--seg-on);
+        box-shadow: var(--seg-shadow);
+        opacity: 0;
+        transform: translateX(0);
+        transition:
+          transform var(--seg-dur) var(--seg-ease),
+          width var(--seg-dur) var(--seg-ease);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .seg-pille.ohne-bewegung {
+        transition: none;
+      }
+
+      .seg.klein {
+        width: max-content;
+        max-width: 100%;
+      }
+
+      .seg.klein button {
+        flex: none;
+        min-width: 64px;
+        font-size: 14px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--s2);
+      }
+
+      .chip {
+        min-height: var(--touch);
+        min-width: var(--touch);
+        padding: var(--s1) var(--s4);
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-pill);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.25;
+        font-variant-numeric: tabular-nums;
+        transition:
+          transform var(--press-out) var(--ease-smooth-out),
+          background var(--press-out) var(--ease-smooth-out),
+          border-color var(--press-out) var(--ease-smooth-out),
+          box-shadow var(--press-out) var(--ease-smooth-out);
+      }
+
+      .chip:active {
+        transition-duration: var(--press-in);
+        transform: scale(var(--press));
+      }
+
+      .chip[aria-checked='true'] {
+        background: var(--gold-soft);
+        border-color: var(--gold-dark);
+        box-shadow: inset 0 0 0 1px var(--gold-dark);
+      }
+
+      .chip small {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .chip.empf::after {
+        content: 'Empfehlung';
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold-text);
+        line-height: 1.1;
+      }
+
+      .chip.lang {
+        align-items: flex-start;
+        border-radius: var(--r-ctl);
+        text-align: left;
+      }
+
+      .chips.spalten {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .feld {
+        padding: var(--s3) 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .feld.erstes {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .feld.letztes {
+        padding-bottom: 0;
+      }
+
+      .feld-label {
+        display: block;
+        margin-bottom: var(--s2);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink-2);
+      }
+
+      .feld-hinweis {
+        margin: var(--s2) 0 0;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+
+      .feld-reihe {
+        display: flex;
+        align-items: center;
+        gap: var(--s2);
+      }
+
+      .eingabe-huelle {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .eingabe-huelle input {
+        width: 100%;
+        height: var(--ctl-h);
+        padding: 0 calc(var(--s3) + var(--einheit-w) + var(--s2)) 0 var(--s3);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-ctl);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        transition:
+          border-color var(--duration-quick) var(--ease-smooth-out),
+          box-shadow var(--duration-quick) var(--ease-smooth-out);
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .eingabe-huelle input:focus {
+        outline: none;
+        border-color: var(--gold-dark);
+        box-shadow: 0 0 0 3px var(--gold-soft);
+      }
+
+      .eingabe-huelle input[aria-invalid='true'] {
+        border-color: var(--bad);
+      }
+
+      .einheit {
+        position: absolute;
+        right: var(--s3);
+        top: 0;
+        bottom: 0;
+        width: var(--einheit-w);
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .feld-fehler {
+        animation: t-meldung-ein var(--duration-fast) var(--ease-smooth-out) both;
+        margin: var(--s2) 0 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--bad);
+      }
+
+      .feld-fehler:empty {
+        display: none;
+      }
+
+      input[type='range'] {
+        width: 100%;
+        height: var(--touch);
+        margin: var(--s1) 0 0;
+        padding: 0;
+        background: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        touch-action: pan-y;
+      }
+
+      input[type='range']::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+          to right,
+          var(--ink) 0 var(--fill, 0%),
+          var(--track) var(--fill, 0%) 100%
+        );
+      }
+
+      input[type='range']::-moz-range-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+          to right,
+          var(--ink) 0 var(--fill, 0%),
+          var(--track) var(--fill, 0%) 100%
+        );
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: var(--thumb);
+        height: var(--thumb);
+        margin-top: -12px;
+        border-radius: 50%;
+        border: 0.5px solid var(--line-strong);
+        background: var(--seg-on);
+        box-shadow: var(--shadow-thumb);
+        transition: transform var(--duration-quick) var(--ease-smooth-out);
+      }
+
+      input[type='range']::-moz-range-thumb {
+        width: var(--thumb);
+        height: var(--thumb);
+        border-radius: 50%;
+        border: 0.5px solid var(--line-strong);
+        background: var(--seg-on);
+        box-shadow: var(--shadow-thumb);
+      }
+
+      input[type='range']:active::-webkit-slider-thumb {
+        transform: scale(1.08);
+      }
+
+      .kacheln {
+        display: grid;
+        gap: var(--s2);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .kachel {
+        padding: var(--s3);
+        border: 1px solid var(--line);
+        border-radius: var(--r-ctl);
+        background: var(--bg);
+        min-width: 0;
+      }
+
+      .kachel-label {
+        margin: 0;
+        overflow-wrap: anywhere;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .kachel-wert {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: var(--track-title);
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+
+      .kachel-wert.gross {
+        color: var(--ink);
+      }
+
+      .kachel-sub {
+        margin: 0;
+        overflow-wrap: anywhere;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .kachel.breit {
+        grid-column: 1 / -1;
+      }
+
+      .ampel {
+        display: grid;
+        gap: var(--s2);
+        margin: var(--s3) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .ampel li {
+        display: flex;
+        align-items: center;
+        gap: var(--s2);
+        padding: var(--s2) var(--s3);
+        border-radius: var(--r-ctl);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      .ampel li.ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+
+      .ampel li.warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+
+      .ampel li.fehler {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+
+      .ampel svg.ico {
+        width: 20px;
+        height: 20px;
+      }
+
+      .tabelle-huelle {
+        overflow-x: auto;
+        margin-top: var(--s3);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      th,
+      td {
+        padding: var(--s2) var(--s3);
+        text-align: right;
+        border-top: 1px solid var(--line);
+        white-space: nowrap;
+      }
+
+      th {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+        border-top: 0;
+      }
+
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+
+      tr.treffer td {
+        background: var(--gold-soft);
+        font-weight: 800;
+        color: var(--ink);
+      }
+
+      td.ok {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      td.fehler {
+        color: var(--bad);
+        font-weight: 700;
+      }
+
+      .t-acc-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--s3);
+        width: 100%;
+        min-height: var(--touch);
+        margin: calc(-1 * var(--s2)) 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 17px;
+        font-weight: 700;
+        text-align: left;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .t-acc-titel {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .t-acc-chevron {
+        display: inline-flex;
+        flex: none;
+        color: var(--muted);
+        transform: scaleY(1);
+        transform-origin: center;
+        transition: transform var(--acc-chevron) var(--acc-ease);
+      }
+
+      .t-acc-chevron svg.ico {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+      }
+
+      .t-acc-chevron path {
+        vector-effect: non-scaling-stroke;
+      }
+
+      .t-acc[data-open='true'] .t-acc-chevron {
+        transform: scaleY(-1);
+      }
+
+      .t-acc-panel {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows var(--acc-collapse) var(--acc-ease);
+      }
+
+      .t-acc[data-open='true'] .t-acc-panel {
+        grid-template-rows: 1fr;
+        transition: grid-template-rows var(--acc-expand) var(--acc-ease);
+      }
+
+      .t-acc-panel-inner {
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        filter: blur(var(--blur-small));
+        transition:
+          opacity var(--acc-collapse) var(--acc-ease),
+          filter var(--acc-collapse) var(--acc-ease),
+          visibility 0s linear var(--acc-collapse);
+      }
+
+      .t-acc[data-open='true'] .t-acc-panel-inner {
+        opacity: 1;
+        visibility: visible;
+        filter: blur(0);
+        transition:
+          opacity var(--acc-expand) var(--acc-ease),
+          filter var(--acc-expand) var(--acc-ease),
+          visibility 0s linear 0s;
+      }
+
+      .t-acc-head:active {
+        opacity: 0.7;
+      }
+
+      .t-subtle-number {
+        display: inline;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .t-subtle-slot {
+        position: relative;
+        display: inline-block;
+      }
+
+      .t-subtle-new {
+        display: inline-block;
+      }
+
+      .t-subtle-old {
+        position: absolute;
+        inset: 0;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .t-subtle-number.is-animating .t-subtle-new {
+        animation: t-subtle-in var(--subtle-dur) var(--subtle-ease) both;
+      }
+
+      .t-subtle-number.is-animating .t-subtle-old {
+        animation: t-subtle-out var(--subtle-dur) var(--subtle-ease) both;
+      }
+
+      @keyframes t-subtle-in {
+        from {
+          transform: translateY(calc(var(--subtle-distance) * var(--subtle-dir, 1)));
+          opacity: 0;
+          filter: blur(var(--blur-small));
+        }
+      }
+
+      @keyframes t-subtle-out {
+        to {
+          transform: translateY(calc(var(--subtle-distance) * var(--subtle-dir, 1) * -1));
+          opacity: 0;
+          filter: blur(var(--blur-small));
+        }
+      }
+
+      @keyframes t-shake {
+        0% {
+          transform: translateX(0);
+          animation-timing-function: var(--shake-ease);
+        }
+        28.57% {
+          transform: translateX(var(--shake-distance));
+          animation-timing-function: var(--shake-ease);
+        }
+        57.14% {
+          transform: translateX(calc(var(--shake-distance) * -1));
+          animation-timing-function: var(--shake-ease);
+        }
+        78.57% {
+          transform: translateX(var(--shake-overshoot));
+          animation-timing-function: var(--shake-ease);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      .eingabe-huelle input.is-shaking {
+        animation: t-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
+      }
+
+      @keyframes t-meldung-ein {
+        from {
+          opacity: 0;
+          transform: translateY(calc(var(--distance-micro) * -1));
+        }
+      }
+
+      @keyframes t-text-ein {
+        from {
+          opacity: 0;
+          transform: translateY(var(--distance-micro));
+          filter: blur(var(--blur-small));
+        }
+      }
+
+      @keyframes t-modul-ein {
+        from {
+          opacity: 0;
+          transform: translateY(var(--distance-micro));
+          filter: blur(var(--blur-small));
+        }
+      }
+
+      .modul-ein {
+        animation: t-modul-ein var(--duration-fast) var(--ease-smooth-out) both;
+      }
+
+      .btn-gold {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--s2);
+      }
+
+      .btn-gold .t-success-check {
+        display: none;
+        opacity: 0;
+        will-change: transform, opacity, filter;
+      }
+
+      .btn-gold.erfolg .t-success-check {
+        display: inline-flex;
+      }
+
+      .t-success-check svg {
+        display: block;
+        overflow: visible;
+        width: 20px;
+        height: 20px;
+        stroke-width: 2.25;
+      }
+
+      .t-success-check svg path {
+        stroke-dasharray: var(--check-laenge);
+        stroke-dashoffset: var(--check-laenge);
+      }
+
+      .t-success-check[data-state='in'] {
+        animation:
+          t-check-fade var(--duration-fast) var(--ease-smooth-out) forwards,
+          t-check-rotate var(--duration-medium) var(--ease-smooth-out) forwards,
+          t-check-blur var(--duration-fast) var(--ease-smooth-out) forwards;
+      }
+
+      .t-success-check[data-state='in'] svg path {
+        animation: t-check-draw var(--duration-medium) var(--ease-smooth-out) var(--duration-micro) forwards;
+      }
+
+      @keyframes t-check-fade {
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes t-check-rotate {
+        from {
+          transform: rotate(-12deg);
+        }
+        to {
+          transform: rotate(0deg);
+        }
+      }
+
+      @keyframes t-check-blur {
+        from {
+          filter: blur(var(--blur-small));
+        }
+        to {
+          filter: blur(0);
+        }
+      }
+
+      @keyframes t-check-draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .btn-label.neu {
+        animation: t-text-ein var(--duration-quick) var(--ease-smooth-out) both;
+      }
+
+      .btn-gold {
+        width: 100%;
+        min-height: 52px;
+        padding: 0 var(--s5);
+        border: 0;
+        border-radius: var(--r-pill);
+        background: var(--gold);
+        color: var(--on-gold);
+        font-size: 16px;
+        font-weight: 700;
+        box-shadow: var(--btn-shine);
+        transition:
+          transform var(--duration-quick) var(--ease-smooth-out),
+          background var(--duration-quick) var(--ease-smooth-out),
+          opacity var(--duration-quick) var(--ease-smooth-out);
+      }
+
+      .btn-gold:active {
+        transition-duration: var(--press-in);
+        transform: scale(var(--press));
+        background: var(--gold-dark);
+      }
+
+      .btn-gold:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .fussnote {
+        margin: var(--s2) 0 0;
+        letter-spacing: var(--track-small);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+
+      .toast {
+        position: fixed;
+        top: calc(var(--safe-t) + var(--s3));
+        left: 50%;
+        z-index: 100;
+        max-width: calc(100vw - 32px);
+        padding: var(--s3) var(--s5);
+        border-radius: var(--r-pill);
+        background: var(--toast-bg);
+        color: var(--toast-ink);
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: var(--shadow-toast);
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, calc(var(--distance-base) * -1)) scale(var(--scale-medium));
+        filter: blur(var(--blur-small));
+        pointer-events: none;
+        transition:
+          opacity var(--toast-close) var(--ease-smooth-out),
+          transform var(--toast-close) var(--ease-smooth-out),
+          filter var(--toast-close) var(--ease-smooth-out),
+          visibility 0s linear var(--toast-close);
+      }
+
+      .toast.sichtbar {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0) scale(1);
+        filter: blur(0);
+        transition:
+          opacity var(--toast-open) var(--ease-smooth-out),
+          transform var(--toast-open) var(--ease-smooth-out),
+          filter var(--toast-open) var(--ease-smooth-out),
+          visibility 0s linear 0s;
+      }
+
+      @media (min-width: 700px) {
+        :root {
+          --gutter: 24px;
+        }
+
+        .kacheln {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .chips.spalten {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (min-width: 1000px) {
+        .raster {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+
+        .spalte.ergebnisse {
+          position: sticky;
+          top: calc(56px + var(--safe-t) + var(--s4));
+        }
+      }
+
+      .pruefstand {
+        position: fixed;
+        left: 50%;
+        bottom: calc(var(--safe-b) + var(--s3));
+        z-index: 90;
+        display: grid;
+        gap: var(--s1);
+        width: max-content;
+        max-width: calc(100vw - 2 * var(--gutter));
+        padding: var(--s2);
+        border: 1px dashed var(--line-strong);
+        border-radius: var(--r-card);
+        background: var(--glass);
+        -webkit-backdrop-filter: var(--glass-blur);
+        backdrop-filter: var(--glass-blur);
+        transform: translateX(-50%);
+      }
+
+      .pruefstand-kopf {
+        margin: 0;
+        padding: 0 var(--s1);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: var(--track-small);
+        color: var(--muted);
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .pruefstand-reihe {
+        display: flex;
+        align-items: center;
+        gap: var(--s2);
+      }
+
+      .pruefstand .seg {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .pruefstand .seg button {
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .pruefstand-weiter {
+        flex: none;
+        min-height: var(--touch);
+        padding: 0 var(--s3);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-ctl);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 700;
+        transition: transform var(--press-out) var(--ease-smooth-out);
+      }
+
+      .pruefstand-weiter:active {
+        transform: scale(var(--press));
+        transition-duration: var(--press-in);
+      }
+
+      .pruefstand-fall {
+        margin: 0;
+        padding: 0 var(--s1);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-align: center;
+        overflow-wrap: anywhere;
+      }
+
+      @keyframes t-fade-ein {
+        from {
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .seg-pille,
+        .t-acc-panel,
+        .t-acc-panel-inner,
+        .t-acc-chevron {
+          transition: none !important;
+        }
+
+        .icon-knopf:active,
+        .seg button:active,
+        .chip:active,
+        .btn-gold:active,
+        input[type='range']:active::-webkit-slider-thumb {
+          transform: none;
+        }
+
+        .toast,
+        .toast.sichtbar {
+          transform: translate(-50%, 0);
+          filter: none;
+          transition:
+            opacity var(--duration-quick) linear,
+            visibility 0s linear var(--duration-quick);
+        }
+
+        .toast.sichtbar {
+          transition:
+            opacity var(--duration-quick) linear,
+            visibility 0s linear 0s;
+        }
+
+        .modul-ein,
+        .feld-fehler,
+        .btn-label.neu,
+        .t-subtle-number.is-animating .t-subtle-new {
+          animation-name: t-fade-ein;
+          animation-duration: var(--duration-quick);
+          animation-timing-function: linear;
+        }
+
+        .t-subtle-number.is-animating .t-subtle-old {
+          display: none;
+        }
+
+        .eingabe-huelle input.is-shaking {
+          animation: none;
+        }
+
+        .t-success-check[data-state='in'] {
+          animation: t-check-fade var(--duration-quick) linear forwards;
+        }
+
+        .t-success-check[data-state='in'] svg path {
+          animation: none;
+          stroke-dashoffset: 0;
+        }
+      }
+
+      @media (prefers-reduced-transparency: reduce) {
+        .kopf {
+          background: var(--bg);
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .seg button[aria-checked='false']:hover {
+          color: var(--ink);
+        }
+
+        .chip:hover {
+          background: var(--seg-track);
+        }
+
+        .chip[aria-checked='true']:hover {
+          background: var(--gold-soft);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="kopf">
+      <div class="kopf-innen">
+        <div class="logo" aria-hidden="true">M</div>
+        <div class="kopf-titel">
+          <strong>Elektrotechnik &amp; MSR</strong>
+          <span id="kopf-modul">Fühler-Check</span>
+        </div>
+        <button class="icon-knopf" id="themebtn" type="button"></button>
+      </div>
+    </header>
+
+    <main id="inhalt" tabindex="-1"></main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script id="engine">
+      /* ===== Berechnungen (rein, ohne DOM) ===== */
+      const PT_A = 3.9083e-3;
+      const PT_B = -5.775e-7;
+      const PT_C = -4.183e-12;
+      const PT_MIN_C = -200;
+      const PT_MAX_C = 850;
+      const K_NULL = 273.15;
+      const T_REF_K = 298.15;
+      const HLK_MIN_C = -50;
+      const HLK_MAX_C = 150;
+      const KURZSCHLUSS_ANTEIL = 0.01;
+      const NEWTON_MAX = 60;
+      const NEWTON_TOL = 1e-10;
+      const TOL_GRUEN_K = 1;
+      const TOL_ORANGE_K = 3;
+      const PT100_OHM_PRO_K = 0.39;
+      const TABELLE_VON_C = -20;
+      const TABELLE_BIS_C = 100;
+      const TABELLE_SCHRITT_K = 10;
+      const B_WERT_STANDARD = 3977;
+      const B_WERT_MIN = 1000;
+      const B_WERT_MAX = 10000;
+      const WORTE_UNENDLICH = ['ol', 'o.l.', 'oc', 'inf', 'infinity', '∞', 'unendlich', 'offen'];
+
+      const SENSOREN = [
+        { id: 'PT100', typ: 'pt', r0: 100 },
+        { id: 'PT1000', typ: 'pt', r0: 1000 },
+        { id: 'NTC 2k', typ: 'ntc', r25: 2000 },
+        { id: 'NTC 5k', typ: 'ntc', r25: 5000 },
+        { id: 'NTC 10k', typ: 'ntc', r25: 10000 },
+        { id: 'NTC 12k', typ: 'ntc', r25: 12000 },
+        { id: 'NTC 20k', typ: 'ntc', r25: 20000 },
+      ];
+
+      const B_WERTE = [
+        { wert: '3977', text: '3977 K', sub: 'Standard HLK/Loxone' },
+        { wert: '3435', text: '3435 K', sub: '' },
+        { wert: 'eigen', text: 'eigener', sub: '' },
+      ];
+
+      const NETZE = {
+        1: { id: '1', text: '230 V 1~', u: 230, b: 2, adern: 2 },
+        3: { id: '3', text: '400 V 3~', u: 400, b: Math.sqrt(3), adern: 3 },
+      };
+
+      const LASTARTEN = {
+        ohm: { id: 'ohm', text: 'Heizstab / ohmsch', cos: 1, charakteristik: 'B' },
+        motor: { id: 'motor', text: 'Verdichter / WP / Klima / Motor', cos: 0.9, charakteristik: 'C' },
+      };
+
+      const MATERIALIEN = {
+        cu: { id: 'cu', text: 'Kupfer', kappa: 56, izFaktor: 1 },
+        al: { id: 'al', text: 'Aluminium', kappa: 36, izFaktor: 0.78 },
+      };
+
+      const AL_MIN_QUERSCHNITT = 16;
+      const QUERSCHNITTE = [1.5, 2.5, 4, 6, 10, 16, 25];
+      const LS_REIHE = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63];
+
+      const IZ_TABELLE = {
+        B2: {
+          2: [16.5, 23, 30, 38, 52, 69, 90],
+          3: [15, 20, 27, 34, 46, 62, 80],
+        },
+        C: {
+          2: [19.5, 27, 36, 46, 63, 85, 112],
+          3: [17.5, 24, 32, 41, 57, 76, 96],
+        },
+        E: {
+          2: [22, 30, 40, 51, 70, 94, 119],
+          3: [18.5, 25, 34, 43, 60, 80, 101],
+        },
+      };
+
+      const VERLEGEARTEN = {
+        B2: { id: 'B2', text: 'B2', info: 'Mehraderleitung im Rohr/Kanal auf der Wand', haeufung: 'wand' },
+        C: { id: 'C', text: 'C', info: 'direkt auf/in der Wand, unter Putz', haeufung: 'wand' },
+        E: { id: 'E', text: 'E', info: 'frei in Luft / gelochte Kabelrinne', haeufung: 'rinne' },
+      };
+
+      const TEMP_FAKTOREN = { 25: 1.06, 30: 1.0, 35: 0.94, 40: 0.87 };
+
+      const HAEUFUNG_FAKTOREN = {
+        wand: { 1: 1.0, 2: 0.8, 3: 0.7, 4: 0.65 },
+        rinne: { 1: 1.0, 2: 0.88, 3: 0.82, 4: 0.79 },
+      };
+
+      const DU_GRENZEN = [
+        { wert: 3, text: '3 %', sub: 'DIN VDE 0100-520' },
+        { wert: 1.5, text: '1,5 %', sub: '' },
+        { wert: 0.5, text: '0,5 %', sub: 'TAB' },
+      ];
+
+      const KABEL_LAENGE_MIN = 1;
+      const KABEL_LAENGE_MAX = 1000;
+      const KABEL_STROM_MAX = 1000;
+      const KABEL_LEISTUNG_MAX = 1000;
+      const COS_MIN = 0.1;
+      const COS_MAX = 1;
+
+      const FUSSNOTE_KABEL =
+        'Vereinfachte Auslegung, ersetzt keine Prüfung nach VDE 0100 (Abschaltbedingung, Kurzschlussstrom, Selektivität).';
+
+      const fmtDe = {};
+
+      function zahlFormat(stellenMin, stellenMax, gruppiert) {
+        const key = stellenMin + '/' + stellenMax + '/' + gruppiert;
+        if (!fmtDe[key]) {
+          fmtDe[key] = new Intl.NumberFormat('de-DE', {
+            minimumFractionDigits: stellenMin,
+            maximumFractionDigits: stellenMax,
+            useGrouping: gruppiert,
+          });
+        }
+        return fmtDe[key];
+      }
+
+      function formatZahl(x, stellen, gruppiert) {
+        if (typeof x !== 'number' || !Number.isFinite(x)) {
+          return '–';
+        }
+        const wert = Math.abs(x) < 0.5 * Math.pow(10, -stellen) ? 0 : x;
+        return zahlFormat(stellen, stellen, gruppiert !== false).format(wert);
+      }
+
+      function formatMin(x, stellen) {
+        if (typeof x === 'number' && x > 0 && Math.abs(x) < 0.5 * Math.pow(10, -stellen)) {
+          return '< ' + formatZahl(Math.pow(10, -stellen), stellen);
+        }
+        return formatZahl(x, stellen);
+      }
+
+      function formatVorzeichen(x, stellen) {
+        const text = formatZahl(x, stellen, true);
+        if (text === '–') {
+          return text;
+        }
+        return x > 0 && Number(text.replace(/\./g, '').replace(',', '.')) !== 0 ? '+' + text : text;
+      }
+
+      function formatOhm(r) {
+        if (!Number.isFinite(r)) {
+          return '–';
+        }
+        const stellen = r >= 10000 ? 0 : r >= 1000 ? 1 : 2;
+        return formatZahl(r, stellen, true);
+      }
+
+      function formatKiloOhm(r) {
+        if (!Number.isFinite(r)) {
+          return '–';
+        }
+        return formatZahl(r / 1000, 3, true);
+      }
+
+      function formatEingabeZahl(x) {
+        if (typeof x !== 'number' || !Number.isFinite(x)) {
+          return '';
+        }
+        return zahlFormat(0, 3, false).format(Math.round(x * 1000) / 1000);
+      }
+
+      function istUnendlich(text) {
+        return WORTE_UNENDLICH.indexOf(String(text).trim().toLowerCase()) >= 0;
+      }
+
+      function parseZahl(text, tausenderPunkt) {
+        if (text === null || text === undefined) {
+          return null;
+        }
+        let s = String(text).trim().replace(/\s+/g, '').replace(/[−–]/g, '-');
+        if (s === '') {
+          return null;
+        }
+        const punkte = (s.match(/\./g) || []).length;
+        const kommas = (s.match(/,/g) || []).length;
+        if (kommas > 1) {
+          return NaN;
+        }
+        if (kommas === 1) {
+          s = s.replace(/\./g, '').replace(',', '.');
+        } else if (punkte > 1) {
+          s = s.replace(/\./g, '');
+        } else if (tausenderPunkt === true && punkte === 1 && /^[+-]?[1-9]\d{0,2}\.\d{3}$/.test(s)) {
+          s = s.replace('.', '');
+        }
+        if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) {
+          return NaN;
+        }
+        const wert = Number(s);
+        return Number.isFinite(wert) ? wert : NaN;
+      }
+
+      function ptWiderstand(r0, t) {
+        const grundteil = 1 + PT_A * t + PT_B * t * t;
+        if (t >= 0) {
+          return r0 * grundteil;
+        }
+        return r0 * (grundteil + PT_C * (t - 100) * t * t * t);
+      }
+
+      function ptAbleitung(r0, t) {
+        if (t >= 0) {
+          return r0 * (PT_A + 2 * PT_B * t);
+        }
+        return r0 * (PT_A + 2 * PT_B * t + 4 * PT_C * t * t * t - 300 * PT_C * t * t);
+      }
+
+      function ptTemperatur(r0, r) {
+        const verhaeltnis = r / r0;
+        if (verhaeltnis >= 1) {
+          const diskriminante = PT_A * PT_A - 4 * PT_B * (1 - verhaeltnis);
+          return (-PT_A + Math.sqrt(diskriminante)) / (2 * PT_B);
+        }
+        let t = (verhaeltnis - 1) / PT_A;
+        for (let i = 0; i < NEWTON_MAX; i += 1) {
+          const abweichung = ptWiderstand(r0, t) - r;
+          const schritt = abweichung / ptAbleitung(r0, t);
+          t -= schritt;
+          if (Math.abs(schritt) < NEWTON_TOL) {
+            break;
+          }
+        }
+        return t;
+      }
+
+      function ntcWiderstand(r25, b, t) {
+        return r25 * Math.exp(b * (1 / (t + K_NULL) - 1 / T_REF_K));
+      }
+
+      function ntcTemperatur(r25, b, r) {
+        return 1 / (1 / T_REF_K + Math.log(r / r25) / b) - K_NULL;
+      }
+
+      function sensorSuchen(id) {
+        return SENSOREN.find(function (s) {
+          return s.id === id;
+        });
+      }
+
+      function widerstandVonTemperatur(sensor, b, t) {
+        if (sensor.typ === 'pt') {
+          return ptWiderstand(sensor.r0, t);
+        }
+        return ntcWiderstand(sensor.r25, b, t);
+      }
+
+      function temperaturVonWiderstand(sensor, b, r) {
+        if (sensor.typ === 'pt') {
+          return ptTemperatur(sensor.r0, r);
+        }
+        return ntcTemperatur(sensor.r25, b, r);
+      }
+
+      function widerstandBewerten(sensor, b, r) {
+        const rKurz = widerstandVonTemperatur(sensor, b, sensor.typ === 'pt' ? PT_MIN_C : HLK_MAX_C);
+        const rOffen = widerstandVonTemperatur(sensor, b, sensor.typ === 'pt' ? PT_MAX_C : HLK_MIN_C);
+        const rSicher = KURZSCHLUSS_ANTEIL * (sensor.typ === 'pt' ? sensor.r0 : rKurz);
+        if (r < rSicher) {
+          return {
+            status: 'kurzschluss',
+            meldung: {
+              typ: 'fehler',
+              text: 'Kurzschluss: Widerstand praktisch 0 Ω. Fühler oder Leitung kurzgeschlossen?',
+            },
+          };
+        }
+        if (r > rOffen) {
+          return {
+            status: 'kabelbruch',
+            meldung: {
+              typ: 'fehler',
+              text:
+                'Leitungsunterbrechung / Kabelbruch? Widerstand liegt über dem Wert bei ' +
+                (sensor.typ === 'pt' ? PT_MAX_C : HLK_MIN_C) +
+                ' °C (' +
+                formatOhm(rOffen) +
+                ' Ω).',
+            },
+          };
+        }
+        if (r < rKurz) {
+          if (sensor.typ === 'pt') {
+            return {
+              status: 'kurzschluss',
+              meldung: {
+                typ: 'hinweis',
+                text:
+                  'Kurzschluss? Widerstand liegt unter dem Messbereich des PT-Fühlers (' +
+                  PT_MIN_C +
+                  ' °C = ' +
+                  formatOhm(rKurz) +
+                  ' Ω).',
+              },
+            };
+          }
+          return {
+            status: 'warnung',
+            meldung: {
+              typ: 'hinweis',
+              text:
+                'Kurzschluss? Der Widerstand entspricht über ' +
+                HLK_MAX_C +
+                ' °C und liegt außerhalb des üblichen HLK-Bereichs.',
+            },
+          };
+        }
+        return { status: 'ok', meldung: null };
+      }
+
+      function offsetBewerten(delta, sensor) {
+        const betrag = Math.abs(delta);
+        let ergebnis;
+        if (betrag <= TOL_GRUEN_K) {
+          ergebnis = { stufe: 'ok', text: 'in Toleranz' };
+        } else if (betrag <= TOL_ORANGE_K) {
+          ergebnis = {
+            stufe: 'warn',
+            text: 'driftet – prüfen (Leitungswiderstand, Übergang, Kalibrierung)',
+          };
+        } else {
+          ergebnis = { stufe: 'fehler', text: 'defekt oder falscher Fühlertyp?' };
+        }
+        ergebnis.delta = delta;
+        ergebnis.leitungshinweis = null;
+        if (sensor.id === 'PT100' && betrag > TOL_GRUEN_K) {
+          ergebnis.leitungshinweis =
+            'PT100 im 2-Leiter-Anschluss: Leitungswiderstand wirkt doppelt, ca. ' +
+            formatZahl(PT100_OHM_PRO_K, 2) +
+            ' Ω je K. ' +
+            formatZahl(betrag, 1) +
+            ' K entsprechen etwa ' +
+            formatZahl(betrag * PT100_OHM_PRO_K, 2) +
+            ' Ω Schleifenwiderstand.';
+        }
+        return ergebnis;
+      }
+
+      function stuetzstellen(sensor, b) {
+        const zeilen = [];
+        for (let t = TABELLE_VON_C; t <= TABELLE_BIS_C; t += TABELLE_SCHRITT_K) {
+          zeilen.push({ t: t, r: widerstandVonTemperatur(sensor, b, t) });
+        }
+        return zeilen;
+      }
+
+      function fuehlerAuswerten(e) {
+        const sensor = sensorSuchen(e.sensor);
+        const ergebnis = {
+          gueltig: false,
+          fehler: {},
+          meldungen: [],
+          sensor: sensor,
+          b: null,
+          modus: e.modus,
+          t: null,
+          r: null,
+          offset: null,
+          tabelle: [],
+          eingabeText: '',
+          gelesen: '',
+        };
+        if (!sensor) {
+          ergebnis.fehler.sensor = 'Unbekannter Fühlertyp.';
+          return ergebnis;
+        }
+        if (sensor.typ === 'ntc') {
+          if (e.bWahl === 'eigen') {
+            const bEigen = parseZahl(e.bEigen);
+            if (bEigen === null || Number.isNaN(bEigen) || bEigen < B_WERT_MIN || bEigen > B_WERT_MAX) {
+              ergebnis.fehler.bEigen =
+                'Bitte B-Wert zwischen ' + B_WERT_MIN + ' und ' + B_WERT_MAX + ' K eingeben.';
+              return ergebnis;
+            }
+            ergebnis.b = bEigen;
+          } else {
+            ergebnis.b = Number(e.bWahl) || B_WERT_STANDARD;
+          }
+        }
+        ergebnis.tabelle = stuetzstellen(sensor, ergebnis.b);
+        if (e.modus === 'tr') {
+          return temperaturZuWiderstand(e, sensor, ergebnis);
+        }
+        return widerstandZuTemperatur(e, sensor, ergebnis);
+      }
+
+      function temperaturZuWiderstand(e, sensor, ergebnis) {
+        const t = parseZahl(e.tText);
+        if (t === null) {
+          ergebnis.fehler.tText = 'Bitte Temperatur in °C eingeben.';
+          return ergebnis;
+        }
+        if (Number.isNaN(t)) {
+          ergebnis.fehler.tText = 'Das ist keine gültige Zahl. Beispiel: 21,5';
+          return ergebnis;
+        }
+        if (sensor.typ === 'pt' && (t < PT_MIN_C || t > PT_MAX_C)) {
+          ergebnis.fehler.tText =
+            'Außerhalb des Messbereichs (' + PT_MIN_C + ' bis +' + PT_MAX_C + ' °C).';
+          return ergebnis;
+        }
+        if (sensor.typ === 'ntc' && (t < -100 || t > 250)) {
+          ergebnis.fehler.tText = 'Außerhalb des plausiblen Bereichs (−100 bis +250 °C).';
+          return ergebnis;
+        }
+        const r = widerstandVonTemperatur(sensor, ergebnis.b, t);
+        if (!Number.isFinite(r) || r <= 0) {
+          ergebnis.fehler.tText = 'Für diese Temperatur lässt sich kein Widerstand berechnen.';
+          return ergebnis;
+        }
+        if (sensor.typ === 'ntc' && (t < HLK_MIN_C || t > HLK_MAX_C)) {
+          ergebnis.meldungen.push({
+            typ: 'hinweis',
+            text: 'Temperatur außerhalb des üblichen HLK-Bereichs (−50 bis +150 °C).',
+          });
+        }
+        ergebnis.gueltig = true;
+        ergebnis.t = t;
+        ergebnis.r = r;
+        ergebnis.eingabeText = formatZahl(t, 1) + ' °C';
+        return ergebnis;
+      }
+
+      function widerstandZuTemperatur(e, sensor, ergebnis) {
+        const einheitFaktor = e.einheit === 'kohm' ? 1000 : 1;
+        const einheitText = e.einheit === 'kohm' ? 'kΩ' : 'Ω';
+        if (istUnendlich(e.rText)) {
+          ergebnis.meldungen.push({
+            typ: 'fehler',
+            text: 'Leitungsunterbrechung / Kabelbruch? Messgerät zeigt „OL“ (offene Schleife).',
+          });
+          ergebnis.eingabeText = 'OL';
+          ergebnis.status = 'kabelbruch';
+          ergebnis.gueltig = true;
+          return ergebnis;
+        }
+        const eingabe = parseZahl(e.rText, e.einheit !== 'kohm');
+        if (eingabe === null) {
+          ergebnis.fehler.rText = 'Bitte Widerstand in ' + einheitText + ' eingeben.';
+          return ergebnis;
+        }
+        if (Number.isNaN(eingabe)) {
+          ergebnis.fehler.rText = 'Das ist keine gültige Zahl. Beispiel: 1385,06 oder 1.385,06';
+          return ergebnis;
+        }
+        if (eingabe < 0) {
+          ergebnis.fehler.rText = 'Widerstand darf nicht negativ sein.';
+          return ergebnis;
+        }
+        const r = eingabe * einheitFaktor;
+        ergebnis.r = r;
+        if (/\./.test(String(e.rText)) && !/,/.test(String(e.rText))) {
+          ergebnis.gelesen = 'gelesen als ' + formatOhm(r) + ' Ω';
+        }
+        ergebnis.eingabeText = formatOhm(r) + ' Ω';
+        ergebnis.gueltig = true;
+        const bewertung = widerstandBewerten(sensor, ergebnis.b, r);
+        ergebnis.status = bewertung.status;
+        if (bewertung.meldung) {
+          ergebnis.meldungen.push(bewertung.meldung);
+        }
+        if (bewertung.status === 'kurzschluss' || bewertung.status === 'kabelbruch') {
+          return ergebnis;
+        }
+        const t = temperaturVonWiderstand(sensor, ergebnis.b, r);
+        if (!Number.isFinite(t)) {
+          ergebnis.meldungen.push({
+            typ: 'fehler',
+            text: 'Für diesen Widerstand lässt sich keine Temperatur berechnen.',
+          });
+          return ergebnis;
+        }
+        ergebnis.t = t;
+        offsetPruefen(e, sensor, ergebnis);
+        return ergebnis;
+      }
+
+      function offsetPruefen(e, sensor, ergebnis) {
+        const angezeigt = parseZahl(e.angezeigtText);
+        if (angezeigt === null) {
+          return;
+        }
+        if (Number.isNaN(angezeigt)) {
+          ergebnis.fehler.angezeigtText = 'Das ist keine gültige Zahl. Beispiel: 21,5';
+          return;
+        }
+        ergebnis.angezeigt = angezeigt;
+        ergebnis.offset = offsetBewerten(angezeigt - ergebnis.t, sensor);
+      }
+
+      function fuehlerBewertungText(ergebnis) {
+        if (ergebnis.meldungen.length > 0) {
+          return ergebnis.meldungen[0].text;
+        }
+        if (ergebnis.offset) {
+          return 'Abweichung ' + formatVorzeichen(ergebnis.offset.delta, 1) + ' K – ' + ergebnis.offset.text;
+        }
+        return 'Keine Auffälligkeit.';
+      }
+
+      function fuehlerMarkdown(e, ergebnis, datum) {
+        const zeilen = ['### Fühler-Check ' + ergebnis.sensor.id, '', 'Datum: ' + datum, ''];
+        zeilen.push('**Eingaben**');
+        zeilen.push('- Fühlertyp: ' + ergebnis.sensor.id);
+        if (ergebnis.sensor.typ === 'ntc') {
+          zeilen.push('- B-Wert: ' + formatZahl(ergebnis.b, 0, false) + ' K');
+        }
+        zeilen.push('- Richtung: ' + (ergebnis.modus === 'tr' ? 'Temperatur → Widerstand' : 'Widerstand → Temperatur'));
+        zeilen.push('- Eingabe: ' + ergebnis.eingabeText);
+        if (ergebnis.angezeigt !== undefined && ergebnis.angezeigt !== null && ergebnis.modus !== 'tr') {
+          zeilen.push('- Angezeigt in der Regelung: ' + formatZahl(ergebnis.angezeigt, 1) + ' °C');
+        }
+        zeilen.push('');
+        zeilen.push('**Ergebnis**');
+        if (ergebnis.modus === 'tr') {
+          zeilen.push('- Widerstand: ' + formatOhm(ergebnis.r) + ' Ω (' + formatKiloOhm(ergebnis.r) + ' kΩ)');
+        } else if (ergebnis.t !== null) {
+          zeilen.push('- Berechnete Temperatur: ' + formatZahl(ergebnis.t, 1) + ' °C');
+        } else {
+          zeilen.push('- Berechnete Temperatur: nicht möglich');
+        }
+        if (ergebnis.offset) {
+          zeilen.push('- Abweichung (angezeigt − berechnet): ' + formatVorzeichen(ergebnis.offset.delta, 1) + ' K');
+        }
+        zeilen.push('');
+        zeilen.push('**Bewertung:** ' + fuehlerBewertungText(ergebnis));
+        return zeilen.join('\n');
+      }
+
+      function lastStrom(netz, leistungKw, cosPhi) {
+        const nenner = netz.id === '3' ? Math.sqrt(3) * netz.u * cosPhi : netz.u * cosPhi;
+        return (leistungKw * 1000) / nenner;
+      }
+
+      function izBasis(verlegung, adern, index) {
+        return IZ_TABELLE[verlegung][adern][index];
+      }
+
+      function izEffektiv(e, netz, index) {
+        const art = VERLEGEARTEN[e.verlegung];
+        const material = MATERIALIEN[e.material];
+        const basis = izBasis(e.verlegung, netz.adern, index);
+        const fTemp = TEMP_FAKTOREN[e.temperatur];
+        const fHaeufung = HAEUFUNG_FAKTOREN[art.haeufung][e.haeufung];
+        return basis * fTemp * fHaeufung * material.izFaktor;
+      }
+
+      function spannungsfall(netz, laenge, strom, cosPhi, kappa, querschnitt) {
+        return (netz.b * laenge * strom * cosPhi) / (kappa * querschnitt);
+      }
+
+      function lsWaehlen(ib, charakteristik) {
+        const nenn = LS_REIHE.find(function (n) {
+          return n >= ib;
+        });
+        if (nenn === undefined) {
+          return null;
+        }
+        return { nenn: nenn, label: charakteristik + nenn + 'A' };
+      }
+
+      function kabelEingabePruefen(e) {
+        const fehler = {};
+        const werte = {};
+        const cos = parseZahl(e.cosText);
+        if (cos === null) {
+          fehler.cosText = 'Bitte cos φ eingeben (z. B. 0,90).';
+        } else if (Number.isNaN(cos) || cos < COS_MIN || cos > COS_MAX) {
+          fehler.cosText = 'cos φ muss zwischen ' + formatZahl(COS_MIN, 1) + ' und 1,00 liegen.';
+        } else {
+          werte.cos = cos;
+        }
+        const laenge = parseZahl(e.laengeText);
+        if (laenge === null) {
+          fehler.laengeText = 'Bitte Leitungslänge in m eingeben.';
+        } else if (Number.isNaN(laenge) || laenge < KABEL_LAENGE_MIN || laenge > KABEL_LAENGE_MAX) {
+          fehler.laengeText =
+            'Länge muss zwischen ' + KABEL_LAENGE_MIN + ' und ' + KABEL_LAENGE_MAX + ' m liegen.';
+        } else {
+          werte.laenge = laenge;
+        }
+        if (e.last === 'P') {
+          const p = parseZahl(e.pText);
+          if (p === null) {
+            fehler.pText = 'Bitte Leistung in kW eingeben.';
+          } else if (Number.isNaN(p) || p <= 0 || p > KABEL_LEISTUNG_MAX) {
+            fehler.pText = 'Leistung muss größer 0 und höchstens ' + KABEL_LEISTUNG_MAX + ' kW sein.';
+          } else {
+            werte.p = p;
+          }
+        } else {
+          const i = parseZahl(e.iText);
+          if (i === null) {
+            fehler.iText = 'Bitte Strom in A eingeben.';
+          } else if (Number.isNaN(i) || i <= 0 || i > KABEL_STROM_MAX) {
+            fehler.iText = 'Strom muss größer 0 und höchstens ' + KABEL_STROM_MAX + ' A sein.';
+          } else {
+            werte.i = i;
+          }
+        }
+        return { fehler: fehler, werte: werte };
+      }
+
+      function querschnittBewerten(e, netz, ib, cos, laenge, ls, index) {
+        const material = MATERIALIEN[e.material];
+        const a = QUERSCHNITTE[index];
+        const izEff = izEffektiv(e, netz, index);
+        const du = spannungsfall(netz, laenge, ib, cos, material.kappa, a);
+        const duProz = (du / netz.u) * 100;
+        const alZulaessig = e.material !== 'al' || a >= AL_MIN_QUERSCHNITT;
+        const okIz = ls !== null && ls.nenn <= izEff;
+        const okDu = duProz <= e.duMax;
+        return {
+          a: a,
+          izEff: izEff,
+          du: du,
+          duProz: duProz,
+          okIz: okIz,
+          okDu: okDu,
+          alZulaessig: alZulaessig,
+          ok: okIz && okDu && alZulaessig,
+        };
+      }
+
+      function kabelAuswerten(e) {
+        const netz = NETZE[e.netz];
+        const art = LASTARTEN[e.lastart];
+        const pruefung = kabelEingabePruefen(e);
+        const ergebnis = {
+          gueltig: false,
+          fehler: pruefung.fehler,
+          meldungen: [],
+          netz: netz,
+          zeilen: [],
+          empfehlung: null,
+          gewaehlt: null,
+          manuell: false,
+          ib: null,
+          ls: null,
+        };
+        if (!netz || !art || !MATERIALIEN[e.material] || !VERLEGEARTEN[e.verlegung]) {
+          ergebnis.fehler.auswahl = 'Ungültige Auswahl. Bitte Netz, Lastart, Material und Verlegeart neu wählen.';
+          return ergebnis;
+        }
+        if (!TEMP_FAKTOREN[e.temperatur] || !HAEUFUNG_FAKTOREN.wand[e.haeufung] || !(e.duMax > 0)) {
+          ergebnis.fehler.auswahl = 'Ungültige Auswahl bei Temperatur, Häufung oder Spannungsfall. Bitte neu wählen.';
+          return ergebnis;
+        }
+        if (Object.keys(pruefung.fehler).length > 0) {
+          return ergebnis;
+        }
+        const w = pruefung.werte;
+        const ib = e.last === 'P' ? lastStrom(netz, w.p, w.cos) : w.i;
+        ergebnis.ib = ib;
+        ergebnis.cos = w.cos;
+        ergebnis.laenge = w.laenge;
+        ergebnis.ls = lsWaehlen(ib, art.charakteristik);
+        ergebnis.zeilen = QUERSCHNITTE.map(function (_, index) {
+          return querschnittBewerten(e, netz, ib, w.cos, w.laenge, ergebnis.ls, index);
+        });
+        ergebnis.empfehlung =
+          ergebnis.zeilen.find(function (z) {
+            return z.ok;
+          }) || null;
+        const manuelleZeile = ergebnis.zeilen.find(function (z) {
+          return z.a === e.manuell;
+        });
+        if (manuelleZeile) {
+          ergebnis.gewaehlt = manuelleZeile;
+          ergebnis.manuell = true;
+        } else {
+          ergebnis.gewaehlt = ergebnis.empfehlung || ergebnis.zeilen[ergebnis.zeilen.length - 1];
+        }
+        ergebnis.gueltig = true;
+        kabelMeldungen(e, ergebnis);
+        return ergebnis;
+      }
+
+      function kabelMeldungen(e, ergebnis) {
+        const meldungen = ergebnis.meldungen;
+        if (ergebnis.ls === null) {
+          meldungen.push({
+            typ: 'fehler',
+            text:
+              'Betriebsstrom ' +
+              formatZahl(ergebnis.ib, 1) +
+              ' A liegt über dem größten Leitungsschutzschalter (63 A). Aufteilung oder Unterverteilung prüfen.',
+          });
+        }
+        if (!ergebnis.empfehlung && ergebnis.ls !== null) {
+          const nurDu = ergebnis.zeilen.some(function (z) {
+            return z.okIz && z.alZulaessig;
+          });
+          const ursache = nurDu
+            ? 'Der Spannungsfall ist selbst bei 25 mm² zu hoch (Leitung zu lang).'
+            : 'Die Strombelastbarkeit reicht selbst bei 25 mm² nicht (Strom zu hoch).';
+          meldungen.push({
+            typ: 'fehler',
+            text:
+              'Kein Querschnitt bis 25 mm² passend. ' +
+              ursache +
+              ' Größerer Querschnitt, kürzere Leitung oder Unterverteilung nötig.',
+          });
+        }
+        if (e.material === 'al') {
+          meldungen.push({
+            typ: 'info',
+            text:
+              'Aluminium: in der Praxis erst ab ' +
+              AL_MIN_QUERSCHNITT +
+              ' mm². Iz = Kupferwert × 0,78 (Näherung).',
+          });
+        }
+        if (ergebnis.manuell && !ergebnis.gewaehlt.alZulaessig) {
+          meldungen.push({
+            typ: 'hinweis',
+            text: 'Aluminium unter ' + AL_MIN_QUERSCHNITT + ' mm² ist in der Praxis nicht üblich.',
+          });
+        }
+      }
+
+      function kabelBewertungText(ergebnis) {
+        const g = ergebnis.gewaehlt;
+        if (!ergebnis.empfehlung && !ergebnis.manuell) {
+          return 'Kein Querschnitt bis 25 mm² passend.';
+        }
+        if (g.ok) {
+          return 'OK: ' + formatZahl(g.a, 1, false) + ' mm² erfüllt Strombelastbarkeit und Spannungsfall.';
+        }
+        const probleme = [];
+        if (!g.okIz) {
+          probleme.push('Strombelastbarkeit nicht erfüllt');
+        }
+        if (!g.okDu) {
+          probleme.push('Spannungsfall zu hoch');
+        }
+        if (!g.alZulaessig) {
+          probleme.push('Aluminium unter ' + AL_MIN_QUERSCHNITT + ' mm² unüblich');
+        }
+        return 'Nicht OK bei ' + formatZahl(g.a, 1, false) + ' mm²: ' + probleme.join(', ') + '.';
+      }
+
+      function kabelMarkdown(e, ergebnis, datum) {
+        const netz = ergebnis.netz;
+        const art = LASTARTEN[e.lastart];
+        const g = ergebnis.gewaehlt;
+        const zeilen = ['### Kabel & Spannungsfall', '', 'Datum: ' + datum, '', '**Eingaben**'];
+        zeilen.push('- Netz: ' + netz.text);
+        zeilen.push('- Lastart: ' + art.text + ' (cos φ ' + formatZahl(ergebnis.cos, 2) + ')');
+        if (e.last === 'P') {
+          zeilen.push('- Leistung: ' + formatZahl(parseZahl(e.pText), 2) + ' kW → I = ' + formatMin(ergebnis.ib, 1) + ' A');
+        } else {
+          zeilen.push('- Strom: ' + formatMin(ergebnis.ib, 1) + ' A');
+        }
+        zeilen.push('- Länge: ' + formatZahl(ergebnis.laenge, 0) + ' m');
+        zeilen.push('- Material: ' + MATERIALIEN[e.material].text);
+        zeilen.push('- Verlegeart: ' + e.verlegung + ' (' + VERLEGEARTEN[e.verlegung].info + ')');
+        zeilen.push('- Umgebungstemperatur: ' + e.temperatur + ' °C');
+        zeilen.push('- Belastete Kabel (Häufung): ' + e.haeufung);
+        zeilen.push('- Δu max: ' + formatZahl(e.duMax, 1) + ' %');
+        zeilen.push('');
+        zeilen.push('**Ergebnis**');
+        zeilen.push(
+          '- Empfohlener Querschnitt: ' +
+            (ergebnis.empfehlung ? formatZahl(ergebnis.empfehlung.a, 1, false) + ' mm²' : 'keiner bis 25 mm²'),
+        );
+        if (ergebnis.manuell) {
+          zeilen.push('- Manuell gewählt: ' + formatZahl(g.a, 1, false) + ' mm²');
+        }
+        zeilen.push('- Betriebsstrom IB: ' + formatMin(ergebnis.ib, 1) + ' A');
+        zeilen.push('- Leitungsschutz: ' + (ergebnis.ls ? ergebnis.ls.label : 'über 63 A'));
+        zeilen.push('- Strombelastbarkeit Iz (effektiv): ' + formatZahl(g.izEff, 1) + ' A');
+        zeilen.push('- Spannungsfall: ' + formatMin(g.du, 2) + ' V (' + formatMin(g.duProz, 2) + ' %)');
+        zeilen.push('- Strombelastbarkeit: ' + (g.okIz ? 'OK' : 'nicht OK'));
+        zeilen.push('- Spannungsfall: ' + (g.okDu ? 'OK' : 'nicht OK'));
+        zeilen.push('');
+        zeilen.push('**Bewertung:** ' + kabelBewertungText(ergebnis));
+        zeilen.push('');
+        zeilen.push('_' + FUSSNOTE_KABEL + '_');
+        return zeilen.join('\n');
+      }
+    </script>
+
+    <script id="ui">
+      /* ===== Oberfläche ===== */
+      const SPEICHER_PRAEFIX = 'elektro-msr.v1.';
+      const THEME_KEY = 'muther-theme';
+      const TOAST_DAUER_MS = 2600;
+      const KOPIER_ERFOLG_MS = 2000;
+      const KOPIER_TEXT = 'Ergebnis für Bericht/Bear kopieren';
+      const KOPIER_ERFOLG_TEXT = 'Kopiert';
+      const HAEUFUNG_HINWEIS = 'Ab 5 Leitungen geringerer Faktor';
+
+      const PRUEFSTAND = { aktiv: false, fall: 0 };
+
+      const WORST_FAELLE = {
+        fuehler: [
+          { name: 'PT100: Leitungsbruch „OL“', werte: { sensor: 'PT100', modus: 'rt', rText: 'OL' } },
+          { name: 'PT100: Kurzschluss 0 Ω', werte: { sensor: 'PT100', modus: 'rt', rText: '0' } },
+          { name: 'PT1000: „1.385“ (Punkt als Tausender)', werte: { sensor: 'PT1000', modus: 'rt', rText: '1.385', angezeigtText: '21,0' } },
+          { name: 'NTC 10k: 0,0001 kΩ, Anzeige −999', werte: { sensor: 'NTC 10k', modus: 'rt', einheit: 'kohm', rText: '0,0001', angezeigtText: '-999' } },
+          { name: 'NTC 20k: 10.000.000 Ω', werte: { sensor: 'NTC 20k', modus: 'rt', rText: '10.000.000', angezeigtText: '22,0' } },
+          { name: 'NTC 2k: eigener B-Wert 99999, Text', werte: { sensor: 'NTC 2k', bWahl: 'eigen', bEigen: '99999', modus: 'rt', rText: 'zwei-komma-fünf' } },
+          { name: 'PT100: 1000 °C → Widerstand', werte: { sensor: 'PT100', modus: 'tr', tText: '1000' } },
+          { name: 'NTC 5k: −273,15 °C → Widerstand', werte: { sensor: 'NTC 5k', modus: 'tr', tText: '-273,15' } },
+        ],
+        kabel: [
+          { name: '500 A, 999 m, 400 V, Al', werte: { netz: '3', last: 'I', iText: '500', laengeText: '999', material: 'al', verlegung: 'C', haeufung: 4, temperatur: 40, duMax: 0.5 } },
+          { name: '0,01 kW, 1 m, cos φ 1', werte: { netz: '1', last: 'P', pText: '0,01', cosText: '1', laengeText: '1' } },
+          { name: '999,99 kW, cos φ 0,1', werte: { netz: '3', last: 'P', pText: '999,99', cosText: '0,1', laengeText: '30' } },
+          { name: '0 A', werte: { last: 'I', iText: '0', laengeText: '30' } },
+          { name: 'Länge „1.000“ m, 63 A', werte: { netz: '3', last: 'I', iText: '63', laengeText: '1.000', lastart: 'motor', verlegung: 'E' } },
+          { name: 'Text statt Zahl', werte: { last: 'I', iText: 'sechzehn', laengeText: '3o' } },
+          { name: 'Manuell 1,5 mm², 50 A', werte: { last: 'I', iText: '50', laengeText: '60', manuell: 1.5 } },
+        ],
+      };
+
+      const MODULE = [
+        { id: 'fuehler', label: 'Fühler-Check' },
+        { id: 'kabel', label: 'Kabel & Spannungsfall' },
+      ];
+
+      const STANDARD = {
+        fuehler: {
+          sensor: 'PT100',
+          bWahl: '3977',
+          bEigen: '',
+          modus: 'rt',
+          rText: '',
+          einheit: 'ohm',
+          tText: '',
+          angezeigtText: '',
+        },
+        kabel: {
+          netz: '1',
+          lastart: 'ohm',
+          last: 'I',
+          iText: '',
+          pText: '',
+          cosText: '1,00',
+          laengeText: '30',
+          material: 'cu',
+          verlegung: 'C',
+          temperatur: 30,
+          haeufung: 1,
+          duMax: 3,
+          manuell: null,
+        },
+      };
+
+      const ICONS = {
+        sonne:
+          '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+        mond: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+        auto: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+        warnung: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+        info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+        haken: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+        kreuz: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+        chevron: '<path d="M6 9l6 6 6-6"/>',
+        hakenStrich: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+      };
+
+      const MELDUNG_ICON = { fehler: 'kreuz', hinweis: 'warnung', ok: 'haken', info: 'info' };
+
+      function h(tag, attrs, ...kinder) {
+        const el = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs || {})) {
+          if (v === null || v === undefined || v === false) {
+            continue;
+          }
+          if (k === 'class') {
+            el.className = v;
+          } else {
+            el.setAttribute(k, v === true ? '' : v);
+          }
+        }
+        for (const kind of kinder.flat()) {
+          if (kind === null || kind === undefined || kind === false) {
+            continue;
+          }
+          el.append(kind);
+        }
+        return el;
+      }
+
+      function icon(name) {
+        const huelle = document.createElement('span');
+        huelle.innerHTML =
+          '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          ICONS[name] +
+          '</svg>';
+        return huelle.firstChild;
+      }
+
+      /* ===== Speicher (localStorage, optional) ===== */
+      const Speicher = {
+        lesen(modul) {
+          try {
+            const roh = localStorage.getItem(SPEICHER_PRAEFIX + modul);
+            const daten = roh ? JSON.parse(roh) : null;
+            return daten && typeof daten === 'object' ? daten : {};
+          } catch (err) {
+            return {};
+          }
+        },
+        schreiben(modul, zustand) {
+          if (PRUEFSTAND.aktiv) {
+            return false;
+          }
+          try {
+            localStorage.setItem(SPEICHER_PRAEFIX + modul, JSON.stringify(zustand));
+            return true;
+          } catch (err) {
+            return false;
+          }
+        },
+      };
+
+      function zustandLaden(modul) {
+        const standard = STANDARD[modul];
+        if (PRUEFSTAND.aktiv) {
+          const faelle = WORST_FAELLE[modul];
+          return Object.assign({}, standard, faelle[PRUEFSTAND.fall % faelle.length].werte);
+        }
+        const gespeichert = Speicher.lesen(modul);
+        const zustand = Object.assign({}, standard);
+        Object.keys(standard).forEach(function (key) {
+          const wert = gespeichert[key];
+          if (wert === undefined) {
+            return;
+          }
+          if (typeof wert === typeof standard[key] || (standard[key] === null && typeof wert === 'number')) {
+            zustand[key] = wert;
+          }
+        });
+        return zustand;
+      }
+
+      /* ===== Meldungen & Zwischenablage ===== */
+      let toastTimer = null;
+
+      function toast(text) {
+        const el = document.getElementById('toast');
+        el.textContent = text;
+        el.classList.add('sichtbar');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          el.classList.remove('sichtbar');
+        }, TOAST_DAUER_MS);
+      }
+
+      function kopierenFallback(text) {
+        const feld = document.createElement('textarea');
+        feld.value = text;
+        feld.setAttribute('readonly', '');
+        feld.style.position = 'fixed';
+        feld.style.top = '0';
+        feld.style.left = '0';
+        feld.style.opacity = '0';
+        document.body.appendChild(feld);
+        feld.focus();
+        feld.select();
+        feld.setSelectionRange(0, text.length);
+        let erfolg = false;
+        try {
+          erfolg = document.execCommand('copy');
+        } catch (err) {
+          erfolg = false;
+        }
+        document.body.removeChild(feld);
+        return erfolg;
+      }
+
+      function kopieren(text, knopf) {
+        function erfolg() {
+          toast('In die Zwischenablage kopiert – jetzt in Bear einfügen.');
+          if (knopf && knopf.erfolgZeigen) {
+            knopf.erfolgZeigen();
+          }
+        }
+        function fallback() {
+          if (kopierenFallback(text)) {
+            erfolg();
+          } else {
+            toast('Kopieren nicht möglich. Bitte Text manuell markieren.');
+          }
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(
+            erfolg,
+            fallback,
+          );
+        } else {
+          fallback();
+        }
+      }
+
+      function datumJetzt() {
+        return new Date().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+
+      /* ===== Darstellung (Auto/Hell/Dunkel) ===== */
+      const Darstellung = (function () {
+        const FOLGE = { auto: 'hell', hell: 'dunkel', dunkel: 'auto' };
+        const TEXTE = { auto: 'Auto', hell: 'Hell', dunkel: 'Dunkel' };
+        const ICON_VON = { auto: 'auto', hell: 'sonne', dunkel: 'mond' };
+        const META_FARBE = { hell: '#f8f7f4', dunkel: '#121212' };
+
+        let aktuell = null;
+
+        function lesen() {
+          if (aktuell) {
+            return aktuell;
+          }
+          try {
+            const t = localStorage.getItem(THEME_KEY);
+            aktuell = FOLGE[t] ? t : 'auto';
+          } catch (err) {
+            aktuell = 'auto';
+          }
+          return aktuell;
+        }
+
+        function anwenden(modus) {
+          const wurzel = document.documentElement;
+          if (modus === 'hell') {
+            wurzel.setAttribute('data-theme', 'light');
+          } else if (modus === 'dunkel') {
+            wurzel.setAttribute('data-theme', 'dark');
+          } else {
+            wurzel.removeAttribute('data-theme');
+          }
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            m.setAttribute('content', META_FARBE[modus] || m.getAttribute('data-orig'));
+          });
+          const knopf = document.getElementById('themebtn');
+          knopf.replaceChildren(icon(ICON_VON[modus]));
+          knopf.setAttribute('aria-label', 'Darstellung: ' + TEXTE[modus] + ' (tippen zum Wechseln)');
+          knopf.title = 'Darstellung: ' + TEXTE[modus];
+        }
+
+        return {
+          start() {
+            anwenden(lesen());
+            document.getElementById('themebtn').addEventListener('click', function () {
+              const neu = FOLGE[lesen()];
+              aktuell = neu;
+              try {
+                localStorage.setItem(THEME_KEY, neu);
+              } catch (err) {
+                toast('Darstellung kann auf diesem Gerät nicht gemerkt werden.');
+              }
+              anwenden(neu);
+            });
+          },
+        };
+      })();
+
+      /* ===== Bausteine ===== */
+      function auswahlGruppe(art, optionen, lesen, schreiben, label, extra) {
+        const einstellungen = extra || {};
+        const klasse =
+          art === 'seg'
+            ? 'seg' + (einstellungen.klein ? ' klein' : '')
+            : 'chips' + (einstellungen.spalten ? ' spalten' : '');
+        const wurzel = h('div', { class: klasse, role: 'radiogroup', 'aria-label': label });
+        const pille = art === 'seg' ? h('span', { class: 'seg-pille ohne-bewegung', 'aria-hidden': 'true' }) : null;
+        if (pille) {
+          wurzel.append(pille);
+        }
+        let platziert = false;
+        const knoepfe = optionen.map(function (o) {
+          const knopf = h(
+            'button',
+            { type: 'button', role: 'radio', class: art === 'chip' ? 'chip' + (einstellungen.lang ? ' lang' : '') : null },
+            o.text,
+            art === 'chip' && o.sub ? h('small', null, o.sub) : null,
+          );
+          knopf.addEventListener('click', function () {
+            schreiben(o.wert);
+          });
+          wurzel.append(knopf);
+          return knopf;
+        });
+        function pilleSetzen(animiert) {
+          if (!pille) {
+            return;
+          }
+          const aktivKnopf = knoepfe.find(function (knopf) {
+            return knopf.getAttribute('aria-checked') === 'true';
+          });
+          if (!aktivKnopf || aktivKnopf.offsetWidth === 0) {
+            pille.style.opacity = '0';
+            platziert = false;
+            return;
+          }
+          const bewegen = animiert && platziert;
+          if (!bewegen) {
+            pille.classList.add('ohne-bewegung');
+          }
+          pille.style.opacity = '1';
+          pille.style.width = aktivKnopf.offsetWidth + 'px';
+          pille.style.transform = 'translateX(' + aktivKnopf.offsetLeft + 'px)';
+          if (!bewegen) {
+            void pille.offsetWidth;
+            pille.classList.remove('ohne-bewegung');
+          }
+          platziert = true;
+        }
+        function sync() {
+          const aktiv = String(lesen());
+          knoepfe.forEach(function (knopf, i) {
+            knopf.setAttribute('aria-checked', String(optionen[i].wert) === aktiv ? 'true' : 'false');
+            const empf = einstellungen.empfohlen ? einstellungen.empfohlen() : null;
+            knopf.classList.toggle('empf', empf !== null && optionen[i].wert === empf);
+          });
+          pilleSetzen(true);
+        }
+        if (pille && 'ResizeObserver' in window) {
+          const beobachter = new ResizeObserver(function () {
+            pilleSetzen(false);
+          });
+          beobachter.observe(wurzel);
+          knoepfe.forEach(function (knopf) {
+            beobachter.observe(knopf);
+          });
+        }
+        return { el: wurzel, sync: sync };
+      }
+
+      function segment(optionen, lesen, schreiben, label, extra) {
+        return auswahlGruppe('seg', optionen, lesen, schreiben, label, extra);
+      }
+
+      function chips(optionen, lesen, schreiben, label, extra) {
+        return auswahlGruppe('chip', optionen, lesen, schreiben, label, extra);
+      }
+
+      function zahlFeld(optionen) {
+        const eingabe = h('input', {
+          type: 'text',
+          inputmode: 'decimal',
+          autocomplete: 'off',
+          autocapitalize: 'off',
+          spellcheck: 'false',
+          enterkeyhint: 'done',
+          id: optionen.id,
+          placeholder: optionen.platzhalter || '',
+        });
+        const fehler = h('p', { class: 'feld-fehler', id: optionen.id + '-fehler', role: 'alert' });
+        const einheit = h('span', { class: 'einheit' }, optionen.einheit || '');
+        const label = h('label', { class: 'feld-label', for: optionen.id }, optionen.label);
+        const hinweis = optionen.hinweis ? h('p', { class: 'feld-hinweis' }, optionen.hinweis) : null;
+        const gelesenEl = h('p', { class: 'feld-hinweis', 'aria-live': 'polite' });
+        gelesenEl.hidden = true;
+        const wurzel = h(
+          'div',
+          { class: 'feld' },
+          label,
+          h('div', { class: 'feld-reihe' }, h('div', { class: 'eingabe-huelle' }, eingabe, einheit)),
+          fehler,
+          gelesenEl,
+          hinweis,
+        );
+        let bedient = false;
+        function schuetteln() {
+          eingabe.classList.remove('is-shaking');
+          void eingabe.offsetWidth;
+          eingabe.classList.add('is-shaking');
+        }
+        eingabe.addEventListener('animationend', function () {
+          eingabe.classList.remove('is-shaking');
+        });
+        eingabe.addEventListener('input', function () {
+          bedient = true;
+          optionen.schreiben(eingabe.value);
+        });
+        eingabe.addEventListener('blur', function () {
+          if (bedient && fehler.textContent) {
+            schuetteln();
+          }
+        });
+        eingabe.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            eingabe.blur();
+          }
+        });
+        return {
+          el: wurzel,
+          eingabe: eingabe,
+          sync() {
+            if (document.activeElement !== eingabe) {
+              eingabe.value = optionen.lesen();
+            }
+          },
+          gelesenSetzen(text) {
+            gelesenEl.textContent = text || '';
+            gelesenEl.hidden = !text;
+          },
+          einheitSetzen(text) {
+            einheit.textContent = text;
+          },
+          fehlerSetzen(text) {
+            const vorher = fehler.textContent;
+            fehler.textContent = text || '';
+            if (text) {
+              eingabe.setAttribute('aria-invalid', 'true');
+              eingabe.setAttribute('aria-describedby', fehler.id);
+              if (!vorher && bedient) {
+                schuetteln();
+              }
+            } else {
+              eingabe.removeAttribute('aria-invalid');
+              eingabe.removeAttribute('aria-describedby');
+            }
+          },
+        };
+      }
+
+      function meldungElement(m) {
+        return h('p', { class: 'meldung ' + m.typ, role: m.typ === 'fehler' ? 'alert' : null }, icon(MELDUNG_ICON[m.typ]), h('span', null, m.text));
+      }
+
+      function karte(titel, nebentext, ...kinder) {
+        return h(
+          'section',
+          { class: 'karte' },
+          titel ? h('div', { class: 'karte-kopf' }, h('h2', null, titel), nebentext ? h('small', null, nebentext) : null) : null,
+          kinder,
+        );
+      }
+
+      function feldGruppe(...felder) {
+        const liste = felder.filter(Boolean);
+        liste.forEach(function (feld, i) {
+          feld.classList.toggle('erstes', i === 0);
+          feld.classList.toggle('letztes', i === liste.length - 1);
+        });
+        return liste;
+      }
+
+      function labelBlock(text, inhalt, hinweisText) {
+        return h(
+          'div',
+          { class: 'feld' },
+          h('span', { class: 'feld-label' }, text),
+          inhalt,
+          hinweisText ? h('p', { class: 'feld-hinweis' }, hinweisText) : null,
+        );
+      }
+
+      const ZAHL_SPEICHER = {};
+
+      function zahlAusText(text) {
+        const treffer = String(text).match(/[+\-−]?\d[\d.]*(,\d+)?/);
+        return treffer ? parseZahl(treffer[0], true) : NaN;
+      }
+
+      function zahlMitUebergang(key, text) {
+        const alt = ZAHL_SPEICHER[key];
+        ZAHL_SPEICHER[key] = text;
+        const wurzel = h('span', { class: 't-subtle-number' });
+        if (alt === undefined || alt === text) {
+          wurzel.textContent = text;
+          return wurzel;
+        }
+        const neu = Array.from(text);
+        const vorher = Array.from(alt);
+        const gleichLang = neu.length === vorher.length;
+        const nachher = zahlAusText(text);
+        const davor = zahlAusText(alt);
+        const fallend = Number.isFinite(nachher) && Number.isFinite(davor) && nachher < davor;
+        wurzel.style.setProperty('--subtle-dir', fallend ? '-1' : '1');
+        neu.forEach(function (zeichen, i) {
+          if (gleichLang && vorher[i] === zeichen) {
+            wurzel.append(zeichen);
+            return;
+          }
+          const slot = h('span', { class: 't-subtle-slot' });
+          if (gleichLang) {
+            slot.append(h('span', { class: 't-subtle-old', 'aria-hidden': 'true' }, vorher[i]));
+          }
+          slot.append(h('span', { class: 't-subtle-new' }, zeichen));
+          wurzel.append(slot);
+        });
+        wurzel.classList.add('is-animating');
+        return wurzel;
+      }
+
+      function kachel(label, wert, sub, breit) {
+        return h(
+          'div',
+          { class: 'kachel' + (breit ? ' breit' : '') },
+          h('p', { class: 'kachel-label' }, label),
+          h('p', { class: 'kachel-wert' }, zahlMitUebergang('kachel:' + label, wert)),
+          sub ? h('p', { class: 'kachel-sub' }, sub) : null,
+        );
+      }
+
+      function ampelZeile(stufe, text) {
+        return h('li', { class: stufe }, icon(stufe === 'ok' ? 'haken' : stufe === 'warn' ? 'warnung' : 'kreuz'), h('span', null, text));
+      }
+
+      function kopierKnopf(beiKlick) {
+        const haken = h('span', { class: 't-success-check', 'aria-hidden': 'true' }, icon('hakenStrich'));
+        const beschriftung = h('span', { class: 'btn-label' }, KOPIER_TEXT);
+        const knopf = h('button', { type: 'button', class: 'btn-gold' }, haken, beschriftung);
+        let rueckTimer = null;
+        function beschriftungSetzen(text) {
+          beschriftung.textContent = text;
+          beschriftung.classList.remove('neu');
+          void beschriftung.offsetWidth;
+          beschriftung.classList.add('neu');
+        }
+        knopf.erfolgZeigen = function () {
+          clearTimeout(rueckTimer);
+          knopf.classList.add('erfolg');
+          haken.setAttribute('data-state', 'out');
+          void haken.offsetWidth;
+          haken.setAttribute('data-state', 'in');
+          beschriftungSetzen(KOPIER_ERFOLG_TEXT);
+          rueckTimer = setTimeout(function () {
+            knopf.classList.remove('erfolg');
+            haken.removeAttribute('data-state');
+            beschriftungSetzen(KOPIER_TEXT);
+          }, KOPIER_ERFOLG_MS);
+        };
+        knopf.addEventListener('click', beiKlick);
+        return knopf;
+      }
+
+      function akkordeon(titel, inhalt, offen) {
+        const titelEl = h('span', { class: 't-acc-titel' }, titel);
+        const kopf = h(
+          'button',
+          { type: 'button', class: 't-acc-head', 'aria-expanded': String(offen) },
+          titelEl,
+          h('span', { class: 't-acc-chevron', 'aria-hidden': 'true' }, icon('chevron')),
+        );
+        const wurzel = h(
+          'section',
+          { class: 'karte t-acc', 'data-open': String(offen) },
+          kopf,
+          h('div', { class: 't-acc-panel' }, h('div', { class: 't-acc-panel-inner' }, inhalt)),
+        );
+        kopf.addEventListener('click', function () {
+          const auf = wurzel.getAttribute('data-open') !== 'true';
+          wurzel.setAttribute('data-open', String(auf));
+          kopf.setAttribute('aria-expanded', String(auf));
+        });
+        return {
+          el: wurzel,
+          titelSetzen(text) {
+            titelEl.textContent = text;
+          },
+        };
+      }
+
+      /* ===== Modul 1: Fühler-Check ===== */
+      function fuehlerModul() {
+        const z = zustandLaden('fuehler');
+        const syncs = [];
+        const felder = {};
+
+        function speichern() {
+          Speicher.schreiben('fuehler', z);
+        }
+
+        function setzen(key) {
+          return function (wert) {
+            z[key] = wert;
+            speichern();
+            aktualisieren();
+          };
+        }
+
+        function registrieren(baustein) {
+          syncs.push(baustein.sync);
+          return baustein.el;
+        }
+
+        function istNtc() {
+          const s = sensorSuchen(z.sensor);
+          return Boolean(s) && s.typ === 'ntc';
+        }
+
+        const sensorChips = registrieren(
+          chips(
+            SENSOREN.map(function (s) {
+              return { wert: s.id, text: s.id };
+            }),
+            function () {
+              return z.sensor;
+            },
+            setzen('sensor'),
+            'Fühlertyp',
+          ),
+        );
+
+        const bChips = registrieren(
+          chips(
+            B_WERTE,
+            function () {
+              return z.bWahl;
+            },
+            setzen('bWahl'),
+            'B-Wert',
+          ),
+        );
+
+        felder.bEigen = zahlFeld({
+          id: 'f-beigen',
+          label: 'Eigener B-Wert',
+          einheit: 'K',
+          platzhalter: '3950',
+          lesen: function () {
+            return z.bEigen;
+          },
+          schreiben: setzen('bEigen'),
+        });
+        syncs.push(felder.bEigen.sync);
+
+        const bBlock = h(
+          'div',
+          { class: 'feld' },
+          h('span', { class: 'feld-label' }, 'B-Wert (NTC)'),
+          bChips,
+          felder.bEigen.el,
+        );
+        felder.bEigen.el.style.marginTop = 'var(--s3)';
+
+        const modusSeg = registrieren(
+          segment(
+            [
+              { wert: 'rt', text: 'Widerstand → Temperatur' },
+              { wert: 'tr', text: 'Temperatur → Widerstand' },
+            ],
+            function () {
+              return z.modus;
+            },
+            setzen('modus'),
+            'Richtung',
+          ),
+        );
+
+        const einheitSeg = registrieren(
+          segment(
+            [
+              { wert: 'ohm', text: 'Ω' },
+              { wert: 'kohm', text: 'kΩ' },
+            ],
+            function () {
+              return z.einheit;
+            },
+            setzen('einheit'),
+            'Einheit des Widerstands',
+            { klein: true },
+          ),
+        );
+
+        felder.rText = zahlFeld({
+          id: 'f-r',
+          label: 'Gemessener Widerstand',
+          einheit: 'Ω',
+          platzhalter: 'z. B. 1385,06 oder OL',
+          lesen: function () {
+            return z.rText;
+          },
+          schreiben: setzen('rText'),
+        });
+        felder.tText = zahlFeld({
+          id: 'f-t',
+          label: 'Temperatur',
+          einheit: '°C',
+          platzhalter: 'z. B. 21,5',
+          lesen: function () {
+            return z.tText;
+          },
+          schreiben: setzen('tText'),
+        });
+        felder.angezeigtText = zahlFeld({
+          id: 'f-ang',
+          label: 'Angezeigte Temperatur in der Regelung (optional)',
+          einheit: '°C',
+          platzhalter: 'z. B. 22,0',
+          lesen: function () {
+            return z.angezeigtText;
+          },
+          schreiben: setzen('angezeigtText'),
+        });
+        syncs.push(felder.rText.sync, felder.tText.sync, felder.angezeigtText.sync);
+
+        const richtungBlock = h('div', { class: 'feld' }, h('span', { class: 'feld-label' }, 'Richtung'), modusSeg);
+        const einheitBlock = h('div', { class: 'feld' }, h('span', { class: 'feld-label' }, 'Einheit'), einheitSeg);
+
+        const ergebnisBox = h('div', { class: 'ergebnis', 'aria-live': 'polite' });
+        const offsetBox = h('section', { class: 'karte' });
+        const tabellenKoerper = h('tbody');
+        const tabellenKopf = h('thead');
+        const stuetzAkkordeon = akkordeon(
+          'Stützstellen −20 … +100 °C',
+          h('div', { class: 'tabelle-huelle' }, h('table', null, tabellenKopf, tabellenKoerper)),
+          false,
+        );
+        const tabelleDetails = stuetzAkkordeon.el;
+
+        let letztesErgebnis = null;
+        const kopierenKnopfEl = kopierKnopf(function () {
+          if (!letztesErgebnis || !letztesErgebnis.gueltig) {
+            toast('Bitte zuerst gültige Werte eingeben.');
+            return;
+          }
+          kopieren(fuehlerMarkdown(z, letztesErgebnis, datumJetzt()), kopierenKnopfEl);
+        });
+
+        const eingabeSpalte = h(
+          'div',
+          { class: 'spalte' },
+          karte(
+            'Fühler',
+            null,
+            h('div', { class: 'feld erstes letztes' }, h('span', { class: 'feld-label' }, 'Fühlertyp'), sensorChips),
+            bBlock,
+          ),
+          karte(
+            'Messung',
+            null,
+            richtungBlock,
+            einheitBlock,
+            felder.rText.el,
+            felder.tText.el,
+            felder.angezeigtText.el,
+          ),
+        );
+
+        const ergebnisSpalte = h(
+          'div',
+          { class: 'spalte ergebnisse' },
+          ergebnisBox,
+          offsetBox,
+          tabelleDetails,
+          kopierenKnopfEl,
+        );
+
+        const wurzel = h('div', { class: 'raster' }, eingabeSpalte, ergebnisSpalte);
+
+        function tabelleRendern(ergebnis) {
+          const sensor = ergebnis.sensor;
+          tabellenKopf.replaceChildren(
+            h('tr', null, h('th', null, '°C'), h('th', null, 'R in Ω'), h('th', null, 'R in kΩ')),
+          );
+          const aktuellT = ergebnis.t;
+          let naechste = null;
+          if (aktuellT !== null && aktuellT >= TABELLE_VON_C - TABELLE_SCHRITT_K / 2 && aktuellT <= TABELLE_BIS_C + TABELLE_SCHRITT_K / 2) {
+            naechste = Math.round(aktuellT / TABELLE_SCHRITT_K) * TABELLE_SCHRITT_K;
+          }
+          tabellenKoerper.replaceChildren(
+            ...ergebnis.tabelle.map(function (zeile) {
+              return h(
+                'tr',
+                { class: zeile.t === naechste ? 'treffer' : null },
+                h('td', null, formatVorzeichen(zeile.t, 0)),
+                h('td', null, formatOhm(zeile.r)),
+                h('td', null, formatKiloOhm(zeile.r)),
+              );
+            }),
+          );
+          stuetzAkkordeon.titelSetzen(
+            'Stützstellen −20 … +100 °C (' + sensor.id + (ergebnis.b ? ', B ' + formatZahl(ergebnis.b, 0, false) + ' K' : '') + ')',
+          );
+        }
+
+        function ergebnisRendern(ergebnis) {
+          const kinder = [];
+          const inRt = z.modus !== 'tr';
+          kinder.push(h('p', { class: 'ergebnis-label' }, inRt ? 'Berechnete Temperatur' : 'Berechneter Widerstand'));
+          if (!ergebnis.gueltig && !ergebnis.sensor) {
+            kinder.push(h('div', { class: 'ergebnis-zeile' }, h('span', { class: 'ergebnis-zahl leer' }, '–')));
+          } else if (inRt && ergebnis.t !== null) {
+            kinder.push(
+              h(
+                'div',
+                { class: 'ergebnis-zeile' },
+                h('span', { class: 'ergebnis-zahl' }, zahlMitUebergang('f-erg', formatZahl(ergebnis.t, 1))),
+                h('span', { class: 'ergebnis-einheit' }, '°C'),
+              ),
+            );
+          } else if (!inRt && ergebnis.r !== null) {
+            kinder.push(
+              h(
+                'div',
+                { class: 'ergebnis-zeile' },
+                h('span', { class: 'ergebnis-zahl' }, zahlMitUebergang('f-erg', formatOhm(ergebnis.r))),
+                h('span', { class: 'ergebnis-einheit' }, 'Ω'),
+              ),
+            );
+            kinder.push(h('p', { class: 'ergebnis-neben' }, formatKiloOhm(ergebnis.r) + ' kΩ'));
+          } else {
+            kinder.push(h('div', { class: 'ergebnis-zeile' }, h('span', { class: 'ergebnis-zahl leer' }, '–')));
+          }
+          const meldungen = h('div', { class: 'meldungen' }, ergebnis.meldungen.map(meldungElement));
+          const feldFehler = Object.keys(ergebnis.fehler);
+          if (feldFehler.length > 0 && ergebnis.meldungen.length === 0) {
+            const erster = ergebnis.fehler[feldFehler[0]];
+            meldungen.append(meldungElement({ typ: 'info', text: erster }));
+          }
+          kinder.push(meldungen);
+          ergebnisBox.replaceChildren(...kinder);
+        }
+
+        function offsetRendern(ergebnis) {
+          const aktiv = z.modus !== 'tr' && ergebnis.offset;
+          offsetBox.hidden = !aktiv;
+          if (!aktiv) {
+            return;
+          }
+          const o = ergebnis.offset;
+          offsetBox.replaceChildren(
+            h('div', { class: 'karte-kopf' }, h('h2', null, 'Abweichung zur Regelung')),
+            h(
+              'div',
+              { class: 'kacheln' },
+              kachel('Berechnet', formatZahl(ergebnis.t, 1) + ' °C'),
+              kachel('Angezeigt', formatZahl(ergebnis.angezeigt, 1) + ' °C'),
+              kachel('ΔT (angezeigt − berechnet)', formatVorzeichen(o.delta, 1) + ' K'),
+            ),
+            h('ul', { class: 'ampel' }, ampelZeile(o.stufe, '|ΔT| = ' + formatZahl(Math.abs(o.delta), 1) + ' K: ' + o.text)),
+            ...(o.leitungshinweis ? [h('div', { class: 'meldungen' }, meldungElement({ typ: 'info', text: o.leitungshinweis }))] : []),
+          );
+        }
+
+        function aktualisieren() {
+          syncs.forEach(function (fn) {
+            fn();
+          });
+          const ntc = istNtc();
+          bBlock.hidden = !ntc;
+          felder.bEigen.el.hidden = !(ntc && z.bWahl === 'eigen');
+          const inRt = z.modus !== 'tr';
+          einheitBlock.hidden = !inRt;
+          felder.rText.el.hidden = !inRt;
+          felder.angezeigtText.el.hidden = !inRt;
+          felder.tText.el.hidden = inRt;
+          felder.rText.einheitSetzen(z.einheit === 'kohm' ? 'kΩ' : 'Ω');
+          feldGruppe(...[richtungBlock, einheitBlock, felder.rText.el, felder.tText.el, felder.angezeigtText.el].filter(function (el) {
+            return !el.hidden;
+          }));
+          const ergebnis = fuehlerAuswerten(z);
+          letztesErgebnis = ergebnis;
+          Object.keys(felder).forEach(function (key) {
+            felder[key].fehlerSetzen(ergebnis.fehler[key] || '');
+          });
+          felder.rText.gelesenSetzen(inRt ? ergebnis.gelesen : '');
+          ergebnisRendern(ergebnis);
+          offsetRendern(ergebnis);
+          if (ergebnis.sensor) {
+            tabelleRendern(ergebnis);
+          }
+          kopierenKnopfEl.disabled = !ergebnis.gueltig;
+        }
+
+        return { el: wurzel, aktualisieren: aktualisieren };
+      }
+
+      /* ===== Modul 2: Kabel & Spannungsfall ===== */
+      function kabelModul() {
+        const z = zustandLaden('kabel');
+        const syncs = [];
+        const felder = {};
+        let letztesErgebnis = null;
+
+        function speichern() {
+          Speicher.schreiben('kabel', z);
+        }
+
+        function setzen(key, nachher) {
+          return function (wert) {
+            z[key] = wert;
+            if (nachher) {
+              nachher(wert);
+            }
+            speichern();
+            aktualisieren();
+          };
+        }
+
+        function registrieren(baustein) {
+          syncs.push(baustein.sync);
+          return baustein.el;
+        }
+
+        const netzSeg = registrieren(
+          segment(
+            Object.values(NETZE).map(function (n) {
+              return { wert: n.id, text: n.text };
+            }),
+            function () {
+              return z.netz;
+            },
+            setzen('netz'),
+            'Netz',
+          ),
+        );
+
+        const lastartChips = registrieren(
+          chips(
+            Object.values(LASTARTEN).map(function (l) {
+              return { wert: l.id, text: l.text, sub: 'cos φ ' + formatZahl(l.cos, 2) + ' · LS ' + l.charakteristik };
+            }),
+            function () {
+              return z.lastart;
+            },
+            setzen('lastart', function (wert) {
+              z.cosText = formatZahl(LASTARTEN[wert].cos, 2);
+            }),
+            'Lastart',
+          ),
+        );
+
+        const lastSeg = registrieren(
+          segment(
+            [
+              { wert: 'I', text: 'Strom I (A)' },
+              { wert: 'P', text: 'Leistung P (kW)' },
+            ],
+            function () {
+              return z.last;
+            },
+            setzen('last'),
+            'Lastangabe',
+          ),
+        );
+
+        felder.iText = zahlFeld({
+          id: 'k-i',
+          label: 'Strom I',
+          einheit: 'A',
+          platzhalter: 'z. B. 16',
+          lesen: function () {
+            return z.iText;
+          },
+          schreiben: setzen('iText'),
+        });
+        felder.pText = zahlFeld({
+          id: 'k-p',
+          label: 'Leistung P',
+          einheit: 'kW',
+          platzhalter: 'z. B. 3,6',
+          lesen: function () {
+            return z.pText;
+          },
+          schreiben: setzen('pText'),
+        });
+        felder.cosText = zahlFeld({
+          id: 'k-cos',
+          label: 'cos φ',
+          einheit: '',
+          platzhalter: '0,90',
+          lesen: function () {
+            return z.cosText;
+          },
+          schreiben: setzen('cosText'),
+        });
+        felder.laengeText = zahlFeld({
+          id: 'k-l',
+          label: 'Leitungslänge l',
+          einheit: 'm',
+          platzhalter: '30',
+          lesen: function () {
+            return z.laengeText;
+          },
+          schreiben: setzen('laengeText'),
+        });
+        syncs.push(felder.iText.sync, felder.pText.sync, felder.cosText.sync, felder.laengeText.sync);
+
+        const slider = h('input', {
+          type: 'range',
+          min: String(KABEL_LAENGE_MIN),
+          max: '150',
+          step: '1',
+          'aria-label': 'Leitungslänge in Metern',
+        });
+        slider.addEventListener('input', function () {
+          z.laengeText = String(slider.value);
+          speichern();
+          aktualisieren();
+        });
+        function sliderSync() {
+          const wert = parseZahl(z.laengeText);
+          const gueltig = wert !== null && !Number.isNaN(wert);
+          const geklemmt = gueltig ? Math.min(Math.max(wert, KABEL_LAENGE_MIN), 150) : KABEL_LAENGE_MIN;
+          slider.value = String(geklemmt);
+          slider.style.setProperty('--fill', ((geklemmt - KABEL_LAENGE_MIN) / (150 - KABEL_LAENGE_MIN)) * 100 + '%');
+        }
+        syncs.push(sliderSync);
+
+        const materialSeg = registrieren(
+          segment(
+            Object.values(MATERIALIEN).map(function (m) {
+              return { wert: m.id, text: m.text + ' (κ ' + m.kappa + ')' };
+            }),
+            function () {
+              return z.material;
+            },
+            setzen('material'),
+            'Leitermaterial',
+          ),
+        );
+        const materialHinweis = h(
+          'p',
+          { class: 'feld-hinweis' },
+          'Aluminium in der Praxis erst ab 16 mm². Iz = Kupferwert × 0,78 (Näherung).',
+        );
+
+        const verlegeChips = registrieren(
+          chips(
+            Object.values(VERLEGEARTEN).map(function (v) {
+              return { wert: v.id, text: v.text + ' – ' + v.info };
+            }),
+            function () {
+              return z.verlegung;
+            },
+            setzen('verlegung'),
+            'Verlegeart',
+            { lang: true, spalten: true },
+          ),
+        );
+
+        const tempChips = registrieren(
+          chips(
+            Object.keys(TEMP_FAKTOREN).map(function (t) {
+              return { wert: t, text: t + ' °C', sub: Number(t) === 30 ? 'Referenz' : '' };
+            }),
+            function () {
+              return z.temperatur;
+            },
+            function (wert) {
+              z.temperatur = Number(wert);
+              speichern();
+              aktualisieren();
+            },
+            'Umgebungstemperatur',
+          ),
+        );
+
+        const haeufungChips = registrieren(
+          chips(
+            [1, 2, 3, 4].map(function (n) {
+              return { wert: n, text: String(n) };
+            }),
+            function () {
+              return z.haeufung;
+            },
+            function (wert) {
+              z.haeufung = Number(wert);
+              speichern();
+              aktualisieren();
+            },
+            'Anzahl belasteter Kabel',
+          ),
+        );
+
+        const duChips = registrieren(
+          chips(
+            DU_GRENZEN,
+            function () {
+              return z.duMax;
+            },
+            function (wert) {
+              z.duMax = Number(wert);
+              speichern();
+              aktualisieren();
+            },
+            'Maximaler Spannungsfall',
+          ),
+        );
+
+        const testChips = registrieren(
+          chips(
+            QUERSCHNITTE.map(function (a) {
+              return { wert: a, text: formatZahl(a, 1, false) + ' mm²' };
+            }),
+            function () {
+              return letztesErgebnis && letztesErgebnis.gueltig ? letztesErgebnis.gewaehlt.a : '';
+            },
+            function (wert) {
+              z.manuell = Number(wert);
+              speichern();
+              aktualisieren();
+            },
+            'Querschnitt testen',
+            {
+              empfohlen: function () {
+                return letztesErgebnis && letztesErgebnis.empfehlung ? letztesErgebnis.empfehlung.a : null;
+              },
+            },
+          ),
+        );
+        const testZuruecksetzen = h('button', { type: 'button', class: 'chip' }, 'Auto');
+        testZuruecksetzen.addEventListener('click', function () {
+          z.manuell = null;
+          speichern();
+          aktualisieren();
+        });
+        testChips.append(testZuruecksetzen);
+
+        const ergebnisBox = h('div', { class: 'ergebnis', 'aria-live': 'polite' });
+        const kachelBox = h('section', { class: 'karte' });
+        const vergleichBox = h('section', { class: 'karte' });
+        const tabellenKoerper = h('tbody');
+        const tabelleDetails = akkordeon(
+          'Vergleich aller Querschnitte',
+          h(
+            'div',
+            { class: 'tabelle-huelle' },
+            h(
+              'table',
+              null,
+              h('thead', null, h('tr', null, h('th', null, 'mm²'), h('th', null, 'Iz eff. (A)'), h('th', null, 'Δu (%)'), h('th', null, 'Status'))),
+              tabellenKoerper,
+            ),
+          ),
+          true,
+        ).el;
+
+        const kopierenKnopfEl = kopierKnopf(function () {
+          if (!letztesErgebnis || !letztesErgebnis.gueltig) {
+            toast('Bitte zuerst gültige Werte eingeben.');
+            return;
+          }
+          kopieren(kabelMarkdown(z, letztesErgebnis, datumJetzt()), kopierenKnopfEl);
+        });
+
+        const blockLast = h('div', { class: 'feld' }, h('span', { class: 'feld-label' }, 'Last'), lastSeg);
+        const blockMaterial = h('div', { class: 'feld' }, h('span', { class: 'feld-label' }, 'Leitermaterial'), materialSeg, materialHinweis);
+        const blockLaenge = h('div', { class: 'feld' });
+        const laengeLabel = felder.laengeText.el.querySelector('.feld-label');
+        const laengeReihe = felder.laengeText.el.querySelector('.feld-reihe');
+        blockLaenge.append(laengeLabel, laengeReihe, slider, felder.laengeText.el.querySelector('.feld-fehler'));
+
+        const eingabeSpalte = h(
+          'div',
+          { class: 'spalte' },
+          karte(
+            'Netz & Last',
+            null,
+            ...feldGruppe(
+              labelBlock('Netz', netzSeg),
+              labelBlock('Lastart', lastartChips),
+              blockLast,
+              felder.iText.el,
+              felder.pText.el,
+              felder.cosText.el,
+            ),
+          ),
+          karte('Leitung', null, ...feldGruppe(blockLaenge, blockMaterial)),
+          karte(
+            'Verlegung & Umgebung',
+            null,
+            ...feldGruppe(
+              labelBlock('Verlegeart', verlegeChips),
+              labelBlock('Umgebungstemperatur', tempChips, 'Referenz 30 °C, PVC-Isolierung 70 °C'),
+              labelBlock('Häufung (belastete Kabel)', haeufungChips, HAEUFUNG_HINWEIS),
+              labelBlock('Spannungsfall Δu max', duChips),
+            ),
+          ),
+        );
+
+        vergleichBox.append(
+          h('div', { class: 'karte-kopf' }, h('h2', null, 'Querschnitt testen')),
+          testChips,
+        );
+
+        const ergebnisSpalte = h(
+          'div',
+          { class: 'spalte ergebnisse' },
+          ergebnisBox,
+          kachelBox,
+          vergleichBox,
+          tabelleDetails,
+          kopierenKnopfEl,
+          h('p', { class: 'fussnote' }, FUSSNOTE_KABEL),
+        );
+
+        const wurzel = h('div', { class: 'raster' }, eingabeSpalte, ergebnisSpalte);
+
+        function mm2(a) {
+          return formatZahl(a, 1, false) + ' mm²';
+        }
+
+        function ergebnisRendern(ergebnis) {
+          const kinder = [];
+          kinder.push(h('p', { class: 'ergebnis-label' }, 'Empfohlener Querschnitt'));
+          if (!ergebnis.gueltig) {
+            kinder.push(h('div', { class: 'ergebnis-zeile' }, h('span', { class: 'ergebnis-zahl leer' }, '–')));
+          } else if (ergebnis.empfehlung) {
+            kinder.push(
+              h(
+                'div',
+                { class: 'ergebnis-zeile' },
+                h('span', { class: 'ergebnis-zahl' }, zahlMitUebergang('k-erg', formatZahl(ergebnis.empfehlung.a, 1, false))),
+                h('span', { class: 'ergebnis-einheit' }, 'mm² ' + MATERIALIEN[z.material].text),
+              ),
+            );
+            kinder.push(
+              h('p', { class: 'ergebnis-neben' }, 'Leitungsschutz ' + (ergebnis.ls ? ergebnis.ls.label : '–')),
+            );
+          } else {
+            kinder.push(h('div', { class: 'ergebnis-zeile' }, h('span', { class: 'ergebnis-zahl leer' }, 'keiner')));
+          }
+          const meldungen = h('div', { class: 'meldungen' }, ergebnis.meldungen.map(meldungElement));
+          const feldFehler = Object.keys(ergebnis.fehler);
+          if (feldFehler.length > 0) {
+            meldungen.append(meldungElement({ typ: 'info', text: ergebnis.fehler[feldFehler[0]] }));
+          }
+          kinder.push(meldungen);
+          ergebnisBox.replaceChildren(...kinder);
+        }
+
+        function kachelnRendern(ergebnis) {
+          kachelBox.hidden = !ergebnis.gueltig;
+          vergleichBox.hidden = !ergebnis.gueltig;
+          tabelleDetails.hidden = !ergebnis.gueltig;
+          if (!ergebnis.gueltig) {
+            return;
+          }
+          const g = ergebnis.gewaehlt;
+          const quelle = ergebnis.manuell ? 'manuell gewählt' : ergebnis.empfehlung ? 'Empfehlung' : 'größter Querschnitt';
+          const material = MATERIALIEN[z.material];
+          kachelBox.replaceChildren(
+            h('div', { class: 'karte-kopf' }, h('h2', null, 'Ergebnis für ' + mm2(g.a)), h('small', null, quelle)),
+            h(
+              'div',
+              { class: 'kacheln' },
+              kachel('Betriebsstrom IB', formatMin(ergebnis.ib, 1) + ' A', 'cos φ ' + formatZahl(ergebnis.cos, 2)),
+              kachel('Querschnitt', mm2(g.a), material.text),
+              kachel('Leitungsschutz', ergebnis.ls ? ergebnis.ls.label : '> 63 A', z.lastart === 'ohm' ? 'Charakteristik B' : 'Charakteristik C'),
+              kachel('Spannungsfall ΔU', formatMin(g.du, 2) + ' V', formatMin(g.duProz, 2) + ' % (max. ' + formatZahl(z.duMax, 1) + ' %)'),
+              kachel('Iz effektiv', formatZahl(g.izEff, 1) + ' A', 'Basis ' + formatZahl(izBasis(z.verlegung, ergebnis.netz.adern, QUERSCHNITTE.indexOf(g.a)), 1) + ' A' + (z.material === 'al' ? ' · Näherung' : '')),
+            ),
+            h(
+              'ul',
+              { class: 'ampel' },
+              ampelZeile(g.okIz ? 'ok' : 'fehler', 'Strombelastbarkeit: ' + (g.okIz ? 'erfüllt' : 'nicht erfüllt') + (ergebnis.ls ? ' (' + ergebnis.ls.label + ' ≤ Iz ' + formatZahl(g.izEff, 1) + ' A)' : '')),
+              ampelZeile(g.okDu ? 'ok' : 'fehler', 'Spannungsfall: ' + (g.okDu ? 'erfüllt' : 'nicht erfüllt') + ' (' + formatMin(g.duProz, 2) + ' % ≤ ' + formatZahl(z.duMax, 1) + ' %)'),
+            ),
+          );
+          tabellenKoerper.replaceChildren(
+            ...ergebnis.zeilen.map(function (zeile) {
+              const ok = zeile.ok;
+              return h(
+                'tr',
+                { class: ergebnis.empfehlung && zeile.a === ergebnis.empfehlung.a ? 'treffer' : null },
+                h('td', null, formatZahl(zeile.a, 1, false)),
+                h('td', null, formatZahl(zeile.izEff, 1)),
+                h('td', null, formatMin(zeile.duProz, 2)),
+                h('td', { class: ok ? 'ok' : 'fehler' }, ok ? 'OK' : zeile.alZulaessig ? 'nicht OK' : 'Al ab 16 mm²'),
+              );
+            }),
+          );
+        }
+
+        function aktualisieren() {
+          syncs.forEach(function (fn) {
+            fn();
+          });
+          const inP = z.last === 'P';
+          felder.iText.el.hidden = inP;
+          felder.pText.el.hidden = !inP;
+          materialHinweis.hidden = z.material !== 'al';
+          const ergebnis = kabelAuswerten(z);
+          letztesErgebnis = ergebnis;
+          syncs.forEach(function (fn) {
+            fn();
+          });
+          Object.keys(felder).forEach(function (key) {
+            felder[key].fehlerSetzen(ergebnis.fehler[key] || '');
+          });
+          ergebnisRendern(ergebnis);
+          kachelnRendern(ergebnis);
+          testZuruecksetzen.setAttribute('aria-pressed', String(z.manuell === null));
+          kopierenKnopfEl.disabled = !ergebnis.gueltig;
+        }
+
+        return { el: wurzel, aktualisieren: aktualisieren };
+      }
+
+      /* ===== Seite ===== */
+      const App = (function () {
+        const BAUER = { fuehler: fuehlerModul, kabel: kabelModul };
+        const MODUL_KEY = SPEICHER_PRAEFIX + 'modul';
+        const instanzen = {};
+        let aktiv = 'fuehler';
+
+        function aktivLesen() {
+          try {
+            const gespeichert = localStorage.getItem(MODUL_KEY);
+            if (BAUER[gespeichert]) {
+              return gespeichert;
+            }
+          } catch (err) {
+            return 'fuehler';
+          }
+          return 'fuehler';
+        }
+
+        function aktivSchreiben(id) {
+          if (PRUEFSTAND.aktiv) {
+            return;
+          }
+          try {
+            localStorage.setItem(MODUL_KEY, id);
+          } catch (err) {
+            return;
+          }
+        }
+
+        function anzeigen(id, animiert) {
+          aktiv = id;
+          aktivSchreiben(id);
+          Object.keys(instanzen).forEach(function (key) {
+            instanzen[key].el.hidden = key !== id;
+          });
+          document.getElementById('kopf-modul').textContent = MODULE.find(function (m) {
+            return m.id === id;
+          }).label;
+          segment$.sync();
+          instanzen[id].aktualisieren();
+          if (animiert) {
+            instanzen[id].el.classList.remove('modul-ein');
+            void instanzen[id].el.offsetWidth;
+            instanzen[id].el.classList.add('modul-ein');
+          }
+          if (window.pruefstandBeschriften) {
+            window.pruefstandBeschriften();
+          }
+        }
+
+        const segment$ = segment(
+          MODULE.map(function (m) {
+            return { wert: m.id, text: m.label };
+          }),
+          function () {
+            return aktiv;
+          },
+          function (id) {
+            anzeigen(id, true);
+          },
+          'Modul',
+        );
+
+        function aufbauen(startId) {
+          const inhalt = document.getElementById('inhalt');
+          Object.keys(instanzen).forEach(function (key) {
+            instanzen[key].el.remove();
+            delete instanzen[key];
+          });
+          MODULE.forEach(function (m) {
+            try {
+              instanzen[m.id] = BAUER[m.id]();
+            } catch (err) {
+              instanzen[m.id] = {
+                el: h('p', { class: 'meldung fehler' }, 'Das Modul „' + m.label + '“ konnte nicht geladen werden.'),
+                aktualisieren() {},
+              };
+            }
+            inhalt.append(instanzen[m.id].el);
+          });
+          anzeigen(startId);
+        }
+
+        return {
+          start() {
+            const inhalt = document.getElementById('inhalt');
+            inhalt.append(h('h1', null, 'Elektrotechnik & MSR'), h('div', { class: 'modul-wahl' }, segment$.el));
+            aufbauen(aktivLesen());
+          },
+          neuBauen() {
+            aufbauen(aktiv);
+          },
+          aktivesModul() {
+            return aktiv;
+          },
+        };
+      })();
+
+      /* ===== Prototyp-Prüfstand (Demo data / Worst case) – nur Vorschau ===== */
+      const Pruefstand = (function () {
+        const URL_KEY = 'daten';
+        const URL_WORST = 'worst';
+
+        function urlSchreiben() {
+          try {
+            const url = new URL(window.location.href);
+            if (PRUEFSTAND.aktiv) {
+              url.searchParams.set(URL_KEY, URL_WORST);
+              url.searchParams.set('fall', String(PRUEFSTAND.fall + 1));
+            } else {
+              url.searchParams.delete(URL_KEY);
+              url.searchParams.delete('fall');
+            }
+            window.history.replaceState(null, '', url);
+          } catch (err) {
+            return;
+          }
+        }
+
+        function urlLesen() {
+          try {
+            const p = new URLSearchParams(window.location.search);
+            PRUEFSTAND.aktiv = p.get(URL_KEY) === URL_WORST;
+            const fall = parseInt(p.get('fall'), 10);
+            PRUEFSTAND.fall = Number.isFinite(fall) && fall > 0 ? fall - 1 : 0;
+          } catch (err) {
+            PRUEFSTAND.aktiv = false;
+          }
+        }
+
+        return {
+          vorStart: urlLesen,
+          start() {
+            const faelle = function () {
+              return WORST_FAELLE[App.aktivesModul()];
+            };
+            const fallText = h('p', { class: 'pruefstand-fall', 'aria-live': 'polite' });
+            const weiter = h('button', { type: 'button', class: 'pruefstand-weiter' });
+            const umschalter = segment(
+              [
+                { wert: 'demo', text: 'Demo data' },
+                { wert: 'worst', text: 'Worst case' },
+              ],
+              function () {
+                return PRUEFSTAND.aktiv ? 'worst' : 'demo';
+              },
+              function (wert) {
+                PRUEFSTAND.aktiv = wert === 'worst';
+                anwenden();
+              },
+              'Datensatz (nur Prototyp)',
+            );
+            function beschriften() {
+              umschalter.sync();
+              weiter.hidden = !PRUEFSTAND.aktiv;
+              fallText.hidden = !PRUEFSTAND.aktiv;
+              if (PRUEFSTAND.aktiv) {
+                const liste = faelle();
+                const nr = PRUEFSTAND.fall % liste.length;
+                weiter.textContent = 'Fall ' + (nr + 1) + '/' + liste.length + ' ›';
+                fallText.textContent = liste[nr].name;
+              }
+            }
+            function anwenden() {
+              urlSchreiben();
+              App.neuBauen();
+              beschriften();
+            }
+            weiter.addEventListener('click', function () {
+              PRUEFSTAND.fall = (PRUEFSTAND.fall + 1) % faelle().length;
+              anwenden();
+            });
+            document.body.append(
+              h(
+                'div',
+                { class: 'pruefstand', role: 'group', 'aria-label': 'Prototyp-Prüfstand' },
+                h('p', { class: 'pruefstand-kopf' }, 'Nur Prototyp · Testdaten'),
+                h('div', { class: 'pruefstand-reihe' }, umschalter.el, weiter),
+                fallText,
+              ),
+            );
+            window.pruefstandBeschriften = beschriften;
+            beschriften();
+          },
+        };
+      })();
+
+      try {
+        Pruefstand.vorStart();
+        Darstellung.start();
+        App.start();
+        Pruefstand.start();
+      } catch (err) {
+        document.getElementById('inhalt').textContent =
+          'Die Seite konnte nicht gestartet werden. Bitte neu laden.';
+      }
+    </script>
+  </body>
+</html>

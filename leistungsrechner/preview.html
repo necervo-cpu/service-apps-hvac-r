@@ -1,0 +1,2716 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#f8f7f4"
+      data-orig="#f8f7f4"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#121212"
+      data-orig="#121212"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Leistungsrechner" />
+    <title>Leistungsrechner HLK – Vorschau</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('muther-theme');
+          var r = document.documentElement;
+          if (t === 'hell') r.setAttribute('data-theme', 'light');
+          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(../../shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+          U+FFFD;
+      }
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(../../shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+          U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+      :root {
+        --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+        --gold: #dccc4b;
+        --gold-dark: #c4b53e;
+        --gold-text: #6f6112;
+        --gold-soft: #faf6dc;
+        --on-gold: #1a1a1a;
+
+        --bg: #f8f7f4;
+        --card: #ffffff;
+        --ink: #1a1a1a;
+        --ink-2: #3a3a3a;
+        --muted: #6b6a66;
+        --line: #eceae3;
+        --line-strong: #d6d3c9;
+        --ctl: #ffffff;
+        --track: #e6e3da;
+        --seg-track: #ecebe5;
+        --seg-on: #ffffff;
+        --seg-shadow: 0 1px 3px rgba(26, 26, 26, 0.14), 0 0 0 0.5px rgba(26, 26, 26, 0.06);
+        --glass: rgba(248, 247, 244, 0.74);
+        --glass-edge: rgba(26, 26, 26, 0.08);
+        --hero-bg: var(--card);
+        --hero-edge: var(--line);
+        --hero-ink: var(--ink);
+        --hero-muted: var(--muted);
+        --bad: #b42318;
+        --bad-bg: #fdecea;
+        --warn: #7a4e00;
+        --warn-bg: #fdf3d6;
+        --ok: #1e7a46;
+
+        --r-card: 16px;
+        --r-ctl: 12px;
+        --r-small: 8px;
+        --r-pill: 999px;
+
+        --s1: 4px;
+        --s2: 8px;
+        --s3: 12px;
+        --s4: 16px;
+        --s5: 24px;
+        --s6: 32px;
+        --s7: 48px;
+
+        --touch: 44px;
+        --shadow-hero: 0 4px 16px rgba(0, 0, 0, 0.08);
+        --shadow-thumb: 0 2px 6px rgba(0, 0, 0, 0.25);
+        --ctl-h: 48px;
+
+        --t-fast: 150ms;
+        --t-med: 250ms;
+        --ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+        --safe-t: env(safe-area-inset-top, 0px);
+        --safe-b: env(safe-area-inset-bottom, 0px);
+        --safe-l: env(safe-area-inset-left, 0px);
+        --safe-r: env(safe-area-inset-right, 0px);
+        --kopf-h: calc(56px + var(--safe-t));
+        --tab-h: 56px;
+        --gutter: 16px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --gold-text: #dccc4b;
+          --gold-soft: #3a3516;
+          --bg: #121212;
+          --card: #1e1e1e;
+          --ink: #f0eee6;
+          --ink-2: #d8d6ce;
+          --muted: #a8a69d;
+          --line: #33312d;
+          --line-strong: #4a4740;
+          --ctl: #262522;
+          --track: #3a3834;
+          --seg-track: #2a2926;
+          --seg-on: #48463f;
+          --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          --glass: rgba(18, 18, 18, 0.74);
+          --glass-edge: rgba(255, 255, 255, 0.1);
+          --hero-bg: var(--card);
+          --hero-edge: var(--line);
+          --bad: #ef7070;
+          --bad-bg: #3a1b19;
+          --warn: #f0b44a;
+          --warn-bg: #3a2e10;
+          --ok: #4cc27f;
+        }
+      }
+
+      :root[data-theme='dark'] {
+        --gold-text: #dccc4b;
+        --gold-soft: #3a3516;
+        --bg: #121212;
+        --card: #1e1e1e;
+        --ink: #f0eee6;
+        --ink-2: #d8d6ce;
+        --muted: #a8a69d;
+        --line: #33312d;
+        --line-strong: #4a4740;
+        --ctl: #262522;
+        --track: #3a3834;
+        --seg-track: #2a2926;
+        --seg-on: #48463f;
+        --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        --glass: rgba(18, 18, 18, 0.74);
+        --glass-edge: rgba(255, 255, 255, 0.1);
+        --hero-bg: var(--card);
+        --hero-edge: var(--line);
+        --bad: #ef7070;
+        --bad-bg: #3a1b19;
+        --warn: #f0b44a;
+        --warn-bg: #3a2e10;
+        --ok: #4cc27f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+        scrollbar-gutter: stable;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select {
+        font-family: inherit;
+      }
+
+      button {
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        cursor: pointer;
+      }
+
+      input {
+        font-size: 16px;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--gold-dark);
+        outline-offset: 2px;
+      }
+
+      .nur-sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      .kopf {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        padding-top: var(--safe-t);
+        padding-left: var(--safe-l);
+        padding-right: var(--safe-r);
+        background: var(--glass);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid var(--glass-edge);
+      }
+
+      .kopf-innen {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        gap: var(--s3);
+        padding: 0 var(--gutter);
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: var(--gold);
+        color: var(--on-gold);
+        font-weight: 800;
+        font-size: 17px;
+      }
+
+      .kopf-titel {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .kopf-titel strong {
+        display: block;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        line-height: 1.2;
+      }
+
+      .kopf-titel span {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .icon-knopf {
+        width: var(--touch);
+        height: var(--touch);
+        flex: none;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: var(--r-pill);
+        background: transparent;
+        color: var(--ink);
+        transition:
+          transform var(--t-fast) var(--ease),
+          background var(--t-fast) var(--ease);
+      }
+
+      .icon-knopf:active {
+        transform: scale(0.94);
+        background: var(--seg-track);
+      }
+
+      svg.ico {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: none;
+      }
+
+      .huelle {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding-left: var(--safe-l);
+        padding-right: var(--safe-r);
+      }
+
+      .nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 30;
+        display: flex;
+        padding: 0 var(--safe-l) var(--safe-b) var(--safe-r);
+        background: var(--glass);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid var(--glass-edge);
+      }
+
+      .nav-punkt {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        min-height: var(--tab-h);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: var(--s1) 2px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        transition:
+          color var(--t-fast) var(--ease),
+          transform var(--t-fast) var(--ease);
+      }
+
+      .nav-punkt:active {
+        transform: scale(0.96);
+      }
+
+      .nav-punkt[aria-current='page'] {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .nav-punkt[aria-current='page']::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 28%;
+        right: 28%;
+        height: 3px;
+        border-radius: 0 0 3px 3px;
+        background: var(--gold);
+      }
+
+      .nav-text {
+        white-space: nowrap;
+        font-size: 10.5px;
+        letter-spacing: -0.1px;
+      }
+
+      @media (min-width: 700px) {
+        .nav-text {
+          font-size: inherit;
+          letter-spacing: normal;
+        }
+      }
+
+      .nav-bald {
+        position: absolute;
+        top: 6px;
+        right: 50%;
+        margin-right: -22px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--line-strong);
+      }
+
+      main {
+        padding: var(--s4) var(--gutter) calc(var(--tab-h) + var(--safe-b) + var(--s6));
+      }
+
+      .modul-kopf {
+        margin: var(--s2) 0 var(--s4);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .untertitel {
+        margin: var(--s1) 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .raster {
+        display: grid;
+        gap: var(--s4);
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: 'erg' 'ein' 'weg' 'spe';
+      }
+
+      .a-erg {
+        grid-area: erg;
+        position: sticky;
+        top: calc(var(--kopf-h) + var(--s2));
+        z-index: 10;
+      }
+
+      .a-ein {
+        grid-area: ein;
+        display: grid;
+        gap: var(--s4);
+        align-content: start;
+      }
+
+      .a-weg {
+        grid-area: weg;
+      }
+
+      .a-spe {
+        grid-area: spe;
+        display: grid;
+        gap: var(--s4);
+        align-content: start;
+      }
+
+      .karte {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-card);
+        padding: var(--s4);
+      }
+
+      .karte-kopf {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--s3);
+        margin-bottom: var(--s3);
+      }
+
+      .karte-kopf small {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .ergebnis {
+        background: var(--hero-bg);
+        color: var(--hero-ink);
+        border: 1px solid var(--hero-edge);
+        border-radius: var(--r-card);
+        padding: var(--s4);
+        box-shadow: var(--shadow-hero);
+        transition: box-shadow var(--t-med) var(--ease);
+      }
+
+      .ergebnis-label {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--hero-muted);
+      }
+
+      .ergebnis-zeile {
+        display: flex;
+        align-items: baseline;
+        gap: var(--s2);
+        flex-wrap: wrap;
+      }
+
+      .ergebnis-zahl {
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+
+      .ergebnis-zahl.leer {
+        color: var(--hero-muted);
+      }
+
+      .ergebnis-einheit {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--gold-text);
+      }
+
+      .meldungen {
+        display: grid;
+        gap: var(--s2);
+        margin-top: var(--s3);
+      }
+
+      .meldungen:empty {
+        display: none;
+      }
+
+      .meldung {
+        display: flex;
+        gap: var(--s2);
+        align-items: flex-start;
+        margin: 0;
+        padding: var(--s2) var(--s3);
+        border-radius: var(--r-ctl);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      .meldung svg.ico {
+        width: 20px;
+        height: 20px;
+        margin-top: 1px;
+      }
+
+      .meldung.fehler {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+
+      .meldung.hinweis {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+
+      .rechenweg {
+        font-variant-numeric: tabular-nums;
+        font-size: 14px;
+        color: var(--ink-2);
+        overflow-wrap: anywhere;
+      }
+
+      .rechenweg p {
+        margin: 0 0 var(--s2);
+      }
+
+      .rechenweg p:last-child {
+        margin-bottom: 0;
+      }
+
+      .formel {
+        padding: var(--s3);
+        border-radius: var(--r-ctl);
+        background: var(--gold-soft);
+        border-left: 4px solid var(--gold);
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .werte {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .seg {
+        display: flex;
+        gap: 2px;
+        padding: 2px;
+        border-radius: var(--r-ctl);
+        background: var(--seg-track);
+      }
+
+      .seg button {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 var(--s2);
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition:
+          background var(--t-fast) var(--ease),
+          color var(--t-fast) var(--ease),
+          transform var(--t-fast) var(--ease);
+      }
+
+      .seg button:active {
+        transform: scale(0.98);
+      }
+
+      .seg button[aria-checked='true'] {
+        background: var(--seg-on);
+        color: var(--ink);
+        font-weight: 700;
+        box-shadow: var(--seg-shadow);
+      }
+
+      .seg button.zwei {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        padding: var(--s1) 2px;
+      }
+
+      .seg button .sym {
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .seg button .wort {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: pre;
+      }
+
+      .seg.klein button {
+        min-height: var(--touch);
+        font-size: 14px;
+      }
+
+      .seg.klein {
+        margin-top: var(--s2);
+      }
+
+      .feld {
+        padding: var(--s3) 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .feld:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .feld:last-child {
+        padding-bottom: 0;
+      }
+
+      .feld-label {
+        display: block;
+        margin-bottom: var(--s2);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink-2);
+      }
+
+      .feld-reihe {
+        display: flex;
+        align-items: center;
+        gap: var(--s2);
+      }
+
+      .schritt {
+        width: var(--touch);
+        height: var(--ctl-h);
+        flex: none;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-ctl);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 1;
+        transition:
+          transform var(--t-fast) var(--ease),
+          background var(--t-fast) var(--ease);
+      }
+
+      .schritt:active {
+        transform: scale(0.96);
+        background: var(--seg-track);
+      }
+
+      .eingabe-huelle {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .eingabe-huelle input {
+        width: 100%;
+        height: var(--ctl-h);
+        padding: 0 calc(var(--s3) + 64px) 0 var(--s3);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-ctl);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        transition:
+          border-color var(--t-fast) var(--ease),
+          box-shadow var(--t-fast) var(--ease);
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .eingabe-huelle input:focus {
+        outline: none;
+        border-color: var(--gold-dark);
+        box-shadow: 0 0 0 3px var(--gold-soft);
+      }
+
+      .eingabe-huelle input[aria-invalid='true'] {
+        border-color: var(--bad);
+      }
+
+      .einheit {
+        position: absolute;
+        right: var(--s3);
+        top: 0;
+        bottom: 0;
+        width: 56px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .feld-fehler {
+        margin: var(--s2) 0 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--bad);
+      }
+
+      .feld-fehler:empty {
+        display: none;
+      }
+
+      input[type='range'] {
+        width: 100%;
+        height: var(--touch);
+        margin: var(--s1) 0 0;
+        padding: 0;
+        background: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        touch-action: pan-y;
+      }
+
+      input[type='range']::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+          to right,
+          var(--ink) 0 var(--fill, 0%),
+          var(--track) var(--fill, 0%) 100%
+        );
+      }
+
+      input[type='range']::-moz-range-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+          to right,
+          var(--ink) 0 var(--fill, 0%),
+          var(--track) var(--fill, 0%) 100%
+        );
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 28px;
+        height: 28px;
+        margin-top: -12px;
+        border-radius: 50%;
+        border: 0.5px solid var(--line-strong);
+        background: var(--seg-on);
+        box-shadow: var(--shadow-thumb);
+        transition: transform var(--t-fast) var(--ease);
+      }
+
+      input[type='range']::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 0.5px solid var(--line-strong);
+        background: var(--seg-on);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      }
+
+      input[type='range']:active::-webkit-slider-thumb {
+        transform: scale(1.08);
+      }
+
+      input[type='range']:focus-visible {
+        outline-offset: 0;
+      }
+
+      .abgeleitet {
+        margin: var(--s2) 0 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .teil-label {
+        margin: var(--s4) 0 var(--s2);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink-2);
+      }
+
+      .teil-label:first-child {
+        margin-top: 0;
+      }
+
+      .stoffwerte {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--s2) var(--s4);
+        margin: var(--s3) 0 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .btn-gold {
+        width: 100%;
+        min-height: 52px;
+        padding: 0 var(--s5);
+        border: 0;
+        border-radius: var(--r-pill);
+        background: var(--gold);
+        color: var(--on-gold);
+        font-size: 16px;
+        font-weight: 700;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        transition:
+          transform var(--t-fast) var(--ease),
+          background var(--t-fast) var(--ease),
+          opacity var(--t-fast) var(--ease);
+      }
+
+      .btn-gold:active {
+        transform: scale(0.98);
+        background: var(--gold-dark);
+      }
+
+      .btn-gold:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .btn-zweit {
+        min-width: 96px;
+        min-height: var(--touch);
+        padding: 0 var(--s4);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-pill);
+        background: transparent;
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 600;
+        transition:
+          transform var(--t-fast) var(--ease),
+          background var(--t-fast) var(--ease);
+      }
+
+      .btn-zweit:active {
+        transform: scale(0.98);
+        background: var(--seg-track);
+      }
+
+      .btn-zweit.gefahr {
+        color: var(--bad);
+        border-color: transparent;
+      }
+
+      .bez-feld {
+        width: 100%;
+        height: var(--ctl-h);
+        margin-bottom: var(--s3);
+        padding: 0 var(--s3);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-ctl);
+        background: var(--ctl);
+        color: var(--ink);
+        font-size: 17px;
+        font-weight: 500;
+      }
+
+      .bez-feld:focus {
+        outline: none;
+        border-color: var(--gold-dark);
+        box-shadow: 0 0 0 3px var(--gold-soft);
+      }
+
+      .liste {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+      }
+
+      .liste li {
+        display: grid;
+        gap: var(--s2);
+        padding: var(--s3) 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .liste li:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .liste li:last-child {
+        padding-bottom: 0;
+      }
+
+      .liste-titel {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+      }
+
+      .liste-info {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+
+      .liste-aktionen {
+        display: flex;
+        gap: var(--s2);
+        flex-wrap: wrap;
+      }
+
+      .leer-hinweis {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .platzhalter {
+        display: grid;
+        justify-items: center;
+        gap: var(--s3);
+        padding: var(--s7) var(--s4);
+        text-align: center;
+      }
+
+      .platzhalter svg.ico {
+        width: 40px;
+        height: 40px;
+        color: var(--muted);
+      }
+
+      .platzhalter p {
+        margin: 0;
+        max-width: 36ch;
+        color: var(--muted);
+      }
+
+      .toast {
+        position: fixed;
+        top: calc(var(--safe-t) + var(--s3));
+        left: 50%;
+        z-index: 100;
+        max-width: calc(100vw - 32px);
+        padding: var(--s3) var(--s5);
+        border-radius: var(--r-pill);
+        background: #111;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transform: translate(-50%, -16px);
+        pointer-events: none;
+        transition:
+          opacity var(--t-med) var(--ease),
+          transform var(--t-med) var(--ease);
+      }
+
+      .toast.sichtbar {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      @media (min-width: 700px) {
+        :root {
+          --gutter: 24px;
+        }
+
+        .nav-punkt {
+          flex-direction: row;
+          gap: var(--s2);
+          font-size: 13px;
+        }
+
+        .nav-bald {
+          top: 50%;
+          right: var(--s3);
+          margin: -3px 0 0;
+        }
+
+        .nav-punkt[aria-current='page']::before {
+          left: 20%;
+          right: 20%;
+        }
+      }
+
+      @media (min-width: 900px) {
+        .huelle {
+          display: grid;
+          grid-template-columns: 232px minmax(0, 1fr);
+        }
+
+        .nav {
+          position: sticky;
+          top: var(--kopf-h);
+          left: auto;
+          right: auto;
+          bottom: auto;
+          align-self: start;
+          flex-direction: column;
+          gap: var(--s1);
+          margin: var(--s4) 0 0 var(--gutter);
+          padding: var(--s2);
+          border: 1px solid var(--glass-edge);
+          border-radius: var(--r-card);
+        }
+
+        .nav-punkt {
+          flex: none;
+          justify-content: flex-start;
+          padding: 0 var(--s3);
+          border-radius: var(--r-ctl);
+          font-size: 15px;
+        }
+
+        .nav-punkt[aria-current='page'] {
+          background: var(--seg-track);
+        }
+
+        .nav-punkt[aria-current='page']::before {
+          top: 12px;
+          bottom: 12px;
+          left: 0;
+          right: auto;
+          width: 3px;
+          height: auto;
+          border-radius: 0 3px 3px 0;
+        }
+
+        main {
+          padding-bottom: var(--s7);
+        }
+
+        .raster {
+          grid-template-columns: minmax(0, 1fr) 380px;
+          grid-template-areas:
+            'ein erg'
+            'ein weg'
+            'ein spe'
+            'ein .';
+          grid-template-rows: auto auto auto 1fr;
+          column-gap: var(--s5);
+        }
+
+        .a-erg {
+          position: static;
+        }
+
+        h1 {
+          font-size: 28px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        .ergebnis-zahl {
+          font-size: 38px;
+        }
+
+        .seg button {
+          font-size: 14px;
+        }
+      }
+
+      @media (prefers-reduced-transparency: reduce) {
+        .kopf,
+        .nav {
+          background: var(--bg);
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .schritt:hover,
+        .btn-zweit:hover {
+          background: var(--seg-track);
+        }
+
+        .seg button[aria-checked='false']:hover {
+          color: var(--ink);
+        }
+
+        .nav-punkt:hover {
+          color: var(--ink);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="kopf">
+      <div class="kopf-innen">
+        <div class="logo" aria-hidden="true">M</div>
+        <div class="kopf-titel">
+          <strong>Leistungsrechner HLK</strong>
+          <span id="kopf-modul">Hydraulik</span>
+        </div>
+        <button class="icon-knopf" id="themebtn" type="button"></button>
+      </div>
+    </header>
+
+    <div class="huelle">
+      <nav class="nav" id="nav" aria-label="Module"></nav>
+      <main id="modul" tabindex="-1"></main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      /* @@engine:start */
+      const STOFFWERTE = {
+        wasser: {
+          name: 'Wasser',
+          konz: [0],
+          temps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+          rho: [[999.8, 999.7, 998.2, 995.6, 992.2, 988.0, 983.2, 977.8, 971.8, 965.3, 958.4]],
+          cp: [[4.217, 4.192, 4.182, 4.178, 4.179, 4.181, 4.185, 4.19, 4.197, 4.205, 4.216]],
+        },
+        ethylenglykol: {
+          name: 'Ethylenglykol',
+          konz: [20, 30, 40, 50],
+          temps: [0, 20, 40, 60, 80, 100],
+          rho: [
+            [1031, 1027, 1019, 1008, 996, 982],
+            [1046, 1040, 1032, 1021, 1008, 994],
+            [1059, 1051, 1042, 1031, 1018, 1004],
+            [1071, 1064, 1055, 1044, 1031, 1017],
+          ],
+          cp: [
+            [3.82, 3.84, 3.86, 3.88, 3.91, 3.93],
+            [3.6, 3.64, 3.68, 3.72, 3.76, 3.8],
+            [3.4, 3.45, 3.49, 3.54, 3.58, 3.62],
+            [3.18, 3.22, 3.27, 3.32, 3.37, 3.41],
+          ],
+        },
+        propylenglykol: {
+          name: 'Propylenglykol',
+          konz: [20, 30, 40, 50],
+          temps: [0, 20, 40, 60, 80, 100],
+          rho: [
+            [1020, 1016, 1008, 997, 984, 969],
+            [1030, 1025, 1016, 1004, 991, 976],
+            [1040, 1033, 1024, 1012, 998, 983],
+            [1048, 1041, 1031, 1018, 1004, 988],
+          ],
+          cp: [
+            [3.9, 3.93, 3.96, 3.99, 4.02, 4.05],
+            [3.74, 3.78, 3.82, 3.86, 3.9, 3.94],
+            [3.57, 3.62, 3.67, 3.72, 3.77, 3.82],
+            [3.39, 3.45, 3.51, 3.57, 3.63, 3.69],
+          ],
+        },
+      };
+
+      const KONZ_MIN = 20;
+      const KONZ_MAX = 50;
+      const T_MIN = 0;
+      const T_MAX = 100;
+      const T_GRENZE_ABS = 150;
+      const DT_WARNGRENZE = 40;
+      const SEKUNDEN_PRO_STUNDE = 3600;
+      const KJ_PRO_WH = 3.6;
+      const T_FEST = { wasser: 40, ethylenglykol: 10, propylenglykol: 10 };
+      const RHO_GLYKOL = { ethylenglykol: 1113, propylenglykol: 1036 };
+      const RHO_WASSER_REF = 998;
+
+      function volZuMasse(phiProzent, mediumKey) {
+        const rhoG = RHO_GLYKOL[mediumKey];
+        const phi = phiProzent / 100;
+        return ((phi * rhoG) / (phi * rhoG + (1 - phi) * RHO_WASSER_REF)) * 100;
+      }
+
+      const EINHEITEN_FAKTOR = { 'l/min': 0.06, 'l/h': 0.001, 'm³/h': 1 };
+
+      function nachM3h(wert, einheit) {
+        return wert * EINHEITEN_FAKTOR[einheit];
+      }
+
+      function vonM3h(wert, einheit) {
+        return wert / EINHEITEN_FAKTOR[einheit];
+      }
+
+      function klemme(x, min, max) {
+        return Math.min(max, Math.max(min, x));
+      }
+
+      function istZahl(x) {
+        return typeof x === 'number' && Number.isFinite(x);
+      }
+
+      function parseZahl(text) {
+        if (typeof text !== 'string') {
+          return NaN;
+        }
+        let t = text.replace(/[\s ]/g, '').replace('−', '-');
+        if (t === '') {
+          return null;
+        }
+        if (t.includes(',') && t.includes('.')) {
+          t = t.replace(/\./g, '');
+        }
+        t = t.replace(',', '.');
+        if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(t)) {
+          return NaN;
+        }
+        return Number(t);
+      }
+
+      function findeIntervall(achse, x) {
+        const xk = klemme(x, achse[0], achse[achse.length - 1]);
+        let i = 0;
+        while (i < achse.length - 2 && xk > achse[i + 1]) {
+          i += 1;
+        }
+        const f = (xk - achse[i]) / (achse[i + 1] - achse[i]);
+        return { i, f };
+      }
+
+      function bilinear(tabelle, matrix, konz, t) {
+        const k = tabelle.konz.length === 1 ? { i: 0, f: 0 } : findeIntervall(tabelle.konz, konz);
+        const z = findeIntervall(tabelle.temps, t);
+        const k2 = tabelle.konz.length === 1 ? k.i : k.i + 1;
+        const a = matrix[k.i][z.i] + (matrix[k.i][z.i + 1] - matrix[k.i][z.i]) * z.f;
+        const b = matrix[k2][z.i] + (matrix[k2][z.i + 1] - matrix[k2][z.i]) * z.f;
+        return a + (b - a) * k.f;
+      }
+
+      function stoffwerte(mediumKey, konz, tMittel) {
+        const tabelle = STOFFWERTE[mediumKey];
+        if (!tabelle) {
+          throw new Error('Unbekanntes Medium.');
+        }
+        if (!istZahl(tMittel)) {
+          throw new Error('Mitteltemperatur fehlt.');
+        }
+        const k = tabelle.konz.length === 1 ? 0 : konz;
+        return {
+          rho: bilinear(tabelle, tabelle.rho, k, tMittel),
+          cp: bilinear(tabelle, tabelle.cp, k, tMittel),
+          tGeklemmt: tMittel < T_MIN || tMittel > T_MAX,
+        };
+      }
+
+      function fehler(feld, text) {
+        return { feld, text };
+      }
+
+      function pruefePositiv(wert, feld, name, einheit) {
+        if (!istZahl(wert)) {
+          return fehler(feld, 'Bitte einen Wert für ' + name + ' eingeben.');
+        }
+        if (wert <= 0) {
+          return fehler(feld, name + ' muss größer als 0 ' + einheit + ' sein.');
+        }
+        return null;
+      }
+
+      function ermittleTemperaturen(e, sammler) {
+        if (e.ziel === 'dT' || e.modus === 'direkt') {
+          const tFest = T_FEST[e.medium];
+          if (e.ziel !== 'dT') {
+            const f = pruefePositiv(e.deltaT, 'deltaT', 'ΔT', 'K');
+            if (f) {
+              sammler.push(f);
+            }
+          }
+          return { tMittel: tFest, deltaT: e.deltaT, kuehlfall: false, fest: true };
+        }
+        if (!istZahl(e.tVL)) {
+          sammler.push(fehler('tVL', 'Bitte T_VL (Vorlauf) eingeben.'));
+        }
+        if (!istZahl(e.tRL)) {
+          sammler.push(fehler('tRL', 'Bitte T_RL (Rücklauf) eingeben.'));
+        }
+        if (!istZahl(e.tVL) || !istZahl(e.tRL)) {
+          return { tMittel: NaN, deltaT: NaN, kuehlfall: false, fest: false };
+        }
+        const diff = e.tVL - e.tRL;
+        if (diff === 0) {
+          sammler.push(
+            fehler(
+              'tRL',
+              'T_VL und T_RL sind gleich, ΔT wäre 0 K. Bitte einen Unterschied einstellen.',
+            ),
+          );
+        }
+        return {
+          tMittel: (e.tVL + e.tRL) / 2,
+          deltaT: Math.abs(diff),
+          kuehlfall: diff < 0,
+          fest: false,
+        };
+      }
+
+      function berechne(e) {
+        const fehlerListe = [];
+        const hinweise = [];
+        if (!['Q', 'V', 'dT'].includes(e.ziel)) {
+          return { ok: false, fehler: [fehler(null, 'Unbekannte Zielgröße.')], hinweise };
+        }
+        if (e.medium !== 'wasser') {
+          if (!istZahl(e.konz) || e.konz < KONZ_MIN || e.konz > KONZ_MAX) {
+            fehlerListe.push(
+              fehler(
+                'konz',
+                'Die Konzentration muss zwischen ' +
+                  KONZ_MIN +
+                  ' und ' +
+                  KONZ_MAX +
+                  (e.konzModus === 'vol' ? ' Vol.-%' : ' Masse-%') +
+                  ' liegen.',
+              ),
+            );
+          }
+        }
+        const temp = ermittleTemperaturen(e, fehlerListe);
+        if (e.ziel !== 'Q') {
+          const f = pruefePositiv(e.leistungKw, 'leistungKw', 'Leistung Q', 'kW');
+          if (f) {
+            fehlerListe.push(f);
+          }
+        }
+        if (e.ziel !== 'V') {
+          const f = pruefePositiv(e.vM3h, 'vM3h', 'Volumenstrom', '');
+          if (f) {
+            fehlerListe.push(f);
+          }
+        }
+        if (fehlerListe.length > 0) {
+          return { ok: false, fehler: fehlerListe, hinweise };
+        }
+        if (Math.abs(temp.tMittel) > T_GRENZE_ABS) {
+          return {
+            ok: false,
+            fehler: [fehler('tMittel', 'Diese Temperatur ist unplausibel. Bitte prüfen.')],
+            hinweise,
+          };
+        }
+        let konzMasse = e.konz;
+        if (e.medium !== 'wasser' && e.konzModus === 'vol') {
+          konzMasse = volZuMasse(e.konz, e.medium);
+        }
+        let konzGeklemmt = false;
+        if (e.medium !== 'wasser' && (konzMasse < KONZ_MIN || konzMasse > KONZ_MAX)) {
+          konzGeklemmt = true;
+          hinweise.push(
+            'Stoffwerte am Tabellenrand (' +
+              (konzMasse > KONZ_MAX ? KONZ_MAX : KONZ_MIN) +
+              ' Masse-%) begrenzt.',
+          );
+          konzMasse = klemme(konzMasse, KONZ_MIN, KONZ_MAX);
+        }
+        let sw;
+        try {
+          sw = stoffwerte(e.medium, konzMasse, temp.tMittel);
+        } catch (err) {
+          return { ok: false, fehler: [fehler(null, err.message)], hinweise };
+        }
+        if (sw.tGeklemmt) {
+          hinweise.push(
+            'Stoffwerte gelten für ' +
+              T_MIN +
+              ' bis ' +
+              T_MAX +
+              ' °C. Außerhalb wird mit dem Randwert gerechnet.',
+          );
+        }
+        if (temp.kuehlfall) {
+          hinweise.push('Kühlfall: T_RL liegt über T_VL. Gerechnet wird mit dem Betrag von ΔT.');
+        }
+        let q = e.leistungKw;
+        let v = e.vM3h;
+        let dt = temp.deltaT;
+        if (e.ziel === 'Q') {
+          q = (v * sw.rho * sw.cp * dt) / SEKUNDEN_PRO_STUNDE;
+        } else if (e.ziel === 'V') {
+          v = (q * SEKUNDEN_PRO_STUNDE) / (sw.rho * sw.cp * dt);
+        } else {
+          dt = (q * SEKUNDEN_PRO_STUNDE) / (v * sw.rho * sw.cp);
+        }
+        const wert = e.ziel === 'Q' ? q : e.ziel === 'V' ? v : dt;
+        if (!istZahl(wert)) {
+          return {
+            ok: false,
+            fehler: [fehler(null, 'Mit diesen Werten lässt sich kein Ergebnis berechnen.')],
+            hinweise,
+          };
+        }
+        if (e.ziel === 'dT' && dt > DT_WARNGRENZE) {
+          hinweise.push('ΔT über ' + DT_WARNGRENZE + ' K ist ungewöhnlich. Bitte Eingaben prüfen.');
+        }
+        return {
+          ok: true,
+          ziel: e.ziel,
+          wert,
+          q,
+          v,
+          dt,
+          rho: sw.rho,
+          cp: sw.cp,
+          konzMasse,
+          konzGeklemmt,
+          tMittel: temp.tMittel,
+          tFest: temp.fest,
+          hinweise,
+          fehler: [],
+        };
+      }
+
+      const Engine = { STOFFWERTE, nachM3h, vonM3h, parseZahl, stoffwerte, volZuMasse, berechne };
+      /* @@engine:ende */
+
+      const SPEICHER_KEY = 'leistungsrechner.v1.gespeichert';
+      const THEME_KEY = 'muther-theme';
+      const MAX_GESPEICHERT = 100;
+      const TOAST_DAUER_MS = 2600;
+      const WIEDERHOLUNG_START_MS = 420;
+      const WIEDERHOLUNG_TAKT_MS = 90;
+      const LOESCHEN_FRIST_MS = 3500;
+
+      const MODULE = [
+        { id: 'hydraulik', label: 'Hydraulik', titel: 'Hydraulik', icon: 'tropfen', fertig: true },
+        { id: 'luft', label: 'Luft', titel: 'Luft', icon: 'luft', fertig: false },
+        { id: 'speicher', label: 'Speicher', titel: 'Speicher', icon: 'speicher', fertig: false },
+        { id: 'kaelte', label: 'Kälte', titel: 'Kältekreis', icon: 'kaelte', fertig: false },
+        {
+          id: 'last',
+          label: 'Heizkörper',
+          titel: 'Heizkörper / Last',
+          icon: 'heizkoerper',
+          fertig: false,
+        },
+      ];
+
+      const ZIELE = [
+        { id: 'Q', label: 'Q', wort: 'Leistung', name: 'Leistung Q' },
+        { id: 'V', label: 'V˙', wort: 'Volumenstrom', name: 'Volumenstrom V˙' },
+        { id: 'dT', label: 'ΔT', wort: 'Differenz', name: 'Temperaturdifferenz ΔT' },
+      ];
+
+      const MEDIEN = [
+        { id: 'wasser', label: 'Wasser', wort: ' ' },
+        { id: 'ethylenglykol', label: 'Ethylen', wort: '-glykol' },
+        { id: 'propylenglykol', label: 'Propylen', wort: '-glykol' },
+      ];
+
+      const V_EINHEITEN = ['l/min', 'l/h', 'm³/h'];
+
+      const V_SLIDER = {
+        'l/min': { min: 0, max: 800, step: 1, schritt: 1 },
+        'l/h': { min: 0, max: 50000, step: 50, schritt: 50 },
+        'm³/h': { min: 0, max: 50, step: 0.1, schritt: 0.1 },
+      };
+
+      const ICONS = {
+        tropfen: '<path d="M12 3.5s6 6.2 6 10.5a6 6 0 0 1-12 0c0-4.3 6-10.5 6-10.5z"/>',
+        luft: '<path d="M3 9h11a2.5 2.5 0 1 0-2.5-2.5M3 13h15a2.5 2.5 0 1 1-2.5 2.5M3 17h7"/>',
+        speicher:
+          '<path d="M6 5c0-1.1 2.7-2 6-2s6 .9 6 2v14c0 1.1-2.7 2-6 2s-6-.9-6-2z"/><path d="M6 5c0 1.1 2.7 2 6 2s6-.9 6-2"/>',
+        kaelte: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/>',
+        heizkoerper: '<path d="M4 7h16M4 17h16M7 7v10M11 7v10M15 7v10M19 7v10"/>',
+        sonne:
+          '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+        mond: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+        auto: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+        warnung: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+        info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+        uhr: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      };
+
+      function h(tag, attrs, ...kinder) {
+        const el = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs || {})) {
+          if (v === null || v === undefined || v === false) {
+            continue;
+          }
+          if (k === 'class') {
+            el.className = v;
+          } else {
+            el.setAttribute(k, v === true ? '' : v);
+          }
+        }
+        for (const kind of kinder.flat()) {
+          if (kind === null || kind === undefined || kind === false) {
+            continue;
+          }
+          el.append(kind);
+        }
+        return el;
+      }
+
+      function icon(name) {
+        const wrapper = document.createElement('span');
+        wrapper.innerHTML =
+          '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          ICONS[name] +
+          '</svg>';
+        return wrapper.firstChild;
+      }
+
+      const fmtEingabe = new Intl.NumberFormat('de-DE', {
+        maximumFractionDigits: 3,
+        useGrouping: false,
+      });
+
+      function formatEingabe(x) {
+        return fmtEingabe.format(Math.round(x * 1000) / 1000);
+      }
+
+      function formatFest(x, stellen) {
+        return new Intl.NumberFormat('de-DE', {
+          minimumFractionDigits: stellen,
+          maximumFractionDigits: stellen,
+        }).format(x);
+      }
+
+      function formatErgebnis(x) {
+        const a = Math.abs(x);
+        let stellen = 3;
+        if (a >= 1000) {
+          stellen = 0;
+        } else if (a >= 100) {
+          stellen = 1;
+        } else if (a >= 10) {
+          stellen = 2;
+        }
+        return formatFest(x, stellen);
+      }
+
+      /* ===== Zustand (Store) ===== */
+      const Store = (function () {
+        const START = {
+          modul: 'hydraulik',
+          ziel: 'Q',
+          medium: 'wasser',
+          konz: 30,
+          konzModus: 'vol',
+          einheit: 'm³/h',
+          modus: 'direkt',
+          leistungKw: 11.5,
+          vM3h: 1,
+          deltaT: 10,
+          tVL: 45,
+          tRL: 35,
+          tMittel: 40,
+        };
+        let zustand = Object.assign({}, START);
+        const hoerer = [];
+
+        return {
+          lesen() {
+            return zustand;
+          },
+          setze(patch) {
+            zustand = Object.assign({}, zustand, patch);
+            hoerer.forEach(function (fn) {
+              fn(zustand);
+            });
+          },
+          abonnieren(fn) {
+            hoerer.push(fn);
+          },
+          start() {
+            return Object.assign({}, START);
+          },
+        };
+      })();
+
+      /* ===== Speicher (localStorage) ===== */
+      const Ablage = (function () {
+        let imSpeicher = [];
+
+        function istEintrag(x) {
+          return (
+            x &&
+            typeof x === 'object' &&
+            typeof x.id === 'string' &&
+            typeof x.zeit === 'number' &&
+            x.zustand &&
+            typeof x.zustand === 'object'
+          );
+        }
+
+        function laden() {
+          try {
+            const roh = localStorage.getItem(SPEICHER_KEY);
+            if (!roh) {
+              return { liste: [], ok: true };
+            }
+            let daten;
+            try {
+              daten = JSON.parse(roh);
+            } catch (err) {
+              localStorage.setItem(SPEICHER_KEY + '.defekt', roh);
+              return { liste: [], ok: true, defekt: true };
+            }
+            if (!Array.isArray(daten)) {
+              localStorage.setItem(SPEICHER_KEY + '.defekt', roh);
+              return { liste: [], ok: true, defekt: true };
+            }
+            return { liste: daten.filter(istEintrag), ok: true };
+          } catch (err) {
+            return { liste: imSpeicher, ok: false };
+          }
+        }
+
+        function schreiben(liste) {
+          imSpeicher = liste;
+          try {
+            localStorage.setItem(SPEICHER_KEY, JSON.stringify(liste));
+            return true;
+          } catch (err) {
+            return false;
+          }
+        }
+
+        return {
+          liste() {
+            return laden().liste;
+          },
+          defekt() {
+            return Boolean(laden().defekt);
+          },
+          hinzufuegen(eintrag) {
+            const liste = [eintrag].concat(laden().liste).slice(0, MAX_GESPEICHERT);
+            return schreiben(liste);
+          },
+          entfernen(id) {
+            return schreiben(
+              laden().liste.filter(function (e) {
+                return e.id !== id;
+              }),
+            );
+          },
+        };
+      })();
+
+      /* ===== Darstellung (Hell/Dunkel/Auto) ===== */
+      const Darstellung = (function () {
+        const FOLGE = { auto: 'hell', hell: 'dunkel', dunkel: 'auto' };
+        const TEXTE = { auto: 'Auto', hell: 'Hell', dunkel: 'Dunkel' };
+        const ICON_VON = { auto: 'auto', hell: 'sonne', dunkel: 'mond' };
+
+        let aktuell = null;
+
+        function lesen() {
+          if (aktuell) {
+            return aktuell;
+          }
+          try {
+            const t = localStorage.getItem(THEME_KEY);
+            aktuell = FOLGE[t] ? t : 'auto';
+          } catch (err) {
+            aktuell = 'auto';
+          }
+          return aktuell;
+        }
+
+        function anwenden(modus) {
+          const wurzel = document.documentElement;
+          if (modus === 'hell') {
+            wurzel.setAttribute('data-theme', 'light');
+          } else if (modus === 'dunkel') {
+            wurzel.setAttribute('data-theme', 'dark');
+          } else {
+            wurzel.removeAttribute('data-theme');
+          }
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            if (modus === 'hell') {
+              m.setAttribute('content', '#f8f7f4');
+            } else if (modus === 'dunkel') {
+              m.setAttribute('content', '#121212');
+            } else {
+              m.setAttribute('content', m.getAttribute('data-orig'));
+            }
+          });
+          const knopf = document.getElementById('themebtn');
+          knopf.replaceChildren(icon(ICON_VON[modus]));
+          knopf.setAttribute(
+            'aria-label',
+            'Darstellung: ' + TEXTE[modus] + ' (tippen zum Wechseln)',
+          );
+          knopf.title = 'Darstellung: ' + TEXTE[modus];
+        }
+
+        return {
+          start() {
+            anwenden(lesen());
+            document.getElementById('themebtn').addEventListener('click', function () {
+              const neu = FOLGE[lesen()];
+              aktuell = neu;
+              try {
+                localStorage.setItem(THEME_KEY, neu);
+              } catch (err) {
+                toast('Darstellung kann auf diesem Gerät nicht gemerkt werden.');
+              }
+              anwenden(neu);
+            });
+          },
+        };
+      })();
+
+      let toastTimer = null;
+
+      function toast(text) {
+        const el = document.getElementById('toast');
+        el.textContent = text;
+        el.classList.add('sichtbar');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          el.classList.remove('sichtbar');
+        }, TOAST_DAUER_MS);
+      }
+
+      /* ===== UI-Bausteine ===== */
+      function segment(optionen, aktiv, beiWahl, optionen2) {
+        const settings = optionen2 || {};
+        const wurzel = h('div', {
+          class: 'seg' + (settings.klein ? ' klein' : ''),
+          role: 'radiogroup',
+          'aria-label': settings.label || null,
+        });
+        optionen.forEach(function (o) {
+          const knopf = h(
+            'button',
+            {
+              type: 'button',
+              role: 'radio',
+              'aria-checked': String(o.id === aktiv),
+              'data-id': o.id,
+            },
+            o.wort
+              ? [h('span', { class: 'sym' }, o.label), h('span', { class: 'wort' }, o.wort)]
+              : o.label,
+          );
+          if (o.wort) {
+            knopf.classList.add('zwei');
+          }
+          knopf.addEventListener('click', function () {
+            if (o.id !== Store.lesen()[settings.schluessel]) {
+              beiWahl(o.id);
+            }
+          });
+          wurzel.append(knopf);
+        });
+        return wurzel;
+      }
+
+      function aktualisiereSegment(wurzel, aktiv) {
+        wurzel.querySelectorAll('button').forEach(function (b) {
+          b.setAttribute('aria-checked', String(b.getAttribute('data-id') === aktiv));
+        });
+      }
+
+      const FELDER = {
+        leistungKw: {
+          label: 'Leistung Q',
+          einheit: () => 'kW',
+          anzeige: (s) => s.leistungKw,
+          patch: (x) => ({ leistungKw: x }),
+          slider: () => ({ min: 0, max: 200, step: 0.5 }),
+          schritt: () => 0.5,
+        },
+        vM3h: {
+          label: 'Volumenstrom V˙',
+          einheit: (s) => s.einheit,
+          anzeige: (s) => (s.vM3h === null ? null : Engine.vonM3h(s.vM3h, s.einheit)),
+          patch: (x, s) => ({ vM3h: x === null ? null : Engine.nachM3h(x, s.einheit) }),
+          slider: (s) => V_SLIDER[s.einheit],
+          schritt: (s) => V_SLIDER[s.einheit].schritt,
+        },
+        deltaT: {
+          label: 'Temperaturdifferenz ΔT',
+          einheit: () => 'K',
+          anzeige: (s) => s.deltaT,
+          patch: (x) => ({ deltaT: x }),
+          slider: () => ({ min: 0, max: 60, step: 0.5 }),
+          schritt: () => 0.5,
+        },
+        tVL: {
+          label: 'Vorlauftemperatur T_VL',
+          einheit: () => '°C',
+          anzeige: (s) => s.tVL,
+          patch: (x) => ({ tVL: x }),
+          slider: () => ({ min: -10, max: 120, step: 0.5 }),
+          schritt: () => 0.5,
+        },
+        tRL: {
+          label: 'Rücklauftemperatur T_RL',
+          einheit: () => '°C',
+          anzeige: (s) => s.tRL,
+          patch: (x) => ({ tRL: x }),
+          slider: () => ({ min: -10, max: 120, step: 0.5 }),
+          schritt: () => 0.5,
+        },
+        konz: {
+          label: 'Konzentration',
+          einheit: (s) => (s.konzModus === 'vol' ? 'Vol.-%' : 'Masse-%'),
+          anzeige: (s) => s.konz,
+          patch: (x) => ({ konz: x }),
+          slider: () => ({ min: KONZ_MIN, max: KONZ_MAX, step: 1 }),
+          schritt: () => 1,
+        },
+      };
+
+      function tempText(e) {
+        return (
+          'Stoffwerte bei ' +
+          formatEingabe(e.tMittel) +
+          ' °C ' +
+          (e.tFest ? '(fest)' : '(Mittel aus VL/RL)')
+        );
+      }
+
+      function rundeSchritt(x) {
+        return Math.round(x * 10000) / 10000;
+      }
+
+      function baueFeld(schluessel, extra) {
+        const def = FELDER[schluessel];
+        const id = 'f-' + schluessel;
+        const text = h('input', {
+          id,
+          type: 'text',
+          inputmode: 'decimal',
+          autocomplete: 'off',
+          autocapitalize: 'none',
+          autocorrect: 'off',
+          spellcheck: 'false',
+          enterkeyhint: 'done',
+          'aria-describedby': id + '-fehler',
+        });
+        const einheit = h('span', { class: 'einheit', 'aria-hidden': 'true' });
+        const minus = h(
+          'button',
+          { type: 'button', class: 'schritt', 'aria-label': def.label + ' verringern' },
+          '−',
+        );
+        const plus = h(
+          'button',
+          { type: 'button', class: 'schritt', 'aria-label': def.label + ' erhöhen' },
+          '+',
+        );
+        const regler = h('input', {
+          type: 'range',
+          'aria-label': def.label + ' (Schieberegler)',
+          tabindex: '-1',
+        });
+        const meldung = h('p', { class: 'feld-fehler', id: id + '-fehler', role: 'alert' });
+        let parseFehler = '';
+
+        const wurzel = h(
+          'div',
+          { class: 'feld' },
+          h('label', { class: 'feld-label', for: id }, def.label),
+          h(
+            'div',
+            { class: 'feld-reihe' },
+            minus,
+            h('div', { class: 'eingabe-huelle' }, text, einheit),
+            plus,
+          ),
+          regler,
+          meldung,
+          extra || null,
+        );
+
+        function aktualisiere(s, fehlerText) {
+          const wert = def.anzeige(s);
+          const sl = def.slider(s);
+          einheit.textContent = def.einheit(s);
+          if (document.activeElement !== text) {
+            text.value = wert === null || wert === undefined ? '' : formatEingabe(wert);
+            parseFehler = '';
+          }
+          regler.min = sl.min;
+          regler.max = sl.max;
+          regler.step = sl.step;
+          const sichtbar = wert === null || wert === undefined ? sl.min : wert;
+          regler.value = sichtbar;
+          const anteil = ((klemme(sichtbar, sl.min, sl.max) - sl.min) / (sl.max - sl.min)) * 100;
+          regler.style.setProperty('--fill', anteil + '%');
+          const anzeigeText = parseFehler || fehlerText || '';
+          meldung.textContent = anzeigeText;
+          text.setAttribute('aria-invalid', anzeigeText ? 'true' : 'false');
+        }
+
+        function setzeWert(x) {
+          Store.setze(def.patch(x, Store.lesen()));
+        }
+
+        text.addEventListener('input', function () {
+          const x = Engine.parseZahl(text.value);
+          if (Number.isNaN(x)) {
+            parseFehler = 'Bitte eine Zahl eingeben, zum Beispiel 12,5.';
+            setzeWert(null);
+          } else {
+            parseFehler = '';
+            setzeWert(x);
+          }
+        });
+
+        text.addEventListener('blur', function () {
+          parseFehler = '';
+          aktualisiere(Store.lesen(), null);
+          Ergebnis.neuZeichnen();
+        });
+
+        text.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            text.blur();
+          }
+        });
+
+        regler.addEventListener('input', function () {
+          parseFehler = '';
+          setzeWert(Number(regler.value));
+        });
+
+        function schritt(richtung) {
+          const s = Store.lesen();
+          const aktuell = def.anzeige(s);
+          const basis = aktuell === null || aktuell === undefined ? 0 : aktuell;
+          setzeWert(rundeSchritt(basis + richtung * def.schritt(s)));
+          parseFehler = '';
+        }
+
+        [
+          [minus, -1],
+          [plus, 1],
+        ].forEach(function (paar) {
+          const knopf = paar[0];
+          const richtung = paar[1];
+          let start = null;
+          let takt = null;
+          function stopp() {
+            clearTimeout(start);
+            clearInterval(takt);
+          }
+          knopf.addEventListener('pointerdown', function (ev) {
+            if (ev.button !== undefined && ev.button !== 0) {
+              return;
+            }
+            schritt(richtung);
+            stopp();
+            start = setTimeout(function () {
+              takt = setInterval(function () {
+                schritt(richtung);
+              }, WIEDERHOLUNG_TAKT_MS);
+            }, WIEDERHOLUNG_START_MS);
+          });
+          ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (name) {
+            knopf.addEventListener(name, stopp);
+          });
+          knopf.addEventListener('click', function (ev) {
+            if (ev.detail === 0) {
+              schritt(richtung);
+            }
+          });
+        });
+
+        return { wurzel, aktualisiere, schluessel };
+      }
+
+      /* ===== Modul Hydraulik ===== */
+      const Hydraulik = (function () {
+        let felder = [];
+        let segmente = {};
+        let strukturKey = '';
+        let refs = {};
+
+        function struktur(s) {
+          return [s.ziel, s.modus, s.medium].join('|');
+        }
+
+        function einheitenWahl() {
+          const seg = segment(
+            V_EINHEITEN.map((e) => ({ id: e, label: e })),
+            Store.lesen().einheit,
+            (id) => Store.setze({ einheit: id }),
+            { klein: true, label: 'Einheit Volumenstrom', schluessel: 'einheit' },
+          );
+          segmente.einheit = seg;
+          return seg;
+        }
+
+        function baueZielKarte() {
+          const seg = segment(ZIELE, Store.lesen().ziel, (id) => Store.setze({ ziel: id }), {
+            label: 'Gesuchte Größe',
+            schluessel: 'ziel',
+          });
+          segmente.ziel = seg;
+          return h(
+            'section',
+            { class: 'karte' },
+            h(
+              'div',
+              { class: 'karte-kopf' },
+              h('h2', null, 'Gesucht'),
+              h('small', null, 'wird berechnet'),
+            ),
+            seg,
+          );
+        }
+
+        function baueEingabeKarte(s) {
+          const kinder = [];
+          const neueFelder = [];
+          function feld(schluessel, extra) {
+            const f = baueFeld(schluessel, extra);
+            neueFelder.push(f);
+            kinder.push(f.wurzel);
+          }
+          if (s.ziel !== 'Q') {
+            feld('leistungKw');
+          }
+          if (s.ziel !== 'V') {
+            feld('vM3h', einheitenWahl());
+          }
+          if (s.ziel !== 'dT') {
+            const modusSeg = segment(
+              [
+                { id: 'direkt', label: 'ΔT direkt' },
+                { id: 'temperatur', label: 'T_VL / T_RL' },
+              ],
+              s.modus,
+              (id) => Store.setze({ modus: id }),
+              { label: 'ΔT-Eingabe', schluessel: 'modus' },
+            );
+            segmente.modus = modusSeg;
+            kinder.push(h('p', { class: 'teil-label' }, 'Temperaturdifferenz'), modusSeg);
+            if (s.modus === 'direkt') {
+              feld('deltaT');
+            } else {
+              feld('tVL');
+              feld('tRL');
+              refs.abgeleitet = h('p', { class: 'abgeleitet' });
+              kinder.push(refs.abgeleitet);
+            }
+          }
+          felder = felder.concat(neueFelder);
+          return h(
+            'section',
+            { class: 'karte' },
+            h('div', { class: 'karte-kopf' }, h('h2', null, 'Eingaben')),
+            kinder,
+          );
+        }
+
+        function baueMediumKarte(s) {
+          const seg = segment(MEDIEN, s.medium, (id) => Store.setze({ medium: id }), {
+            label: 'Medium',
+            schluessel: 'medium',
+          });
+          segmente.medium = seg;
+          const kinder = [seg];
+          if (s.medium !== 'wasser') {
+            const f = baueFeld('konz');
+            felder.push(f);
+            const modusSeg = segment(
+              [
+                { id: 'vol', label: 'Vol.-%' },
+                { id: 'masse', label: 'Masse-%' },
+              ],
+              s.konzModus,
+              (id) => Store.setze({ konzModus: id }),
+              { klein: true, label: 'Einheit der Konzentration', schluessel: 'konzModus' },
+            );
+            segmente.konzModus = modusSeg;
+            refs.konzInfo = h('p', { class: 'abgeleitet' });
+            kinder.push(
+              h('p', { class: 'teil-label' }, 'Mischungsverhältnis'),
+              modusSeg,
+              f.wurzel,
+              refs.konzInfo,
+            );
+          }
+          refs.stoff = h('p', { class: 'stoffwerte' });
+          kinder.push(refs.stoff);
+          return h(
+            'section',
+            { class: 'karte' },
+            h('div', { class: 'karte-kopf' }, h('h2', null, 'Medium')),
+            kinder,
+          );
+        }
+
+        function baueEingaben() {
+          const s = Store.lesen();
+          felder = [];
+          segmente = {};
+          refs = {};
+          const eingabe = document.getElementById('eingaben');
+          eingabe.replaceChildren(baueZielKarte(), baueEingabeKarte(s), baueMediumKarte(s));
+          strukturKey = struktur(s);
+        }
+
+        function eingabeFuerEngine(s) {
+          return {
+            ziel: s.ziel,
+            medium: s.medium,
+            konz: s.konz,
+            konzModus: s.konzModus,
+            modus: s.modus,
+            leistungKw: s.leistungKw,
+            vM3h: s.vM3h,
+            deltaT: s.deltaT,
+            tVL: s.tVL,
+            tRL: s.tRL,
+          };
+        }
+
+        function sync(s) {
+          if (struktur(s) !== strukturKey) {
+            baueEingaben();
+          }
+          const ergebnis = Ergebnis.berechne(s);
+          const fehlerNachFeld = {};
+          (ergebnis.fehler || []).forEach(function (f) {
+            if (f.feld && !fehlerNachFeld[f.feld]) {
+              fehlerNachFeld[f.feld] = f.text;
+            }
+          });
+          felder.forEach(function (f) {
+            f.aktualisiere(s, fehlerNachFeld[f.schluessel]);
+          });
+          Object.keys(segmente).forEach(function (k) {
+            aktualisiereSegment(segmente[k], s[k]);
+          });
+          if (refs.abgeleitet) {
+            const diff = s.tVL - s.tRL;
+            refs.abgeleitet.textContent = Number.isFinite(diff)
+              ? 'ΔT = ' + formatErgebnis(Math.abs(diff)) + ' K'
+              : '';
+          }
+          if (refs.konzInfo) {
+            const masse = Number.isFinite(s.konz) ? Engine.volZuMasse(s.konz, s.medium) : NaN;
+            refs.konzInfo.textContent =
+              s.konzModus === 'vol' && Number.isFinite(masse)
+                ? 'entspricht ≈ ' + formatFest(masse, 1) + ' Masse-%'
+                : '';
+          }
+          if (refs.stoff) {
+            refs.stoff.replaceChildren(
+              ...(ergebnis.ok
+                ? [
+                    h('span', null, 'ρ = ' + formatFest(ergebnis.rho, 1) + ' kg/m³'),
+                    h('span', null, 'c = ' + formatFest(ergebnis.cp / 3.6, 3) + ' Wh/(kg·K)'),
+                    h('span', null, tempText(ergebnis)),
+                  ]
+                : [h('span', null, 'ρ und c: sobald alle Eingaben stimmen')]),
+            );
+          }
+          Ergebnis.zeige(s, ergebnis);
+        }
+
+        return {
+          bauen(container) {
+            const raster = h(
+              'div',
+              { class: 'raster' },
+              h('div', { class: 'a-erg', id: 'ergebnis' }),
+              h('div', { class: 'a-ein', id: 'eingaben' }),
+              h('div', { class: 'a-weg', id: 'rechenweg' }),
+              h('div', { class: 'a-spe', id: 'speichern' }),
+            );
+            container.replaceChildren(
+              h(
+                'div',
+                { class: 'modul-kopf' },
+                h('h1', null, 'Hydraulik'),
+                h(
+                  'p',
+                  { class: 'untertitel' },
+                  'Q [kW] = V˙ [m³/h] · ρ [kg/m³] · c [Wh/(kg·K)] · ΔT [K] / 1000',
+                ),
+              ),
+              raster,
+            );
+            Ergebnis.gerueste();
+            Speichern.gerueste();
+            baueEingaben();
+            sync(Store.lesen());
+          },
+          sync,
+          eingabeFuerEngine,
+        };
+      })();
+
+      /* ===== Ergebnis-Darstellung ===== */
+      const Ergebnis = (function () {
+        let letztes = null;
+
+        function einheitText(s) {
+          if (s.ziel === 'Q') {
+            return 'kW';
+          }
+          if (s.ziel === 'V') {
+            return s.einheit;
+          }
+          return 'K';
+        }
+
+        function wertText(s, e) {
+          if (s.ziel === 'V') {
+            return formatErgebnis(Engine.vonM3h(e.v, s.einheit));
+          }
+          return formatErgebnis(e.wert);
+        }
+
+        function formelText(s, e) {
+          const v = formatFest(e.v, 3) + ' m³/h';
+          const rho = formatFest(e.rho, 1) + ' kg/m³';
+          const cp = formatFest(e.cp / 3.6, 3) + ' Wh/(kg·K)';
+          const dt = formatFest(e.dt, 2) + ' K';
+          const q = formatFest(e.q, 3) + ' kW';
+          if (s.ziel === 'Q') {
+            return (
+              'Q = ' +
+              v +
+              ' × ' +
+              rho +
+              ' × ' +
+              cp +
+              ' × ' +
+              dt +
+              ' / 1000 = ' +
+              formatErgebnis(e.q) +
+              ' kW'
+            );
+          }
+          if (s.ziel === 'V') {
+            return (
+              'V˙ = ' +
+              q +
+              ' × 1000 / (' +
+              rho +
+              ' × ' +
+              cp +
+              ' × ' +
+              dt +
+              ') = ' +
+              formatFest(e.v, 3) +
+              ' m³/h'
+            );
+          }
+          return (
+            'ΔT = ' +
+            q +
+            ' × 1000 / (' +
+            v +
+            ' × ' +
+            rho +
+            ' × ' +
+            cp +
+            ') = ' +
+            formatFest(e.dt, 2) +
+            ' K'
+          );
+        }
+
+        function meldung(art, text) {
+          return h(
+            'p',
+            { class: 'meldung ' + art },
+            icon(art === 'fehler' ? 'warnung' : 'info'),
+            h('span', null, text),
+          );
+        }
+
+        return {
+          berechne(s) {
+            return Engine.berechne(Hydraulik.eingabeFuerEngine(s));
+          },
+          gerueste() {
+            document
+              .getElementById('ergebnis')
+              .replaceChildren(
+                h(
+                  'div',
+                  { class: 'ergebnis', 'aria-live': 'polite' },
+                  h('p', { class: 'ergebnis-label', id: 'erg-label' }),
+                  h(
+                    'div',
+                    { class: 'ergebnis-zeile' },
+                    h('span', { class: 'ergebnis-zahl', id: 'erg-zahl' }),
+                    h('span', { class: 'ergebnis-einheit', id: 'erg-einheit' }),
+                  ),
+                  h('div', { class: 'meldungen', id: 'erg-meldungen' }),
+                ),
+              );
+            document
+              .getElementById('rechenweg')
+              .replaceChildren(
+                h(
+                  'section',
+                  { class: 'karte rechenweg' },
+                  h('div', { class: 'karte-kopf' }, h('h2', null, 'Rechenweg')),
+                  h('p', { class: 'formel', id: 'erg-formel' }),
+                  h('p', { class: 'werte', id: 'erg-werte' }),
+                ),
+              );
+          },
+          zeige(s, e) {
+            letztes = { s, e };
+            const ziel = ZIELE.find((z) => z.id === s.ziel);
+            document.getElementById('erg-label').textContent = 'Gesucht: ' + ziel.name;
+            const zahl = document.getElementById('erg-zahl');
+            const meld = document.getElementById('erg-meldungen');
+            meld.replaceChildren();
+            if (e.ok) {
+              zahl.textContent = wertText(s, e);
+              zahl.classList.remove('leer');
+              document.getElementById('erg-einheit').textContent = einheitText(s);
+              document.getElementById('erg-formel').textContent = formelText(s, e);
+              document.getElementById('erg-werte').textContent =
+                'ρ = ' +
+                formatFest(e.rho, 1) +
+                ' kg/m³, c = ' +
+                formatFest(e.cp / 3.6, 3) +
+                ' Wh/(kg·K), ' +
+                tempText(e);
+            } else {
+              zahl.textContent = '–';
+              zahl.classList.add('leer');
+              document.getElementById('erg-einheit').textContent = '';
+              document.getElementById('erg-formel').textContent = 'Noch nicht berechenbar.';
+              document.getElementById('erg-werte').textContent =
+                'Bitte die markierten Eingaben prüfen.';
+              const sichtbar = e.fehler.slice(0, 2);
+              sichtbar.forEach(function (f) {
+                meld.append(meldung('fehler', f.text));
+              });
+            }
+            (e.hinweise || []).forEach(function (t) {
+              meld.append(meldung('hinweis', t));
+            });
+            Speichern.aktualisiere(e);
+          },
+          neuZeichnen() {
+            if (letztes) {
+              Hydraulik.sync(Store.lesen());
+            }
+          },
+          zusammenfassung(s, e) {
+            const medium =
+              STOFFWERTE[s.medium].name +
+              (s.medium === 'wasser'
+                ? ''
+                : ' ' + s.konz + (s.konzModus === 'vol' ? ' Vol.-%' : ' Masse-%'));
+            const ziel = s.ziel === 'Q' ? 'Q' : s.ziel === 'V' ? 'V˙' : 'ΔT';
+            return (
+              ziel +
+              ' = ' +
+              wertText(s, e) +
+              ' ' +
+              einheitText(s) +
+              ', ' +
+              medium +
+              ', V˙ ' +
+              formatErgebnis(Engine.vonM3h(e.v, s.einheit)) +
+              ' ' +
+              s.einheit +
+              ', ΔT ' +
+              formatFest(e.dt, 1) +
+              ' K'
+            );
+          },
+        };
+      })();
+
+      /* ===== Speichern & Liste ===== */
+      const Speichern = (function () {
+        let loeschenId = null;
+        let loeschenTimer = null;
+        let letztesErgebnis = null;
+
+        const datum = new Intl.DateTimeFormat('de-DE', {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        });
+
+        function eintragNeu(bezeichnung) {
+          const s = Object.assign({}, Store.lesen());
+          delete s.modul;
+          return {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+            zeit: Date.now(),
+            bezeichnung: bezeichnung.trim().slice(0, 80),
+            zusammenfassung: Ergebnis.zusammenfassung(Store.lesen(), letztesErgebnis),
+            zustand: s,
+          };
+        }
+
+        function speichern() {
+          if (!letztesErgebnis || !letztesErgebnis.ok) {
+            toast('Erst alle Eingaben korrigieren, dann speichern.');
+            return;
+          }
+          const feld = document.getElementById('bezeichnung');
+          const ok = Ablage.hinzufuegen(eintragNeu(feld.value));
+          if (ok) {
+            toast('Gespeichert');
+            feld.value = '';
+          } else {
+            toast(
+              'Speichern auf diesem Gerät nicht möglich. Die Berechnung bleibt nur bis zum Schließen erhalten.',
+            );
+          }
+          liste();
+        }
+
+        function oeffnen(eintrag) {
+          const sicher = Object.assign(Store.start(), { konzModus: 'masse' }, eintrag.zustand, {
+            modul: 'hydraulik',
+          });
+          Store.setze(sicher);
+          toast('Berechnung geöffnet');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function loeschen(eintrag) {
+          if (loeschenId !== eintrag.id) {
+            loeschenId = eintrag.id;
+            clearTimeout(loeschenTimer);
+            loeschenTimer = setTimeout(function () {
+              loeschenId = null;
+              liste();
+            }, LOESCHEN_FRIST_MS);
+            liste();
+            return;
+          }
+          loeschenId = null;
+          clearTimeout(loeschenTimer);
+          Ablage.entfernen(eintrag.id);
+          toast('Gelöscht');
+          liste();
+        }
+
+        function zeile(eintrag) {
+          const bestaetigen = loeschenId === eintrag.id;
+          const oeffnenKnopf = h('button', { type: 'button', class: 'btn-zweit' }, 'Öffnen');
+          const loeschKnopf = h(
+            'button',
+            { type: 'button', class: 'btn-zweit gefahr' },
+            bestaetigen ? 'Wirklich löschen?' : 'Löschen',
+          );
+          oeffnenKnopf.addEventListener('click', () => oeffnen(eintrag));
+          loeschKnopf.addEventListener('click', () => loeschen(eintrag));
+          return h(
+            'li',
+            null,
+            h('p', { class: 'liste-titel' }, eintrag.bezeichnung || 'Ohne Bezeichnung'),
+            h('p', { class: 'liste-info' }, eintrag.zusammenfassung || ''),
+            h('p', { class: 'liste-info' }, datum.format(new Date(eintrag.zeit))),
+            h('div', { class: 'liste-aktionen' }, oeffnenKnopf, loeschKnopf),
+          );
+        }
+
+        function liste() {
+          const ziel = document.getElementById('gespeichert');
+          if (!ziel) {
+            return;
+          }
+          const eintraege = Ablage.liste();
+          const kopf = h(
+            'div',
+            { class: 'karte-kopf' },
+            h('h2', null, 'Gespeichert'),
+            h(
+              'small',
+              null,
+              eintraege.length + (eintraege.length === 1 ? ' Eintrag' : ' Einträge'),
+            ),
+          );
+          const inhalt =
+            eintraege.length === 0
+              ? h(
+                  'p',
+                  { class: 'leer-hinweis' },
+                  'Noch nichts gespeichert. Gib oben eine Bezeichnung ein, zum Beispiel die Baustelle, und tippe auf Speichern.',
+                )
+              : h('ul', { class: 'liste' }, eintraege.map(zeile));
+          const hinweis = Ablage.defekt()
+            ? h(
+                'p',
+                { class: 'meldung hinweis' },
+                icon('info'),
+                h(
+                  'span',
+                  null,
+                  'Ein beschädigter Speicherstand wurde gesichert und nicht überschrieben.',
+                ),
+              )
+            : null;
+          ziel.replaceChildren(...[kopf, hinweis, inhalt].filter(Boolean));
+        }
+
+        return {
+          gerueste() {
+            const feld = h('input', {
+              class: 'bez-feld',
+              id: 'bezeichnung',
+              type: 'text',
+              maxlength: '80',
+              placeholder: 'Bezeichnung, z. B. Baustelle Müller (optional)',
+              autocomplete: 'off',
+              enterkeyhint: 'done',
+              'aria-label': 'Bezeichnung (optional)',
+            });
+            const knopf = h(
+              'button',
+              { type: 'button', class: 'btn-gold', id: 'btn-speichern' },
+              'Speichern',
+            );
+            knopf.addEventListener('click', speichern);
+            feld.addEventListener('keydown', function (ev) {
+              if (ev.key === 'Enter') {
+                speichern();
+                feld.blur();
+              }
+            });
+            document
+              .getElementById('speichern')
+              .replaceChildren(
+                h(
+                  'section',
+                  { class: 'karte' },
+                  h('div', { class: 'karte-kopf' }, h('h2', null, 'Berechnung sichern')),
+                  feld,
+                  knopf,
+                ),
+                h('section', { class: 'karte', id: 'gespeichert' }),
+              );
+            liste();
+          },
+          aktualisiere(e) {
+            letztesErgebnis = e;
+            const knopf = document.getElementById('btn-speichern');
+            if (knopf) {
+              knopf.disabled = !e.ok;
+            }
+          },
+        };
+      })();
+
+      /* ===== Navigation & Module ===== */
+      function baueNavigation() {
+        const nav = document.getElementById('nav');
+        nav.replaceChildren(
+          ...MODULE.map(function (m) {
+            const knopf = h(
+              'button',
+              { type: 'button', class: 'nav-punkt', 'data-id': m.id, title: m.titel },
+              icon(m.icon),
+              h('span', { class: 'nav-text' }, m.label),
+              m.fertig ? null : h('span', { class: 'nav-bald', 'aria-hidden': 'true' }),
+            );
+            knopf.addEventListener('click', function () {
+              waehleModul(m.id);
+            });
+            return knopf;
+          }),
+        );
+      }
+
+      function markiereNavigation(id) {
+        document.querySelectorAll('.nav-punkt').forEach(function (b) {
+          if (b.getAttribute('data-id') === id) {
+            b.setAttribute('aria-current', 'page');
+          } else {
+            b.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      function zeigePlatzhalter(container, m) {
+        container.replaceChildren(
+          h('div', { class: 'modul-kopf' }, h('h1', null, m.titel)),
+          h(
+            'section',
+            { class: 'karte platzhalter' },
+            icon(m.icon),
+            h('h2', null, 'Kommt im nächsten Schritt'),
+            h(
+              'p',
+              null,
+              'Dieses Modul ist noch nicht ausgebaut. Die Hydraulik ist bereits nutzbar.',
+            ),
+          ),
+        );
+      }
+
+      function waehleModul(id, ohneHash) {
+        const m = MODULE.find((x) => x.id === id) || MODULE[0];
+        const container = document.getElementById('modul');
+        markiereNavigation(m.id);
+        document.getElementById('kopf-modul').textContent = m.titel;
+        if (!ohneHash) {
+          try {
+            history.replaceState(null, '', '#' + m.id);
+          } catch (err) {
+            /* Adresse bleibt unverändert, Navigation funktioniert trotzdem */
+          }
+        }
+        if (m.fertig) {
+          Hydraulik.bauen(container);
+        } else {
+          zeigePlatzhalter(container, m);
+        }
+        Store.setze({ modul: m.id });
+        window.scrollTo({ top: 0 });
+      }
+
+      function start() {
+        try {
+          Darstellung.start();
+          baueNavigation();
+          Store.abonnieren(function (s) {
+            if (s.modul === 'hydraulik' && document.getElementById('eingaben')) {
+              Hydraulik.sync(s);
+            }
+          });
+          const hash = (location.hash || '').replace('#', '');
+          waehleModul(hash, true);
+        } catch (err) {
+          document.getElementById('modul').textContent =
+            'Die Seite konnte nicht aufgebaut werden. Bitte neu laden. (' + err.message + ')';
+        }
+      }
+
+      window.addEventListener('error', function () {
+        toast('Es ist ein Fehler aufgetreten. Bitte die Seite neu laden.');
+      });
+
+      start();
+    </script>
+  </body>
+</html>

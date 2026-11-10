@@ -7,10 +7,41 @@
 /* Farben nach muther-heizung-sanitaer.de: Anthrazit (--pri) für Kopf und Auswahl, Gold (--gold) als Akzent.
    Gold nie als Schriftfarbe auf Hell (zu wenig Kontrast) – nur Flächen/Linien, darauf dunkle Schrift. */
 :root {
-  --t-fast: 150ms;
-  --t-med: 260ms;
-  --t-exit: 180ms;
-  --out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* ── transitions.dev — Motion-Tokens (5-Dimensionen-Skala) ── */
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-medium: 350ms;
+  --duration-slow: 400ms;
+  --duration-very-slow: 500ms;
+
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: ease-in-out;
+  --ease-out: ease-out;
+  --ease-linear: linear;
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  --distance-micro: 4px;
+  --distance-small: 6px;
+  --distance-base: 8px;
+  --distance-medium: 12px;
+  --distance-large: 30px;
+
+  --scale-large: 0.96;
+  --scale-medium: 0.97;
+  --scale-small: 0.98;
+  --scale-tiny: 0.99;
+
+  --blur-small: 2px;
+  --blur-medium: 3px;
+  --blur-large: 8px;
+
+  /* Verknüpfung bestehender Projekt-Variablen */
+  --t-fast: var(--duration-quick);
+  --t-med: var(--duration-fast);
+  --t-exit: var(--duration-quick);
+  --out: var(--ease-smooth-out);
   --in: cubic-bezier(0.4, 0, 1, 1);
   --flash: rgba(220, 204, 75, 0.5);
   --gold-dark: #c4b53e;
@@ -686,3 +717,66 @@ th {
     }
   }
 }
+
+/* ── Typografie: Tabular Nums für Messwerte, Tabellen und Berechnungen ── */
+input[type='number'],
+input[type='tel'],
+.tabular,
+.num,
+.badge,
+.table-num,
+.calc-res,
+.stat,
+.sum,
+.metric,
+[data-num] {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-feature-settings: 'tnum' 1;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── Stufe-1 Präventive Layout-Härtung (Anti-Bruch) ── */
+.frow > *,
+.field > *,
+.btnrow > * {
+  min-width: 0;
+}
+.themebtn,
+.btn,
+.btnrow .btn,
+.badge,
+.icon,
+.ico {
+  flex-shrink: 0;
+}
+.fhint,
+.card p,
+.notice,
+.alert {
+  overflow-wrap: anywhere;
+}
+
+/* ── Taktiles Press-Feedback (:active) nach transitions.dev Motion-Skala ── */
+.btn:active:not(:disabled),
+button:active:not(:disabled),
+.themebtn:active {
+  transform: scale(var(--scale-medium));
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+.card:active {
+  transform: scale(var(--scale-tiny));
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+/* ── Accessibility-Guard: prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

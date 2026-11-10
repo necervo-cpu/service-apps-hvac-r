@@ -15,7 +15,7 @@
 
 /* ===== Grundwerte ===== */
 :root {
-  --ios-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ios-ease: var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
   --ios-card: var(--card, #fff);
   --ios-ink: var(--ink, #1a1a1a);
   --ios-pri: var(--pri, #1a1a1a);
