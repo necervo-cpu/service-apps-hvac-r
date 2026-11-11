@@ -110,9 +110,12 @@
 /* ===== Hintergrund: fest hinter allem (background-attachment:fixed geht auf iOS nicht) ===== */
 html {
   background: var(--bg, #f8f7f4);
+  height: 100%;
 }
 body {
   background: transparent;
+  min-height: 100%;
+  min-height: 100dvh;
 }
 body::before {
   content: '';

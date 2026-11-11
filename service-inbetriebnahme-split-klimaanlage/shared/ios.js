@@ -552,6 +552,35 @@
     return { init };
   })();
 
+  /* ---------- iOS PWA Viewport / Bottom Chin-Gap Fix ---------- */
+  (function () {
+    const isIos =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isIos) return;
+
+    function fixViewport() {
+      // Erzwingt, dass WebKit die Viewport-Metriken und env(safe-area-inset-bottom)
+      // sofort beim Start ohne erste Interaktion berechnet (schließt den toten unteren Abstand).
+      requestAnimationFrame(() => {
+        const root = document.documentElement;
+        const prev = root.style.transform;
+        root.style.transform = 'translateZ(0)';
+        void root.offsetHeight;
+        root.style.transform = prev;
+        window.scrollTo(0, 0);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', fixViewport);
+    } else {
+      fixViewport();
+    }
+    window.addEventListener('load', fixViewport);
+    window.addEventListener('pageshow', fixViewport);
+  })();
+
   window.iosGroups = iosGroups;
   window.iosSwitch = iosSwitch;
   window.iosSelect = iosSelect;

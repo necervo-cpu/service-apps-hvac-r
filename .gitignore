@@ -1,2 +1,12 @@
 * [0-9].*
 * [0-9][0-9].*
+* [0-9]/
+* [0-9][0-9]/
+.DS_Store
+Thumbs.db
+desktop.ini
+.env*
+*token*
+Zugangsdaten*
+*.bak
+preview*.html
