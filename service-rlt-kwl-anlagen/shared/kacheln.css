@@ -20,7 +20,7 @@
   padding: 14px;
   background: var(--gold, #dccc4b);
   border: 1px solid var(--gold-dark, #c4b53e);
-  border-radius: 18px;
+  border-radius: 22px;
   color: #1a1a1a;
   cursor: pointer;
   touch-action: manipulation;
@@ -87,7 +87,7 @@
   color: var(--ink, #1a1a1a);
   background: var(--card, #fff);
   border: 1px solid var(--line, #e4e1d8);
-  border-radius: 16px;
+  border-radius: 22px;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
