@@ -16,6 +16,22 @@
 /* ===== Grundwerte ===== */
 :root {
   --ios-ease: var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+  --ios-card: var(--card, #1c1c1e);
+  --ios-ink: var(--ink, #ffffff);
+  --ios-pri: var(--pri, #0a0a0a);
+  --ios-gold: var(--gold, #f6e3a1);
+  --ios-gold-d: var(--gold-dark, #f9c6a5);
+  --ios-edge: rgba(255, 255, 255, 0.12);
+  --ios-edge-low: rgba(255, 255, 255, 0.05);
+  --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
+  --ios-blur: blur(24px) saturate(180%);
+  --ios-blur-card: blur(16px) saturate(160%);
+  --ios-blur-sheet: blur(30px) saturate(180%);
+  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.12), transparent 60%),
+    radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.10), transparent 60%),
+    var(--bg, #000000);
+}
+:root[data-theme='light'] {
   --ios-card: var(--card, #fff);
   --ios-ink: var(--ink, #1a1a1a);
   --ios-pri: var(--pri, #1a1a1a);
@@ -24,36 +40,43 @@
   --ios-edge: rgba(255, 255, 255, 0.75);
   --ios-edge-low: rgba(255, 255, 255, 0.25);
   --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --ios-blur: blur(24px) saturate(180%);
-  --ios-blur-card: blur(16px) saturate(160%);
-  --ios-blur-sheet: blur(30px) saturate(180%);
-  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(220, 204, 75, 0.6), transparent 60%),
-    radial-gradient(800px 700px at 100% 35%, rgba(110, 165, 225, 0.42), transparent 60%),
-    radial-gradient(700px 600px at 30% 105%, rgba(230, 170, 90, 0.4), transparent 60%),
-    var(--bg, #f8f7f4);
+  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.35), transparent 60%),
+    radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.28), transparent 60%),
+    radial-gradient(700px 600px at 30% 105%, rgba(246, 227, 161, 0.25), transparent 60%),
+    var(--bg, #f2f2f7);
 }
-:root[data-theme='dark'] {
-  --ios-edge: rgba(255, 255, 255, 0.18);
-  --ios-edge-low: rgba(255, 255, 255, 0.05);
-  --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
-  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(220, 204, 75, 0.16), transparent 60%),
-    radial-gradient(800px 700px at 100% 35%, rgba(90, 130, 190, 0.16), transparent 60%),
-    var(--bg, #121212);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --ios-edge: rgba(255, 255, 255, 0.18);
-    --ios-edge-low: rgba(255, 255, 255, 0.05);
-    --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
-    --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(220, 204, 75, 0.16), transparent 60%),
-      radial-gradient(800px 700px at 100% 35%, rgba(90, 130, 190, 0.16), transparent 60%),
-      var(--bg, #121212);
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --ios-card: var(--card, #fff);
+    --ios-ink: var(--ink, #1a1a1a);
+    --ios-pri: var(--pri, #1a1a1a);
+    --ios-gold: var(--gold, #dccc4b);
+    --ios-gold-d: var(--gold-dark, #c4b53e);
+    --ios-edge: rgba(255, 255, 255, 0.75);
+    --ios-edge-low: rgba(255, 255, 255, 0.25);
+    --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.35), transparent 60%),
+      radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.28), transparent 60%),
+      radial-gradient(700px 600px at 30% 105%, rgba(246, 227, 161, 0.25), transparent 60%),
+      var(--bg, #f2f2f7);
   }
 }
 
 /* Durchscheinende Farben: mit color-mix (iOS ab 16.2), sonst feste rgba-Werte für hell und dunkel */
 @supports (color: color-mix(in srgb, red, blue)) {
   :root {
+    --ios-glass: color-mix(in srgb, var(--card, #1c1c1e) 55%, transparent);
+    --ios-glass-strong: color-mix(in srgb, var(--card, #1c1c1e) 72%, transparent);
+    --ios-line-soft: color-mix(in srgb, var(--line, rgba(255, 255, 255, 0.08)) 70%, transparent);
+    --ios-seg: color-mix(in srgb, var(--segbg, #2c2c2e) 55%, transparent);
+    --ios-ctl: color-mix(in srgb, var(--ctl, #2c2c2e) 70%, transparent);
+    --ios-done: color-mix(in srgb, var(--okbg, rgba(168, 230, 195, 0.16)) 70%, transparent);
+    --ios-sheet: color-mix(in srgb, var(--card, #1c1c1e) 85%, transparent);
+    --ios-okc: color-mix(in srgb, var(--card, #1c1c1e) 80%, transparent);
+    --ios-sheetcard: color-mix(in srgb, var(--card, #1c1c1e) 70%, transparent);
+    --ios-grab: color-mix(in srgb, var(--ink, #ffffff) 25%, transparent);
+  }
+  :root[data-theme='light'] {
     --ios-glass: color-mix(in srgb, var(--card, #fff) 42%, transparent);
     --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 62%, transparent);
     --ios-line-soft: color-mix(in srgb, var(--line, #e4e1d8) 70%, transparent);
@@ -65,9 +88,35 @@
     --ios-sheetcard: color-mix(in srgb, var(--card, #fff) 70%, transparent);
     --ios-grab: color-mix(in srgb, var(--ink, #1a1a1a) 25%, transparent);
   }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+      --ios-glass: color-mix(in srgb, var(--card, #fff) 42%, transparent);
+      --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 62%, transparent);
+      --ios-line-soft: color-mix(in srgb, var(--line, #e4e1d8) 70%, transparent);
+      --ios-seg: color-mix(in srgb, var(--segbg, #eceae3) 55%, transparent);
+      --ios-ctl: color-mix(in srgb, var(--ctl, #fff) 70%, transparent);
+      --ios-done: color-mix(in srgb, var(--okbg, #e6f4ec) 70%, transparent);
+      --ios-sheet: color-mix(in srgb, var(--card, #fff) 82%, transparent);
+      --ios-okc: color-mix(in srgb, var(--card, #fff) 75%, transparent);
+      --ios-sheetcard: color-mix(in srgb, var(--card, #fff) 70%, transparent);
+      --ios-grab: color-mix(in srgb, var(--ink, #1a1a1a) 25%, transparent);
+    }
+  }
 }
 @supports not (color: color-mix(in srgb, red, blue)) {
   :root {
+    --ios-glass: rgba(28, 28, 30, 0.55);
+    --ios-glass-strong: rgba(28, 28, 30, 0.72);
+    --ios-line-soft: rgba(255, 255, 255, 0.08);
+    --ios-seg: rgba(44, 44, 46, 0.55);
+    --ios-ctl: rgba(44, 44, 46, 0.7);
+    --ios-done: rgba(168, 230, 195, 0.16);
+    --ios-sheet: rgba(28, 28, 30, 0.85);
+    --ios-okc: rgba(28, 28, 30, 0.8);
+    --ios-sheetcard: rgba(28, 28, 30, 0.7);
+    --ios-grab: rgba(255, 255, 255, 0.25);
+  }
+  :root[data-theme='light'] {
     --ios-glass: rgba(255, 255, 255, 0.42);
     --ios-glass-strong: rgba(255, 255, 255, 0.62);
     --ios-line-soft: rgba(228, 225, 216, 0.7);
@@ -79,30 +128,18 @@
     --ios-sheetcard: rgba(255, 255, 255, 0.7);
     --ios-grab: rgba(26, 26, 26, 0.25);
   }
-  :root[data-theme='dark'] {
-    --ios-glass: rgba(30, 30, 30, 0.42);
-    --ios-glass-strong: rgba(30, 30, 30, 0.62);
-    --ios-line-soft: rgba(58, 55, 49, 0.7);
-    --ios-seg: rgba(42, 42, 42, 0.55);
-    --ios-ctl: rgba(42, 42, 42, 0.7);
-    --ios-done: rgba(22, 48, 31, 0.7);
-    --ios-sheet: rgba(30, 30, 30, 0.82);
-    --ios-okc: rgba(30, 30, 30, 0.75);
-    --ios-sheetcard: rgba(30, 30, 30, 0.7);
-    --ios-grab: rgba(240, 238, 230, 0.25);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
-      --ios-glass: rgba(30, 30, 30, 0.42);
-      --ios-glass-strong: rgba(30, 30, 30, 0.62);
-      --ios-line-soft: rgba(58, 55, 49, 0.7);
-      --ios-seg: rgba(42, 42, 42, 0.55);
-      --ios-ctl: rgba(42, 42, 42, 0.7);
-      --ios-done: rgba(22, 48, 31, 0.7);
-      --ios-sheet: rgba(30, 30, 30, 0.82);
-      --ios-okc: rgba(30, 30, 30, 0.75);
-      --ios-sheetcard: rgba(30, 30, 30, 0.7);
-      --ios-grab: rgba(240, 238, 230, 0.25);
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+      --ios-glass: rgba(255, 255, 255, 0.42);
+      --ios-glass-strong: rgba(255, 255, 255, 0.62);
+      --ios-line-soft: rgba(228, 225, 216, 0.7);
+      --ios-seg: rgba(236, 234, 227, 0.55);
+      --ios-ctl: rgba(255, 255, 255, 0.7);
+      --ios-done: rgba(230, 244, 236, 0.7);
+      --ios-sheet: rgba(255, 255, 255, 0.82);
+      --ios-okc: rgba(255, 255, 255, 0.75);
+      --ios-sheetcard: rgba(255, 255, 255, 0.7);
+      --ios-grab: rgba(26, 26, 26, 0.25);
     }
   }
 }
@@ -179,8 +216,8 @@ body::before {
 }
 .seg .btn.sel.neutral,
 .seg .btn.sel:not(.ok):not(.bad):not(.na):not(.warn) {
-  background: var(--ios-gold);
-  color: #1a1a1a;
+  background: var(--gradient-honey);
+  color: var(--text-on-accent, #1c1c1e);
 }
 .opts .btn {
   transition:
@@ -237,9 +274,13 @@ header {
     0 -10px 30px -16px rgba(0, 0, 0, 0.25);
 }
 header {
-  background: rgba(18, 18, 18, 0.8);
-  border-bottom: 1px solid rgba(220, 204, 75, 0.55);
+  background: rgba(10, 10, 10, 0.85);
+  border-bottom: 1px solid rgba(246, 227, 161, 0.35);
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+:root[data-theme='light'] header {
+  background: rgba(26, 26, 26, 0.85);
+  border-bottom: 1px solid rgba(220, 204, 75, 0.55);
 }
 .steps > * {
   background: var(--ios-glass);
@@ -267,11 +308,12 @@ main .btn.small:not(.primary) {
   border-radius: 999px;
 }
 .bar .btn.primary {
-  background: linear-gradient(180deg, #e4d775 0%, var(--ios-gold) 55%);
+  background: var(--gradient-honey);
   border-color: transparent;
+  color: var(--text-on-accent, #1c1c1e);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 6px 18px -6px rgba(160, 140, 20, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 6px 18px -6px rgba(249, 198, 165, 0.4);
 }
 /* Segment-Spur aus Glas, gewähltes Segment als Glastropfen */
 .seg {
