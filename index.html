@@ -8,8 +8,8 @@
       content="default-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'self';"
     />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f2f7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
     <script>
       (function () {
         try {
@@ -43,76 +43,135 @@
           U+2113, U+2C60-2C7F, U+A720-A7FF;
       }
       :root {
-        --bg: #f6f5f1;
-        --card: #fff;
-        --ink: #1a1a1a;
-        --muted: #55534f;
-        --line: #e8e5dc;
-        --pri: #1a1a1a;
-        --gold: #dccc4b;
-        --gold-text: #7a6a10;
-        --tile: #fbf8e4;
-        --sh: 0 6px 18px rgba(26, 26, 26, 0.1);
-        --out: cubic-bezier(0.23, 1, 0.32, 1);
-        --edge: rgba(255, 255, 255, 0.75);
-        --edge-low: rgba(255, 255, 255, 0.3);
-        --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
-        --blur: blur(16px) saturate(160%);
-        --blur-hero: blur(24px) saturate(180%);
-        --glass: rgba(255, 255, 255, 0.55);
-        --glass-hero: rgba(26, 26, 26, 0.84);
-        --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(220, 204, 75, 0.6), transparent 60%),
-          radial-gradient(800px 700px at 100% 35%, rgba(110, 165, 225, 0.42), transparent 60%),
-          radial-gradient(700px 600px at 30% 105%, rgba(230, 170, 90, 0.4), transparent 60%),
-          var(--bg);
-      }
-      :root[data-theme="light"] {
-        color-scheme: light;
-      }
-      :root[data-theme="dark"] {
-        color-scheme: dark;
-        --bg: #121212;
-        --card: #1e1e1e;
-        --ink: #f0eee6;
-        --muted: #a8a69d;
-        --line: #383530;
+        /* ── FARBPALETTE.md Tokens (Pastell auf Schwarz) ── */
+        --pastel-rose: #f7b8c4;
+        --pastel-peach: #f9c6a5;
+        --pastel-butter: #f6e3a1;
+        --pastel-lime: #d3eba4;
+        --pastel-mint: #a8e6c3;
+        --pastel-aqua: #a0e3e0;
+        --pastel-sky: #a9d4f5;
+        --pastel-periwinkle: #b3bdf7;
+        --pastel-lavender: #cdb5f5;
+        --pastel-orchid: #edb4e6;
+
+        --gradient-sunrise: linear-gradient(135deg, #f7b8c4, #f9c6a5);
+        --gradient-honey: linear-gradient(135deg, #f9c6a5, #f6e3a1);
+        --gradient-spring: linear-gradient(135deg, #f6e3a1, #d3eba4);
+        --gradient-meadow: linear-gradient(135deg, #d3eba4, #a8e6c3);
+        --gradient-lagoon: linear-gradient(135deg, #a8e6c3, #a0e3e0, #a9d4f5);
+        --gradient-ocean: linear-gradient(135deg, #a0e3e0, #b3bdf7);
+        --gradient-dusk: linear-gradient(135deg, #a9d4f5, #cdb5f5);
+        --gradient-iris: linear-gradient(135deg, #b3bdf7, #edb4e6);
+        --gradient-blossom: linear-gradient(135deg, #cdb5f5, #f7b8c4);
+        --gradient-sorbet: linear-gradient(135deg, #f6e3a1, #f7b8c4, #cdb5f5);
+
+        --bg: #000000;
+        --surface-card: #1c1c1e;
+        --surface-field: #2c2c2e;
+        --surface-hover: #3a3a3c;
+        --surface-active: #48484a;
+        --border: rgba(255, 255, 255, 0.08);
+        --shadow-card: none;
+
+        --text-primary: #ffffff;
+        --text-secondary: rgba(235, 235, 245, 0.6);
+        --text-tertiary: rgba(235, 235, 245, 0.3);
+        --text-on-accent: #1c1c1e;
+
+        --accent-text-butter: #f6e3a1;
+
+        /* Mapping auf bestehende Variablen (Dunkel = Standard) */
+        --card: var(--surface-card);
+        --ink: var(--text-primary);
+        --muted: var(--text-secondary);
+        --line: var(--border);
         --pri: #0a0a0a;
-        --gold-text: #dccc4b;
-        --tile: #3a3516;
+        --gold: var(--pastel-butter);
+        --gold-text: var(--accent-text-butter);
+        --tile: var(--surface-field);
         --sh: 0 6px 18px rgba(0, 0, 0, 0.5);
+        --out: cubic-bezier(0.23, 1, 0.32, 1);
         --edge: rgba(255, 255, 255, 0.18);
         --edge-low: rgba(255, 255, 255, 0.07);
         --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
-        --glass: rgba(30, 30, 30, 0.5);
-        --glass-hero: rgba(10, 10, 10, 0.8);
-        --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(220, 204, 75, 0.16), transparent 60%),
-          radial-gradient(800px 700px at 100% 35%, rgba(90, 130, 190, 0.16), transparent 60%),
-          var(--bg);
+        --blur: blur(16px) saturate(160%);
+        --blur-hero: blur(24px) saturate(180%);
+        --glass: rgba(28, 28, 30, 0.72);
+        --glass-hero: rgba(14, 14, 14, 0.86);
+        --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.12), transparent 60%),
+          radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.1), transparent 60%),
+          #000000;
+        color-scheme: dark;
       }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          color-scheme: dark;
-          --bg: #121212;
-          --card: #1e1e1e;
-          --ink: #f0eee6;
-          --muted: #a8a69d;
-          --line: #383530;
-          --pri: #0a0a0a;
-          --gold-text: #dccc4b;
-          --tile: #3a3516;
-          --sh: 0 6px 18px rgba(0, 0, 0, 0.5);
-          --edge: rgba(255, 255, 255, 0.18);
-          --edge-low: rgba(255, 255, 255, 0.07);
-          --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
-          --glass: rgba(30, 30, 30, 0.5);
-          --glass-hero: rgba(10, 10, 10, 0.8);
-          --ios-bg: radial-gradient(
-              900px 600px at 12% -5%,
-              rgba(220, 204, 75, 0.16),
-              transparent 60%
-            ),
-            radial-gradient(800px 700px at 100% 35%, rgba(90, 130, 190, 0.16), transparent 60%),
-            var(--bg);
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #f2f2f7;
+        --surface-card: #ffffff;
+        --surface-field: #f2f2f7;
+        --surface-hover: #e5e5ea;
+        --surface-active: #d1d1d6;
+        --border: rgba(0, 0, 0, 0.06);
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+        --text-primary: #000000;
+        --text-secondary: rgba(60, 60, 67, 0.7);
+        --text-tertiary: rgba(60, 60, 67, 0.3);
+
+        --accent-text-butter: #7d620a;
+
+        --card: var(--surface-card);
+        --ink: var(--text-primary);
+        --muted: var(--text-secondary);
+        --line: var(--border);
+        --pri: #1a1a1a;
+        --gold: #f9c6a5;
+        --gold-text: var(--accent-text-butter);
+        --tile: #e5e5ea;
+        --sh: 0 6px 18px rgba(0, 0, 0, 0.08);
+        --edge: rgba(255, 255, 255, 0.75);
+        --edge-low: rgba(0, 0, 0, 0.06);
+        --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+        --glass: rgba(255, 255, 255, 0.65);
+        --glass-hero: rgba(26, 26, 26, 0.9);
+        --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.4), transparent 60%),
+          radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.3), transparent 60%),
+          #f2f2f7;
+      }
+      @media (prefers-color-scheme: light) {
+        :root:not([data-theme="dark"]) {
+          color-scheme: light;
+          --bg: #f2f2f7;
+          --surface-card: #ffffff;
+          --surface-field: #f2f2f7;
+          --surface-hover: #e5e5ea;
+          --surface-active: #d1d1d6;
+          --border: rgba(0, 0, 0, 0.06);
+          --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+          --text-primary: #000000;
+          --text-secondary: rgba(60, 60, 67, 0.7);
+          --text-tertiary: rgba(60, 60, 67, 0.3);
+
+          --accent-text-butter: #7d620a;
+
+          --card: var(--surface-card);
+          --ink: var(--text-primary);
+          --muted: var(--text-secondary);
+          --line: var(--border);
+          --pri: #1a1a1a;
+          --gold: #f9c6a5;
+          --gold-text: var(--accent-text-butter);
+          --tile: #e5e5ea;
+          --sh: 0 6px 18px rgba(0, 0, 0, 0.08);
+          --edge: rgba(255, 255, 255, 0.75);
+          --edge-low: rgba(0, 0, 0, 0.06);
+          --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+          --glass: rgba(255, 255, 255, 0.65);
+          --glass-hero: rgba(26, 26, 26, 0.9);
+          --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.4), transparent 60%),
+            radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.3), transparent 60%),
+            #f2f2f7;
         }
       }
       /* Durchscheinende Flächen: color-mix nur, wo unterstützt (rgba-Werte oben sind der Fallback) */
@@ -158,14 +217,14 @@
         background: var(--glass-hero);
         -webkit-backdrop-filter: var(--blur-hero);
         backdrop-filter: var(--blur-hero);
-        border-radius: 0 0 26px 26px;
+        border-radius: 0 0 28px 28px;
         box-shadow:
           inset 0 -1px 0 var(--edge-low),
           var(--ios-shadow);
         color: #fff;
         padding: calc(18px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 22px
           calc(18px + env(safe-area-inset-left));
-        border-bottom: 3px solid var(--gold);
+        border-bottom: 2px solid var(--border);
         position: relative;
       }
       .hero-in {
@@ -221,7 +280,7 @@
         transform: scale(0.94);
       }
       .themebtn:focus-visible {
-        outline: 2px solid var(--gold);
+        outline: 2px solid var(--pastel-butter);
         outline-offset: 2px;
       }
       .search {
@@ -252,7 +311,7 @@
         color: rgba(255, 255, 255, 0.72);
       }
       .search input:focus-visible {
-        outline: 2px solid var(--gold);
+        outline: 2px solid var(--pastel-butter);
         outline-offset: 2px;
       }
       .search input::-webkit-search-cancel-button {
@@ -277,8 +336,8 @@
         margin: 24px 2px 10px;
       }
       h2 .n {
-        background: var(--tile);
-        color: var(--gold-text);
+        background: var(--surface-field);
+        color: var(--accent-text-butter);
         border-radius: 99px;
         padding: 1px 8px;
         font-size: 11.5px;
@@ -300,7 +359,7 @@
         box-shadow:
           inset 0 1px 0 var(--edge),
           var(--ios-shadow);
-        border-radius: 20px;
+        border-radius: 22px;
         overflow: hidden;
       }
       .grid > li:not([hidden]) ~ li .tile {
@@ -335,23 +394,23 @@
       }
       @media (hover: hover) and (pointer: fine) {
         .tile:hover {
-          background: var(--tile);
+          background: var(--surface-hover);
         }
       }
       .tile:active {
-        background: var(--tile);
+        background: var(--surface-active);
       }
       .tile:focus-visible {
         outline: 2px solid var(--ink);
         outline-offset: -3px;
-        border-radius: 20px;
+        border-radius: 22px;
       }
       .ico {
         width: 40px;
         height: 40px;
         border-radius: 12px;
-        background: var(--tile);
-        color: var(--gold-text);
+        background: var(--surface-field);
+        color: var(--accent-text-butter);
         display: grid;
         place-items: center;
         flex: none;
