@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html/engine.js/daten.js die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
-const CACHE = 'daikin-multi-v51';
+const CACHE = 'daikin-multi-v52';
 const ASSETS = [
   './',
   './index.html',
@@ -16,8 +16,8 @@ const ASSETS = [
   './shared/pdf.js',
   './shared/lib/jspdf.umd.min.js',
   './shared/lib/html2canvas.min.js',
-  './lib/fonts/plus-jakarta-sans-latin.woff2',
-  './lib/fonts/plus-jakarta-sans-latin-ext.woff2',
+  './shared/lib/fonts/plus-jakarta-sans-latin.woff2',
+  './shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2',
 ];
 
 self.addEventListener('install', (e) => {
