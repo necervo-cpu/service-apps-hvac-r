@@ -4,7 +4,7 @@
 (function () {
   var b = document.getElementById('themebtn');
   if (!b) return;
-  var L = { auto: ['◐', 'Auto'], hell: ['☀', 'Hell'], dunkel: ['☾', 'Dunkel'] };
+  var L = { auto: ['contrast', 'Auto'], hell: ['light_mode', 'Hell'], dunkel: ['dark_mode', 'Dunkel'] };
   function g() {
     try {
       return localStorage.getItem('muther-theme') || 'auto';
@@ -17,7 +17,7 @@
     if (t === 'hell') r.setAttribute('data-theme', 'light');
     else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
     else r.removeAttribute('data-theme');
-    b.textContent = L[t][0];
+    b.innerHTML = '<span class="ag-icon ag-icon--sm" aria-hidden="true">' + L[t][0] + '</span>';
     b.title = 'Darstellung: ' + L[t][1];
     b.setAttribute('aria-label', 'Darstellung: ' + L[t][1] + ' (tippen zum Wechseln)');
   }

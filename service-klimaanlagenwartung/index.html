@@ -3,10 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Service Klima" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
     <meta name="color-scheme" content="light dark" />
@@ -26,6 +24,7 @@
     <title>Service Klimaanlagenwartung</title>
     <script src="shared/lib/html2canvas.min.js" defer></script>
     <script src="shared/lib/jspdf.umd.min.js" defer></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="shared/base.css" />
     <link rel="stylesheet" href="shared/knoepfe.css" />
     <link rel="stylesheet" href="shared/kacheln.css" />
@@ -602,12 +601,7 @@
         aria-label="Darstellung wechseln"
       ></button>
       <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
-        <svg class="ico" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="3" />
-          <path
-            d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
-          />
-        </svg>
+        <span class="ag-icon ag-icon--sm" aria-hidden="true">settings</span>
       </button>
     </header>
     <div id="stepwrap" hidden></div>
@@ -1874,7 +1868,7 @@
         }
         if (view.name === 'report' && reportForView()) {
           const run = pdfBusy === viewKey();
-          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="ag-icon ag-icon--sm" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
         }
         return '';
       }
@@ -1930,10 +1924,10 @@
           const pending = done.filter((p) => !p.synced).length;
           return `
       <div class="kstart">
-      <button type="button" class="cta" data-act="new"><span class="hi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA 24186-3 starten</small></span></button>
+      <button type="button" class="cta" data-act="new"><span class="hi"><span class="ag-icon ag-icon--sm" aria-hidden="true">add</span></span><span class="txt"><strong>Neue Wartung</strong><small>Protokoll angelehnt an die VDMA 24186-3 starten</small></span></button>
       <div class="qa">
-        <button class="qt" data-act="db"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span><b>Datenbank / PDF</b><small>Einträge aus der Datenbank</small></span></button>
-        <button class="qt" data-act="sync"><span class="qi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+        <button class="qt" data-act="db"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">database</span></span><span><b>Datenbank / PDF</b><small>Einträge aus der Datenbank</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
@@ -2011,7 +2005,7 @@
 
       /* ----- Verdampfer-Karten ----- */
       const CHEV =
-        '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+        '<span class="ag-icon ag-icon--sm" aria-hidden="true">expand_more</span>';
       const openSet = () => view.open || (view.open = new Set([1])); // erste Karte offen, weitere zu (nur Ansicht, nicht gespeichert)
       function vStat(p, n) {
         const fs = DEV_FIELDS[n].filter((f) => f.type === 'okfail');

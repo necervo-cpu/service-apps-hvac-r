@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'self';"
+      content="default-src 'none'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'self';"
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f2f7" />
@@ -20,6 +20,7 @@
         } catch (e) {}
       })();
     </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <title>Service-Apps</title>
     <style>
       @font-face {
@@ -530,6 +531,25 @@
       section[hidden] {
         display: none;
       }
+      .ag-icon {
+        font-family: 'Material Symbols Rounded';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        color: inherit;
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' -25, 'opsz' 24;
+        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        flex: none;
+      }
+      .ag-icon--sm { font-size: 20px; font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' -25, 'opsz' 20; }
+      :root[data-theme="light"] .ag-icon, :root[data-theme="light"] .ag-icon--sm {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      }
     </style>
   </head>
   <body class="intro">
@@ -541,34 +561,11 @@
             <p class="sub">Protokolle, Kalkulation und Auslegung – alles an einem Ort.</p>
           </div>
           <button type="button" class="themebtn" id="themebtn" aria-label="Darstellung wechseln">
-            <svg
-              id="ti"
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            ></svg>
+            <span class="ag-icon ag-icon--sm" id="ti" aria-hidden="true">contrast</span>
           </button>
         </div>
         <label class="search">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="#fff"
-            stroke-width="2"
-            stroke-linecap="round"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
-          </svg>
+          <span class=\"ag-icon ag-icon--sm\" aria-hidden=\"true\">search</span>
           <input
             id="q"
             type="search"
@@ -592,19 +589,7 @@
           <li style="--i: 0">
             <a class="tile" href="anlagenlogbuch/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">menu_book</span>
               </span>
               <span class="txt">
                 <strong>Anlagenlogbuch</strong>
@@ -615,20 +600,7 @@
           <li style="--i: 1">
             <a class="tile" href="service-waermepumpe/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" />
-                  <path d="M12 9v7" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">heat_pump</span>
               </span>
               <span class="txt">
                 <strong>Service Wärmepumpe</strong>
@@ -639,21 +611,7 @@
           <li style="--i: 2">
             <a class="tile" href="gas-oel-heizungswartung/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"
-                  />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">local_fire_department</span>
               </span>
               <span class="txt">
                 <strong>Service Gas- &amp; Ölheizung</strong>
@@ -664,20 +622,7 @@
           <li style="--i: 3">
             <a class="tile" href="service-klimaanlagenwartung/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M2 12h20M12 2v20" />
-                  <path d="m20 16-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">ac_unit</span>
               </span>
               <span class="txt">
                 <strong>Service Klimaanlage</strong>
@@ -688,21 +633,7 @@
           <li style="--i: 4">
             <a class="tile" href="service-rlt-kwl-anlagen/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" />
-                  <path d="M9.6 4.6A2 2 0 1 1 11 8H2" />
-                  <path d="M12.6 19.4A2 2 0 1 0 14 16H2" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">air</span>
               </span>
               <span class="txt">
                 <strong>Service RLT &amp; KWL</strong>
@@ -713,20 +644,7 @@
           <li style="--i: 5">
             <a class="tile" href="service-inbetriebnahme-split-klimaanlage/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M9 11l3 3L22 4" />
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">tune</span>
               </span>
               <span class="txt">
                 <strong>Inbetriebnahme Split-Klima</strong>
@@ -745,22 +663,7 @@
           <li style="--i: 6">
             <a class="tile" href="kalkulation-service-klimaanlage/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="4" y="2" width="16" height="20" rx="2" />
-                  <path
-                    d="M8 6h8M16 14v4M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"
-                  />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">calculate</span>
               </span>
               <span class="txt">
                 <strong>Kalkulation Klimaanlage</strong>
@@ -771,22 +674,7 @@
           <li style="--i: 7">
             <a class="tile" href="kalkulation-service-waermepumpe/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="4" y="2" width="16" height="20" rx="2" />
-                  <path
-                    d="M8 6h8M16 14v4M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"
-                  />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">calculate</span>
               </span>
               <span class="txt">
                 <strong>Kalkulation Wärmepumpe</strong>
@@ -797,22 +685,7 @@
           <li style="--i: 8">
             <a class="tile" href="auslegungstool-daikin-split-klimaanlage/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"
-                  />
-                  <path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">architecture</span>
               </span>
               <span class="txt">
                 <strong>Auslegung Split-Klima</strong>
@@ -823,20 +696,7 @@
           <li style="--i: 9">
             <a class="tile" href="mag-puffer-rechner/">
               <span class="ico">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="13" r="7" />
-                  <path d="M12 3v3M9 13h6" />
-                </svg>
+                <span class=\"ag-icon\" aria-hidden=\"true\">water_heater</span>
               </span>
               <span class="txt">
                 <strong>MAG &amp; Puffer</strong>
@@ -853,11 +713,7 @@
         var b = document.getElementById("themebtn"),
           ti = document.getElementById("ti");
         var L = { auto: "Auto", hell: "Hell", dunkel: "Dunkel" };
-        var P = {
-          auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
-          hell: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-          dunkel: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
-        };
+        var P = { auto: "contrast", hell: "light_mode", dunkel: "dark_mode" };
         function g() {
           try {
             var v = localStorage.getItem("muther-theme");
@@ -871,7 +727,7 @@
           if (t === "hell") r.setAttribute("data-theme", "light");
           else if (t === "dunkel") r.setAttribute("data-theme", "dark");
           else r.removeAttribute("data-theme");
-          ti.innerHTML = P[t];
+          ti.textContent = P[t];
           b.setAttribute("aria-label", "Darstellung: " + L[t] + " (tippen zum Wechseln)");
           b.title = "Darstellung: " + L[t];
         }

@@ -32,11 +32,11 @@
     var(--bg, #000000);
 }
 :root[data-theme='light'] {
-  --ios-card: var(--card, #fff);
-  --ios-ink: var(--ink, #1a1a1a);
-  --ios-pri: var(--pri, #1a1a1a);
-  --ios-gold: var(--gold, #dccc4b);
-  --ios-gold-d: var(--gold-dark, #c4b53e);
+  --ios-card: var(--surface-card, #fff);
+  --ios-ink: var(--text-primary, #000000);
+  --ios-pri: #1c1c1e;
+  --ios-gold: var(--pastel-butter, #f6e3a1);
+  --ios-gold-d: var(--pastel-peach, #f9c6a5);
   --ios-edge: rgba(255, 255, 255, 0.75);
   --ios-edge-low: rgba(255, 255, 255, 0.25);
   --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -47,11 +47,11 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
-    --ios-card: var(--card, #fff);
-    --ios-ink: var(--ink, #1a1a1a);
-    --ios-pri: var(--pri, #1a1a1a);
-    --ios-gold: var(--gold, #dccc4b);
-    --ios-gold-d: var(--gold-dark, #c4b53e);
+    --ios-card: var(--surface-card, #fff);
+    --ios-ink: var(--text-primary, #000000);
+    --ios-pri: #1c1c1e;
+    --ios-gold: var(--pastel-butter, #f6e3a1);
+    --ios-gold-d: var(--pastel-peach, #f9c6a5);
     --ios-edge: rgba(255, 255, 255, 0.75);
     --ios-edge-low: rgba(255, 255, 255, 0.25);
     --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);

@@ -3,10 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Daikin-Tool" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
     <meta name="color-scheme" content="light dark" />
@@ -34,110 +32,10 @@
     <script src="shared/ios.js"></script>
     <style>
       :root {
-        --t-fast: 150ms;
-        --t-med: 260ms;
-        --t-exit: 180ms;
-        --out: cubic-bezier(0.23, 1, 0.32, 1);
-        --in: cubic-bezier(0.4, 0, 1, 1);
         --sh: none;
-        --tile: #fbf8e4;
-        --flash: rgba(220, 204, 75, 0.5);
-        --bg: #f8f7f4;
-        --card: #fff;
-        --ink: #1a1a1a;
-        --muted: #706f6f;
-        --line: #e4e1d8;
-        --pri: #1a1a1a;
-        --pri2: #c4b53e;
-        --gold: #dccc4b;
-        --gold-dark: #c4b53e;
-        --gold-text: #8b7a1b;
-        --cream: #faf9f5;
-        --ok: #1e7a46;
-        --bad: #b42318;
-        --na: #7d838c;
-        --warn: #b26a00;
-        --ctl: #fff;
-        --selbg: #fbf8e4;
-        --bdg: #eceae3;
-        --okbg: #e3f4ea;
-        --okbd: #b6e0c6;
-        --okfg: #14532d;
-        --wbg: #fff3e0;
-        --wbd: #ffd59a;
-        --wfg: #6d4300;
-        --ebg: #fdeaea;
-        --ebd: #f1b5b5;
-        --efg: #7a1414;
-        --hbg: #fff8d6;
-        --hfg: #4a3f00;
-      }
-      :root[data-theme='light'] {
-        color-scheme: light;
-      }
-      :root[data-theme='dark'] {
-        --flash: rgba(220, 204, 75, 0.32);
-        --pri: #0a0a0a;
-        --tile: #3a3516;
-        --sh: 0 6px 18px rgba(0, 0, 0, 0.5);
-        color-scheme: dark;
-        --bg: #121212;
-        --card: #1e1e1e;
-        --ink: #f0eee6;
-        --muted: #a8a69d;
-        --line: #3a3731;
-        --cream: #26241c;
-        --gold-text: #dccc4b;
-        --ok: #4cc27f;
-        --bad: #ef7070;
-        --warn: #f0a53a;
-        --ctl: #2a2a2a;
-        --selbg: #3a3516;
-        --bdg: #33312d;
-        --okbg: #16301f;
-        --okbd: #2c6b43;
-        --okfg: #b8e8c9;
-        --wbg: #3a2a10;
-        --wbd: #7a5518;
-        --wfg: #ffd9a0;
-        --ebg: #3a1818;
-        --ebd: #7a2c2c;
-        --efg: #ffc4c4;
-        --hbg: #3a3516;
-        --hfg: #f3e9a8;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) {
-          --flash: rgba(220, 204, 75, 0.32);
-          --pri: #0a0a0a;
-          --tile: #3a3516;
-          --sh: 0 6px 18px rgba(0, 0, 0, 0.5);
-          color-scheme: dark;
-          --bg: #121212;
-          --card: #1e1e1e;
-          --ink: #f0eee6;
-          --muted: #a8a69d;
-          --line: #3a3731;
-          --cream: #26241c;
-          --gold-text: #dccc4b;
-          --ok: #4cc27f;
-          --bad: #ef7070;
-          --warn: #f0a53a;
-          --ctl: #2a2a2a;
-          --selbg: #3a3516;
-          --bdg: #33312d;
-          --okbg: #16301f;
-          --okbd: #2c6b43;
-          --okfg: #b8e8c9;
-          --wbg: #3a2a10;
-          --wbd: #7a5518;
-          --wfg: #ffd9a0;
-          --ebg: #3a1818;
-          --ebd: #7a2c2c;
-          --efg: #ffc4c4;
-          --hbg: #3a3516;
-          --hfg: #f3e9a8;
-        }
+        --tile: var(--surface-field);
+        --cream: var(--surface-field);
+        --selbg: var(--surface-field);
       }
       * {
         box-sizing: border-box;
@@ -1201,23 +1099,15 @@
       </div>
       <span class="net" id="net">online</span>
       <button class="ib" id="btntheme" type="button">
-        <svg class="ico" id="themeico" viewBox="0 0 24 24" aria-hidden="true"></svg>
+        <span class="ag-icon ag-icon--sm" id="themeico" aria-hidden="true">contrast</span>
       </button>
       <button class="ib" id="btnset" type="button" aria-label="Einstellungen">
-        <svg class="ico" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="3" />
-          <path
-            d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
-          />
-        </svg>
+        <span class="ag-icon ag-icon--sm" aria-hidden="true">settings</span>
       </button>
     </header>
     <div class="wrap">
       <div class="info">
-        <svg class="ico" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 8h.01M11 12h1v5h1" />
-        </svg>
+        <span class="ag-icon ag-icon--sm" aria-hidden="true">info</span>
         <span>
           <b>Kombinationshilfe zur ersten Prüfung.</b>
           Endgültige Kalkulation vor Angebot prüfen.
@@ -1302,21 +1192,16 @@
       }
       applyTheme();
       const TH = {
-        auto: [
-          'Auto',
-          '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
-        ],
-        hell: [
-          'Hell',
-          '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-        ],
-        dunkel: ['Dunkel', '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'],
+        auto: ['Auto', 'contrast'],
+        hell: ['Hell', 'light_mode'],
+        dunkel: ['Dunkel', 'dark_mode'],
       };
       function themeBtn() {
         const k = settings.theme || 'auto',
           b = $('#btntheme');
         if (!b) return;
-        $('#themeico').innerHTML = TH[k][1];
+        const ico = $('#themeico');
+        if (ico) ico.textContent = TH[k][1];
         b.setAttribute('aria-label', 'Darstellung: ' + TH[k][0] + ' (tippen zum Wechseln)');
         b.title = 'Darstellung: ' + TH[k][0];
       }
@@ -1412,9 +1297,9 @@
         if (view.name !== 'edit') return '';
         const p = cur();
         if (!isRes())
-          return `<div><button class="btn" style="flex:.55" data-act="addroom"${p.rooms.length >= 5 ? ' disabled' : ''}><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Raum</button><button class="btn primary" data-act="toresult">Ergebnis ansehen</button></div>`;
+          return `<div><button class="btn" style="flex:.55" data-act="addroom"${p.rooms.length >= 5 ? ' disabled' : ''}><span class="ag-icon ag-icon--sm" aria-hidden="true">add</span>Raum</button><button class="btn primary" data-act="toresult">Ergebnis ansehen</button></div>`;
         const sel = EV ? selected() : null;
-        return `<div><button class="btn" data-act="toinput">Ändern</button><button class="btn primary pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2">✓ PDF fertig</span></button>${lastPdf && lastPdf.id === p.id && sel && sel.ok ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+        return `<div><button class="btn" data-act="toinput">Ändern</button><button class="btn primary pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1"><span class="ag-icon ag-icon--sm" aria-hidden="true">download</span>PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="ag-icon ag-icon--sm" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.id === p.id && sel && sel.ok ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
       }
       function setBar() {
         const b = $('#bar'),
@@ -1439,7 +1324,7 @@
       function vList() {
         return `<div class="pagetitle">Auslegungen</div>
   <p class="muted">Multisplit-Kombinationen (R32) prüfen – nur Kombinationen, die Daikin freigibt, werden als „freigegeben“ angezeigt.</p>
-  <div class="row"><button class="btn primary" data-act="new"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neue Auslegung</button></div>
+  <div class="row"><button class="btn primary" data-act="new"><span class="ag-icon ag-icon--sm" aria-hidden="true">add</span>Neue Auslegung</button></div>
   <h2>Gespeichert auf diesem Gerät <span class="n" aria-hidden="true">${projects.length}</span></h2>
   ${
     projects.length
@@ -1448,9 +1333,9 @@
             (
               p,
             ) => `<div class="card proj" data-act="open" data-id="${p.id}" role="button" tabindex="0">
-    <span class="pi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span>
+    <span class="pi"><span class="ag-icon ag-icon--sm" aria-hidden="true">description</span></span>
     <span class="pt"><b>${esc(p.nr || 'ohne Projektnummer')}</b>${p.kunde ? `<span class="pk">${esc(p.kunde)}</span>` : ''}<small>${esc(fmtDate(p.datum))} · ${p.rooms.length} ${p.rooms.length === 1 ? 'Raum' : 'Räume'}</small></span>
-    <button class="ib del" type="button" data-act="del" data-id="${p.id}" aria-label="Auslegung ${esc(p.nr || 'ohne Projektnummer')} löschen"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></div>`,
+    <button class="ib del" type="button" data-act="del" data-id="${p.id}" aria-label="Auslegung ${esc(p.nr || 'ohne Projektnummer')} löschen"><span class="ag-icon ag-icon--sm" aria-hidden="true">delete</span></button></div>`,
           )
           .join('')
       : '<div class="card empty"><b>Noch keine Auslegung</b><div class="muted">Mit „Neue Auslegung“ startest du die erste.</div></div>'
@@ -1478,7 +1363,7 @@
       function opt(v, sel, label) {
         return `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(label == null ? v : label)}</option>`;
       }
-      const CHEV = '<svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+      const CHEV = '<span class="ag-icon ag-icon--sm" aria-hidden="true">expand_more</span>';
       function roomSummary(r) {
         let u = null;
         try {
