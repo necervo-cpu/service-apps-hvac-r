@@ -37,7 +37,7 @@
         --sh: none;
         --tile: var(--surface-field);
         --cream: var(--surface-field);
-        --selbg: var(--surface-field);
+        --selbg: var(--gold-soft);
       }
       * {
         box-sizing: border-box;
@@ -396,21 +396,10 @@
         background: var(--card);
       }
       .steps .on {
-        background: var(--pri);
-        color: #fff;
-        border-color: var(--pri);
-      }
-      :root[data-theme='dark'] .steps .on {
-        background: var(--gold);
-        color: #1a1a1a;
-        border-color: var(--gold);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .steps .on {
-          background: var(--gold);
-          color: #1a1a1a;
-          border-color: var(--gold);
-        }
+        background: var(--gradient-honey);
+        color: var(--text-on-accent);
+        border-color: transparent;
+        font-weight: 700;
       }
       .card h3 {
         margin: 0 0 10px;
@@ -1015,7 +1004,7 @@
         transform: scale(0.985);
       }
       .oduline.sel {
-        border-color: var(--gold);
+        border-color: var(--gold-dark);
         background: var(--selbg);
       }
       .oduline .why {

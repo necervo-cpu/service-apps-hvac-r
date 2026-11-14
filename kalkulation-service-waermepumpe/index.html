@@ -429,19 +429,8 @@
       .steps .on {
         background: var(--gradient-honey);
         color: var(--text-on-accent);
-        border-color: var(--gold-dark);
-      }
-      :root[data-theme='dark'] .steps .on {
-        background: var(--gradient-honey);
-        color: var(--text-on-accent);
-        border-color: var(--gold-dark);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .steps .on {
-          background: var(--gradient-honey);
-          color: var(--text-on-accent);
-          border-color: var(--gold-dark);
-        }
+        border-color: transparent;
+        font-weight: 700;
       }
       @media (max-width: 700px) {
         .steps .sl {

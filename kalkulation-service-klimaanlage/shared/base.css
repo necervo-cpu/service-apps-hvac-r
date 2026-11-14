@@ -829,11 +829,7 @@ select:-webkit-autofill {
   background: var(--gradient-honey);
   color: var(--text-on-accent);
   border-color: transparent;
-}
-:root[data-theme='light'] .steps .on {
-  background: var(--pri);
-  color: #fff;
-  border-color: var(--pri);
+  font-weight: 700;
 }
 @media (max-width: 700px) {
   .steps .sl {

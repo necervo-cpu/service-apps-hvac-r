@@ -45,17 +45,17 @@
           U+A720-A7FF;
       }
       :root {
-        --selbg: var(--pri);
+        --selbg: var(--gold);
+        --selfg: var(--text-on-accent);
+      }
+      :root[data-theme='light'] {
+        --selbg: var(--gold-dark);
         --selfg: #fff;
       }
-      :root[data-theme='dark'] {
-        --selbg: var(--gold);
-        --selfg: var(--pri);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) {
-          --selbg: var(--gold);
-          --selfg: var(--pri);
+      @media (prefers-color-scheme: light) {
+        :root:not([data-theme='dark']) {
+          --selbg: var(--gold-dark);
+          --selfg: #fff;
         }
       }
       [hidden] {
