@@ -65,8 +65,8 @@
 /* Durchscheinende Farben: mit color-mix (iOS ab 16.2), sonst feste rgba-Werte für hell und dunkel */
 @supports (color: color-mix(in srgb, red, blue)) {
   :root {
-    --ios-glass: color-mix(in srgb, var(--card, #1c1c1e) 55%, transparent);
-    --ios-glass-strong: color-mix(in srgb, var(--card, #1c1c1e) 72%, transparent);
+    --ios-glass: color-mix(in srgb, var(--card, #1c1c1e) 74%, transparent);
+    --ios-glass-strong: color-mix(in srgb, var(--card, #1c1c1e) 82%, transparent);
     --ios-line-soft: color-mix(in srgb, var(--line, rgba(255, 255, 255, 0.08)) 70%, transparent);
     --ios-seg: color-mix(in srgb, var(--segbg, #2c2c2e) 55%, transparent);
     --ios-ctl: color-mix(in srgb, var(--ctl, #2c2c2e) 70%, transparent);
@@ -77,8 +77,8 @@
     --ios-grab: color-mix(in srgb, var(--ink, #ffffff) 25%, transparent);
   }
   :root[data-theme='light'] {
-    --ios-glass: color-mix(in srgb, var(--card, #fff) 42%, transparent);
-    --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 62%, transparent);
+    --ios-glass: color-mix(in srgb, var(--card, #fff) 72%, transparent);
+    --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 82%, transparent);
     --ios-line-soft: color-mix(in srgb, var(--line, rgba(0, 0, 0, 0.06)) 70%, transparent);
     --ios-seg: color-mix(in srgb, var(--segbg, #f2f2f7) 55%, transparent);
     --ios-ctl: color-mix(in srgb, var(--ctl, #f2f2f7) 70%, transparent);
@@ -90,8 +90,8 @@
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme='dark']) {
-      --ios-glass: color-mix(in srgb, var(--card, #fff) 42%, transparent);
-      --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 62%, transparent);
+      --ios-glass: color-mix(in srgb, var(--card, #fff) 72%, transparent);
+      --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 82%, transparent);
       --ios-line-soft: color-mix(in srgb, var(--line, rgba(0, 0, 0, 0.06)) 70%, transparent);
       --ios-seg: color-mix(in srgb, var(--segbg, #f2f2f7) 55%, transparent);
       --ios-ctl: color-mix(in srgb, var(--ctl, #f2f2f7) 70%, transparent);
@@ -105,8 +105,8 @@
 }
 @supports not (color: color-mix(in srgb, red, blue)) {
   :root {
-    --ios-glass: rgba(28, 28, 30, 0.55);
-    --ios-glass-strong: rgba(28, 28, 30, 0.72);
+    --ios-glass: rgba(28, 28, 30, 0.74);
+    --ios-glass-strong: rgba(28, 28, 30, 0.82);
     --ios-line-soft: rgba(255, 255, 255, 0.08);
     --ios-seg: rgba(44, 44, 46, 0.55);
     --ios-ctl: rgba(44, 44, 46, 0.7);
@@ -117,8 +117,8 @@
     --ios-grab: rgba(255, 255, 255, 0.25);
   }
   :root[data-theme='light'] {
-    --ios-glass: rgba(255, 255, 255, 0.42);
-    --ios-glass-strong: rgba(255, 255, 255, 0.62);
+    --ios-glass: rgba(255, 255, 255, 0.72);
+    --ios-glass-strong: rgba(255, 255, 255, 0.82);
     --ios-line-soft: rgba(0, 0, 0, 0.06);
     --ios-seg: rgba(242, 242, 247, 0.55);
     --ios-ctl: rgba(255, 255, 255, 0.7);
@@ -130,8 +130,8 @@
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme='dark']) {
-      --ios-glass: rgba(255, 255, 255, 0.42);
-      --ios-glass-strong: rgba(255, 255, 255, 0.62);
+      --ios-glass: rgba(255, 255, 255, 0.72);
+      --ios-glass-strong: rgba(255, 255, 255, 0.82);
       --ios-line-soft: rgba(0, 0, 0, 0.06);
       --ios-seg: rgba(242, 242, 247, 0.55);
       --ios-ctl: rgba(255, 255, 255, 0.7);
@@ -212,12 +212,12 @@ body::before {
     background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .seg .btn.sel.neutral,
 .seg .btn.sel:not(.ok):not(.bad):not(.na):not(.warn) {
-  background: var(--gradient-honey);
+  background: transparent;
+  --seg-pill-bg: var(--gradient-honey);
   color: var(--text-on-accent, #1c1c1e);
 }
 .opts .btn {
@@ -225,7 +225,6 @@ body::before {
     background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 input,
@@ -249,15 +248,7 @@ select:focus {
   transition-duration: 75ms;
 }
 
-/* ===== Glasoptik: durchscheinend + Unschärfe + helle Oberkante (nie auf dem Bericht .report) ===== */
-.card:not(.report .card),
-.steps > *,
-.bar .btn:not(.primary),
-main .btn.small:not(.primary),
-.qt {
-  -webkit-backdrop-filter: var(--ios-blur-card);
-  backdrop-filter: var(--ios-blur-card);
-}
+/* ===== Glasoptik: durchscheinend + Unschärfe auf schwebenden Leisten + helle Oberkante (nie auf dem Bericht .report) ===== */
 .bar,
 header {
   -webkit-backdrop-filter: var(--ios-blur);
@@ -331,9 +322,7 @@ main .btn.small:not(.primary) {
   gap: 2px;
 }
 .seg .btn.sel {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 2px 8px -2px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 input,
 textarea,
@@ -538,14 +527,12 @@ body.sheet-open .sheet-scrim {
 .stage {
   transition:
     transform 480ms var(--ios-ease),
-    border-radius 480ms,
-    filter 480ms;
+    border-radius 480ms;
 }
 body.sheet-open .stage {
   transform: scale(0.96);
   transform-origin: 50% 0;
   border-radius: 16px;
-  filter: brightness(0.92);
 }
 .sheet-grab {
   width: 40px;
@@ -731,7 +718,7 @@ body.ios-swiping {
 body.ios-swiping .stage,
 body.ios-swiping .ios-mover {
   background: var(--ios-bg);
-  box-shadow: -12px 0 32px -12px rgba(0, 0, 0, calc(0.35 - var(--sw, 0) * 0.3));
+  box-shadow: -12px 0 32px -12px rgba(0, 0, 0, 0.3);
 }
 
 /* ===== Weniger Transparenz / mehr Kontrast / Druck: alles deckend, kein Glas, kein Hintergrund ===== */
@@ -800,8 +787,11 @@ body.ios-swiping .ios-mover {
   .pg-out-fwd,
   .pg-out-back,
   .pg-in-fwd,
-  .pg-in-back {
-    animation: none;
+  .pg-in-back,
+  .seg .btn.sel.pill-glide::before,
+  .seg .btn.sel.pill-pop::before,
+  .opts .btn.sel.pill-pop {
+    animation: none !important;
   }
   .okc,
   .okc circle,
@@ -811,7 +801,25 @@ body.ios-swiping .ios-mover {
   .stage,
   .htitle,
   header .tt > *,
-  #toast {
+  #toast,
+  .btn,
+  .ib,
+  .themebtn,
+  .cta,
+  .qt,
+  .steps button,
+  .seg .btn,
+  .opts .btn,
+  .seg .btn.sel::before {
     transition: none !important;
+  }
+  .btn:active,
+  .ib:active,
+  .themebtn:active,
+  .cta:active,
+  .qt:active,
+  .steps button:active,
+  .seg .btn.sel:active::before {
+    transform: none !important;
   }
 }

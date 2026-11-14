@@ -156,8 +156,21 @@
 
   /* ---------- Großer Titel -> klein in der Kopfleiste ---------- */
   let io = null,
-    ht = null;
+    ioH = 0,
+    headerH = 0,
+    ht = null,
+    htShown = false;
+  addEventListener(
+    'resize',
+    () => {
+      headerH = 0;
+    },
+    { passive: true },
+  );
   function setTitleShown(on) {
+    on = !!on;
+    if (htShown === on && ht && ht.isConnected) return;
+    htShown = on;
     const header = $('header');
     if (ht) ht.classList.toggle('show', on);
     if (header) header.classList.toggle('ht-on', on);
@@ -170,20 +183,29 @@
       ht.className = 'htitle';
       ht.setAttribute('aria-hidden', 'true');
       (header.querySelector('.tt') || header).appendChild(ht);
-    }
-    if (io) {
-      io.disconnect();
-      io = null;
+      htShown = false;
     }
     const t = $('#app .pagetitle');
-    ht.textContent = t ? t.textContent.trim() : '';
-    setTitleShown(false);
-    if (!t || !('IntersectionObserver' in window)) return;
-    const h = Math.round(header.getBoundingClientRect().height);
-    io = new IntersectionObserver(
-      ([e]) => setTitleShown(!e.isIntersecting && e.boundingClientRect.top < h),
-      { rootMargin: `-${h}px 0px 0px 0px` },
-    );
+    const nextTxt = t ? t.textContent.trim() : '';
+    if (ht.textContent !== nextTxt) ht.textContent = nextTxt;
+    if (!t) {
+      if (io) io.disconnect();
+      setTitleShown(false);
+      return;
+    }
+    const h = headerH || (headerH = Math.round(header.getBoundingClientRect().height) || 56);
+    setTitleShown(t.getBoundingClientRect().top < h);
+    if (!('IntersectionObserver' in window)) return;
+    if (!io || ioH !== h) {
+      if (io) io.disconnect();
+      ioH = h;
+      io = new IntersectionObserver(
+        ([e]) => setTitleShown(!e.isIntersecting && e.boundingClientRect.top < h),
+        { rootMargin: `-${h}px 0px 0px 0px` },
+      );
+    } else {
+      io.disconnect();
+    }
     io.observe(t);
   }
   function iosAfterRender(viewName) {
@@ -414,7 +436,6 @@
     function apply() {
       const p = Math.min(1, st.x / innerWidth);
       st.mover.style.transform = `translateX(${st.x}px)`;
-      st.mover.style.setProperty('--sw', p);
       st.under.style.transform = `translateX(${-30 * (1 - p)}%)`;
       st.dim.style.opacity = String(0.3 * (1 - p));
     }
@@ -506,14 +527,12 @@
       s.under.style.transition = tr;
       s.dim.style.transition = `opacity ${ms}ms ${EASE}`;
       s.mover.style.transform = commit ? `translateX(${innerWidth}px)` : 'translateX(0)';
-      s.mover.style.setProperty('--sw', commit ? 1 : 0);
       s.under.style.transform = commit ? 'translateX(0)' : 'translateX(-30%)';
       s.dim.style.opacity = commit ? '0' : '.3';
       const done = () => {
         s.mover.style.transition = 'none';
         s.mover.style.transform = '';
         s.mover.style.minHeight = '';
-        s.mover.style.removeProperty('--sw');
         s.mover.classList.remove('ios-mover');
         document.documentElement.classList.remove('ios-swiping');
         document.body.classList.remove('ios-swiping');
@@ -550,6 +569,76 @@
       addEventListener('pointercancel', end);
     }
     return { init };
+  })();
+
+  /* ---------- Segment-Pille gleitet horizontal zum gewählten Punkt (UISegmentedControl / FLIP) ---------- */
+  (function () {
+    document.addEventListener(
+      'click',
+      (e) => {
+        if (RMq() || navBusyNow()) return;
+        const btn = e.target.closest && e.target.closest('.seg .btn[data-act="set"], .opts .btn[data-act="set"]');
+        if (!btn || btn.disabled) return;
+        const track = btn.closest('.seg, .opts');
+        const f = btn.dataset.f;
+        const v = btn.dataset.v;
+        if (!track || !f) return;
+        const isSeg = track.classList.contains('seg');
+        const prev = track.querySelector('.btn.sel');
+        const wasSame = btn.classList.contains('sel');
+        const prevRect = isSeg && prev && prev !== btn ? prev.getBoundingClientRect() : null;
+
+        queueMicrotask(() => {
+          const next = Array.from(document.querySelectorAll('[data-act="set"].sel')).find(
+            (el) => el.dataset.f === f && el.dataset.v === v && el.closest('.seg, .opts') && !el.closest('#under'),
+          );
+          if (!next) return;
+          if (isSeg && prevRect && !wasSame) {
+            const nextRect = next.getBoundingClientRect();
+            const dx = Math.round(
+              prevRect.left + prevRect.width / 2 - (nextRect.left + nextRect.width / 2),
+            );
+            const dy = Math.round(
+              prevRect.top + prevRect.height / 2 - (nextRect.top + nextRect.height / 2),
+            );
+            const sx = nextRect.width > 0 ? +(prevRect.width / nextRect.width).toFixed(4) : 1;
+            if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(sx - 1) > 0.02) {
+              next.style.setProperty('--pill-dx', dx + 'px');
+              next.style.setProperty('--pill-dy', dy + 'px');
+              next.style.setProperty('--pill-sx', String(sx));
+              next.classList.remove('pill-glide', 'pill-pop');
+              void next.offsetWidth;
+              next.classList.add('pill-glide');
+              next.addEventListener(
+                'animationend',
+                () => {
+                  next.classList.remove('pill-glide');
+                  next.style.removeProperty('--pill-dx');
+                  next.style.removeProperty('--pill-dy');
+                  next.style.removeProperty('--pill-sx');
+                },
+                { once: true },
+              );
+              return;
+            }
+          }
+          if (!wasSame) {
+            if (next.classList.contains('pill-pop')) {
+              next.classList.remove('pill-pop');
+              void next.offsetWidth;
+            }
+            next.classList.remove('pill-glide');
+            next.classList.add('pill-pop');
+            next.addEventListener(
+              'animationend',
+              () => next.classList.remove('pill-pop'),
+              { once: true },
+            );
+          }
+        });
+      },
+      true,
+    );
   })();
 
   /* ---------- iOS PWA Viewport / Bottom Chin-Gap Fix ---------- */

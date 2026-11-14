@@ -104,7 +104,7 @@
         --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
         --blur: blur(16px) saturate(160%);
         --blur-hero: blur(24px) saturate(180%);
-        --glass: rgba(28, 28, 30, 0.72);
+        --glass: rgba(28, 28, 30, 0.78);
         --glass-hero: rgba(14, 14, 14, 0.86);
         --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.12), transparent 60%),
           radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.1), transparent 60%),
@@ -139,7 +139,7 @@
         --edge: rgba(255, 255, 255, 0.75);
         --edge-low: rgba(0, 0, 0, 0.06);
         --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
-        --glass: rgba(255, 255, 255, 0.65);
+        --glass: rgba(255, 255, 255, 0.78);
         --glass-hero: rgba(26, 26, 26, 0.9);
         --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.4), transparent 60%),
           radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.3), transparent 60%),
@@ -174,7 +174,7 @@
           --edge: rgba(255, 255, 255, 0.75);
           --edge-low: rgba(0, 0, 0, 0.06);
           --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
-          --glass: rgba(255, 255, 255, 0.65);
+          --glass: rgba(255, 255, 255, 0.78);
           --glass-hero: rgba(26, 26, 26, 0.9);
           --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.4), transparent 60%),
             radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.3), transparent 60%),
@@ -184,7 +184,7 @@
       /* Durchscheinende Flächen: color-mix nur, wo unterstützt (rgba-Werte oben sind der Fallback) */
       @supports (color: color-mix(in srgb, red, blue)) {
         :root {
-          --glass: color-mix(in srgb, var(--card) 55%, transparent);
+          --glass: color-mix(in srgb, var(--card) 78%, transparent);
           --glass-hero: color-mix(in srgb, var(--pri) 84%, transparent);
         }
       }
@@ -364,8 +364,6 @@
         display: flex;
         flex-direction: column;
         background: var(--glass);
-        -webkit-backdrop-filter: var(--blur);
-        backdrop-filter: var(--blur);
         border: 1px solid var(--edge-low);
         box-shadow:
           inset 0 1px 0 var(--edge),
@@ -562,7 +560,10 @@
         user-select: none;
         color: inherit;
         font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' -25, 'opsz' 24;
-        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        transition:
+          color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 160ms cubic-bezier(0.22, 1, 0.36, 1),
+          transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
         flex: none;
       }
       .ag-icon--sm { font-size: 20px; font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' -25, 'opsz' 20; }

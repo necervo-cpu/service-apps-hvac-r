@@ -46,7 +46,12 @@ function stepsRender(m) {
   const wasHidden = w.hidden;
   w.hidden = false;
   if (fresh || wasHidden) void w.offsetWidth;
-  $('#stlab').innerHTML = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
+  const stlab = $('#stlab'),
+    labH = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
+  if (stlab._lastHtml !== labH) {
+    stlab._lastHtml = labH;
+    stlab.innerHTML = labH;
+  }
   $('#stbar').style.transform = 'scaleX(' + ((i + 1) / n).toFixed(4) + ')'; // transform statt width: kein Neu-Layout je Bild
   w.querySelectorAll('.steps button').forEach((b, k) => {
     b.classList.toggle('done', k !== i && m.done(k));

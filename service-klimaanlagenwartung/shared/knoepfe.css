@@ -27,6 +27,8 @@
   display: flex;
   gap: 6px;
   flex-shrink: 0;
+  position: relative;
+  isolation: isolate;
 }
 .seg + input[data-other],
 .opts + input[data-other] {
@@ -40,6 +42,8 @@
 }
 .seg .btn,
 .opts .btn {
+  position: relative;
+  z-index: auto;
   background: var(--surface-field, var(--segbg));
   border-color: transparent;
   color: var(--ink);
@@ -52,40 +56,78 @@
     background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
     color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.seg .btn:active:not(:disabled),
+.seg .btn:active:not(:disabled) {
+  transform: none;
+  opacity: 1;
+  transition-duration: 60ms;
+}
 .opts .btn:active:not(:disabled) {
   transform: none;
-  background-color: var(--surface-hover, #3a3a3c);
   opacity: 0.9;
   transition-duration: 60ms;
 }
-@keyframes btnSelectIn {
+.seg .btn:not(.sel):active:not(:disabled),
+.opts .btn:not(.sel):active:not(:disabled) {
+  background-color: var(--surface-hover, #3a3a3c);
+}
+.seg .btn.sel:active:not(:disabled)::before {
+  transform: scale(0.97);
+  transition: transform 75ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes iosPillGlide {
   from {
-    opacity: 0.72;
+    transform: translate3d(var(--pill-dx, 0px), var(--pill-dy, 0px), 0) scaleX(var(--pill-sx, 1));
+  }
+  to {
+    transform: translate3d(0, 0, 0) scaleX(1);
+  }
+}
+@keyframes iosPillPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
-.seg .btn.sel,
-.opts .btn.sel {
-  animation: btnSelectIn 180ms cubic-bezier(0.22, 1, 0.36, 1);
+.seg .btn.sel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--seg-pill-bg, var(--gradient-honey));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 2px 8px -2px rgba(0, 0, 0, 0.3);
+  z-index: -1;
+  pointer-events: none;
 }
-.seg .btn:hover,
-.opts .btn:hover {
-  background: var(--surface-hover, #3a3a3c);
+.seg .btn.sel.pill-glide::before {
+  animation: iosPillGlide 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  will-change: transform;
 }
-:root[data-theme='light'] .seg .btn:hover,
-:root[data-theme='light'] .opts .btn:hover {
-  background: var(--surface-hover, #e5e5ea);
+.seg .btn.sel.pill-pop::before,
+.opts .btn.sel.pill-pop {
+  animation: iosPillPop 170ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) .seg .btn:hover,
-  :root:not([data-theme='dark']) .opts .btn:hover {
+@media (hover: hover) {
+  .seg .btn:not(.sel):hover,
+  .opts .btn:not(.sel):hover {
+    background: var(--surface-hover, #3a3a3c);
+  }
+  :root[data-theme='light'] .seg .btn:not(.sel):hover,
+  :root[data-theme='light'] .opts .btn:not(.sel):hover {
     background: var(--surface-hover, #e5e5ea);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) .seg .btn:not(.sel):hover,
+    :root:not([data-theme='dark']) .opts .btn:not(.sel):hover {
+      background: var(--surface-hover, #e5e5ea);
+    }
   }
 }
 .seg .btn {
@@ -96,61 +138,106 @@
   min-height: 48px;
 }
 .seg .btn.sel,
+.seg .btn.sel.neutral {
+  background: transparent;
+  --seg-pill-bg: var(--gradient-honey);
+  border-color: transparent;
+  color: var(--text-on-accent, #1c1c1e);
+}
 .opts .btn.sel,
-.seg .btn.sel.neutral,
 .opts .btn.sel.neutral {
   background: var(--gradient-honey);
   border-color: transparent;
   color: var(--text-on-accent, #1c1c1e);
 }
-.seg .btn.sel.ok,
+.seg .btn.sel.ok {
+  background: transparent;
+  --seg-pill-bg: var(--ok);
+  color: var(--text-on-accent, #1c1c1e);
+}
 .opts .btn.sel.ok {
   background: var(--ok);
   color: var(--text-on-accent, #1c1c1e);
 }
-.seg .btn.sel.bad,
+.seg .btn.sel.bad {
+  background: transparent;
+  --seg-pill-bg: var(--bad);
+  color: var(--text-on-accent, #1c1c1e);
+}
 .opts .btn.sel.bad {
   background: var(--bad);
   color: var(--text-on-accent, #1c1c1e);
 }
-.seg .btn.sel.na,
+.seg .btn.sel.na {
+  background: transparent;
+  --seg-pill-bg: var(--na);
+  color: #fff;
+}
 .opts .btn.sel.na {
   background: var(--na);
   color: #fff;
 }
-.seg .btn.sel.warn,
+.seg .btn.sel.warn {
+  background: transparent;
+  --seg-pill-bg: var(--warn);
+  color: var(--text-on-accent, #1c1c1e);
+}
 .opts .btn.sel.warn {
   background: var(--warn);
   color: var(--text-on-accent, #1c1c1e);
 }
 
-:root[data-theme='light'] .seg .btn.sel.ok,
+:root[data-theme='light'] .seg .btn.sel.ok {
+  background: transparent;
+  --seg-pill-bg: var(--pastel-mint);
+  color: var(--text-on-accent, #1c1c1e);
+}
 :root[data-theme='light'] .opts .btn.sel.ok {
   background: var(--pastel-mint);
   color: var(--text-on-accent, #1c1c1e);
 }
-:root[data-theme='light'] .seg .btn.sel.bad,
+:root[data-theme='light'] .seg .btn.sel.bad {
+  background: transparent;
+  --seg-pill-bg: var(--pastel-rose);
+  color: var(--text-on-accent, #1c1c1e);
+}
 :root[data-theme='light'] .opts .btn.sel.bad {
   background: var(--pastel-rose);
   color: var(--text-on-accent, #1c1c1e);
 }
-:root[data-theme='light'] .seg .btn.sel.warn,
+:root[data-theme='light'] .seg .btn.sel.warn {
+  background: transparent;
+  --seg-pill-bg: var(--pastel-butter);
+  color: var(--text-on-accent, #1c1c1e);
+}
 :root[data-theme='light'] .opts .btn.sel.warn {
   background: var(--pastel-butter);
   color: var(--text-on-accent, #1c1c1e);
 }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) .seg .btn.sel.ok,
+  :root:not([data-theme='dark']) .seg .btn.sel.ok {
+    background: transparent;
+    --seg-pill-bg: var(--pastel-mint);
+    color: var(--text-on-accent, #1c1c1e);
+  }
   :root:not([data-theme='dark']) .opts .btn.sel.ok {
     background: var(--pastel-mint);
     color: var(--text-on-accent, #1c1c1e);
   }
-  :root:not([data-theme='dark']) .seg .btn.sel.bad,
+  :root:not([data-theme='dark']) .seg .btn.sel.bad {
+    background: transparent;
+    --seg-pill-bg: var(--pastel-rose);
+    color: var(--text-on-accent, #1c1c1e);
+  }
   :root:not([data-theme='dark']) .opts .btn.sel.bad {
     background: var(--pastel-rose);
     color: var(--text-on-accent, #1c1c1e);
   }
-  :root:not([data-theme='dark']) .seg .btn.sel.warn,
+  :root:not([data-theme='dark']) .seg .btn.sel.warn {
+    background: transparent;
+    --seg-pill-bg: var(--pastel-butter);
+    color: var(--text-on-accent, #1c1c1e);
+  }
   :root:not([data-theme='dark']) .opts .btn.sel.warn {
     background: var(--pastel-butter);
     color: var(--text-on-accent, #1c1c1e);
