@@ -49,9 +49,30 @@
   max-width: 100%;
   overflow-wrap: anywhere;
   transition:
-    background-color 160ms var(--out, ease-out),
-    color 160ms,
-    transform 100ms ease-out;
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.seg .btn:active:not(:disabled),
+.opts .btn:active:not(:disabled) {
+  transform: none;
+  background-color: var(--surface-hover, #3a3a3c);
+  opacity: 0.9;
+  transition-duration: 60ms;
+}
+@keyframes btnSelectIn {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.seg .btn.sel,
+.opts .btn.sel {
+  animation: btnSelectIn 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .seg .btn:hover,
 .opts .btn:hover {
@@ -113,6 +134,11 @@
   background: var(--pastel-rose);
   color: var(--text-on-accent, #1c1c1e);
 }
+:root[data-theme='light'] .seg .btn.sel.warn,
+:root[data-theme='light'] .opts .btn.sel.warn {
+  background: var(--pastel-butter);
+  color: var(--text-on-accent, #1c1c1e);
+}
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) .seg .btn.sel.ok,
   :root:not([data-theme='dark']) .opts .btn.sel.ok {
@@ -122,6 +148,11 @@
   :root:not([data-theme='dark']) .seg .btn.sel.bad,
   :root:not([data-theme='dark']) .opts .btn.sel.bad {
     background: var(--pastel-rose);
+    color: var(--text-on-accent, #1c1c1e);
+  }
+  :root:not([data-theme='dark']) .seg .btn.sel.warn,
+  :root:not([data-theme='dark']) .opts .btn.sel.warn {
+    background: var(--pastel-butter);
     color: var(--text-on-accent, #1c1c1e);
   }
 }
@@ -153,18 +184,21 @@ select.pick:hover {
   background-color: var(--surface-hover, #3a3a3c);
 }
 select.pick.tone-set {
-  background-color: var(--pastel-butter);
-  background-image: var(--pick-chev-dark);
+  background-color: var(--pastel-peach);
+  background-image: var(--pick-chev-dark), var(--gradient-honey);
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 16px center, 0 0;
+  background-size: 14px 9px, 100% 100%;
   color: var(--text-on-accent, #1c1c1e);
 }
 select.pick.tone-ok {
-  background-color: var(--ok);
-  background-image: var(--pick-chev-white);
+  background-color: var(--pastel-mint);
+  background-image: var(--pick-chev-dark);
   color: var(--text-on-accent, #1c1c1e);
 }
 select.pick.tone-bad {
-  background-color: var(--bad);
-  background-image: var(--pick-chev-white);
+  background-color: var(--pastel-rose);
+  background-image: var(--pick-chev-dark);
   color: var(--text-on-accent, #1c1c1e);
 }
 select.pick.tone-na {
@@ -173,23 +207,9 @@ select.pick.tone-na {
   color: #fff;
 }
 select.pick.tone-warn {
-  background-color: var(--warn);
+  background-color: var(--pastel-butter);
   background-image: var(--pick-chev-dark);
   color: var(--text-on-accent, #1c1c1e);
-}
-:root[data-theme='light'] select.pick.tone-ok {
-  color: #fff;
-}
-:root[data-theme='light'] select.pick.tone-bad {
-  color: #fff;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) select.pick.tone-ok {
-    color: #fff;
-  }
-  :root:not([data-theme='dark']) select.pick.tone-bad {
-    color: #fff;
-  }
 }
 select.pick option {
   background-color: var(--card, #1c1c1e);

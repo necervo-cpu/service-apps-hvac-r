@@ -58,7 +58,10 @@ function stepsRender(m) {
 /* Feste Leiste unten */
 function barRender(h) {
   const b = $('#bar');
-  b.innerHTML = h;
+  if (b._lastHtml !== h) {
+    b._lastHtml = h;
+    b.innerHTML = h;
+  }
   b.hidden = !h;
   document.body.classList.toggle('hasbar', !!h);
 }

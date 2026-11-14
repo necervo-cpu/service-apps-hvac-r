@@ -112,16 +112,17 @@
   --pri: #0a0a0a;
   --pri2: #f6e3a1;
   --gold: var(--pastel-butter);
-  --gold-soft: rgba(246, 227, 161, 0.16);
+  --gold-soft: rgba(249, 198, 165, 0.14);
   --gold-dark: #f9c6a5;
   --gold-text: var(--accent-text-butter);
-  --flash: rgba(246, 227, 161, 0.32);
+  --flash: rgba(249, 198, 165, 0.28);
 
   --hbg: rgba(246, 227, 161, 0.12);
   --hfg: #f3e9a8;
   --ebd: rgba(247, 184, 196, 0.3);
   --efg: var(--pastel-rose);
-  --calc: #2b3340;
+  --calc: rgba(249, 198, 165, 0.12);
+  --calc-border: rgba(249, 198, 165, 0.28);
 
   --ok: var(--pastel-mint);
   --okbg: rgba(168, 230, 195, 0.16);
@@ -173,40 +174,41 @@
   --muted: var(--text-secondary);
   --line: var(--border);
   --line-soft: var(--border);
-  --ctl: #ffffff;
-  --segbg: #eceae3;
-  --bdg: #eceae3;
-  --sheet: #e9e7e1;
-  --k1: #f4f3ef;
+  --ctl: var(--surface-field);
+  --segbg: var(--surface-field);
+  --bdg: var(--surface-field);
+  --sheet: var(--surface-hover);
+  --k1: var(--surface-field);
 
-  --pri: #1a1a1a;
-  --pri2: #c4b53e;
-  --gold: #dccc4b;
-  --gold-soft: #faf6dc;
-  --gold-dark: #c4b53e;
+  --pri: #1c1c1e;
+  --pri2: var(--accent-text-peach);
+  --gold: var(--pastel-butter);
+  --gold-soft: rgba(249, 198, 165, 0.22);
+  --gold-dark: var(--accent-text-peach);
   --gold-text: var(--accent-text-butter);
-  --flash: rgba(220, 204, 75, 0.5);
+  --flash: rgba(249, 198, 165, 0.35);
 
-  --hbg: #fff8d6;
-  --hfg: #4a3f00;
-  --ebd: #f1b5b5;
-  --efg: #7a1414;
-  --calc: #eef2f7;
+  --hbg: rgba(249, 198, 165, 0.2);
+  --hfg: var(--accent-text-butter);
+  --ebd: rgba(247, 184, 196, 0.55);
+  --efg: var(--accent-text-rose);
+  --calc: rgba(249, 198, 165, 0.18);
+  --calc-border: rgba(163, 83, 32, 0.24);
 
-  --ok: #1e7a46;
-  --okbg: #e6f4ec;
-  --okbd: #b6dcc4;
-  --okfg: #14532d;
+  --ok: var(--accent-text-mint);
+  --okbg: rgba(168, 230, 195, 0.28);
+  --okbd: rgba(31, 122, 77, 0.28);
+  --okfg: var(--accent-text-mint);
 
-  --bad: #b42318;
-  --ebg: #fdecea;
+  --bad: var(--accent-text-rose);
+  --ebg: rgba(247, 184, 196, 0.28);
 
-  --warn: #8a5a00;
-  --wbg: #fdf3d6;
-  --wbd: #e6d98a;
-  --wfg: #4a3d00;
-  --fwbd: #ecd28a;
-  --fwfg: #5a3d00;
+  --warn: var(--accent-text-butter);
+  --wbg: rgba(246, 227, 161, 0.28);
+  --wbd: rgba(125, 98, 10, 0.28);
+  --wfg: var(--accent-text-butter);
+  --fwbd: rgba(125, 98, 10, 0.28);
+  --fwfg: var(--accent-text-butter);
 
   --na: #8a8989;
 }
@@ -250,16 +252,17 @@
     --pri: #1c1c1e;
     --pri2: var(--accent-text-peach);
     --gold: var(--pastel-butter);
-    --gold-soft: rgba(246, 227, 161, 0.28);
+    --gold-soft: rgba(249, 198, 165, 0.22);
     --gold-dark: var(--accent-text-peach);
     --gold-text: var(--accent-text-butter);
-    --flash: rgba(246, 227, 161, 0.45);
+    --flash: rgba(249, 198, 165, 0.35);
 
-    --hbg: rgba(246, 227, 161, 0.25);
+    --hbg: rgba(249, 198, 165, 0.2);
     --hfg: var(--accent-text-butter);
     --ebd: rgba(247, 184, 196, 0.55);
     --efg: var(--accent-text-rose);
-    --calc: var(--surface-field);
+    --calc: rgba(249, 198, 165, 0.18);
+    --calc-border: rgba(163, 83, 32, 0.24);
 
     --ok: var(--accent-text-mint);
     --okbg: rgba(168, 230, 195, 0.28);
@@ -445,12 +448,14 @@ header .tt span {
 }
 .ib {
   transition:
-    transform var(--t-fast) var(--out),
-    background var(--t-fast);
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .ib:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
   background: rgba(255, 255, 255, 0.22);
+  transition-duration: 75ms;
 }
 .ico {
   width: 20px;
@@ -552,12 +557,17 @@ main {
 .btn {
   position: relative;
   transition:
-    transform var(--t-fast) var(--out),
-    filter var(--t-fast);
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.btn:active {
-  transform: scale(0.97);
-  filter: brightness(0.96);
+.btn:active:not(:disabled) {
+  transform: scale(0.992);
+  opacity: 0.88;
+  transition-duration: 75ms;
 }
 .btn.primary {
   background: var(--gradient-honey);
@@ -644,6 +654,28 @@ textarea {
 textarea {
   min-height: 90px;
   resize: vertical;
+}
+.calc {
+  display: inline-block;
+  padding: 10px 14px;
+  background: var(--calc);
+  border: 1px solid var(--calc-border, var(--line));
+  color: var(--ink);
+  border-radius: 14px;
+  font-weight: 700;
+  min-width: 120px;
+  font-variant-numeric: tabular-nums;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-field) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
+  border-color: var(--line);
+  transition: background-color 600000s 0s, color 600000s 0s;
 }
 .badge {
   display: inline-block;
@@ -773,10 +805,17 @@ textarea {
   -webkit-appearance: none;
 }
 .steps button {
-  transition: transform var(--t-fast) var(--out);
+  transition:
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.steps button:active {
-  transform: scale(0.97);
+.steps button:active:not(:disabled) {
+  transform: scale(0.99);
+  opacity: 0.88;
+  transition-duration: 75ms;
 }
 .steps .done {
   background: var(--okbg);
@@ -940,18 +979,6 @@ input[type='tel'],
 .notice,
 .alert {
   overflow-wrap: anywhere;
-}
-
-/* ── Taktiles Press-Feedback (:active) nach transitions.dev Motion-Skala ── */
-.btn:active:not(:disabled),
-button:active:not(:disabled),
-.themebtn:active {
-  transform: scale(var(--scale-medium));
-  transition: transform var(--duration-quick) var(--ease-smooth-out);
-}
-.card:active {
-  transform: scale(var(--scale-tiny));
-  transition: transform var(--duration-quick) var(--ease-smooth-out);
 }
 
 /* ── Accessibility-Guard: prefers-reduced-motion ── */
