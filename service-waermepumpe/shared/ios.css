@@ -575,7 +575,8 @@ body.sheet-open .stage {
   cursor: pointer;
 }
 .sheet-body {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0 16px 20px;
   overscroll-behavior: contain;

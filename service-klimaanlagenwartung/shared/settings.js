@@ -65,7 +65,7 @@ function settingsVersionHtml(appVersion, buildDate) {
             <span>Nach Updates suchen</span>
           </button>
           <button type="button" class="btn" data-act="forcereload">
-            <span class="material-symbols-rounded" aria-hidden="true">system_update</span>
+            <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
             <span>Cache neu laden</span>
           </button>
         </div>

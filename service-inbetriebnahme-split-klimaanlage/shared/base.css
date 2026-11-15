@@ -274,7 +274,7 @@
    ICONS: Google Material Symbols Rounded (Offline-Fallback + Google Fonts)
    ========================================================================== */
 @font-face {
-  font-family: 'Material Symbols Rounded';
+  font-family: 'Material Symbols Rounded Offline';
   font-style: normal;
   font-weight: 100 700;
   font-display: swap;
@@ -282,7 +282,7 @@
 }
 
 .material-symbols-rounded {
-  font-family: 'Material Symbols Rounded';
+  font-family: 'Material Symbols Rounded', 'Material Symbols Rounded Offline';
   font-weight: normal;
   font-style: normal;
   font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
