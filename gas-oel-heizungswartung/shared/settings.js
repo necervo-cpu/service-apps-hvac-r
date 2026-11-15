@@ -1,9 +1,7 @@
-/* shared/settings.js – gemeinsamer Teil der Einstellungsseite und der Datensicherung
-   Inhalt: settingsConnectionHtml, settingsGeneralHtml(fields), settingsButtonsHtml, settingsBackupHtml(text),
-           settingsSave(fields, storageKey), backupDownload(obj, fileName), backupImport(file, listKey, current, label, apply).
-   Benötigt aus der App: globale `settings`; esc, toast, $, LS aus core.js; Beschriftungen/Zusatzfelder kommen als Daten
-   aus der App (SETTINGS_FIELDS: Array von {id, key, label, placeholder}).
-   Laden: vor dem App-Skript, nach core.js und sync.js (klassisches Skript, kein Modul). */
+/* shared/settings.js – gemeinsamer Teil der Einstellungsseite, Datensicherung & App-Info/Updates
+   Enthält: settingsConnectionHtml, settingsGeneralHtml(fields), settingsButtonsHtml, settingsBackupHtml(text),
+            settingsVersionHtml(appVersion, buildDate), checkAppUpdate(appVersion), initUpdateBadge(appVersion),
+            settingsSave(fields, storageKey), backupDownload(obj, fileName), backupImport(file, listKey, current, label, apply). */
 
 function settingsConnectionHtml() {
   return `
@@ -45,9 +43,82 @@ function settingsBackupHtml(text) {
         <p class="muted" style="margin-top:0">${text}</p>
         <div class="row">
           <button class="btn" data-act="backup">Backup exportieren</button>
-          <label class="btn" style="margin:0;font-size:17px">Backup importieren<input type="file" id="s_import" accept=".json,application/json" hidden></label>
+          <label class="btn" style="margin:0;font-size:16px">Backup importieren<input type="file" id="s_import" accept=".json,application/json" hidden></label>
         </div>
       </div>`;
+}
+
+function settingsVersionHtml(appVersion, buildDate) {
+  return `
+      <h2>App-Info &amp; Updates</h2>
+      <div class="card">
+        <div class="row between" style="margin-bottom:12px">
+          <div>
+            <div style="font-weight:700">Installierte Version</div>
+            <div class="muted" style="font-size:13px">Build-Datum: <span class="numeric">${esc(buildDate || '–')}</span></div>
+          </div>
+          <span class="status-pill" id="app-version-label"><span class="status-dot"></span><span class="numeric">v${esc(appVersion)}</span></span>
+        </div>
+        <div class="row">
+          <button type="button" class="btn update-check-btn" data-act="checkupdate">
+            <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+            <span>Nach Updates suchen</span>
+          </button>
+          <button type="button" class="btn" data-act="forcereload">
+            <span class="material-symbols-rounded" aria-hidden="true">system_update</span>
+            <span>Cache neu laden</span>
+          </button>
+        </div>
+      </div>`;
+}
+
+async function clearCachesAndReload() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await reg.update().catch(() => {});
+        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    }
+  } catch (e) {}
+  window.location.reload();
+}
+
+async function checkAppUpdate(appVersion) {
+  try {
+    const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('version.json nicht erreichbar');
+    const data = await res.json();
+    const remote = String(data.version || '').trim();
+    if (remote && remote === appVersion) {
+      toast('Aktuellste Version v' + appVersion + ' ist installiert.');
+      return;
+    }
+    toast('Update auf v' + (remote || appVersion) + ' wird geladen …');
+    setTimeout(clearCachesAndReload, 700);
+  } catch (e) {
+    toast('Cache wird aktualisiert …');
+    setTimeout(clearCachesAndReload, 700);
+  }
+}
+
+async function initUpdateBadge(appVersion) {
+  try {
+    if (!navigator.onLine) return;
+    const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const remote = String(data.version || '').trim();
+    if (remote && remote !== appVersion) {
+      const dot = document.getElementById('app-update-dot');
+      if (dot) dot.classList.add('show');
+    }
+  } catch (e) {}
 }
 
 function settingsSave(fields, storageKey) {

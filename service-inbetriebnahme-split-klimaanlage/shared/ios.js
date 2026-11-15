@@ -221,7 +221,7 @@
     document.body.appendChild(o); // Bereich zuerst leer, damit Screenreader den Text beim Einsetzen vorlesen
     requestAnimationFrame(() => {
       o.innerHTML =
-        '<div class="okc"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg><b></b></div>';
+        '<div class="okc"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span><b></b></div>';
       o.querySelector('b').textContent = text || 'Protokoll abgeschlossen';
       requestAnimationFrame(() => o.classList.add('in'));
     });

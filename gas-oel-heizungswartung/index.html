@@ -6,21 +6,36 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover, interactive-widget=resizes-content"
     />
-    <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Service Heizung" />
-    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('muther-theme');
-          var r = document.documentElement;
-          if (t === 'hell') r.setAttribute('data-theme', 'light');
-          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+          var saved = localStorage.getItem('ag-theme');
+          var sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.setAttribute('data-theme', saved || (sysLight ? 'light' : 'dark'));
         } catch (e) {}
       })();
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="icon" type="image/png" href="icon-180.png" />
@@ -522,7 +537,7 @@
       }
       /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
       @font-face {
-        font-family: 'Plus Jakarta Sans';
+        font-family: var(--font-sans);
         font-style: normal;
         font-weight: 400 800;
         font-display: swap;
@@ -532,7 +547,7 @@
           U+FFFD;
       }
       @font-face {
-        font-family: 'Plus Jakarta Sans';
+        font-family: var(--font-sans);
         font-style: normal;
         font-weight: 400 800;
         font-display: swap;
@@ -546,43 +561,6 @@
         border-radius: 12px;
         padding: 16px 0 1px;
         overflow: hidden;
-      }
-      @media print {
-        header,
-        .noprint,
-        #toast,
-        .bar,
-        #stepwrap {
-          display: none !important;
-        }
-        html,
-        body {
-          background: #fff;
-        }
-        main {
-          max-width: none;
-          padding: 0 !important;
-        }
-        .stage {
-          overflow: visible;
-        }
-        .sheetwrap {
-          background: none;
-          padding: 0;
-          border-radius: 0;
-        }
-        .report {
-          zoom: 1 !important;
-        }
-        .report .page {
-          box-shadow: none;
-          margin: 0;
-          break-after: page;
-        }
-        @page {
-          size: A4;
-          margin: 0;
-        }
       }
       :root {
         --mat-ease: cubic-bezier(0.25, 1, 0.5, 1);
@@ -659,6 +637,10 @@
     <link rel="stylesheet" href="shared/ios.css" />
   </head>
   <body>
+    <div class="ambient-canvas" aria-hidden="true">
+      <div class="ambient-blob ambient-blob--cyan"></div>
+      <div class="ambient-blob ambient-blob--purple"></div>
+    </div>
     <header>
       <div class="logo">H</div>
       <div class="tt" id="ttl" data-act="home">
@@ -669,12 +651,12 @@
       <button
         type="button"
         class="ib themebtn"
-        id="themebtn"
+        id="themeToggleBtn"
         aria-label="Darstellung wechseln"
       ></button>
       <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
-        <span class="ag-icon ag-icon--sm" aria-hidden="true">settings</span>
-      </button>
+        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+      <span class="update-dot" id="app-update-dot" aria-hidden="true"></span></button>
     </header>
     <div id="stepwrap" hidden></div>
     <div class="stage"><main id="app"></main></div>
@@ -1531,7 +1513,7 @@
             lastPdf && lastPdf.key === viewKey()
               ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>'
               : '';
-          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${fill}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="ag-icon ag-icon--sm" aria-hidden="true">check</span>PDF fertig</span></button>${teilen}</div>`;
+          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${fill}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${teilen}</div>`;
         }
         return '';
       }
@@ -1558,6 +1540,8 @@
     <div class="err" id="pageerr"></div>`;
       }
 
+      const APP_VERSION = '2.0.0';
+      const BUILD_DATE = '2026-11-15';
       function settingsBody() {
         return (
           settingsConnectionHtml() +
@@ -1565,7 +1549,8 @@
           settingsButtonsHtml() +
           settingsBackupHtml(
             'Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.',
-          )
+          ) +
+          settingsVersionHtml(APP_VERSION, BUILD_DATE)
         );
       }
 
@@ -1577,14 +1562,14 @@
             .sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
           const pending = done.filter((p) => !p.synced).length;
           const plus =
-            '<span class="ag-icon ag-icon--sm" aria-hidden="true">add</span>';
+            '<span class="material-symbols-rounded" aria-hidden="true">add</span>';
           return `
       <div class="kstart">
       <button type="button" class="cta" data-act="new" data-typ="gas"><span class="hi">${plus}</span><span class="txt"><strong>Gasheizung</strong><small>Neue Wartung starten</small></span></button>
       <button type="button" class="cta" data-act="new" data-typ="oel"><span class="hi">${plus}</span><span class="txt"><strong>Ölheizung</strong><small>Neue Wartung starten</small></span></button>
       <div class="qa">
-        <button class="qt" data-act="db"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">description</span></span><span><b>Datenbank / PDF</b><small>Suchen &amp; öffnen</small></span></button>
-        <button class="qt" data-act="sync"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+        <button class="qt" data-act="db"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">description</span></span><span><b>Datenbank / PDF</b><small>Suchen &amp; öffnen</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
@@ -2269,11 +2254,11 @@
         report(d) {
           go('report', { id: d.id });
         },
-        reopen(d) {
+        async reopen(d) {
           const p = protocols.find((x) => x.id === d.id);
           const frage =
             'Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.';
-          if (!confirm(frage)) {
+          if (!(await confirmModal('Bestätigen', frage, 'Fortsetzen', true))) {
             return;
           }
           p.status = 'draft';
@@ -2282,7 +2267,7 @@
           save();
           go('wizard', { id: p.id });
         },
-        del(d) {
+        async del(d) {
           const p = protocols.find((x) => x.id === d.id);
           let msg = 'Entwurf löschen?';
           if (p.synced) {
@@ -2291,7 +2276,7 @@
             msg =
               'ACHTUNG: Dieses Protokoll ist noch NICHT in der Datenbank. Wirklich endgültig löschen?';
           }
-          if (!confirm(msg)) {
+          if (!(await confirmModal('Bestätigen', msg, 'Fortsetzen', true))) {
             return;
           }
           protocols = protocols.filter((x) => x.id !== d.id);
@@ -2505,15 +2490,6 @@
             window.open(lastPdf.url, '_blank');
           }
         },
-        print() {
-          const r = reportForView();
-          const old = document.title;
-          document.title = pdfName(r.id);
-          window.print();
-          setTimeout(() => {
-            document.title = old;
-          }, 1500);
-        },
 
         async dbload() {
           if (!navigator.onLine) {
@@ -2557,18 +2533,16 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !confirm(
-                'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              )
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
+              , 'Fortsetzen', true))
             ) {
               return;
             }
             if (
               local &&
               local.status === 'draft' &&
-              !confirm(
-                'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
-              )
+              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
+              , 'Fortsetzen', true))
             ) {
               return;
             }
@@ -2634,6 +2608,8 @@
             toast('Fehler: ' + e.message);
           }
         },
+        checkupdate() { checkAppUpdate(APP_VERSION); },
+        forcereload() { clearCachesAndReload(); },
 
         savesettings(d) {
           settingsSave(SETTINGS_FIELDS, SPEICHER.settings);
@@ -2709,7 +2685,7 @@
           $('#dblist').innerHTML = dbList();
         }
       });
-      document.addEventListener('change', (e) => {
+      document.addEventListener('change', async (e) => {
         const el = e.target;
         if (el.dataset && el.dataset.pick && view.name === 'wizard') {
           Actions.set({ f: el.dataset.pick, v: el.value });
@@ -2803,6 +2779,7 @@
       pruneSynced();
       render();
       syncAll(true);
+      if (typeof initUpdateBadge === "function") initUpdateBadge(APP_VERSION);
     </script>
     <script src="shared/theme.js"></script>
   </body>

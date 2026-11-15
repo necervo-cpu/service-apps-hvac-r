@@ -1,34 +1,48 @@
-/* shared/theme.js – Hell/Dunkel-Umschalter (Knopf #themebtn). Das frühe Skript im <head> der App bleibt inline,
-   damit beim Laden nichts aufblitzt. Am Seitenende laden (klassisches Skript, kein Modul). */
+/* shared/theme.js – Dual-Theme Umschalter (#themeToggleBtn / #themebtn) über localStorage ('ag-theme')
+   und prefers-color-scheme: light. Das frühe Skript im <head> der App bleibt inline für FOUC-freien Start. */
 
 (function () {
-  var b = document.getElementById('themebtn');
+  var b = document.getElementById('themeToggleBtn') || document.getElementById('themebtn');
   if (!b) return;
-  var L = { auto: ['contrast', 'Auto'], hell: ['light_mode', 'Hell'], dunkel: ['dark_mode', 'Dunkel'] };
-  function g() {
+
+  var KEY = 'ag-theme';
+
+  function resolveTheme() {
     try {
-      return localStorage.getItem('muther-theme') || 'auto';
-    } catch (e) {
-      return 'auto';
-    }
-  }
-  function ap(t) {
-    var r = document.documentElement;
-    if (t === 'hell') r.setAttribute('data-theme', 'light');
-    else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
-    else r.removeAttribute('data-theme');
-    b.innerHTML = '<span class="ag-icon ag-icon--sm" aria-hidden="true">' + L[t][0] + '</span>';
-    b.title = 'Darstellung: ' + L[t][1];
-    b.setAttribute('aria-label', 'Darstellung: ' + L[t][1] + ' (tippen zum Wechseln)');
-  }
-  ap(g());
-  b.addEventListener('click', function () {
-    var n = { auto: 'hell', hell: 'dunkel', dunkel: 'auto' }[g()];
-    try {
-      localStorage.setItem('muther-theme', n);
+      var saved = localStorage.getItem(KEY);
+      if (saved === 'dark' || saved === 'light') return saved;
     } catch (e) {}
-    ap(n);
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var iconName = theme === 'dark' ? 'light_mode' : 'dark_mode';
+    var label = theme === 'dark' ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren';
+    b.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">' + iconName + '</span>';
+    b.title = label;
+    b.setAttribute('aria-label', label);
+  }
+
+  applyTheme(resolveTheme());
+
+  b.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    var next = current === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem(KEY, next);
+    } catch (e) {}
+    applyTheme(next);
   });
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function (e) {
+      try {
+        if (localStorage.getItem(KEY)) return;
+      } catch (err) {}
+      applyTheme(e.matches ? 'light' : 'dark');
+    });
+  }
 
   /* iOS PWA Viewport / Chin-Gap Reflow */
   var isIos =

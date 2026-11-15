@@ -615,33 +615,14 @@ body.sheet-open .stage {
 .okc b {
   font-size: 17px;
 }
-.okc svg {
-  width: 76px;
-  height: 76px;
-  fill: none;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.okc circle {
-  stroke: var(--ok, #1e7a46);
-  stroke-dasharray: 151;
-  stroke-dashoffset: 151;
-  transition: stroke-dashoffset 450ms var(--ios-ease) 100ms;
-}
-.okc path {
-  stroke: var(--ok, #1e7a46);
-  stroke-dasharray: 40;
-  stroke-dashoffset: 40;
-  transition: stroke-dashoffset 320ms var(--ios-ease) 420ms;
+.okc .material-symbols-rounded {
+  font-size: 64px;
+  color: var(--system-green, var(--ok, #30d158));
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 .okcheck.in .okc {
   opacity: 1;
   transform: none;
-}
-.okcheck.in circle,
-.okcheck.in path {
-  stroke-dashoffset: 0;
 }
 .okcheck.out .okc {
   opacity: 0;
@@ -771,24 +752,6 @@ body.ios-swiping .ios-mover {
     outline-offset: 1px;
   }
 }
-@media print {
-  .iosedge,
-  .under,
-  .sheet,
-  .sheet-scrim,
-  .okcheck,
-  .htitle {
-    display: none !important;
-  }
-  body {
-    background: #fff;
-  }
-  body.sheet-open .stage {
-    transform: none;
-    filter: none;
-  }
-}
-
 /* ===== Weniger Bewegung ===== */
 @media (prefers-reduced-motion: reduce) {
   .pg-out-fwd,

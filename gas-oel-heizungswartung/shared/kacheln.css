@@ -1,11 +1,4 @@
-/* Startbildschirm-Kacheln – gemeinsam für alle Apps. Nur hier pflegen, nie in Apps. Kein :hover.
-   HTML-Muster:
-   <button type="button" class="cta" data-act="…"><span class="hi">ICON</span><span class="txt"><strong>Titel</strong><small>Untertitel</small></span></button>
-   <div class="qa">
-     <button class="qt" data-act="…"><span class="qi">ICON</span><span><b>Titel</b><small>Untertitel</small></span><span class="pend" aria-hidden="true">3</span></button>
-   </div>
-   (span.pend nur, wenn etwas offen ist.) Alle Regeln sind verschachtelt, damit gleichnamige Klassen
-   anderswo (.qi in .emptybox, .pend, .tile in pdf.css) nicht beeinflusst werden. */
+/* Startbildschirm-Kacheln – Dual-Theme Liquid Glass & Flat UI */
 .cta {
   appearance: none;
   -webkit-appearance: none;
@@ -14,23 +7,25 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-height: 84px;
   margin-top: 6px;
-  padding: 14px;
-  background: var(--gradient-honey);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 22px;
-  color: var(--text-on-accent, #1c1c1e);
+  padding: 14px 16px;
+  background: var(--system-blue-tint);
+  border: 1px solid var(--system-blue-border);
+  border-radius: var(--radius-card, 22px);
+  color: var(--text-primary);
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  box-shadow: none;
   transition:
-    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 180ms var(--ease-spring),
+    border-color 180ms var(--ease-spring),
+    transform 180ms var(--ease-spring);
 }
 .cta:active {
   transform: scale(0.992);
@@ -41,31 +36,27 @@
   width: 46px;
   height: 46px;
   border-radius: 14px;
-  background: rgba(26, 26, 26, 0.9);
-  color: var(--pastel-butter, #f6e3a1);
+  background: var(--system-blue);
+  color: #ffffff;
   display: grid;
   place-items: center;
   flex: none;
-}
-.cta .hi .ico {
-  width: 24px;
-  height: 24px;
 }
 .cta .txt {
   min-width: 0;
 }
 .cta .txt strong {
   display: block;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.25;
-  color: var(--text-on-accent, #1c1c1e);
+  color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 .cta .txt small {
   display: block;
-  font-size: 12.5px;
-  color: rgba(28, 28, 30, 0.75);
+  font-size: 13px;
+  color: var(--text-secondary);
   margin-top: 3px;
   line-height: 1.3;
   overflow-wrap: anywhere;
@@ -86,13 +77,17 @@
   gap: 10px;
   min-width: 0;
   min-height: 96px;
-  padding: 12px;
+  padding: 14px;
   text-align: left;
   font: inherit;
-  color: var(--ink, #ffffff);
-  background: var(--card, #1c1c1e);
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
-  border-radius: 22px;
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(var(--glass-saturate, 125%));
+  -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturate, 125%));
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-highlight);
+  border-radius: var(--radius-card, 22px);
+  box-shadow: none;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -100,9 +95,15 @@
   user-select: none;
   -webkit-touch-callout: none;
   transition:
-    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 180ms var(--ease-spring),
+    border-color 180ms var(--ease-spring),
+    transform 180ms var(--ease-spring);
+}
+@media (max-width: 767px) {
+  .qa .qt {
+    backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
+    -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
+  }
 }
 .qa .qt:active {
   transform: scale(0.992);
@@ -114,43 +115,42 @@
   max-width: 100%;
 }
 .qt .qi {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--surface-field, #2c2c2e);
-  color: var(--accent-text-butter, #f6e3a1);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control, 12px);
+  background: var(--surface-inner-bg);
+  border: 1px solid var(--surface-inner-border);
+  color: var(--system-cyan);
   display: grid;
   place-items: center;
   flex: none;
 }
-.qt .qi .ico {
-  width: 20px;
-}
 .qt b {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   display: block;
   overflow-wrap: anywhere;
 }
 .qt small {
   display: block;
-  font-size: 12px;
-  color: var(--muted, rgba(235, 235, 245, 0.6));
+  font-size: 12.5px;
+  color: var(--text-secondary);
   line-height: 1.25;
   margin-top: 2px;
   overflow-wrap: anywhere;
 }
 .qt .pend {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   min-width: 22px;
   height: 22px;
-  padding: 0 6px;
-  border-radius: 99px;
-  background: var(--gradient-honey);
-  color: var(--text-on-accent, #1c1c1e);
+  padding: 0 7px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--system-orange-tint);
+  border: 1px solid var(--system-orange-border);
+  color: var(--system-orange);
   font-size: 12px;
   font-weight: 700;
   display: grid;
@@ -162,7 +162,6 @@
     transition: none;
   }
 }
-/* Startbildschirm (Hülle .kstart um .cta + .qa + Warnbox): ab 700px so breit wie die Kachelreihe, nicht über die ganze Seite gestreckt. Darunter ohne Wirkung. */
 @media (min-width: 700px) {
   .kstart {
     max-width: 560px;

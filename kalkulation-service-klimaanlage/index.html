@@ -4,20 +4,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="apple-mobile-web-app-title" content="Kalk. Klima" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1a1a1a" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+        <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
     <meta name="color-scheme" content="light dark" />
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('muther-theme');
-          var r = document.documentElement;
-          if (t === 'hell') r.setAttribute('data-theme', 'light');
-          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
+          var saved = localStorage.getItem('ag-theme');
+          var sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.setAttribute('data-theme', saved || (sysLight ? 'light' : 'dark'));
         } catch (e) {}
       })();
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="icon" type="image/png" href="icon-180.png" />
@@ -47,7 +62,7 @@
         background: var(--bg);
         color: var(--ink);
         font:
-          17px/1.45 'Plus Jakarta Sans',
+          17px/1.45 var(--font-sans),
           -apple-system,
           BlinkMacSystemFont,
           'Segoe UI',
@@ -71,8 +86,8 @@
         width: 34px;
         height: 34px;
         border-radius: 9px;
-        background: var(--gradient-honey);
-        color: var(--text-on-accent);
+        background: var(--system-blue);
+        color: #ffffff;
         display: grid;
         place-items: center;
         font-weight: 700;
@@ -205,9 +220,9 @@
         transition-duration: 75ms;
       }
       .btn.primary {
-        background: var(--gradient-honey);
-        border-color: var(--gold-dark);
-        color: var(--text-on-accent);
+        background: var(--system-blue);
+        border-color: var(--system-blue-border);
+        color: #ffffff;
       }
       .btn.danger {
         color: var(--bad);
@@ -325,7 +340,7 @@
         height: 100%;
         width: 100%;
         transform-origin: 0 50%;
-        background: var(--gradient-honey);
+        background: var(--system-blue);
         transition: transform var(--t-med) var(--out);
       }
       .info {
@@ -427,9 +442,9 @@
         color: var(--ok);
       }
       .steps .on {
-        background: var(--gradient-honey);
-        color: var(--text-on-accent);
-        border-color: transparent;
+        background: var(--system-blue-tint);
+        color: var(--system-blue);
+        border-color: var(--system-blue-border);
         font-weight: 700;
       }
       @media (max-width: 700px) {
@@ -925,7 +940,7 @@
       /* ===== Ende Handy-Layout ===== */
       /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
       @font-face {
-        font-family: 'Plus Jakarta Sans';
+        font-family: var(--font-sans);
         font-style: normal;
         font-weight: 400 800;
         font-display: swap;
@@ -935,7 +950,7 @@
           U+FFFD;
       }
       @font-face {
-        font-family: 'Plus Jakarta Sans';
+        font-family: var(--font-sans);
         font-style: normal;
         font-weight: 400 800;
         font-display: swap;
@@ -988,7 +1003,7 @@
         line-height: 1.15;
         overflow-wrap: anywhere;
       }
-      .themebtn .ag-icon {
+      .themebtn .material-symbols-rounded {
         width: 22px;
         height: 22px;
         stroke: currentColor;
@@ -1051,47 +1066,14 @@
         }
       }
       /* ===== Ende Design-Feinschliff ===== */
-      @media print {
-        header,
-        .noprint,
-        #toast,
-        .bar,
-        #stepwrap {
-          display: none !important;
-        }
-        html,
-        body {
-          background: #fff;
-        }
-        main {
-          max-width: none;
-          padding: 0 !important;
-        }
-        .stage {
-          overflow: visible;
-        }
-        .sheetwrap {
-          background: none;
-          padding: 0;
-          border-radius: 0;
-        }
-        .report {
-          zoom: 1 !important;
-        }
-        .report .page {
-          box-shadow: none;
-          margin: 0;
-          break-after: page;
-        }
-        @page {
-          size: A4;
-          margin: 0;
-        }
-      }
     </style>
     <link rel="stylesheet" href="shared/ios.css" />
   </head>
   <body>
+    <div class="ambient-canvas" aria-hidden="true">
+      <div class="ambient-blob ambient-blob--cyan"></div>
+      <div class="ambient-blob ambient-blob--purple"></div>
+    </div>
     <header>
       <div class="logo" id="logo">K</div>
       <div class="tt" id="ttl" data-act="home">
@@ -1102,12 +1084,12 @@
       <button
         type="button"
         class="ib themebtn"
-        id="themebtn"
+        id="themeToggleBtn"
         aria-label="Darstellung wechseln"
       ></button>
       <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
-        <span class="ag-icon ag-icon--sm" aria-hidden="true">settings</span>
-      </button>
+        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+      <span class="update-dot" id="app-update-dot" aria-hidden="true"></span></button>
     </header>
     <div id="stepwrap" hidden></div>
     <div class="stage"><main id="app"></main></div>
@@ -1116,6 +1098,7 @@
 
     <script src="shared/pdf-bausteine.js"></script>
     <script src="shared/pdf.js"></script>
+    <script src="shared/settings.js"></script>
     <script src="shared/ios.js"></script>
     <script>
       'use strict';
@@ -1205,6 +1188,32 @@
       /* ---------- Helfer ---------- */
       const $ = (s) => document.querySelector(s);
       const app = $('#app');
+                  document.addEventListener('focusin', (e) => {
+        const el = e.target;
+        if (el && el.tagName === 'INPUT' && (el.type === 'number' || el.inputMode === 'decimal' || el.inputMode === 'numeric')) {
+          try { el.select(); } catch (err) {}
+        }
+      });
+      function confirmModal(title, message, confirmLabel = 'Bestätigen', danger = false) {
+        return new Promise((resolve) => {
+          const back = document.createElement('div');
+          back.className = 'ag-modal-backdrop';
+          back.innerHTML = `<div class="ag-modal liquid-glass" role="dialog" aria-modal="true">
+            <h3>${esc(title)}</h3>
+            <p>${esc(message)}</p>
+            <div class="ag-modal-actions">
+              <button type="button" class="btn" data-cm="no">Abbrechen</button>
+              <button type="button" class="btn ${danger ? 'bad' : 'pri'}" data-cm="yes">${esc(confirmLabel)}</button>
+            </div>
+          </div>`;
+          const done = (v) => { back.remove(); resolve(v); };
+          back.addEventListener('click', (e) => {
+            if (e.target === back || e.target.closest('[data-cm="no"]')) done(false);
+            else if (e.target.closest('[data-cm="yes"]')) done(true);
+          });
+          document.body.appendChild(back);
+        });
+      }
       function esc(s) {
         return String(s ?? '').replace(
           /[&<>"']/g,
@@ -1833,7 +1842,7 @@
         }
         if (view.name === 'report' && reportForView()) {
           const run = pdfBusy === viewKey();
-          return `<div class="brow"><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="ag-icon ag-icon--sm" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+          return `<div class="brow"><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
         }
         return '';
       }
@@ -2034,12 +2043,12 @@
           const pending = done.filter((p) => !p.synced).length;
           return `
       <div class="kstart">
-      <button type="button" class="cta" data-act="new"><span class="hi"><span class="ag-icon ag-icon--sm" aria-hidden="true">add</span></span><span class="txt"><strong>Neue Kalkulation</strong><small>Neue Kalkulation anlegen</small></span></button>
+      <button type="button" class="cta" data-act="new"><span class="hi"><span class="material-symbols-rounded" aria-hidden="true">add</span></span><span class="txt"><strong>Neue Kalkulation</strong><small>Neue Kalkulation anlegen</small></span></button>
       <div class="qa">
-        <button class="qt" data-act="db"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">database</span></span><span><b>Datenbank / PDF</b><small>Gespeicherte Kalkulationen</small></span></button>
-        <button class="qt" data-act="sync"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
-        <button type="button" class="qt" data-act="fragen"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">help</span></span><span><b>Fragen an den Kunden</b><small>Vor dem Termin klären</small></span></button>
-        <button type="button" class="qt" data-act="info"><span class="qi"><span class="ag-icon ag-icon--sm" aria-hidden="true">info</span></span><span><b>Info</b><small>Anleitung &amp; Rechenregeln</small></span></button>
+        <button class="qt" data-act="db"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">database</span></span><span><b>Datenbank / PDF</b><small>Gespeicherte Kalkulationen</small></span></button>
+        <button class="qt" data-act="sync"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+        <button type="button" class="qt" data-act="fragen"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">help</span></span><span><b>Fragen an den Kunden</b><small>Vor dem Termin klären</small></span></button>
+        <button type="button" class="qt" data-act="info"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">info</span></span><span><b>Info</b><small>Anleitung &amp; Rechenregeln</small></span></button>
       </div>
       ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Kalkulationen werden lokal gespeichert, gerechnet wird mit den Standard-Stammdaten, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
       </div>
@@ -2130,9 +2139,12 @@
           b.scrollTop = y;
         }
       }
+      const APP_VERSION = '2.0.0';
+      const BUILD_DATE = '2026-11-15';
       function settingsBody() {
         const S = stammNow();
         return `
+      ${settingsVersionHtml(APP_VERSION, BUILD_DATE)}
       <h2>Datenbank-Verbindung</h2>
       <div class="card">
         <label>Web-App-URL (aus Apps Script → Bereitstellen)</label>
@@ -2569,13 +2581,12 @@
         report(d) {
           go('report', { id: d.id });
         },
-        reopen(d) {
+        async reopen(d) {
           const p = calcs.find((x) => x.id === d.id);
           if (
             p.synced &&
-            !confirm(
-              'Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.',
-            )
+            !(await confirmModal('Bestätigen', 'Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.',
+            , 'Fortsetzen', true))
           )
             return;
           p.status = 'draft';
@@ -2584,14 +2595,14 @@
           save();
           go('wizard', { id: p.id });
         },
-        del(d) {
+        async del(d) {
           const p = calcs.find((x) => x.id === d.id);
           const msg = p.synced
             ? 'Kalkulation aus der App entfernen? (Sie bleibt in der Datenbank erhalten.)'
             : p.status === 'done'
               ? 'ACHTUNG: Diese Kalkulation ist noch NICHT in der Datenbank. Wirklich endgültig löschen?'
               : 'Entwurf löschen?';
-          if (!confirm(msg)) return;
+          if (!(await confirmModal('Bestätigen', msg, 'Fortsetzen', true))) return;
           calcs = calcs.filter((x) => x.id !== d.id);
           save();
           render();
@@ -2744,15 +2755,6 @@
             window.open(lastPdf.url, '_blank');
           }
         },
-        print() {
-          const r = reportForView();
-          const old = document.title;
-          document.title = pdfName(r.id);
-          window.print();
-          setTimeout(() => {
-            document.title = old;
-          }, 1500);
-        },
 
         async dbload() {
           if (!navigator.onLine) {
@@ -2796,17 +2798,15 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !confirm(
-                'In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              )
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
+              , 'Fortsetzen', true))
             )
               return;
             if (
               local &&
               local.status === 'draft' &&
-              !confirm(
-                'Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
-              )
+              !(await confirmModal('Bestätigen', 'Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
+              , 'Fortsetzen', true))
             )
               return;
             const values = {};
@@ -2865,6 +2865,8 @@
             toast('Fehler: ' + e.message);
           }
         },
+        checkupdate() { checkAppUpdate(APP_VERSION); },
+        forcereload() { clearCachesAndReload(); },
 
         savesettings(d) {
           settings.url = $('#s_url').value.trim();
@@ -2979,7 +2981,7 @@
           $('#dblist').innerHTML = dbList();
         }
       });
-      document.addEventListener('change', (e) => {
+      document.addEventListener('change', async (e) => {
         const el = e.target;
         if (el.id === 's_import' && el.files[0]) {
           const r = new FileReader();
@@ -3071,42 +3073,8 @@
         if (ok && view.name !== 'wizard') render();
       });
       syncAll(true);
+      if (typeof initUpdateBadge === 'function') initUpdateBadge(APP_VERSION);
     </script>
-    <script>
-      (function () {
-        var b = document.getElementById('themebtn');
-        if (!b) return;
-        var L = { auto: 'Auto', hell: 'Hell', dunkel: 'Dunkel' };
-        var P = {
-          auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
-          hell: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-          dunkel: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
-        };
-        function g() {
-          try {
-            return localStorage.getItem('muther-theme') || 'auto';
-          } catch (e) {
-            return 'auto';
-          }
-        }
-        function ap(t) {
-          var r = document.documentElement;
-          if (t === 'hell') r.setAttribute('data-theme', 'light');
-          else if (t === 'dunkel') r.setAttribute('data-theme', 'dark');
-          else r.removeAttribute('data-theme');
-          b.innerHTML = '<span class="ag-icon ag-icon--sm" aria-hidden="true">' + ({auto:'contrast',hell:'light_mode',dunkel:'dark_mode'}[t]) + '</span>';
-          b.title = 'Darstellung: ' + L[t];
-          b.setAttribute('aria-label', 'Darstellung: ' + L[t] + ' (tippen zum Wechseln)');
-        }
-        ap(g());
-        b.addEventListener('click', function () {
-          var n = { auto: 'hell', hell: 'dunkel', dunkel: 'auto' }[g()];
-          try {
-            localStorage.setItem('muther-theme', n);
-          } catch (e) {}
-          ap(n);
-        });
-      })();
-    </script>
+    <script src="shared/theme.js"></script>
   </body>
 </html>
