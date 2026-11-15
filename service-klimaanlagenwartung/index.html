@@ -2664,7 +2664,7 @@
         async reopen(d) {
           const p = protocols.find((x) => x.id === d.id);
           if (
-            !(await confirmModal('Bestätigen', 'Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.',
+            !(await confirmModal('Bestätigen', 'Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.'
             , 'Fortsetzen', true))
           )
             return;
@@ -2928,15 +2928,15 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             )
               return;
             if (
               local &&
               local.status === 'draft' &&
-              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             )
               return;
             const values = {};
@@ -3084,8 +3084,7 @@
               if (DEV_FIELDS[k].some((f) => String(p.values[f.id] ?? '') !== '')) used.push(k);
             if (
               used.length &&
-              !(await confirmModal('Bestätigen', `Verdampfer ${used.join(', ', 'Fortsetzen', true))} enthalten schon Eingaben. Beim nächsten Übertragen werden die Daten dieser Geräte in der Datenbank GELÖSCHT (in der App bleiben sie lokal erhalten, bis du das Protokoll löschst). Anzahl trotzdem verringern?`,
-              )
+              !(await confirmModal('Bestätigen', `Verdampfer ${used.join(', ')} enthalten schon Eingaben. Beim nächsten Übertragen werden die Daten dieser Geräte in der Datenbank GELÖSCHT (in der App bleiben sie lokal erhalten, bis du das Protokoll löschst). Anzahl trotzdem verringern?`, 'Fortsetzen', true))
             ) {
               el.value = old;
               return;

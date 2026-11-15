@@ -2585,7 +2585,7 @@
           const p = calcs.find((x) => x.id === d.id);
           if (
             p.synced &&
-            !(await confirmModal('Bestätigen', 'Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.',
+            !(await confirmModal('Bestätigen', 'Kalkulation wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.'
             , 'Fortsetzen', true))
           )
             return;
@@ -2798,15 +2798,15 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu dieser Kalkulation noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             )
               return;
             if (
               local &&
               local.status === 'draft' &&
-              !(await confirmModal('Bestätigen', 'Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'Diese Kalkulation ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             )
               return;
             const values = {};

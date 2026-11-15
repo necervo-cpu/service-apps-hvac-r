@@ -2533,16 +2533,16 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             ) {
               return;
             }
             if (
               local &&
               local.status === 'draft' &&
-              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             ) {
               return;
             }

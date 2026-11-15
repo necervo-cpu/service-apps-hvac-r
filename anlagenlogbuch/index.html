@@ -2677,7 +2677,7 @@
           save();
           go('wizard', { id: p.id });
         },
-        newentry(d) {
+        async newentry(d) {
           const p = book(d.id);
           if (p.status !== 'done') {
             toast('Bitte zuerst die Anlagendaten abschließen.');
@@ -2723,13 +2723,13 @@
           save();
           go('wizard', { id: d.id, eid: d.eid });
         },
-        delentry(d) {
+        async delentry(d) {
           const p = book(d.id),
             e = p.entries.find((x) => x.id === d.eid);
           if (
             !(await confirmModal('Bestätigen', e.status === 'draft' && !e.completedAt
                 ? 'Angefangenen Eintrag verwerfen?'
-                : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch in der Datenbank entfernt.',
+                : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch in der Datenbank entfernt.'
             , 'Fortsetzen', true))
           )
             return;
@@ -2742,7 +2742,7 @@
           render();
           if (e.completedAt) syncAll(true);
         },
-        delbook(d) {
+        async delbook(d) {
           const p = book(d.id);
           const msg = p.synced
             ? 'Logbuch aus der App entfernen? (Es bleibt in der Datenbank erhalten und kann jederzeit wieder geladen werden.)'
@@ -2991,8 +2991,8 @@
             if (
               local &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
-              , 'Fortsetzen', true))
+              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
+            , 'Fortsetzen', true))
             )
               return;
             let p;
