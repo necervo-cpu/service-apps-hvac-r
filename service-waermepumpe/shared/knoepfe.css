@@ -4,7 +4,7 @@
    .pick      = Auswahlliste (natives <select>) ab 3 Optionen, Farbton über .tone-ok/bad/na/warn/set */
 
 :root {
-  --segbg: var(--surface-inner-bg, rgba(54, 54, 58, 0.65));
+  --segbg: var(--surface-inner-bg, rgba(120, 120, 128, 0.20));
   --pick-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1.5 1.5 7 7l5.5-5.5' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 [data-theme='light'] {
@@ -37,8 +37,9 @@
   border: 1px solid var(--surface-inner-border);
   color: var(--text-primary);
   font-weight: 600;
-  border-radius: var(--radius-control, 12px);
-  min-width: 0;
+  border-radius: var(--radius-control, 14px);
+  min-width: 44px;
+  min-height: 44px;
   max-width: 100%;
   overflow-wrap: anywhere;
   box-shadow: none;
@@ -106,6 +107,7 @@
   min-height: 48px;
 }
 .opts .btn {
+  min-width: 44px;
   min-height: 44px;
 }
 
@@ -180,11 +182,12 @@ select.pick {
   appearance: none;
   display: block;
   width: 100%;
+  min-width: 44px;
   min-height: 44px;
   padding: 0 44px 0 14px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: var(--radius-control, 12px);
+  border-radius: var(--radius-control, 14px);
   border: 1px solid var(--surface-inner-border);
   background-color: var(--surface-inner-bg);
   background-image: var(--pick-chev);
@@ -192,6 +195,7 @@ select.pick {
   background-position: right 14px center;
   background-size: 14px 9px;
   color: var(--text-primary);
+  box-shadow: none;
   text-overflow: ellipsis;
   transition:
     background-color 200ms var(--ease-spring),
@@ -237,4 +241,16 @@ select.pick option {
 }
 .pick + input[data-other] {
   margin-top: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .seg .btn,
+  .opts .btn,
+  select.pick {
+    transition: none;
+  }
+  .seg .btn.sel.pill-glide::before,
+  .seg .btn.sel.pill-pop::before,
+  .opts .btn.sel.pill-pop {
+    animation: none;
+  }
 }

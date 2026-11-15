@@ -1,5 +1,5 @@
 {
-  "version": "2.0.3",
+  "version": "2.1.0",
   "buildDate": "2026-11-15",
-  "changelog": "Dual-Theme Apple HIG + Liquid Glass + Material Symbols Rounded + Update-System"
+  "changelog": "Migration auf Design-Stand 2026-11-15 (Dual-Theme Apple HIG, Liquid Glass, Flat UI, gruppierte Listen, 44px Touch-Targets)"
 }

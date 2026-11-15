@@ -45,110 +45,132 @@
     </noscript>
 
     <style>
+      /* ==========================================================================
+         1A. DARK MODE TOKENS (DEFAULT & [data-theme="dark"] — APPLE HIG DARK)
+         ========================================================================== */
       :root,
       [data-theme='dark'] {
-        color-scheme: dark;
         --bg-canvas: #000000;
-        --bg-elevated: #1c1c1e;
-        --text-primary: #ffffff;
-        --text-secondary: rgba(235, 235, 245, 0.6);
-        --text-tertiary: rgba(235, 235, 245, 0.3);
-        --border-separator: rgba(84, 84, 88, 0.65);
+        --bg-elevated: #1C1C1E;
+        --text-primary: #FFFFFF;
+        --text-secondary: rgba(235, 235, 245, 0.60);
+        --text-tertiary: rgba(235, 235, 245, 0.30);
+        --border-separator: rgba(84, 84, 88, 0.48);
 
-        --glass-bg: linear-gradient(135deg, rgba(38, 38, 42, 0.86) 0%, rgba(24, 24, 27, 0.9) 100%);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --glass-border-highlight: rgba(255, 255, 255, 0.22);
-        --glass-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        --glass-bg: linear-gradient(180deg, rgba(46, 46, 50, 0.62) 0%, rgba(28, 28, 31, 0.72) 100%);
+        --glass-border: rgba(255, 255, 255, 0.06);
+        --glass-border-highlight: rgba(255, 255, 255, 0.11);
+        --glass-shadow: none;
 
-        --surface-inner-bg: rgba(54, 54, 58, 0.65);
-        --surface-inner-hover: rgba(72, 72, 78, 0.75);
-        --surface-inner-border: rgba(255, 255, 255, 0.08);
+        --surface-inner-bg: rgba(120, 120, 128, 0.20);
+        --surface-inner-hover: rgba(120, 120, 128, 0.30);
+        --surface-inner-border: transparent;
 
-        --ambient-bg: radial-gradient(circle at 50% 20%, rgba(10, 132, 255, 0.15) 0%, transparent 65%);
-        --ambient-canvas-opacity: 0.85;
+        --ambient-bg:
+          radial-gradient(60% 38% at 12% 0%, rgba(10, 132, 255, 0.24) 0%, transparent 70%),
+          radial-gradient(55% 34% at 100% 58%, rgba(100, 210, 255, 0.11) 0%, transparent 70%);
+        --ambient-canvas-opacity: 1;
         --ambient-opacity: 0.06;
-        --ambient-purple-blob: rgba(10, 132, 255, 0.5);
+        --ambient-purple-blob: rgba(10, 132, 255, 0.50);
         --ambient-purple-opacity: 0.05;
-        --glass-saturate: 125%;
+        --glass-saturate: 160%;
 
-        --system-blue: #0a84ff;
+        --system-blue: #0A84FF;
         --system-blue-tint: rgba(10, 132, 255, 0.15);
-        --system-blue-border: rgba(10, 132, 255, 0.4);
-        --system-cyan: #64d2ff;
+        --system-blue-border: rgba(10, 132, 255, 0.40);
+
+        --system-cyan: #64D2FF;
         --system-cyan-tint: rgba(100, 210, 255, 0.15);
-        --system-cyan-border: rgba(100, 210, 255, 0.4);
-        --system-green: #30d158;
+        --system-cyan-border: rgba(100, 210, 255, 0.40);
+
+        --system-green: #30D158;
         --system-green-tint: rgba(48, 209, 88, 0.15);
-        --system-green-border: rgba(48, 209, 88, 0.4);
-        --system-orange: #ff9f0a;
+        --system-green-border: rgba(48, 209, 88, 0.40);
+
+        --system-orange: #FF9F0A;
         --system-orange-tint: rgba(255, 159, 10, 0.15);
-        --system-orange-border: rgba(255, 159, 10, 0.4);
-        --system-purple: #bf5af2;
+        --system-orange-border: rgba(255, 159, 10, 0.40);
+
+        --system-purple: #BF5AF2;
         --system-purple-tint: rgba(191, 90, 242, 0.15);
-        --system-purple-border: rgba(191, 90, 242, 0.4);
+        --system-purple-border: rgba(191, 90, 242, 0.40);
       }
 
+      /* ==========================================================================
+         1B. LIGHT MODE TOKENS ([data-theme="light"] — APPLE HIG FROSTED DAYLIGHT)
+         ========================================================================== */
       [data-theme='light'] {
-        color-scheme: light;
-        --bg-canvas: #e5e5ea;
-        --bg-elevated: #f2f2f7;
-        --text-primary: #1c1c1e;
+        --bg-canvas: #F2F2F7;
+        --bg-elevated: #FFFFFF;
+        --text-primary: #1C1C1E;
         --text-secondary: rgba(60, 60, 67, 0.68);
         --text-tertiary: rgba(60, 60, 67, 0.35);
-        --border-separator: rgba(60, 60, 67, 0.22);
+        --border-separator: rgba(60, 60, 67, 0.16);
 
-        --glass-bg: linear-gradient(135deg, rgba(250, 250, 252, 0.9) 0%, rgba(242, 242, 247, 0.86) 100%);
-        --glass-border: rgba(0, 0, 0, 0.08);
-        --glass-border-highlight: rgba(255, 255, 255, 0.95);
-        --glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        --glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.66) 100%);
+        --glass-border: rgba(0, 0, 0, 0.05);
+        --glass-border-highlight: rgba(255, 255, 255, 0.90);
+        --glass-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
 
         --surface-inner-bg: rgba(118, 118, 128, 0.12);
         --surface-inner-hover: rgba(118, 118, 128, 0.18);
-        --surface-inner-border: rgba(60, 60, 67, 0.12);
+        --surface-inner-border: transparent;
 
-        --ambient-bg: radial-gradient(
-          circle at 50% 18%,
-          rgba(0, 113, 227, 0.14) 0%,
-          rgba(229, 229, 234, 0.55) 50%,
-          transparent 85%
-        );
-        --ambient-canvas-opacity: 0.85;
+        --ambient-bg:
+          radial-gradient(60% 38% at 12% 0%, rgba(0, 122, 255, 0.17) 0%, transparent 70%),
+          radial-gradient(55% 34% at 100% 58%, rgba(175, 82, 222, 0.10) 0%, transparent 70%);
+        --ambient-canvas-opacity: 1;
         --ambient-opacity: 0.16;
         --ambient-purple-blob: var(--system-purple);
         --ambient-purple-opacity: var(--ambient-opacity);
         --glass-saturate: 180%;
 
-        --system-blue: #007aff;
+        --system-blue: #007AFF;
         --system-blue-tint: rgba(0, 122, 255, 0.12);
         --system-blue-border: rgba(0, 122, 255, 0.35);
-        --system-cyan: #0071e3;
-        --system-cyan-tint: rgba(0, 113, 227, 0.12);
-        --system-cyan-border: rgba(0, 113, 227, 0.35);
-        --system-green: #248a3d;
+
+        --system-cyan: #008299;
+        --system-cyan-tint: rgba(0, 130, 153, 0.12);
+        --system-cyan-border: rgba(0, 130, 153, 0.35);
+
+        --system-green: #248A3D;
         --system-green-tint: rgba(52, 199, 89, 0.14);
         --system-green-border: rgba(36, 138, 61, 0.35);
-        --system-orange: #c93400;
+
+        --system-orange: #C93400;
         --system-orange-tint: rgba(255, 149, 0, 0.14);
         --system-orange-border: rgba(201, 52, 0, 0.35);
-        --system-purple: #8944ab;
+
+        --system-purple: #8944AB;
         --system-purple-tint: rgba(175, 82, 222, 0.12);
         --system-purple-border: rgba(137, 68, 171, 0.35);
       }
 
+      /* ==========================================================================
+         1C. GERÄTE-UNABHÄNGIGE TYPOGRAFIE & RADIEN
+         ========================================================================== */
       :root {
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
         --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+        --text-display: clamp(1.85rem, 1.4rem + 2vw, 2.6rem);
         --text-h1: clamp(1.375rem, 1.2rem + 0.9vw, 1.75rem);
+        --text-h2: clamp(1.125rem, 1.0rem + 0.5vw, 1.375rem);
         --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
         --text-sub: clamp(0.875rem, 0.85rem + 0.15vw, 0.9375rem);
         --text-caption: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
-        --radius-modal: 28px;
-        --radius-card: 22px;
-        --radius-control: 12px;
+
+        --radius-modal: 32px;
+        --radius-card: 26px;
+        --radius-control: 14px;
+        --radius-icon: 12px;
         --radius-pill: 9999px;
         --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
       }
 
+      /* ==========================================================================
+         2. GLOBAL RESET & BASE STYLES
+         ========================================================================== */
       * {
         box-sizing: border-box;
         margin: 0;
@@ -175,6 +197,8 @@
         hyphens: auto;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
         padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom)));
         transition:
           background-color 0.35s var(--ease-spring),
@@ -183,28 +207,29 @@
 
       .numeric {
         font-variant-numeric: tabular-nums;
-        font-family: var(--font-mono);
       }
 
-      .material-symbols-rounded {
-        font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
-        font-size: 1.25em;
-        line-height: 1;
-        vertical-align: -0.18em;
+      button,
+      a,
+      label,
+      .row {
         user-select: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
       }
 
+      /* ==========================================================================
+         3. AMBIENT BACKGROUND (OHNE GPU-BLUR)
+         ========================================================================== */
       .ambient-canvas {
         position: fixed;
         inset: 0;
         pointer-events: none;
-        z-index: -1;
+        z-index: 0;
         overflow: hidden;
         background: var(--ambient-bg);
-        opacity: var(--ambient-canvas-opacity, 0.85);
+        opacity: var(--ambient-canvas-opacity, 1);
+        transition:
+          background 0.35s ease,
+          opacity 0.35s ease;
       }
 
       .ambient-blob {
@@ -212,6 +237,7 @@
         border-radius: 50%;
         opacity: var(--ambient-opacity);
         pointer-events: none;
+        transition: opacity 0.35s ease;
       }
 
       .ambient-blob--cyan {
@@ -225,361 +251,537 @@
       .ambient-blob--purple {
         width: 560px;
         height: 560px;
-        background: radial-gradient(circle, var(--ambient-purple-blob) 0%, transparent 70%);
+        background: radial-gradient(circle, var(--ambient-purple-blob, rgba(10, 132, 255, 0.5)) 0%, transparent 70%);
         opacity: var(--ambient-purple-opacity, 0.05);
         bottom: 4%;
         right: -140px;
       }
 
+      /* ==========================================================================
+         4. LIQUID GLASS SURFACES ("KEIN GLAS AUF GLAS"-REGEL)
+         ========================================================================== */
       .liquid-glass {
         background: var(--glass-bg);
-        backdrop-filter: blur(32px) saturate(var(--glass-saturate, 125%));
-        -webkit-backdrop-filter: blur(32px) saturate(var(--glass-saturate, 125%));
+        backdrop-filter: blur(40px) saturate(var(--glass-saturate, 160%));
+        -webkit-backdrop-filter: blur(40px) saturate(var(--glass-saturate, 160%));
         border: 1px solid var(--glass-border);
         border-top-color: var(--glass-border-highlight);
-        border-left-color: var(--glass-border-highlight);
         box-shadow: var(--glass-shadow);
         border-radius: var(--radius-card);
+        transition:
+          transform 0.25s var(--ease-spring),
+          background 0.3s ease,
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
       }
 
-      @media (max-width: 767px) {
-        .liquid-glass {
-          backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
-          -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
-        }
+      .liquid-glass > * {
+        min-width: 0;
       }
 
-      .liquid-surface-inner {
-        background: var(--surface-inner-bg);
-        border: 1px solid var(--surface-inner-border);
-        border-radius: var(--radius-control);
+      /* ==========================================================================
+         5. GOOGLE MATERIAL SYMBOLS ROUNDED
+         ========================================================================== */
+      .material-symbols-rounded {
+        font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+        font-size: 1.25em;
+        line-height: 1;
+        vertical-align: -0.18em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          font-variation-settings 0.2s var(--ease-spring),
+          color 0.2s ease,
+          transform 0.2s var(--ease-spring);
       }
 
+      /* ==========================================================================
+         6. LAYOUT: HEADER OHNE BOX, GRUPPIERTE LISTEN
+         ========================================================================== */
       .app-shell {
         position: relative;
         z-index: 1;
-        max-width: 960px;
+        max-width: 1080px;
         margin: 0 auto;
-        padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 0
-          calc(16px + env(safe-area-inset-left));
+        padding: max(1.5rem, env(safe-area-inset-top)) 1rem 0;
       }
 
-      .top-bar {
+      .app-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
+        gap: 0.5rem;
+        padding: 0.25rem 0.25rem 0;
+        margin-bottom: 1.125rem;
       }
 
-      .tt {
+      .app-header-text {
         flex: 1;
         min-width: 0;
       }
 
-      h1 {
-        font-size: var(--text-h1);
+      .brand-title {
+        font-size: var(--text-display);
         font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
+        line-height: 1.1;
       }
 
-      .sub {
-        font-size: var(--text-sub);
+      .brand-subtitle {
+        margin-top: 0.25rem;
         color: var(--text-secondary);
-        margin-top: 2px;
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: none;
+        font-size: var(--text-sub);
       }
 
       .icon-btn {
-        appearance: none;
-        -webkit-appearance: none;
         position: relative;
         min-width: 44px;
         min-height: 44px;
-        width: 44px;
-        height: 44px;
-        border-radius: var(--radius-control);
+        flex: none;
+        border-radius: var(--radius-pill);
+        color: var(--text-primary);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background: var(--surface-inner-bg);
         border: 1px solid var(--surface-inner-border);
-        color: var(--text-primary);
-        display: grid;
-        place-items: center;
-        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
         transition:
-          background-color 0.2s var(--ease-spring),
-          transform 0.15s var(--ease-spring);
+          transform 0.2s var(--ease-spring),
+          background 0.2s ease;
       }
 
-      .icon-btn:active {
-        transform: scale(0.96);
+      .icon-btn:hover {
         background: var(--surface-inner-hover);
       }
 
-      .update-dot {
-        position: absolute;
-        top: 7px;
-        right: 7px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--system-cyan);
+      .icon-btn:active {
+        transform: scale(0.94);
+      }
+
+      /* Suche: Pill auf dem Canvas, kein Glas */
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        min-height: 46px;
+        padding: 0 1rem;
+        margin-bottom: 1.625rem;
+        border-radius: var(--radius-pill);
+        background: var(--surface-inner-bg);
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        transition: border-color 0.2s ease;
+      }
+
+      .search:focus-within {
+        border-color: var(--system-blue-border);
+      }
+
+      .search input {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .search input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      /* Rubrik-Überschrift: normale Schreibweise, Zähler ohne Badge */
+      .section-title {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin: 0 0.375rem 0.625rem;
+        font-size: 1.0625rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .section-count {
+        color: var(--text-tertiary);
+        font-family: var(--font-mono);
+        font-size: var(--text-caption);
+        font-weight: 500;
+      }
+
+      .hub-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0 1.25rem;
+        align-items: start;
+      }
+
+      .hub-section {
+        min-width: 0;
+      }
+
+      .hub-section[hidden] {
         display: none;
       }
 
-      .update-dot.show {
-        display: block;
+      /* Gruppierte Liste: EINE Glasfläche pro Rubrik, Zeilen mit Haarlinie */
+      .group {
+        overflow: hidden;
+        margin-bottom: 1.625rem;
       }
 
-      .search-wrap {
+      .row {
         position: relative;
-        margin-bottom: 20px;
-      }
-
-      .search-wrap .material-symbols-rounded {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-secondary);
-        pointer-events: none;
-      }
-
-      .glass-input {
-        appearance: none;
-        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
         width: 100%;
-        min-height: 46px;
-        padding: 10px 14px 10px 44px;
-        font-family: inherit;
-        font-size: 1rem;
-        color: var(--text-primary);
-        background: var(--surface-inner-bg);
-        border: 1px solid var(--surface-inner-border);
-        border-radius: var(--radius-control);
-      }
-
-      .glass-input:focus {
-        outline: none;
-        border-color: var(--system-blue);
-      }
-
-      h2 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: var(--text-caption);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--text-secondary);
-        margin: 22px 2px 10px;
-      }
-
-      h2 .n {
-        background: var(--surface-inner-bg);
-        border: 1px solid var(--surface-inner-border);
-        color: var(--text-primary);
-        padding: 2px 8px;
-        border-radius: var(--radius-pill);
-        font-size: 12px;
-      }
-
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 12px;
-        list-style: none;
-      }
-
-      .hub-tile {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        min-height: 76px;
-        padding: 14px 16px;
+        min-height: 64px;
+        padding: 0.6875rem 0.75rem 0.6875rem 0.875rem;
+        color: inherit;
         text-decoration: none;
-        color: var(--text-primary);
-        box-shadow: none;
-        transition:
-          transform 0.2s var(--ease-spring),
-          border-color 0.2s ease,
-          background-color 0.2s ease;
+        transition: background 0.2s ease;
       }
 
-      @media (hover: hover) {
-        .hub-tile:hover {
-          border-color: var(--system-blue-border);
-        }
+      .row:hover,
+      .row:active {
+        background: var(--surface-inner-bg);
       }
 
-      .hub-tile:active {
-        transform: scale(0.985);
+      .row + .row::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 68px;
+        right: 0;
+        height: 1px;
+        background: var(--border-separator);
       }
 
-      .hub-tile .ico {
-        width: 44px;
-        height: 44px;
-        border-radius: var(--radius-control);
-        background: var(--system-cyan-tint);
-        border: 1px solid var(--system-cyan-border);
-        color: var(--system-cyan);
-        display: grid;
-        place-items: center;
-        flex: none;
+      .row[hidden] {
+        display: none;
       }
 
-      .hub-tile .txt {
+      .row-text {
         flex: 1;
         min-width: 0;
       }
 
-      .hub-tile strong {
+      .row-title {
         display: block;
-        font-size: 15.5px;
+        font-size: var(--text-body);
         font-weight: 600;
-        line-height: 1.25;
+        letter-spacing: -0.01em;
       }
 
-      .hub-tile small {
+      .row-sub {
         display: block;
-        font-size: 13px;
+        margin-top: 1px;
         color: var(--text-secondary);
-        margin-top: 2px;
+        font-size: var(--text-caption);
+      }
+
+      .row-chevron {
+        color: var(--text-tertiary);
+      }
+
+      /* Listen-Icon: Tint-Fläche ohne Rahmen, eine Systemfarbe je Rubrik */
+      .row-icon {
+        width: 40px;
+        height: 40px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        border-radius: var(--radius-icon);
+      }
+
+      .row-icon--blue {
+        background: var(--system-blue-tint);
+        color: var(--system-blue);
+      }
+
+      .row-icon--orange {
+        background: var(--system-orange-tint);
+        color: var(--system-orange);
       }
 
       .empty {
         display: none;
         text-align: center;
         color: var(--text-secondary);
-        padding: 36px 16px;
+        padding: 2.25rem 1rem;
       }
 
-      .modal-backdrop {
+      @media (min-width: 768px) {
+        .app-shell {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+
+        .hub-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* ==========================================================================
+         7. UI COMPONENTS (MODAL, INFO-LIST, PILL, BUTTONS, TOAST)
+         ========================================================================== */
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .card-header > :first-child {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .card-title {
+        font-size: var(--text-sub);
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--radius-pill);
+        font-size: var(--text-caption);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .status-pill--green {
+        background: var(--system-green-tint);
+        border: 1px solid var(--system-green-border);
+        color: var(--system-green);
+      }
+
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        flex: none;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .settings-update-dot {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 8px;
+        height: 8px;
+        color: var(--system-cyan);
+        display: none;
+      }
+
+      .settings-update-dot.show {
+        display: block;
+      }
+
+      .info-list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .info-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-height: 48px;
+        padding: 0.5rem 0.125rem;
+      }
+
+      .info-row + .info-row {
+        border-top: 1px solid var(--border-separator);
+      }
+
+      .info-row-label {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-width: 0;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+
+      .info-row-value {
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: var(--text-body);
+        white-space: nowrap;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        min-height: 50px;
+        width: 100%;
+        padding: 0 1.25rem;
+        border-radius: var(--radius-control);
+        font-family: var(--font-sans);
+        font-size: var(--text-body);
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: none;
+        appearance: none;
+        -webkit-appearance: none;
+        transition:
+          background 0.2s ease,
+          opacity 0.2s ease,
+          transform 0.2s var(--ease-spring);
+      }
+
+      .btn-primary {
+        border: 1px solid var(--system-blue);
+        background: var(--system-blue);
+        color: #FFFFFF;
+      }
+
+      .btn-secondary {
+        border: 1px solid var(--surface-inner-border);
+        background: var(--surface-inner-bg);
+        color: var(--text-primary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--surface-inner-hover);
+      }
+
+      .btn-primary:active,
+      .btn-secondary:active {
+        transform: scale(0.98);
+        opacity: 0.85;
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      /* ==========================================================================
+         8. MODAL & TOAST (OVERLAY OHNE BLUR: KEIN GLAS AUF GLAS)
+         ========================================================================== */
+      .modal-overlay {
         position: fixed;
         inset: 0;
-        z-index: 100;
-        background: rgba(0, 0, 0, 0.55);
+        z-index: 1000;
         display: none;
-        place-items: center;
-        padding: 16px;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.55);
       }
 
-      .modal-backdrop.open {
-        display: grid;
+      .modal-overlay.is-open {
+        display: flex;
       }
 
       .modal-card {
-        width: min(460px, 100%);
+        width: 100%;
+        max-width: 440px;
+        padding: 1.125rem;
         border-radius: var(--radius-modal);
-        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
 
       .modal-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 0.75rem;
+        padding-left: 0.25rem;
       }
 
-      .modal-head h3 {
-        font-size: 1.15rem;
-        font-weight: 700;
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: var(--radius-pill);
-        font-size: var(--text-caption);
+      .modal-title {
+        font-size: var(--text-h2);
         font-weight: 600;
-        background: var(--system-cyan-tint);
-        border: 1px solid var(--system-cyan-border);
-        color: var(--system-cyan);
+        letter-spacing: -0.01em;
       }
 
-      .status-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: currentColor;
-      }
-
-      .btn-row {
+      .modal-actions {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 14px;
-      }
-
-      .btn {
-        appearance: none;
-        -webkit-appearance: none;
-        min-height: 44px;
-        min-width: 44px;
-        padding: 10px 16px;
-        border-radius: var(--radius-control);
-        border: 1px solid var(--surface-inner-border);
-        background: var(--surface-inner-bg);
-        color: var(--text-primary);
-        font: inherit;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-      }
-
-      .btn-primary {
-        background: var(--system-blue);
-        border-color: var(--system-blue);
-        color: #ffffff;
+        flex-direction: column;
+        gap: 0.5rem;
       }
 
       .toast-pill {
         position: fixed;
         left: 50%;
-        bottom: max(20px, env(safe-area-inset-bottom));
-        transform: translateX(-50%) translateY(120%);
-        z-index: 200;
-        padding: 10px 18px;
+        bottom: max(1.5rem, calc(16px + env(safe-area-inset-bottom)));
+        z-index: 1100;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: calc(100vw - 2rem);
+        padding: 0.625rem 1rem;
         border-radius: var(--radius-pill);
-        font-size: 14px;
-        font-weight: 600;
+        border: 1px solid var(--system-green-border);
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        font-size: var(--text-sub);
+        font-weight: 500;
+        transform: translate(-50%, 20px);
         opacity: 0;
         pointer-events: none;
         transition:
-          transform 0.25s var(--ease-spring),
+          transform 0.35s var(--ease-spring),
           opacity 0.25s ease;
       }
 
-      .toast-pill.show {
-        transform: translateX(-50%) translateY(0);
+      .toast-pill.is-visible {
+        transform: translate(-50%, 0);
         opacity: 1;
       }
 
-      @media (prefers-reduced-transparency: reduce) {
+      .toast-pill .material-symbols-rounded {
+        color: var(--system-green);
+      }
+
+      /* ==========================================================================
+         9. BARRIEREFREIHEIT & MOBILE PERFORMANCE
+         ========================================================================== */
+      @media (max-width: 767px) {
         .liquid-glass {
-          backdrop-filter: none !important;
-          -webkit-backdrop-filter: none !important;
-          background: var(--bg-elevated) !important;
+          backdrop-filter: blur(16px) saturate(var(--glass-saturate, 160%));
+          -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate, 160%));
+        }
+      }
+
+      @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+        .liquid-glass {
+          background: var(--bg-elevated);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+          border-width: 1.5px;
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        * {
-          transition-duration: 0.01ms !important;
+        *,
+        *::before,
+        *::after {
           animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
         }
       }
     </style>
@@ -591,173 +793,178 @@
     </div>
 
     <div class="app-shell">
-      <header class="top-bar liquid-glass">
-        <div class="tt">
-          <h1>Service-Apps</h1>
-          <p class="sub">Muther Heizung Sanitär · Klima, Kälte &amp; Wärmepumpe</p>
+      <header class="app-header">
+        <div class="app-header-text">
+          <h1 class="brand-title">Service-Apps</h1>
+          <p class="brand-subtitle">Muther Heizung Sanitär · Klima, Kälte &amp; Wärmepumpe</p>
         </div>
-        <div class="header-actions">
-          <button type="button" class="icon-btn" id="themeToggleBtn" aria-label="Darstellung umschalten">
-            <span class="material-symbols-rounded" id="themeIcon" aria-hidden="true">light_mode</span>
-          </button>
-          <button type="button" class="icon-btn" id="settingsBtn" aria-label="Einstellungen &amp; App-Info">
-            <span class="material-symbols-rounded" aria-hidden="true">settings</span>
-            <span class="update-dot" id="app-update-dot" aria-hidden="true"></span>
-          </button>
-        </div>
+        <button type="button" class="icon-btn" id="themeToggleBtn" aria-label="Darstellung umschalten">
+          <span class="material-symbols-rounded" id="themeIcon" aria-hidden="true">light_mode</span>
+        </button>
+        <button type="button" class="icon-btn" id="settingsBtn" aria-label="Einstellungen &amp; App-Info">
+          <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+          <span class="status-dot settings-update-dot" id="app-update-dot" aria-hidden="true"></span>
+        </button>
       </header>
 
-      <div class="search-wrap">
+      <label class="search">
         <span class="material-symbols-rounded" aria-hidden="true">search</span>
         <input
           type="search"
           id="q"
-          class="glass-input"
           placeholder="App suchen …"
           aria-label="App suchen"
           autocomplete="off"
         />
-      </div>
+      </label>
 
-      <main id="hub-grid">
-        <section aria-labelledby="h-service">
-          <h2 id="h-service">
-            Service &amp; Protokolle
-            <span class="n numeric" aria-hidden="true">6</span>
-          </h2>
-          <ul class="dashboard-grid" role="list">
-            <li>
-              <a class="hub-tile liquid-glass" href="anlagenlogbuch/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span></span>
-                <span class="txt">
-                  <strong>Anlagenlogbuch</strong>
-                  <small>Logbuch für Kälteanlagen</small>
+      <main>
+        <div class="hub-grid" id="hub-grid">
+          <section class="hub-section" aria-labelledby="h-service">
+            <h2 class="section-title" id="h-service">
+              Service &amp; Protokolle
+              <span class="section-count numeric" aria-hidden="true">6</span>
+            </h2>
+            <div class="liquid-glass group">
+              <a class="row" href="anlagenlogbuch/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span></span>
+                <span class="row-text">
+                  <span class="row-title">Anlagenlogbuch</span>
+                  <span class="row-sub">Logbuch für Kälteanlagen</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="service-waermepumpe/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">heat_pump</span></span>
-                <span class="txt">
-                  <strong>Service Wärmepumpe</strong>
-                  <small>Wartungsprotokoll</small>
+              <a class="row" href="service-waermepumpe/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">heat_pump</span></span>
+                <span class="row-text">
+                  <span class="row-title">Service Wärmepumpe</span>
+                  <span class="row-sub">Wartungsprotokoll</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="gas-oel-heizungswartung/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">local_fire_department</span></span>
-                <span class="txt">
-                  <strong>Service Gas- &amp; Ölheizung</strong>
-                  <small>Wartungsprotokoll</small>
+              <a class="row" href="gas-oel-heizungswartung/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">local_fire_department</span></span>
+                <span class="row-text">
+                  <span class="row-title">Service Gas- &amp; Ölheizung</span>
+                  <span class="row-sub">Wartungsprotokoll</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="service-klimaanlagenwartung/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">ac_unit</span></span>
-                <span class="txt">
-                  <strong>Service Klimaanlage</strong>
-                  <small>Kältetechnische Anlagen</small>
+              <a class="row" href="service-klimaanlagenwartung/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">ac_unit</span></span>
+                <span class="row-text">
+                  <span class="row-title">Service Klimaanlage</span>
+                  <span class="row-sub">Kältetechnische Anlagen</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="service-rlt-kwl-anlagen/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">air</span></span>
-                <span class="txt">
-                  <strong>Service RLT &amp; KWL</strong>
-                  <small>Wartung Lüftungsanlagen</small>
+              <a class="row" href="service-rlt-kwl-anlagen/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">air</span></span>
+                <span class="row-text">
+                  <span class="row-title">Service RLT &amp; KWL</span>
+                  <span class="row-sub">Wartung Lüftungsanlagen</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="service-inbetriebnahme-split-klimaanlage/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">tune</span></span>
-                <span class="txt">
-                  <strong>Inbetriebnahme Split-Klima</strong>
-                  <small>Inbetriebnahmeprotokoll</small>
+              <a class="row" href="service-inbetriebnahme-split-klimaanlage/">
+                <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">tune</span></span>
+                <span class="row-text">
+                  <span class="row-title">Inbetriebnahme Split-Klima</span>
+                  <span class="row-sub">Inbetriebnahmeprotokoll</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-          </ul>
-        </section>
+            </div>
+          </section>
 
-        <section aria-labelledby="h-kalk">
-          <h2 id="h-kalk">
-            Kalkulation &amp; Auslegung
-            <span class="n numeric" aria-hidden="true">3</span>
-          </h2>
-          <ul class="dashboard-grid" role="list">
-            <li>
-              <a class="hub-tile liquid-glass" href="kalkulation-service-klimaanlage/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">calculate</span></span>
-                <span class="txt">
-                  <strong>Kalkulation Klimaanlage</strong>
-                  <small>Service &amp; Wartung</small>
+          <section class="hub-section" aria-labelledby="h-kalk">
+            <h2 class="section-title" id="h-kalk">
+              Kalkulation &amp; Auslegung
+              <span class="section-count numeric" aria-hidden="true">3</span>
+            </h2>
+            <div class="liquid-glass group">
+              <a class="row" href="kalkulation-service-klimaanlage/">
+                <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">calculate</span></span>
+                <span class="row-text">
+                  <span class="row-title">Kalkulation Klimaanlage</span>
+                  <span class="row-sub">Service &amp; Wartung</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="kalkulation-service-waermepumpe/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">calculate</span></span>
-                <span class="txt">
-                  <strong>Kalkulation Wärmepumpe</strong>
-                  <small>Service &amp; Wartung</small>
+              <a class="row" href="kalkulation-service-waermepumpe/">
+                <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">calculate</span></span>
+                <span class="row-text">
+                  <span class="row-title">Kalkulation Wärmepumpe</span>
+                  <span class="row-sub">Service &amp; Wartung</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-            <li>
-              <a class="hub-tile liquid-glass" href="auslegungstool-daikin-split-klimaanlage/">
-                <span class="ico"><span class="material-symbols-rounded" aria-hidden="true">architecture</span></span>
-                <span class="txt">
-                  <strong>Auslegung Split-Klima</strong>
-                  <small>Daikin R32-Multisplit</small>
+              <a class="row" href="auslegungstool-daikin-split-klimaanlage/">
+                <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">architecture</span></span>
+                <span class="row-text">
+                  <span class="row-title">Auslegung Split-Klima</span>
+                  <span class="row-sub">Daikin R32-Multisplit</span>
                 </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
               </a>
-            </li>
-          </ul>
-        </section>
+            </div>
+          </section>
+        </div>
 
         <p class="empty" id="empty" role="status"></p>
       </main>
     </div>
 
-    <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <div class="modal-card liquid-glass">
+    <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="liquid-glass modal-card">
         <div class="modal-head">
-          <h3 id="settingsTitle">Einstellungen</h3>
+          <h2 class="modal-title" id="settingsTitle">Einstellungen</h2>
           <button type="button" class="icon-btn" id="closeSettingsBtn" aria-label="Schließen">
             <span class="material-symbols-rounded" aria-hidden="true">close</span>
           </button>
         </div>
-        <div class="liquid-surface-inner" style="padding: 14px">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
-            <div>
-              <div style="font-weight: 700">App-Info &amp; Updates</div>
-              <div class="sub">Build-Datum: <span class="numeric">2026-11-15</span></div>
+
+        <div>
+          <div class="card-header" style="align-items: center; margin-bottom: 0.25rem;">
+            <span class="card-title">App-Info &amp; Updates</span>
+            <span class="status-pill status-pill--green">
+              <span class="status-dot"></span>
+              <span>Aktuell</span>
+            </span>
+          </div>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-row-label">Installierte Version</span>
+              <span class="info-row-value numeric" id="app-version-label">v2.1.0</span>
             </div>
-            <span class="status-pill" id="app-version-label"><span class="status-dot"></span><span class="numeric">v2.0.3</span></span>
+            <div class="info-row">
+              <span class="info-row-label">Build-Datum</span>
+              <span class="info-row-value numeric">2026-11-15</span>
+            </div>
           </div>
-          <div class="btn-row">
-            <button type="button" class="btn btn-primary" id="checkUpdateBtn">
-              <span class="material-symbols-rounded" aria-hidden="true">sync</span>
-              <span>Nach Updates suchen</span>
-            </button>
-            <button type="button" class="btn" id="forceReloadBtn">
-              <span class="material-symbols-rounded" aria-hidden="true">system_update</span>
-              <span>Cache neu laden</span>
-            </button>
-          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" id="checkUpdateBtn">
+            <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+            <span>Nach Updates suchen</span>
+          </button>
+          <button type="button" class="btn-secondary" id="forceReloadBtn">
+            <span class="material-symbols-rounded" aria-hidden="true">system_update</span>
+            <span>Cache neu laden</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <div class="toast-pill liquid-glass" id="toast" role="status" aria-live="polite"></div>
+    <div class="toast-pill" id="toast" role="status" aria-live="polite">
+      <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+      <span id="toastText"></span>
+    </div>
 
     <script>
       (function () {
-        var APP_VERSION = '2.0.3';
+        var APP_VERSION = '2.1.0';
         var THEME_KEY = 'ag-theme';
         var btn = document.getElementById('themeToggleBtn');
         var icon = document.getElementById('themeIcon');
@@ -789,6 +996,16 @@
           applyTheme(next);
         });
 
+        if (window.matchMedia) {
+          window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function (e) {
+            try {
+              if (!localStorage.getItem(THEME_KEY)) {
+                applyTheme(e.matches ? 'light' : 'dark');
+              }
+            } catch (err) {}
+          });
+        }
+
         /* Suche */
         function n1(x) {
           return x.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
@@ -798,23 +1015,24 @@
         }
         var q = document.getElementById('q');
         var empty = document.getElementById('empty');
-        var secs = [].slice.call(document.querySelectorAll('main section'));
-        var idx = [].slice.call(document.querySelectorAll('main li')).map(function (li) {
-          var t = li.textContent;
-          return { li: li, a: n1(t), b: n2(t) };
+        var secs = [].slice.call(document.querySelectorAll('#hub-grid .hub-section'));
+        var idx = [].slice.call(document.querySelectorAll('#hub-grid .row')).map(function (row) {
+          var t = row.textContent;
+          return { row: row, a: n1(t), b: n2(t) };
         });
+
         q.addEventListener('input', function () {
           var t = q.value.trim();
           var a = n1(t);
           var c = n2(t);
           var total = 0;
           idx.forEach(function (o) {
-            o.li.hidden = !(!t || o.a.indexOf(a) > -1 || o.b.indexOf(c) > -1);
+            o.row.hidden = !(!t || o.a.indexOf(a) > -1 || o.b.indexOf(c) > -1);
           });
           secs.forEach(function (sec) {
-            var k = sec.querySelectorAll('li:not([hidden])').length;
+            var k = sec.querySelectorAll('.row:not([hidden])').length;
             sec.hidden = !k;
-            sec.querySelector('.n').textContent = k;
+            sec.querySelector('.section-count').textContent = k;
             total += k;
           });
           empty.style.display = total ? 'none' : 'block';
@@ -823,10 +1041,10 @@
 
         /* Desktop Prefetching (pointerenter) */
         var prefetched = {};
-        document.querySelectorAll('.hub-tile').forEach(function (tile) {
-          tile.addEventListener('pointerenter', function (e) {
+        document.querySelectorAll('#hub-grid .row').forEach(function (row) {
+          row.addEventListener('pointerenter', function (e) {
             if (e.pointerType !== 'mouse') return;
-            var href = tile.getAttribute('href');
+            var href = row.getAttribute('href');
             if (!href || prefetched[href]) return;
             prefetched[href] = true;
             var l = document.createElement('link');
@@ -839,24 +1057,25 @@
         /* Settings Modal & Update System */
         var modal = document.getElementById('settingsModal');
         var toastEl = document.getElementById('toast');
+        var toastText = document.getElementById('toastText');
         var toastTimer;
         function showToast(msg) {
-          toastEl.textContent = msg;
-          toastEl.classList.add('show');
+          toastText.textContent = msg;
+          toastEl.classList.add('is-visible');
           clearTimeout(toastTimer);
           toastTimer = setTimeout(function () {
-            toastEl.classList.remove('show');
+            toastEl.classList.remove('is-visible');
           }, 3500);
         }
 
         document.getElementById('settingsBtn').addEventListener('click', function () {
-          modal.classList.add('open');
+          modal.classList.add('is-open');
         });
         document.getElementById('closeSettingsBtn').addEventListener('click', function () {
-          modal.classList.remove('open');
+          modal.classList.remove('is-open');
         });
         modal.addEventListener('click', function (e) {
-          if (e.target === modal) modal.classList.remove('open');
+          if (e.target === modal) modal.classList.remove('is-open');
         });
 
         async function clearAndReload() {

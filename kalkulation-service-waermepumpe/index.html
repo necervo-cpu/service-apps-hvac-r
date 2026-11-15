@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="dark light" />
     <script>
       (function () {
         try {
@@ -121,6 +121,8 @@
         -webkit-appearance: none;
         width: 44px;
         height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.12);
         border: 0;
@@ -268,8 +270,6 @@
       }
       h2 {
         font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
         color: var(--muted);
         margin: 26px 0 6px;
       }
@@ -411,7 +411,7 @@
         font-size: 13px;
         font-weight: 600;
         padding: 9px 0;
-        min-height: 38px;
+        min-height: 44px;
         border-radius: 10px;
         border: 1px solid var(--line);
         color: var(--muted);
@@ -556,8 +556,6 @@
       th {
         font-size: 13px;
         color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
       }
       td.num,
       th.num {
@@ -710,9 +708,7 @@
         min-width: 0;
       }
       #sumbar small {
-        font-size: 11px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+        font-size: 12px;
         color: var(--muted);
         line-height: 1.2;
       }
@@ -880,8 +876,10 @@
           margin-left: 5px;
         }
         .ib {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
+          min-width: 44px;
+          min-height: 44px;
         }
         header {
           gap: 8px;

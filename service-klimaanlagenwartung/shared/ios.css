@@ -1,152 +1,125 @@
-/* shared/ios.css – Apple-Stil für alle Apps: Glasoptik, Startblock .kstart mittig ab 700px, iOS-Schalter,
-   Bottom Sheet, Erfolgs-Häkchen, Kapsel-Meldung, iOS-Seitenwechsel, großer Titel in der Kopfleiste.
-   Dauerhaft aktiv, kein Umschalter, keine Body-Klassen.
-
-   Einbinden: im <head> NACH dem App-<style> (und nach base.css, knoepfe.css, kacheln.css, pdf.css), sonst verlieren
-   die Regeln hier gegen gleich starke App-Regeln:
-     <link rel="stylesheet" href="shared/ios.css">
-   Gehört zu shared/ios.js (Schalter, Gruppen, Blatt, Häkchen, Wischen). Ohne ios.js bleibt das Glas sichtbar,
-   nur die Bedienelemente aus dem Skript fehlen.
-
-   Erwartet (alles mit Ersatzwert, falls eine App es nicht hat): --bg --card --ink --line --gold --gold-dark --pri
-   --ctl --segbg --okbg --ok --warn --muted. Hell/Dunkel: html[data-theme=dark|light] ODER Systemeinstellung.
-   Kein Glas im Bericht (.report) und nicht im Druck. Weniger Transparenz / mehr Kontrast / weniger Bewegung
-   werden beachtet. */
+/* shared/ios.css – Dual-Theme Apple HIG + Liquid Glass Stil für alle Service-Apps:
+   Gruppierte Listen, Bottom Sheet, Erfolgs-Häkchen, Toast-Pill, iOS-Seitenwechsel, großer Titel.
+   Nutzt System-Tokens aus base.css / liquid-glass-tokens.css (Dark #000000 & Light #F2F2F7).
+   Kein Glas auf Glas, Flat UI ohne schwere Schatten, Touch-Targets >= 44px, keine @media print Regeln. */
 
 /* ===== Grundwerte ===== */
 :root {
-  --ios-ease: var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
-  --ios-card: var(--card, #1c1c1e);
-  --ios-ink: var(--ink, #ffffff);
-  --ios-pri: var(--pri, #0a0a0a);
-  --ios-gold: var(--gold, #f6e3a1);
-  --ios-gold-d: var(--gold-dark, #f9c6a5);
-  --ios-edge: rgba(255, 255, 255, 0.12);
-  --ios-edge-low: rgba(255, 255, 255, 0.05);
-  --ios-shadow: 0 10px 36px -10px rgba(0, 0, 0, 0.6);
-  --ios-blur: blur(24px) saturate(180%);
-  --ios-blur-card: blur(16px) saturate(160%);
-  --ios-blur-sheet: blur(30px) saturate(180%);
-  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.12), transparent 60%),
-    radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.10), transparent 60%),
-    var(--bg, #000000);
+  --ios-ease: var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+  --ios-card: var(--bg-elevated, var(--card, #1c1c1e));
+  --ios-ink: var(--text-primary, var(--ink, #ffffff));
+  --ios-pri: var(--bg-elevated, #1c1c1e);
+  --ios-edge: var(--glass-border-highlight, rgba(255, 255, 255, 0.11));
+  --ios-edge-low: var(--glass-border, rgba(255, 255, 255, 0.06));
+  --ios-blur: blur(24px) saturate(var(--glass-saturate, 160%));
+  --ios-blur-card: blur(16px) saturate(var(--glass-saturate, 160%));
+  --ios-blur-sheet: blur(30px) saturate(var(--glass-saturate, 160%));
+  --ios-bg: var(--ambient-bg), var(--bg-canvas, var(--bg, #000000));
 }
 :root[data-theme='light'] {
-  --ios-card: var(--surface-card, #fff);
-  --ios-ink: var(--text-primary, #000000);
-  --ios-pri: #1c1c1e;
-  --ios-gold: var(--pastel-butter, #f6e3a1);
-  --ios-gold-d: var(--pastel-peach, #f9c6a5);
-  --ios-edge: rgba(255, 255, 255, 0.75);
-  --ios-edge-low: rgba(255, 255, 255, 0.25);
-  --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.35), transparent 60%),
-    radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.28), transparent 60%),
-    radial-gradient(700px 600px at 30% 105%, rgba(246, 227, 161, 0.25), transparent 60%),
-    var(--bg, #f2f2f7);
+  --ios-card: var(--bg-elevated, #ffffff);
+  --ios-ink: var(--text-primary, #1c1c1e);
+  --ios-pri: var(--bg-elevated, #ffffff);
+  --ios-edge: var(--glass-border-highlight, rgba(255, 255, 255, 0.9));
+  --ios-edge-low: var(--glass-border, rgba(0, 0, 0, 0.05));
+  --ios-bg: var(--ambient-bg), var(--bg-canvas, var(--bg, #f2f2f7));
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
-    --ios-card: var(--surface-card, #fff);
-    --ios-ink: var(--text-primary, #000000);
-    --ios-pri: #1c1c1e;
-    --ios-gold: var(--pastel-butter, #f6e3a1);
-    --ios-gold-d: var(--pastel-peach, #f9c6a5);
-    --ios-edge: rgba(255, 255, 255, 0.75);
-    --ios-edge-low: rgba(255, 255, 255, 0.25);
-    --ios-shadow: 0 8px 32px -8px rgba(40, 30, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
-    --ios-bg: radial-gradient(900px 600px at 12% -5%, rgba(249, 198, 165, 0.35), transparent 60%),
-      radial-gradient(800px 700px at 100% 35%, rgba(160, 227, 224, 0.28), transparent 60%),
-      radial-gradient(700px 600px at 30% 105%, rgba(246, 227, 161, 0.25), transparent 60%),
-      var(--bg, #f2f2f7);
+    --ios-card: var(--bg-elevated, #ffffff);
+    --ios-ink: var(--text-primary, #1c1c1e);
+    --ios-pri: var(--bg-elevated, #ffffff);
+    --ios-edge: var(--glass-border-highlight, rgba(255, 255, 255, 0.9));
+    --ios-edge-low: var(--glass-border, rgba(0, 0, 0, 0.05));
+    --ios-bg: var(--ambient-bg), var(--bg-canvas, var(--bg, #f2f2f7));
   }
 }
 
-/* Durchscheinende Farben: mit color-mix (iOS ab 16.2), sonst feste rgba-Werte für hell und dunkel */
+/* Durchscheinende Farben: mit color-mix (iOS ab 16.2), sonst System-Tokens */
 @supports (color: color-mix(in srgb, red, blue)) {
   :root {
-    --ios-glass: color-mix(in srgb, var(--card, #1c1c1e) 74%, transparent);
-    --ios-glass-strong: color-mix(in srgb, var(--card, #1c1c1e) 82%, transparent);
-    --ios-line-soft: color-mix(in srgb, var(--line, rgba(255, 255, 255, 0.08)) 70%, transparent);
-    --ios-seg: color-mix(in srgb, var(--segbg, #2c2c2e) 55%, transparent);
-    --ios-ctl: color-mix(in srgb, var(--ctl, #2c2c2e) 70%, transparent);
-    --ios-done: color-mix(in srgb, var(--okbg, rgba(168, 230, 195, 0.16)) 70%, transparent);
-    --ios-sheet: color-mix(in srgb, var(--card, #1c1c1e) 85%, transparent);
-    --ios-okc: color-mix(in srgb, var(--card, #1c1c1e) 80%, transparent);
-    --ios-sheetcard: color-mix(in srgb, var(--card, #1c1c1e) 70%, transparent);
-    --ios-grab: color-mix(in srgb, var(--ink, #ffffff) 25%, transparent);
+    --ios-glass: var(--glass-bg, color-mix(in srgb, var(--bg-elevated, #1c1c1e) 72%, transparent));
+    --ios-glass-strong: var(--glass-bg-elevated, color-mix(in srgb, var(--bg-elevated, #1c1c1e) 85%, transparent));
+    --ios-line-soft: var(--border-separator, rgba(84, 84, 88, 0.48));
+    --ios-seg: var(--surface-inner-bg, rgba(120, 120, 128, 0.2));
+    --ios-ctl: var(--surface-inner-bg, rgba(120, 120, 128, 0.2));
+    --ios-done: var(--system-green-tint, rgba(48, 209, 88, 0.15));
+    --ios-sheet: color-mix(in srgb, var(--bg-elevated, #1c1c1e) 85%, transparent);
+    --ios-okc: color-mix(in srgb, var(--bg-elevated, #1c1c1e) 82%, transparent);
+    --ios-sheetcard: var(--surface-inner-bg, rgba(120, 120, 128, 0.2));
+    --ios-grab: color-mix(in srgb, var(--text-primary, #ffffff) 25%, transparent);
   }
   :root[data-theme='light'] {
-    --ios-glass: color-mix(in srgb, var(--card, #fff) 72%, transparent);
-    --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 82%, transparent);
-    --ios-line-soft: color-mix(in srgb, var(--line, rgba(0, 0, 0, 0.06)) 70%, transparent);
-    --ios-seg: color-mix(in srgb, var(--segbg, #f2f2f7) 55%, transparent);
-    --ios-ctl: color-mix(in srgb, var(--ctl, #f2f2f7) 70%, transparent);
-    --ios-done: color-mix(in srgb, var(--okbg, rgba(168, 230, 195, 0.28)) 70%, transparent);
-    --ios-sheet: color-mix(in srgb, var(--card, #fff) 82%, transparent);
-    --ios-okc: color-mix(in srgb, var(--card, #fff) 75%, transparent);
-    --ios-sheetcard: color-mix(in srgb, var(--card, #fff) 70%, transparent);
-    --ios-grab: color-mix(in srgb, var(--ink, #1a1a1a) 25%, transparent);
+    --ios-glass: var(--glass-bg, rgba(255, 255, 255, 0.72));
+    --ios-glass-strong: var(--glass-bg-elevated, rgba(255, 255, 255, 0.85));
+    --ios-line-soft: var(--border-separator, rgba(60, 60, 67, 0.16));
+    --ios-seg: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+    --ios-ctl: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+    --ios-done: var(--system-green-tint, rgba(52, 199, 89, 0.14));
+    --ios-sheet: color-mix(in srgb, var(--bg-elevated, #ffffff) 84%, transparent);
+    --ios-okc: color-mix(in srgb, var(--bg-elevated, #ffffff) 80%, transparent);
+    --ios-sheetcard: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+    --ios-grab: color-mix(in srgb, var(--text-primary, #1c1c1e) 25%, transparent);
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme='dark']) {
-      --ios-glass: color-mix(in srgb, var(--card, #fff) 72%, transparent);
-      --ios-glass-strong: color-mix(in srgb, var(--card, #fff) 82%, transparent);
-      --ios-line-soft: color-mix(in srgb, var(--line, rgba(0, 0, 0, 0.06)) 70%, transparent);
-      --ios-seg: color-mix(in srgb, var(--segbg, #f2f2f7) 55%, transparent);
-      --ios-ctl: color-mix(in srgb, var(--ctl, #f2f2f7) 70%, transparent);
-      --ios-done: color-mix(in srgb, var(--okbg, rgba(168, 230, 195, 0.28)) 70%, transparent);
-      --ios-sheet: color-mix(in srgb, var(--card, #fff) 82%, transparent);
-      --ios-okc: color-mix(in srgb, var(--card, #fff) 75%, transparent);
-      --ios-sheetcard: color-mix(in srgb, var(--card, #fff) 70%, transparent);
-      --ios-grab: color-mix(in srgb, var(--ink, #1a1a1a) 25%, transparent);
+      --ios-glass: var(--glass-bg, rgba(255, 255, 255, 0.72));
+      --ios-glass-strong: var(--glass-bg-elevated, rgba(255, 255, 255, 0.85));
+      --ios-line-soft: var(--border-separator, rgba(60, 60, 67, 0.16));
+      --ios-seg: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+      --ios-ctl: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+      --ios-done: var(--system-green-tint, rgba(52, 199, 89, 0.14));
+      --ios-sheet: color-mix(in srgb, var(--bg-elevated, #ffffff) 84%, transparent);
+      --ios-okc: color-mix(in srgb, var(--bg-elevated, #ffffff) 80%, transparent);
+      --ios-sheetcard: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+      --ios-grab: color-mix(in srgb, var(--text-primary, #1c1c1e) 25%, transparent);
     }
   }
 }
 @supports not (color: color-mix(in srgb, red, blue)) {
   :root {
-    --ios-glass: rgba(28, 28, 30, 0.74);
-    --ios-glass-strong: rgba(28, 28, 30, 0.82);
-    --ios-line-soft: rgba(255, 255, 255, 0.08);
-    --ios-seg: rgba(44, 44, 46, 0.55);
-    --ios-ctl: rgba(44, 44, 46, 0.7);
-    --ios-done: rgba(168, 230, 195, 0.16);
+    --ios-glass: rgba(28, 28, 30, 0.72);
+    --ios-glass-strong: rgba(44, 44, 46, 0.85);
+    --ios-line-soft: rgba(84, 84, 88, 0.48);
+    --ios-seg: rgba(120, 120, 128, 0.2);
+    --ios-ctl: rgba(120, 120, 128, 0.2);
+    --ios-done: rgba(48, 209, 88, 0.15);
     --ios-sheet: rgba(28, 28, 30, 0.85);
-    --ios-okc: rgba(28, 28, 30, 0.8);
-    --ios-sheetcard: rgba(28, 28, 30, 0.7);
+    --ios-okc: rgba(28, 28, 30, 0.82);
+    --ios-sheetcard: rgba(120, 120, 128, 0.2);
     --ios-grab: rgba(255, 255, 255, 0.25);
   }
   :root[data-theme='light'] {
     --ios-glass: rgba(255, 255, 255, 0.72);
-    --ios-glass-strong: rgba(255, 255, 255, 0.82);
-    --ios-line-soft: rgba(0, 0, 0, 0.06);
-    --ios-seg: rgba(242, 242, 247, 0.55);
-    --ios-ctl: rgba(255, 255, 255, 0.7);
-    --ios-done: rgba(168, 230, 195, 0.28);
-    --ios-sheet: rgba(255, 255, 255, 0.82);
-    --ios-okc: rgba(255, 255, 255, 0.75);
-    --ios-sheetcard: rgba(255, 255, 255, 0.7);
-    --ios-grab: rgba(26, 26, 26, 0.25);
+    --ios-glass-strong: rgba(255, 255, 255, 0.85);
+    --ios-line-soft: rgba(60, 60, 67, 0.16);
+    --ios-seg: rgba(118, 118, 128, 0.12);
+    --ios-ctl: rgba(118, 118, 128, 0.12);
+    --ios-done: rgba(52, 199, 89, 0.14);
+    --ios-sheet: rgba(255, 255, 255, 0.84);
+    --ios-okc: rgba(255, 255, 255, 0.8);
+    --ios-sheetcard: rgba(118, 118, 128, 0.12);
+    --ios-grab: rgba(28, 28, 30, 0.25);
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme='dark']) {
       --ios-glass: rgba(255, 255, 255, 0.72);
-      --ios-glass-strong: rgba(255, 255, 255, 0.82);
-      --ios-line-soft: rgba(0, 0, 0, 0.06);
-      --ios-seg: rgba(242, 242, 247, 0.55);
-      --ios-ctl: rgba(255, 255, 255, 0.7);
-      --ios-done: rgba(168, 230, 195, 0.28);
-      --ios-sheet: rgba(255, 255, 255, 0.82);
-      --ios-okc: rgba(255, 255, 255, 0.75);
-      --ios-sheetcard: rgba(255, 255, 255, 0.7);
-      --ios-grab: rgba(26, 26, 26, 0.25);
+      --ios-glass-strong: rgba(255, 255, 255, 0.85);
+      --ios-line-soft: rgba(60, 60, 67, 0.16);
+      --ios-seg: rgba(118, 118, 128, 0.12);
+      --ios-ctl: rgba(118, 118, 128, 0.12);
+      --ios-done: rgba(52, 199, 89, 0.14);
+      --ios-sheet: rgba(255, 255, 255, 0.84);
+      --ios-okc: rgba(255, 255, 255, 0.8);
+      --ios-sheetcard: rgba(118, 118, 128, 0.12);
+      --ios-grab: rgba(28, 28, 30, 0.25);
     }
   }
 }
 
 /* ===== Hintergrund: fest hinter allem (background-attachment:fixed geht auf iOS nicht) ===== */
 html {
-  background: var(--bg, #f8f7f4);
+  background: var(--bg-canvas, var(--bg, #000000));
   height: 100%;
 }
 body {
@@ -171,6 +144,7 @@ body::before {
 .warnbox .btn {
   margin-top: 10px;
   min-height: 44px;
+  min-width: 44px;
   padding: 8px 14px;
 }
 
@@ -187,9 +161,9 @@ body::before {
 
 /* ===== Apple-Stil: Schrift, Segment-Steuerung, Fokus ===== */
 .pagetitle {
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   line-height: 1.1;
-  font-size: 28px;
+  font-size: var(--text-display, 28px);
 }
 .field label {
   font-size: 17px;
@@ -207,39 +181,47 @@ body::before {
 .seg .btn {
   background: transparent;
   min-height: 46px;
-  border-radius: 999px;
+  min-width: 44px;
+  border-radius: var(--radius-pill, 9999px);
+  border: 1px solid transparent;
   transition:
-    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 180ms var(--ios-ease),
+    border-color 180ms var(--ios-ease),
+    color 180ms var(--ios-ease),
+    opacity 140ms var(--ios-ease);
 }
 .seg .btn.sel.neutral,
 .seg .btn.sel:not(.ok):not(.bad):not(.na):not(.warn) {
-  background: transparent;
-  --seg-pill-bg: var(--gradient-honey);
-  color: var(--text-on-accent, #1c1c1e);
+  background: var(--segmented-active-bg, var(--system-blue-tint));
+  border-color: var(--segmented-active-border, var(--system-blue-border));
+  color: var(--text-primary, #ffffff);
 }
 .opts .btn {
+  min-height: 44px;
+  min-width: 44px;
   transition:
-    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 180ms var(--ios-ease),
+    border-color 180ms var(--ios-ease),
+    color 180ms var(--ios-ease),
+    opacity 140ms var(--ios-ease);
 }
 input,
 textarea,
 select {
+  font-size: max(16px, 1rem);
+  min-height: 44px;
+  border-radius: var(--radius-control, 14px);
   transition:
-    box-shadow 160ms ease-out,
-    border-color 160ms;
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
 }
 input:focus,
 textarea:focus,
 select:focus {
   outline: 0;
-  border-color: var(--ios-gold-d);
-  box-shadow: 0 0 0 3px rgba(249, 198, 165, 0.28);
+  border-color: var(--system-blue);
+  background: var(--surface-inner-hover, var(--ios-ctl));
+  box-shadow: none;
 }
 .btn:not(.seg .btn):not(.opts .btn):active:not(:disabled),
 .steps button:active:not(:disabled) {
@@ -248,85 +230,87 @@ select:focus {
   transition-duration: 75ms;
 }
 
-/* ===== Glasoptik: durchscheinend + Unschärfe auf schwebenden Leisten + helle Oberkante (nie auf dem Bericht .report) ===== */
-.bar,
-header {
+/* ===== Glasoptik: äußere Leisten & Cards (Flat UI, kein Glas auf Glas, Header ohne Box) ===== */
+.bar {
   -webkit-backdrop-filter: var(--ios-blur);
   backdrop-filter: var(--ios-blur);
 }
 .card:not(.report .card) {
   background: var(--ios-glass);
   border: 1px solid var(--ios-edge-low);
-  box-shadow:
-    inset 0 1px 0 var(--ios-edge),
-    var(--ios-shadow);
-  border-radius: 22px;
+  border-top-color: var(--ios-edge);
+  box-shadow: none;
+  border-radius: var(--radius-card, 26px);
 }
 .bar {
   background: var(--ios-glass);
-  border-top: 0;
-  box-shadow:
-    inset 0 1px 0 var(--ios-edge),
-    0 -10px 30px -16px rgba(0, 0, 0, 0.25);
+  border-top: 1px solid var(--ios-line-soft);
+  box-shadow: none;
 }
 header {
-  background: rgba(10, 10, 10, 0.85);
-  border-bottom: 1px solid rgba(246, 227, 161, 0.35);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-}
-:root[data-theme='light'] header {
-  background: rgba(26, 26, 26, 0.85);
-  border-bottom: 1px solid rgba(249, 198, 165, 0.4);
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .steps > * {
-  background: var(--ios-glass);
-  border-color: var(--ios-edge-low);
-  box-shadow: inset 0 1px 0 var(--ios-edge);
+  background: var(--surface-inner-bg, var(--ios-ctl));
+  border: 1px solid var(--ios-edge-low);
+  border-radius: var(--radius-control, 14px);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.steps button {
+  min-height: 44px;
+  min-width: 44px;
 }
 .steps .done {
   background: var(--ios-done);
-  border-color: var(--okbd);
-  color: var(--ok);
+  border-color: var(--system-green-border, var(--okbd));
+  color: var(--system-green, var(--ok));
 }
 .steps .on {
-  background: var(--gradient-honey);
-  color: var(--text-on-accent, #1c1c1e);
-  border-color: transparent;
+  background: var(--system-blue);
+  color: #ffffff;
+  border-color: var(--system-blue-border);
   font-weight: 700;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 4px 12px -4px rgba(249, 198, 165, 0.35);
+  box-shadow: none;
 }
-/* Knöpfe als Glas-Kapseln, Weiter bleibt goldgefüllt mit Glanzkante */
+/* Knöpfe flach als Pillen (Flat UI, ohne Schatten) */
 .bar .btn {
-  border-radius: 999px;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: var(--radius-pill, 9999px);
 }
 .bar .btn:not(.primary),
 main .btn.small:not(.primary) {
-  background: var(--ios-glass-strong);
-  border: 1px solid var(--ios-edge-low);
-  box-shadow:
-    inset 0 1px 0 var(--ios-edge),
-    0 2px 8px -2px rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--surface-inner-bg, var(--ios-ctl));
+  border: 1px solid var(--ios-line-soft);
+  box-shadow: none;
+  border-radius: var(--radius-pill, 9999px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .bar .btn.primary {
-  background: var(--gradient-honey);
-  border-color: transparent;
-  color: var(--text-on-accent, #1c1c1e);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 6px 18px -6px rgba(249, 198, 165, 0.4);
+  background: var(--system-blue);
+  border: 1px solid var(--system-blue-border);
+  color: #ffffff;
+  box-shadow: none;
 }
-/* Segment-Spur aus Glas, gewähltes Segment als Glastropfen */
+/* Segment-Spur flach, gewähltes Segment über Rahmen/Hintergrund */
 .seg {
   background: var(--ios-seg);
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px var(--ios-edge-low);
-  border-radius: 999px;
+  border: 1px solid var(--ios-edge-low);
+  box-shadow: none;
+  border-radius: var(--radius-pill, 9999px);
   padding: 4px;
   gap: 2px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .seg .btn.sel {
   box-shadow: none;
@@ -335,25 +319,27 @@ input,
 textarea,
 select {
   background: var(--ios-ctl);
-  border-color: var(--ios-edge-low);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ios-edge-low);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .calc {
-  background: var(--calc, rgba(249, 198, 165, 0.12));
-  border: 1px solid var(--calc-border, rgba(249, 198, 165, 0.28));
-  color: var(--ink);
+  background: var(--calc, var(--system-cyan-tint));
+  border: 1px solid var(--calc-border, var(--system-cyan-border));
+  color: var(--text-primary, var(--ink));
 }
 .qt,
 .cta {
-  box-shadow:
-    inset 0 1px 0 var(--ios-edge),
-    var(--ios-shadow);
+  box-shadow: none;
 }
 .qt {
   background: var(--ios-glass);
+  border: 1px solid var(--ios-edge-low);
+  border-radius: var(--radius-card, 26px);
 }
 
-/* ===== Seitenwechsel: Weiter und Zurück sind spiegelgleich (gleiche Strecke, Dauer und Einblendung) ===== */
+/* ===== Seitenwechsel: Weiter und Zurück sind spiegelgleich ===== */
 .pg-out-fwd {
   animation: iosOutF 180ms var(--ios-ease) forwards;
 }
@@ -398,8 +384,6 @@ select {
   transform: translateX(-30%);
   opacity: 0.5;
 }
-/* Gegen Ruckeln: Seite vorab als eigene Ebene, und während des Gleitens kein Live-Weichzeichner auf den Glaskarten
-   (der Hintergrund ist ein weicher Verlauf – ohne Blur sieht es gleich aus, aber jedes Bild muss nicht neu weichgezeichnet werden) */
 #app[class*='pg-'] {
   will-change: transform, opacity;
 }
@@ -425,7 +409,7 @@ header .tt {
   text-align: center;
   transform: translateY(calc(-50% + 6px));
   opacity: 0;
-  color: #fff;
+  color: var(--text-primary, #ffffff);
   font-weight: 700;
   font-size: 15px;
   letter-spacing: -0.01em;
@@ -448,29 +432,30 @@ header.ht-on .tt > :not(.htitle) {
   opacity: 0;
 }
 
-/* ===== Gruppierte Abschnitte ===== */
+/* ===== Gruppierte Abschnitte (normale Schreibweise, kein uppercase) ===== */
 .grphead {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted, #706f6f);
-  margin: 22px 0 6px;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary, var(--muted));
+  margin: 22px 0 8px;
   padding: 0 6px;
 }
 .card.grp {
   margin-top: 0;
 }
 
-/* ===== Pflichtfeld-Fehler bei Segment-Spur ===== */
+/* ===== Pflichtfeld-Fehler bei Segment-Spur / Auswahlliste ===== */
 .field.err .seg {
-  box-shadow: inset 0 0 0 2px var(--bad, #b42318);
+  border: 1.5px solid var(--system-red, var(--bad));
+  box-shadow: none;
 }
 .field.err select.pick:not(:focus) {
-  box-shadow: inset 0 0 0 2px var(--bad, #b42318);
+  border: 1.5px solid var(--system-red, var(--bad));
+  box-shadow: none;
 }
 
-/* ===== Auswahlliste .pick: Glas-Schatten der Eingabefelder entfällt ===== */
+/* ===== Auswahlliste .pick ===== */
 select.pick:not(:focus) {
   box-shadow: none;
   border-color: transparent;
@@ -501,13 +486,12 @@ select.pick:not(:focus) {
   max-height: 88dvh;
   display: flex;
   flex-direction: column;
-  border-radius: 28px 28px 0 0;
+  border-radius: var(--radius-modal, 32px) var(--radius-modal, 32px) 0 0;
   background: var(--ios-sheet);
   -webkit-backdrop-filter: var(--ios-blur-sheet);
   backdrop-filter: var(--ios-blur-sheet);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 -12px 40px rgba(0, 0, 0, 0.25);
+  border-top: 1px solid var(--ios-edge);
+  box-shadow: none;
   transform: translateY(105%);
   visibility: hidden;
   transition:
@@ -539,12 +523,12 @@ body.sheet-open .sheet-scrim {
 body.sheet-open .stage {
   transform: scale(0.96);
   transform-origin: 50% 0;
-  border-radius: 16px;
+  border-radius: var(--radius-control, 14px);
 }
 .sheet-grab {
   width: 40px;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-pill, 9999px);
   background: var(--ios-grab);
   margin: 8px auto 2px;
   cursor: grab;
@@ -565,9 +549,14 @@ body.sheet-open .stage {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
   border: 0;
   background: transparent;
-  color: var(--ios-ink);
+  color: var(--system-blue, var(--ios-ink));
   font: inherit;
   font-weight: 700;
   font-size: 16px;
@@ -581,8 +570,11 @@ body.sheet-open .stage {
   padding: 0 16px 20px;
   overscroll-behavior: contain;
 }
+/* Kein Glas auf Glas innerhalb des Bottom Sheets */
 .sheet-body .card:not(.report .card) {
   background: var(--ios-sheetcard);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 /* ===== Erfolgs-Häkchen ===== */
@@ -600,13 +592,12 @@ body.sheet-open .stage {
   align-items: center;
   gap: 12px;
   padding: 28px 34px;
-  border-radius: 28px;
+  border-radius: var(--radius-modal, 32px);
   background: var(--ios-okc);
   -webkit-backdrop-filter: var(--ios-blur-sheet);
   backdrop-filter: var(--ios-blur-sheet);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 20px 50px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--ios-edge);
+  box-shadow: none;
   opacity: 0;
   transform: scale(0.85);
   transition:
@@ -618,7 +609,7 @@ body.sheet-open .stage {
 }
 .okc .material-symbols-rounded {
   font-size: 64px;
-  color: var(--system-green, var(--ok, #30d158));
+  color: var(--system-green);
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 .okcheck.in .okc {
@@ -633,7 +624,7 @@ body.sheet-open .stage {
     transform 300ms ease;
 }
 
-/* ===== Meldung als Kapsel oben (wie Dynamic Island) ===== */
+/* ===== Meldung als Kapsel oben (Toast-Pill) ===== */
 #toast,
 body.hasbar #toast {
   position: fixed;
@@ -646,12 +637,14 @@ body.hasbar #toast {
   text-align: center;
   top: calc(10px + env(safe-area-inset-top));
   bottom: auto;
-  border-radius: 22px;
-  background: #000;
-  color: #fff;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--bg-elevated, #1c1c1e);
+  color: var(--text-primary, #ffffff);
+  border: 1px solid var(--ios-edge);
   padding: 12px 22px;
+  font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   transform: translateX(-50%) translateY(-140%) scale(0.6);
   transition:
     transform 460ms cubic-bezier(0.34, 1.3, 0.5, 1),
@@ -693,7 +686,7 @@ body.hasbar #toast.show {
 .under-dim {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: #000000;
   opacity: 0.3;
   pointer-events: none;
 }
@@ -707,28 +700,28 @@ body.ios-swiping {
 body.ios-swiping .stage,
 body.ios-swiping .ios-mover {
   background: var(--ios-bg);
-  box-shadow: -12px 0 32px -12px rgba(0, 0, 0, 0.3);
+  border-left: 1px solid var(--ios-line-soft);
+  box-shadow: none;
 }
 
-/* ===== Weniger Transparenz / mehr Kontrast / Druck: alles deckend, kein Glas, kein Hintergrund ===== */
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), print {
+/* ===== Weniger Transparenz / mehr Kontrast: alles deckend, kein Glas, kein Hintergrund ===== */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   :root:root:root {
-    --ios-glass: var(--card, #fff);
-    --ios-glass-strong: var(--card, #fff);
-    --ios-ctl: var(--ctl, var(--card, #fff));
-    --ios-seg: var(--segbg, #f2f2f7);
-    --ios-done: var(--okbg, rgba(168, 230, 195, 0.28));
-    --ios-sheet: var(--card, #fff);
-    --ios-okc: var(--card, #fff);
-    --ios-sheetcard: var(--card, #fff);
+    --ios-glass: var(--bg-elevated, #1c1c1e);
+    --ios-glass-strong: var(--bg-elevated, #1c1c1e);
+    --ios-ctl: var(--surface-inner-bg, #2c2c2e);
+    --ios-seg: var(--surface-inner-bg, #2c2c2e);
+    --ios-done: var(--system-green-tint);
+    --ios-sheet: var(--bg-elevated, #1c1c1e);
+    --ios-okc: var(--bg-elevated, #1c1c1e);
+    --ios-sheetcard: var(--surface-inner-bg, #2c2c2e);
     --ios-blur: none;
     --ios-blur-card: none;
     --ios-blur-sheet: none;
-    --ios-shadow: none;
     --ios-edge: transparent;
   }
   header {
-    background: var(--ios-pri);
+    background: transparent;
   }
   body::before {
     display: none;
@@ -741,10 +734,12 @@ body.ios-swiping .ios-mover {
     border-color: var(--ios-ink);
   }
   .bar {
-    box-shadow: 0 -1px 0 var(--ios-ink);
+    border-top: 1px solid var(--ios-ink);
+    box-shadow: none;
   }
   .seg .btn.sel {
-    box-shadow: 0 0 0 1.5px var(--ios-ink);
+    border: 1.5px solid var(--ios-ink);
+    box-shadow: none;
   }
   input:focus,
   textarea:focus,

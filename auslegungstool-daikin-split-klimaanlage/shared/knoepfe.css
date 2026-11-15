@@ -1,0 +1,256 @@
+/* Auswahl-Knöpfe für alle Apps – Flat UI & Dual-Theme Liquid Glass
+   .seg .btn  = i.O. / n.i.O. / entfällt, Ja/Nein
+   .opts .btn = Optionslisten
+   .pick      = Auswahlliste (natives <select>) ab 3 Optionen, Farbton über .tone-ok/bad/na/warn/set */
+
+:root {
+  --segbg: var(--surface-inner-bg, rgba(120, 120, 128, 0.20));
+  --pick-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1.5 1.5 7 7l5.5-5.5' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+[data-theme='light'] {
+  --segbg: var(--surface-inner-bg, rgba(118, 118, 128, 0.12));
+  --pick-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1.5 1.5 7 7l5.5-5.5' fill='none' stroke='%231c1c1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.seg {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  isolation: isolate;
+}
+.seg + input[data-other],
+.opts + input[data-other] {
+  margin-top: 12px;
+}
+.opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.seg .btn,
+.opts .btn {
+  position: relative;
+  z-index: auto;
+  background: var(--surface-inner-bg);
+  border: 1px solid var(--surface-inner-border);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: var(--radius-control, 14px);
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+  transition:
+    background-color 180ms var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1)),
+    border-color 180ms var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1)),
+    color 180ms var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity 140ms var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.seg .btn:active:not(:disabled),
+.opts .btn:active:not(:disabled) {
+  transform: none;
+  opacity: 0.9;
+  transition-duration: 60ms;
+}
+.seg .btn:not(.sel):active:not(:disabled),
+.opts .btn:not(.sel):active:not(:disabled) {
+  background-color: var(--surface-inner-hover);
+}
+@keyframes iosPillGlide {
+  from {
+    transform: translate3d(var(--pill-dx, 0px), var(--pill-dy, 0px), 0) scaleX(var(--pill-sx, 1));
+  }
+  to {
+    transform: translate3d(0, 0, 0) scaleX(1);
+  }
+}
+@keyframes iosPillPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.seg .btn.sel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--seg-pill-bg, var(--system-blue-tint));
+  border: 1px solid var(--seg-pill-border, var(--system-blue-border));
+  box-shadow: none;
+  z-index: -1;
+  pointer-events: none;
+}
+.seg .btn.sel.pill-glide::before {
+  animation: iosPillGlide 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  will-change: transform;
+}
+.seg .btn.sel.pill-pop::before,
+.opts .btn.sel.pill-pop {
+  animation: iosPillPop 170ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (hover: hover) {
+  .seg .btn:not(.sel):hover,
+  .opts .btn:not(.sel):hover {
+    background: var(--surface-inner-hover);
+  }
+}
+.seg .btn {
+  min-width: 92px;
+  min-height: 48px;
+}
+.opts .btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Active States: Flat UI mit *-tint + *-border + Solid-Akzentfarbe */
+.seg .btn.sel,
+.seg .btn.sel.neutral {
+  background: transparent;
+  --seg-pill-bg: var(--system-blue-tint);
+  --seg-pill-border: var(--system-blue-border);
+  border-color: transparent;
+  color: var(--system-blue);
+  font-weight: 700;
+}
+.opts .btn.sel,
+.opts .btn.sel.neutral {
+  background: var(--system-blue-tint);
+  border-color: var(--system-blue-border);
+  color: var(--system-blue);
+  font-weight: 700;
+}
+
+.seg .btn.sel.ok {
+  background: transparent;
+  --seg-pill-bg: var(--system-green-tint);
+  --seg-pill-border: var(--system-green-border);
+  color: var(--system-green);
+}
+.opts .btn.sel.ok {
+  background: var(--system-green-tint);
+  border-color: var(--system-green-border);
+  color: var(--system-green);
+}
+
+.seg .btn.sel.bad {
+  background: transparent;
+  --seg-pill-bg: var(--system-red-tint);
+  --seg-pill-border: var(--system-red-border);
+  color: var(--system-red);
+}
+.opts .btn.sel.bad {
+  background: var(--system-red-tint);
+  border-color: var(--system-red-border);
+  color: var(--system-red);
+}
+
+.seg .btn.sel.na {
+  background: transparent;
+  --seg-pill-bg: var(--segmented-active-bg);
+  --seg-pill-border: var(--segmented-active-border);
+  color: var(--text-primary);
+}
+.opts .btn.sel.na {
+  background: var(--segmented-active-bg);
+  border-color: var(--segmented-active-border);
+  color: var(--text-primary);
+}
+
+.seg .btn.sel.warn {
+  background: transparent;
+  --seg-pill-bg: var(--system-orange-tint);
+  --seg-pill-border: var(--system-orange-border);
+  color: var(--system-orange);
+}
+.opts .btn.sel.warn {
+  background: var(--system-orange-tint);
+  border-color: var(--system-orange-border);
+  color: var(--system-orange);
+}
+
+select.pick {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 44px 0 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-control, 14px);
+  border: 1px solid var(--surface-inner-border);
+  background-color: var(--surface-inner-bg);
+  background-image: var(--pick-chev);
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px 9px;
+  color: var(--text-primary);
+  box-shadow: none;
+  text-overflow: ellipsis;
+  transition:
+    background-color 200ms var(--ease-spring),
+    border-color 200ms var(--ease-spring),
+    color 200ms var(--ease-spring);
+}
+select.pick:hover {
+  background-color: var(--surface-inner-hover);
+}
+select.pick.tone-set {
+  background-color: var(--system-blue-tint);
+  border-color: var(--system-blue-border);
+  color: var(--system-blue);
+}
+select.pick.tone-ok {
+  background-color: var(--system-green-tint);
+  border-color: var(--system-green-border);
+  color: var(--system-green);
+}
+select.pick.tone-bad {
+  background-color: var(--system-red-tint);
+  border-color: var(--system-red-border);
+  color: var(--system-red);
+}
+select.pick.tone-na {
+  background-color: var(--segmented-active-bg);
+  border-color: var(--segmented-active-border);
+  color: var(--text-primary);
+}
+select.pick.tone-warn {
+  background-color: var(--system-orange-tint);
+  border-color: var(--system-orange-border);
+  color: var(--system-orange);
+}
+select.pick option {
+  background-color: var(--bg-elevated, #1c1c1e);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+[data-theme='light'] select.pick option {
+  background-color: #ffffff;
+  color: #1c1c1e;
+}
+.pick + input[data-other] {
+  margin-top: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .seg .btn,
+  .opts .btn,
+  select.pick {
+    transition: none;
+  }
+  .seg .btn.sel.pill-glide::before,
+  .seg .btn.sel.pill-pop::before,
+  .opts .btn.sel.pill-pop {
+    animation: none;
+  }
+}

@@ -1,9 +1,39 @@
 // Service-Worker-Vorlage: gemeinsame Handler (install, activate, fetch, message) für alle Apps.
-// Verwendung: In sw.js der App zuerst `const CACHE = '…-vN'` und `const ASSETS = [...]` setzen,
-// danach `importScripts('./shared/sw-vorlage.js');`.
+// Verwendung: In sw.js der App zuerst `const CACHE = '…-vN'` und `const ASSETS = [...]`
+// (oder `CORE_ASSETS` / `SUB_APP_ASSETS`) setzen, danach `importScripts('./shared/sw-vorlage.js');`.
+
+const _coreList =
+  typeof CORE_ASSETS !== 'undefined' && Array.isArray(CORE_ASSETS)
+    ? CORE_ASSETS
+    : typeof ASSETS !== 'undefined' && Array.isArray(ASSETS)
+      ? ASSETS
+      : [];
+
+const _subList =
+  typeof SUB_APP_ASSETS !== 'undefined' && Array.isArray(SUB_APP_ASSETS)
+    ? SUB_APP_ASSETS
+    : [];
+
+// iOS 6-Connection-Schutz: maximal 6 Core-Assets sofort im install-Event laden.
+const _installAssets = _coreList.slice(0, 6);
+const _deferredAssets = _coreList.slice(6).concat(_subList);
+let _deferredScheduled = false;
+
+async function _cacheDeferredSequentially() {
+  if (!_deferredAssets.length) return;
+  const cache = await caches.open(CACHE);
+  for (const asset of _deferredAssets) {
+    try {
+      const hit = await cache.match(asset);
+      if (!hit) await cache.add(asset);
+    } catch (_) {
+      // Einzelne fehlgeschlagene Hintergrund-Assets überspringen.
+    }
+  }
+}
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(_installAssets)));
   self.skipWaiting();
 });
 
@@ -27,6 +57,10 @@ self.addEventListener('activate', (e) => {
       ),
   );
   self.clients.claim();
+  if (_deferredAssets.length && !_deferredScheduled) {
+    _deferredScheduled = true;
+    setTimeout(_cacheDeferredSequentially, 3000);
+  }
 });
 
 // Erst aus dem Cache antworten (schnell & offline), im Hintergrund aktualisieren.
