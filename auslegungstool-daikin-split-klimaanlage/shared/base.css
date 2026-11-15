@@ -781,7 +781,7 @@ main {
   justify-content: space-between;
 }
 
-.card {
+.card:not(.report .card) {
   background: var(--glass-bg);
   backdrop-filter: blur(24px) saturate(var(--glass-saturate, 125%));
   -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturate, 125%));
@@ -794,13 +794,13 @@ main {
 }
 
 @media (max-width: 767px) {
-  .card {
+  .card:not(.report .card) {
     backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
     -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate, 125%));
   }
 }
 
-h2 {
+h2:not(.report h2) {
   font-size: var(--text-caption);
   font-weight: 700;
   text-transform: uppercase;
@@ -809,7 +809,7 @@ h2 {
   margin: 26px 0 8px;
 }
 
-label {
+label:not(.report label) {
   display: block;
   font-size: var(--text-sub);
   color: var(--text-primary);
