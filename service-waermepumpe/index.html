@@ -516,14 +516,10 @@
         --input-focus-bg: rgba(0, 0, 0, 0.015);
         --accent-rgb: 11, 87, 208;
       }
-      /* Datum: Block horizontal mittig, Text linksbündig */
-      .field--date {
-        display: grid;
-        justify-content: center;
-        justify-items: start;
-      }
-      .field--date input[type='date'] {
-        width: 9.5rem;
+      .notice-sub {
+        margin: 0 0 0.5rem;
+        padding-left: 1.25rem;
+        list-style: disc;
       }
       .matlist .empty-note {
         margin: 0;
@@ -779,7 +775,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.5</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.6</span>
                 </span>
               </div>
               <div class="info-row">
@@ -2154,7 +2150,7 @@
         netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
       }
 
-      const APP_VERSION = '2.1.5';
+      const APP_VERSION = '2.1.6';
       const BUILD_DATE = '2026-11-17';
 
       /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -2684,7 +2680,7 @@
           case 'calc':
             return `<div class="calc-row"><span class="calc-label">${esc(f.label)}<small class="field-hint" id="note-${f.id}">${f.note ? esc(f.note(v)) : 'wird berechnet'}</small></span>${calcPillHtml(f, v)}<span class="calc-value numeric" id="calc-${f.id}">${esc(display(f, x) || '–')}</span></div>`;
           case 'date':
-            return `<label class="field field--date${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
+            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
           case 'longtext':
             return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></label>`;
           default:
@@ -2702,7 +2698,7 @@
           ? `<div class="notice" role="status"><b>Noch unvollständig</b><ul class="notice-list">${fehlend
               .map(
                 ([k, errs]) =>
-                  `<li><button type="button" class="jump-link" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</button>: ${errs.map((e) => esc(e[0].label)).join(', ')}</li>`,
+                  `<li><button type="button" class="jump-link" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</button><ul class="notice-sub">${errs.map((e) => `<li>${esc(e[0].label)}</li>`).join('')}</ul></li>`,
               )
               .join('')}</ul></div>`
           : '';

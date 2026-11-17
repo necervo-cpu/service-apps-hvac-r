@@ -1,5 +1,5 @@
 {
-  "version": "2.1.5",
+  "version": "2.1.6",
   "buildDate": "2026-11-17",
-  "changelog": "Wertefelder rechtsbündig mit fester Einheit, größere Aktions-Icons, Datum mittig"
+  "changelog": "Datum linksbündig, fehlende Angaben als Aufzählung"
 }
