@@ -1,5 +1,5 @@
 {
-  "version": "2.2.2",
+  "version": "2.2.3",
   "buildDate": "2026-11-17",
-  "changelog": "Untertitel entfernt, größere Kopf-Icons"
+  "changelog": "Eingabefelder wieder ohne Rand und Fläche"
 }

@@ -1949,49 +1949,6 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ==========================================================================
-   20. EINGABEFELDER ERKENNBAR
-   Jedes Feld, in das getippt wird, hat eine Fläche und einen 1px-Rand, damit es als Eingabe wahrgenommen wird.
-   Gilt für Textfelder, Zahlenfelder, Suche und Auswahl. Fokus: Rand in --accent, kein Schatten.
-   ========================================================================== */
-:root,
-[data-theme='dark'] {
-  --field-bg: rgba(255, 255, 255, 0.10);
-  --field-border: rgba(255, 255, 255, 0.24);
-}
-
-[data-theme='light'] {
-  --field-bg: rgba(255, 255, 255, 0.92);
-  --field-border: rgba(60, 60, 67, 0.30);
-}
-
-.input-wrapper.liquid-surface-inner,
-.text-input,
-.value-input,
-.choice-select-input,
-.search {
-  background: var(--field-bg);
-  border: 1px solid var(--field-border);
-}
-
-.text-input {
-  margin-top: 0.375rem;
-  padding: 0 0.875rem;
-  border-radius: var(--radius-control);
-}
-
-textarea.text-input {
-  padding: 0.625rem 0.875rem;
-}
-
-.input-wrapper.liquid-surface-inner:focus-within,
-.text-input:focus,
-.value-input:focus,
-.choice-select-input:focus,
-.search:focus-within {
-  border-color: var(--accent);
-}
-
-/* ==========================================================================
    21. KOPF-ICONS GRÖSSER
    Knöpfe im Seitenkopf (Hell/Dunkel, Einstellungen) tragen 28px große Icons in einem 48px-Knopf,
    damit sie am Handy und mit Handschuhen sicher zu treffen sind. In Modal-Karten und Zeilen bleibt es bei der Standardgröße.
