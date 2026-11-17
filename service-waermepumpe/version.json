@@ -1,5 +1,5 @@
 {
-  "version": "2.2.5",
+  "version": "2.2.6",
   "buildDate": "2026-11-17",
-  "changelog": "Zoomen gesperrt (Pinch und Doppeltippen)"
+  "changelog": "Update-Hinweis: Karte oben in der Übersicht, wenn beim Start eine neue Version gefunden wird"
 }

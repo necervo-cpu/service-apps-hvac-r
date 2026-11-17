@@ -644,6 +644,14 @@ const Actions = {
   checkupdate() {
     pruefeUpdate(true);
   },
+  doupdate() {
+    toast('Update auf v' + updateHinweis + ' wird geladen.');
+    setTimeout(clearCachesAndReload, 900);
+  },
+  updatespaeter() {
+    updateSpaeter = true;
+    render();
+  },
   forcereload() {
     clearCachesAndReload();
   },

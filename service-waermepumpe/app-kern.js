@@ -496,7 +496,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.5';
+const APP_VERSION = '2.2.6';
 const BUILD_DATE = '2026-11-17';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -654,6 +654,9 @@ new MutationObserver(syncThemeUi).observe(document.documentElement, {
 });
 
 /* Update-Prüfung über version.json. Offline: nur Meldung, Caches und localStorage bleiben erhalten. */
+/* Update-Karte in der Übersicht: Version aus dem stillen Start-Check, „Später“ gilt bis zum nächsten Start */
+let updateHinweis = null;
+let updateSpaeter = false;
 async function pruefeUpdate(manuell) {
   const knopf = $('[data-act="checkupdate"]');
   if (manuell && knopf) {
@@ -672,6 +675,13 @@ async function pruefeUpdate(manuell) {
     $('#updateRemote').textContent = neu ? 'v' + remote : '';
     $('#app-version-label').className =
       'status-pill ' + (neu ? 'status-pill--orange' : 'status-pill--green');
+    if (!manuell) {
+      updateHinweis = neu ? remote : null;
+      // Karte nur zeigen, wenn die Übersicht offen ist und keine Karte darüber liegt
+      if (neu && view.name === 'home' && !modalPanel) {
+        render();
+      }
+    }
     if (manuell) {
       if (neu) {
         toast('Update auf v' + remote + ' wird geladen.');

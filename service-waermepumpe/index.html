@@ -151,6 +151,23 @@
         color: var(--text-primary);
         font-size: var(--text-sub);
       }
+      .notice--update {
+        border-color: var(--system-blue-border);
+        background: var(--system-blue-tint);
+      }
+      .notice-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .notice-text span {
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
+      }
+      .notice--update .btn-row {
+        align-self: stretch;
+        margin-bottom: 0;
+      }
       .empty-note {
         margin: 0 0 2.25rem;
         color: var(--text-secondary);
@@ -878,7 +895,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.5</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.6</span>
                 </span>
               </div>
               <div class="info-row">
