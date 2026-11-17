@@ -2,7 +2,10 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="color-scheme" content="dark light" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -73,6 +76,22 @@
       .settings-update-dot.show {
         display: block;
       }
+      .notice {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--system-blue-border);
+        border-radius: var(--radius-control);
+        background: var(--system-blue-tint);
+        color: var(--text-primary);
+        font-size: var(--text-sub);
+      }
+      .notice[hidden] {
+        display: none;
+      }
       .empty {
         display: none;
         margin: 2rem 0;
@@ -114,6 +133,17 @@
           ></span>
         </button>
       </header>
+
+      <div class="notice notice--update" id="updateNotice" hidden>
+        <div class="notice-text">
+          <strong id="updateNoticeTitle">Neue Version</strong>
+          <span id="updateNoticeSub"></span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="updateNowBtn">Aktualisieren</button>
+          <button type="button" class="btn-secondary" id="updateLaterBtn">Später</button>
+        </div>
+      </div>
 
       <label class="search">
         <span class="material-symbols-rounded" aria-hidden="true">search</span>
@@ -313,7 +343,7 @@
           <div class="info-list">
             <div class="info-row">
               <span class="info-row-label">Installierte Version</span>
-              <span class="info-row-value numeric" id="app-version-label">v2.2.3</span>
+              <span class="info-row-value numeric" id="app-version-label">v2.3.0</span>
             </div>
             <div class="info-row">
               <span class="info-row-label">Build-Datum</span>
@@ -341,7 +371,7 @@
 
     <script>
       (function () {
-        var APP_VERSION = '2.2.3';
+        var APP_VERSION = '2.3.0';
         var $ = function (id) {
           return document.getElementById(id);
         };
@@ -514,6 +544,25 @@
             showToast('Keine Verbindung. Bitte online erneut prüfen.');
           }
         });
+        /* Zoomen sperren: iOS ignoriert user-scalable=no, deshalb Pinch-Gesten abfangen */
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (name) {
+          document.addEventListener(
+            name,
+            function (e) {
+              e.preventDefault();
+            },
+            { passive: false },
+          );
+        });
+
+        /* Update-Karte: nur auf der Übersicht, „Später“ gilt bis zum nächsten Start */
+        $('updateNowBtn').addEventListener('click', function () {
+          showToast('Update wird geladen');
+          setTimeout(clearAndReload, 700);
+        });
+        $('updateLaterBtn').addEventListener('click', function () {
+          $('updateNotice').hidden = true;
+        });
         if (navigator.onLine) {
           fetch('./version.json?t=' + Date.now(), { cache: 'no-store' })
             .then(function (r) {
@@ -522,6 +571,9 @@
             .then(function (d) {
               if (d && d.version && String(d.version).trim() !== APP_VERSION) {
                 $('app-update-dot').classList.add('show');
+                $('updateNoticeTitle').textContent = 'Neue Version ' + String(d.version).trim();
+                $('updateNoticeSub').textContent = 'Aktuell installiert: ' + APP_VERSION;
+                $('updateNotice').hidden = false;
                 $('appStatusPill').className = 'status-pill status-pill--orange';
                 $('appStatusText').textContent = 'Update verfügbar';
               }

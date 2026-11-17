@@ -1,0 +1,486 @@
+/* App-Ergänzungen Daikin-Auslegung. Tokens und Klassen stehen in shared/global.css. */
+html {
+  overscroll-behavior-y: none;
+}
+.brand-title {
+  font-size: 1.65rem;
+  hyphens: none;
+}
+button.row,
+.proto-open,
+.back-btn,
+.pick-row {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.back-btn {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+a.btn-secondary {
+  text-decoration: none;
+}
+.btn-secondary:disabled,
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.net {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 20px;
+  margin-top: 0.25rem;
+  color: var(--system-orange);
+  font-size: var(--text-caption);
+  font-weight: 600;
+}
+.net .nd {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--system-orange);
+}
+.settings-update-dot[hidden] {
+  display: none;
+}
+.lead-note {
+  margin: 0 0 1.25rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.empty-note {
+  margin: 0 0 2.25rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.btn-wide {
+  margin-bottom: 1.75rem;
+}
+/* Auslegungs-Zeile: antippbarer Hauptteil, rechts Löschen ohne Fläche */
+.proto-row {
+  padding-right: 0.25rem;
+}
+.proto-open {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+}
+.proto-open .row-text {
+  overflow-wrap: anywhere;
+}
+.proto-act.is-danger {
+  color: var(--system-red);
+}
+/* Untere Leiste (Ändern / PDF erstellen / Teilen) */
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 0.625rem max(1rem, env(safe-area-inset-right))
+    calc(0.75rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  background: var(--bg-canvas);
+  border-top: 1px solid var(--border-separator);
+}
+.bar > div {
+  display: flex;
+  gap: 0.625rem;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.bar > div > * {
+  flex: 1;
+  min-width: 0;
+}
+.bar .btn-primary,
+.bar .btn-secondary {
+  min-height: 52px;
+  padding: 0 0.75rem;
+}
+.bar .bar-side {
+  flex: 0.65;
+}
+.bar .bar-main {
+  flex: 1.4;
+}
+body.hasbar #app {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+/* PDF-Knopf mit Fortschritt */
+.pdfb {
+  position: relative;
+  overflow: hidden;
+}
+.pdfb .fill {
+  position: absolute;
+  inset: 0;
+  background: var(--on-accent);
+  opacity: 0.22;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms linear;
+  pointer-events: none;
+}
+.pdfb .l1,
+.pdfb .l2,
+.pdfb .lr {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  position: relative;
+  white-space: nowrap;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s var(--ease-spring);
+}
+.pdfb .l2,
+.pdfb .lr {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+}
+.pdfb.run .l1,
+.pdfb.done .l1 {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.pdfb.run .lr {
+  opacity: 1;
+  transform: none;
+}
+.pdfb.done .lr {
+  opacity: 0;
+}
+.pdfb.done .l2 {
+  opacity: 1;
+  transform: none;
+}
+.pdfb.done .fill {
+  opacity: 0;
+}
+/* Einstellungen und Rückfrage: Inhalt der Modal-Karte */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.panel[hidden] {
+  display: none;
+}
+.field-box {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 0.875rem;
+}
+.field-box textarea.text-input {
+  min-height: 88px;
+  padding: 0.625rem 0;
+  resize: none;
+}
+.info-row-value.wrap {
+  white-space: normal;
+  text-align: right;
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  overflow-wrap: anywhere;
+}
+.toast-pill .material-symbols-rounded {
+  color: var(--accent);
+}
+
+/* ===== Eingabe ===== */
+.steps {
+  margin-bottom: 1.25rem;
+}
+.acc-body {
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.4s var(--ease-spring),
+    visibility 0s 0.4s;
+}
+.acc.is-open .acc-body {
+  visibility: visible;
+  transition:
+    grid-template-rows 0.4s var(--ease-spring),
+    visibility 0s;
+}
+.acc-name .row-title,
+.acc-name .row-sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.acc-inner {
+  padding: 0.25rem 0 0.75rem;
+}
+.acc-inner > .field + .field {
+  border-top: 1px solid var(--border-separator);
+}
+.acc-inner > .pick-line,
+.acc-inner > .btn-danger {
+  margin-top: 0.75rem;
+}
+.group--form > .field + .field {
+  border-top: 1px solid var(--border-separator);
+}
+textarea.text-input {
+  resize: none;
+}
+.field-hint {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-tertiary);
+  font-size: var(--text-caption);
+}
+.field .input-wrapper {
+  margin: 0.375rem 0 0.25rem;
+}
+.field .glass-input {
+  font-size: 1rem;
+}
+.field .field-box {
+  margin: 0.5rem 0 0.25rem;
+}
+.field .tab-strip {
+  margin-inline: 0;
+  padding-inline: 0;
+  margin-top: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+.field .choice-select {
+  margin: 0.375rem 0 0.5rem;
+}
+.num-row .input-wrapper {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.sign-btn {
+  margin-top: 0.5rem;
+}
+.pick-line {
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.pick-line b {
+  color: var(--text-primary);
+}
+.pick-line .status-pill {
+  margin-top: 0.375rem;
+}
+/* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  margin: 0;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+  margin: 0;
+}
+input[type='date']::-webkit-datetime-edit {
+  padding: 0;
+  text-align: left;
+}
+
+/* ===== Ergebnis ===== */
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+.pill-row .status-pill {
+  margin-top: 0;
+}
+.why {
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.why-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.125rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.results-block {
+  margin-bottom: 1.5rem;
+}
+.results-block .info-row-label .row-sub {
+  margin-top: 0;
+}
+.note-box {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--system-red-border);
+  border-radius: var(--radius-control);
+  background: var(--system-red-tint);
+  color: var(--text-primary);
+  font-size: var(--text-sub);
+}
+.note-box strong {
+  color: var(--system-red);
+}
+.note-box--orange {
+  border-color: var(--system-orange-border);
+  background: var(--system-orange-tint);
+}
+.note-box--orange strong {
+  color: var(--system-orange);
+}
+.note-box ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.125rem;
+}
+.rr {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.25rem;
+}
+.rr + .rr {
+  border-top: 1px solid var(--border-separator);
+}
+.rr-main {
+  flex: 1;
+  min-width: 0;
+}
+.rr-main b {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.rr-main .row-sub {
+  margin-top: 0;
+}
+.rr-val {
+  flex: none;
+  text-align: right;
+}
+.rr-val b {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.rr-val span {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+.info-row--stack {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+.info-row--stack .info-row-value {
+  white-space: normal;
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  font-weight: 400;
+}
+.info-row--stack .info-row-value b {
+  font-weight: 600;
+}
+.pick-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 64px;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--radius-icon);
+}
+.pick-row + .pick-row {
+  border-top: 1px solid var(--border-separator);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.pick-row:active {
+  background: var(--surface-inner-bg);
+}
+.pick-row .row-text {
+  overflow-wrap: anywhere;
+}
+.pick-row .why-bad {
+  color: var(--system-red);
+}
+.pick-pills {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+.acc-head .section-count {
+  flex: none;
+}
+.empty-line {
+  margin: 0;
+  padding: 0.5rem 0.25rem 0.25rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+.flash {
+  animation: flash 900ms var(--ease-spring);
+}
+@keyframes flash {
+  from {
+    background-color: var(--surface-inner-bg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+  }
+}
+/* Bericht (PDF): Tabellen wie vor dem Wechsel auf global.css */
+:where(.report) th,
+:where(.report) td {
+  vertical-align: top;
+}
+.report table {
+  font-feature-settings: 'tnum' 1;
+}
+/* App-Schrift (shared/lib/fonts). PDF-CSS: shared/pdf.css, PDF-Schrift: Helvetica/Arial (Systemschrift) */
+@font-face {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+    U+FFFD;
+}
+@font-face {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
+    U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}

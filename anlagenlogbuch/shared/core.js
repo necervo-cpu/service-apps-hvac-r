@@ -1,6 +1,6 @@
 /* shared/core.js – gemeinsame Hilfsfunktionen der Service-Apps.
    Enthält: Speicher (LS), DOM-/Text-Helfer ($, esc, uid, today, fmtDateTime), Zahlen (isN, round, fmtNum),
-   Eingabe-Ergonomie (.select() auf Zahlenfeldern),
+   Eingabe-Ergonomie (.select() auf Zahlenfeldern), Zoom-Sperre (gesture*-Ereignisse),
    Bewegung (RM, flash). Klassisches Skript (kein Modul): vor dem App-Skript laden. */
 const LS = {
   fullMsg: 'Speichern fehlgeschlagen – Speicher voll?',
@@ -70,6 +70,10 @@ document.addEventListener('focusin', (e) => {
       } catch (err) {}
     });
   }
+});
+/* Zoomen sperren: iOS ignoriert user-scalable=no, deshalb Pinch-Gesten abfangen */
+['gesturestart', 'gesturechange', 'gestureend'].forEach((name) => {
+  document.addEventListener(name, (e) => e.preventDefault(), { passive: false });
 });
 /* Bewegung reduzieren (Systemeinstellung) und kurzes Aufleuchten eines geänderten Werts */
 const RM = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);

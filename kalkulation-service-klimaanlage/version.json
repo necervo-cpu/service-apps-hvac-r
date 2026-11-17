@@ -1,5 +1,5 @@
 {
-  "version": "2.1.4",
-  "buildDate": "2026-11-17",
-  "changelog": "Eingabefelder wieder ohne Rand und Fläche"
+  "version": "2.2.0",
+  "buildDate": "2026-11-18",
+  "changelog": "Design-Stand 2026-11-21: Dateien aufgeteilt, Zoom gesperrt, Update-Karte in der Übersicht, flache Eingabefelder"
 }

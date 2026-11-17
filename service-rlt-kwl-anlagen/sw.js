@@ -1,10 +1,15 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder shared/ die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
 // Die Handler (install, activate, fetch) stehen in shared/sw-vorlage.js; hier nur Cache-Name und Dateiliste.
-const CACHE = 'rlt-kwl-v214';
+const CACHE = 'rlt-kwl-v220';
 const ASSETS = [
   './',
   './index.html',
+  './daten-vorlage.js',
+  './app-kern.js',
+  './app-ansichten.js',
+  './app-aktionen.js',
+  './app.js',
   './manifest.json',
   './icon-180.png',
   './icon-512.png',

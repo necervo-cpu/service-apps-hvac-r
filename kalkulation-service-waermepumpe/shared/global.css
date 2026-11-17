@@ -1963,3 +1963,44 @@ header .icon-btn .material-symbols-rounded,
 .app-header .icon-btn .material-symbols-rounded {
   font-size: 28px;
 }
+
+/* ==========================================================================
+   22. APP-ERGÄNZUNGEN (Design-Stand 2026-11-21)
+   Zoom gesperrt, Abstand nach berechneten Zeilen, Dropdown-Abstand, Update-Karte.
+   ========================================================================== */
+html,
+body {
+  touch-action: manipulation;
+}
+
+/* 12px zwischen der letzten berechneten Zeile und der Trennlinie darunter */
+.group--form > .calc-row + :not(.calc-row) {
+  margin-top: 12px;
+}
+
+/* 8px zwischen Beschriftung und Dropdown, wie bei den Eingabefeldern */
+.field > .choice-select {
+  margin-top: 0.5rem;
+}
+
+/* Update-Karte oben in der Übersicht */
+.notice--update {
+  border-color: var(--system-blue-border);
+  background: var(--system-blue-tint);
+}
+
+.notice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notice-text span {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.notice--update .btn-row {
+  align-self: stretch;
+  margin-bottom: 0;
+}

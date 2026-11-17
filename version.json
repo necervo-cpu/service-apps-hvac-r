@@ -1,5 +1,5 @@
 {
-  "version": "2.2.3",
+  "version": "2.3.0",
   "buildDate": "2026-11-17",
-  "changelog": "Eingabefelder wieder ohne Rand und Fläche"
+  "changelog": "Design-Stand 2026-11-21: Zoom gesperrt, Update-Karte oben in der Übersicht"
 }

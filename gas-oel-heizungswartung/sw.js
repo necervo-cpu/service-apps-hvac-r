@@ -1,8 +1,13 @@
-const CACHE = 'heizung-v214';
+const CACHE = 'heizung-v220';
 const ASSETS = [
   './',
   './index.html',
   './regeln.js',
+  './daten-vorlage.js',
+  './app-kern.js',
+  './app-ansichten.js',
+  './app-aktionen.js',
+  './app.js',
   './manifest.json',
   './icon-180.png',
   './icon-512.png',
