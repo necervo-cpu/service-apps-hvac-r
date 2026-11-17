@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
+  "version": "2.1.1",
   "buildDate": "2026-11-17",
-  "changelog": "Umbau auf Design-Stand 2026-11-18: Minimal-Standard ohne Kacheln, Listen, Formular-Ansichten, Einstellungen als Karte"
+  "changelog": "Seitenwechsel: Ausblenden und Einblenden ohne Aufblitzen der alten Seite"
 }

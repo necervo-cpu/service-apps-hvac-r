@@ -1193,12 +1193,24 @@
           return;
         }
         const nr = ++fadenNr;
-        app.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: 'ease-out' });
-        setTimeout(() => {
-          if (nr !== fadenNr) return;
-          change();
-          app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-        }, 90);
+        /* Laufende Animationen beenden, sonst bleibt eine alte Ausblendung (fill: forwards) stehen */
+        app.getAnimations().forEach((a) => a.cancel());
+        /* Aus: bleibt bis zum Tausch auf 0 (fill: forwards), damit die alte Seite nicht kurz wieder aufblitzt */
+        const aus = app.animate([{ opacity: 1 }, { opacity: 0 }], {
+          duration: 90,
+          easing: 'ease-out',
+          fill: 'forwards',
+        });
+        aus.finished
+          .then(() => {
+            if (nr !== fadenNr) {
+              return;
+            }
+            change();
+            aus.cancel();
+            app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+          })
+          .catch(() => {});
       }
       function go(name, params) {
         const was = view.name;
@@ -1714,7 +1726,7 @@
           if (card) card.scrollTop = y;
         }
       }
-      const APP_VERSION = '2.1.0';
+      const APP_VERSION = '2.1.1';
       const BUILD_DATE = '2026-11-17';
       function settingsBody() {
         const S = stammNow();
