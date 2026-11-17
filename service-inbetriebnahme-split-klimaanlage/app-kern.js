@@ -164,7 +164,9 @@ function buildReport(p) {
     const body = pg.table
       ? pg.table.rows
           .filter(
-            (r) => (!r.show || r.show(v)) && r.ids.some((id) => String(v[id] ?? '') !== ''),
+            (r) =>
+              (!r.show || r.show(v)) &&
+              r.ids.some((id) => String(v[id] ?? '') !== '' && !vorbelegtGleich(p, id)),
           )
           .map((r) => ({
             label: r.label,
@@ -491,7 +493,7 @@ function wizardHtml(p, i) {
 <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.2.1';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
