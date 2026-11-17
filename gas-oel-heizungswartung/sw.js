@@ -1,4 +1,4 @@
-const CACHE = 'heizung-v212';
+const CACHE = 'heizung-v213';
 const ASSETS = [
   './',
   './index.html',

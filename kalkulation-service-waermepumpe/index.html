@@ -1757,7 +1757,7 @@
           if (card) card.scrollTop = y;
         }
       }
-      const APP_VERSION = '2.1.2';
+      const APP_VERSION = '2.1.3';
       const BUILD_DATE = '2026-11-17';
       function settingsBody() {
         const S = stammNow();
@@ -1786,7 +1786,7 @@
         <div class="card-title">Allgemein</div>
         <label class="form-label" for="s_firma">Firmenkopf im PDF (mehrzeilig möglich)</label>
         <div class="liquid-surface-inner field-box"><textarea class="text-input" id="s_firma" rows="3" placeholder="Firmenname, Straße, PLZ Ort, Telefon">${esc(settings.firma)}</textarea></div>
-        ${feld('s_tech', 'Erstellt von (Vorbelegung)', settings.techniker, 'z. B. C. Geuther')}
+        ${feld('s_tech', 'Erstellt von (Vorbelegung)', settings.techniker, 'C. Geuther')}
       </div>
 
       <div class="modal-actions">
@@ -1943,7 +1943,7 @@
       }
       const Pages = [
         (p) => `<div class="group group--form">
-      ${textField(p, 'projekt', 'Projektnummer', 'z. B. 2026-0815', 'Eure Auftrags- bzw. Projektnummer, wird zum Dateinamen des PDFs')}
+      ${textField(p, 'projekt', 'Projektnummer', '2026-0815', 'Eure Auftrags- bzw. Projektnummer, wird zum Dateinamen des PDFs')}
       <label class="field"><span class="field-label">Datum</span><input class="text-input" id="in-datum" type="date" data-f="datum" value="${esc(p.values.datum || '')}"></label>
       ${textField(p, 'kunde', 'Kunde / Projekt', 'Kundenname')}
       ${textField(p, 'standort', 'Objekt / Standort', 'Straße, PLZ Ort')}
@@ -2006,7 +2006,7 @@
     <div class="group"><div class="info-list" id="result">${resultHtml(p, calc(p))}</div></div>
     <div class="group group--form">
       ${segField(p, 'pauschal', 'Pauschalangebot für den Kunden', 'Ja = PDF als „Angebot“ ohne Arbeitszeiten und Einzelpreise. Nein = interne Kalkulation.')}
-      <label class="field"><span class="field-label">Bemerkungen (erscheinen im PDF)</span><textarea class="text-input" id="in-bem" data-f="bem" placeholder="z. B. Hinweise zum Zugang, Termin, Ausführung">${esc(p.values.bem || '')}</textarea></label>
+      <label class="field"><span class="field-label">Bemerkungen (erscheinen im PDF)</span><textarea class="text-input" id="in-bem" data-f="bem" placeholder="Hinweise zum Zugang, Termin, Ausführung">${esc(p.values.bem || '')}</textarea></label>
     </div>
     <div class="notice"><span><b>Wichtig:</b> Die Kalkulation ist eine Orientierungshilfe und kann Berechnungs- oder Eingabefehler enthalten. Vor Weitergabe oder Angebotslegung auf Plausibilität, Richtigkeit und Vollständigkeit prüfen.</span></div>`;
         },

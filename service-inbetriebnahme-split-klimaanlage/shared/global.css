@@ -1990,3 +1990,19 @@ textarea.text-input {
 .search:focus-within {
   border-color: var(--accent);
 }
+
+/* ==========================================================================
+   21. KOPF-ICONS GRÖSSER
+   Knöpfe im Seitenkopf (Hell/Dunkel, Einstellungen) tragen 28px große Icons in einem 48px-Knopf,
+   damit sie am Handy und mit Handschuhen sicher zu treffen sind. In Modal-Karten und Zeilen bleibt es bei der Standardgröße.
+   ========================================================================== */
+header .icon-btn,
+.app-header .icon-btn {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+header .icon-btn .material-symbols-rounded,
+.app-header .icon-btn .material-symbols-rounded {
+  font-size: 28px;
+}

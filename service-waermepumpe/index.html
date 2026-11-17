@@ -688,7 +688,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.2</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.3</span>
                 </span>
               </div>
               <div class="info-row">
@@ -805,7 +805,7 @@
                 pdf: 'Kunden-Nr.',
                 type: 'text',
                 req: true,
-                ph: 'z. B. KD-98101',
+                ph: 'KD-98101',
               },
               {
                 id: 'datum',
@@ -846,7 +846,7 @@
                 pdf: 'AG Modell',
                 type: 'text',
                 req: true,
-                ph: 'z. B. Daikin ERGA08DAV3',
+                ph: 'Daikin ERGA08DAV3',
               },
               {
                 id: 'agSn',
@@ -872,7 +872,7 @@
                 pdf: 'IG Modell',
                 type: 'text',
                 req: true,
-                ph: 'z. B. FTXA35, Vitocal Hydro',
+                ph: 'FTXA35, Vitocal Hydro',
               },
               {
                 id: 'igSn',
@@ -1069,7 +1069,7 @@
                 pdf: 'Sicherung AG',
                 type: 'text',
                 req: true,
-                ph: 'z. B. B16',
+                ph: 'B16',
               },
               {
                 id: 'fAgSt',
@@ -1077,7 +1077,7 @@
                 label: 'Absicherung Außeneinheit Steuerstrom',
                 pdf: 'Sicherung AG Steuerstrom',
                 type: 'text',
-                ph: 'z. B. B10',
+                ph: 'B10',
               },
               {
                 id: 'fIg',
@@ -1086,7 +1086,7 @@
                 pdf: 'Sicherung IG',
                 type: 'text',
                 req: true,
-                ph: 'z. B. B16',
+                ph: 'B16',
               },
               {
                 id: 'fHs',
@@ -1094,7 +1094,7 @@
                 label: 'Absicherung Heizstab',
                 pdf: 'Sicherung Heizstab',
                 type: 'text',
-                ph: 'z. B. B16',
+                ph: 'B16',
                 hint: 'Leer lassen, wenn kein Heizstab verbaut ist',
               },
               {
@@ -1103,7 +1103,7 @@
                 label: 'RCD-Typ / FI-Schutz',
                 pdf: 'RCD-Schutz',
                 type: 'text',
-                ph: 'z. B. Typ A / 40 A / 30 mA',
+                ph: 'Typ A / 40 A / 30 mA',
                 req: true,
               },
               ok(
@@ -1575,7 +1575,7 @@
           id: 's_tech',
           key: 'techniker',
           label: 'Monteur (Vorbelegung)',
-          placeholder: 'z. B. C.Geuther',
+          placeholder: 'C.Geuther',
         },
       ];
       let settings = Object.assign(
@@ -2063,7 +2063,7 @@
         netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
       }
 
-      const APP_VERSION = '2.1.2';
+      const APP_VERSION = '2.1.3';
       const BUILD_DATE = '2026-11-17';
 
       /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -2462,7 +2462,7 @@
           .join('');
         return `<div class="matlist">${zeilen || '<p class="empty-note">Noch kein Material eingetragen. Bezeichnung unten eingeben und hinzufügen.</p>'}</div>
       <div class="matadd">
-        <div class="liquid-surface-inner field-box"><input class="text-input" id="matfree" maxlength="80" placeholder="Material, z. B. Heizungspumpe" aria-label="Bezeichnung des Materials" autocomplete="off"></div>
+        <div class="liquid-surface-inner field-box"><input class="text-input" id="matfree" maxlength="80" placeholder="Material: Heizungspumpe" aria-label="Bezeichnung des Materials" autocomplete="off"></div>
         <button type="button" class="btn-secondary" data-act="matfree"><span class="material-symbols-rounded" aria-hidden="true">add</span><span>Material hinzufügen</span></button>
       </div>`;
       }
