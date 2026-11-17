@@ -1,6 +1,5 @@
 /* shared/wizard.js – Formular-Rahmen (Kopf-Unterzeile, Schrittanzeige, untere Leiste, Seitenwechsel, Berichtsanzeige)
-   Inhalt: setHeader(animate), stepsRender(m), barRender(h), stepTo(dir, change), showReport().
-   stepsRender(m): m = null (Schrittanzeige ausblenden) oder {key, pages, index, done(k), pauseAct}.
+   Inhalt: setHeader(animate), barRender(h), stepTo(dir, change), showReport().
    Benötigt aus der App (globale Namen, erst zur Laufzeit gelesen): app, render, view, navBusy, enterT, hsubAnim,
    hsubText(), wizSnapshot() (liefert eine Funktion, die true ist, solange noch dieselbe Formular-Ansicht offen ist),
    reportForView(); aus core.js: $, esc, RM; aus pdf.js: reportFontsReady, layoutReport.
@@ -23,42 +22,6 @@ function setHeader(animate) {
       ],
       { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
     );
-}
-/* Schrittanzeige: bleibt beim Schrittwechsel im DOM stehen (Balken gleitet, Punkte wechseln nur die Klasse) */
-function stepsRender(m) {
-  const w = $('#stepwrap');
-  if (!m) {
-    w.hidden = true;
-    w.dataset.pid = '';
-    return;
-  }
-  const pages = m.pages,
-    n = pages.length,
-    i = m.index,
-    key = m.key,
-    fresh = w.dataset.pid !== key;
-  if (fresh) {
-    w.dataset.pid = key;
-    w.innerHTML = `<div class="steplab"><span id="stlab"></span><button class="btn small" data-act="${m.pauseAct}">Pause</button></div>
-      <div class="progress"><div id="stbar" style="transform:scaleX(0)"></div></div>
-      <div class="steps">${pages.map((x, k) => `<button type="button" data-act="jump" data-i="${k}" aria-label="Schritt ${k + 1}: ${esc(x.title)}">${k + 1}<span class="sl"> ${esc(x.short)}</span></button>`).join('')}</div>`;
-  }
-  const wasHidden = w.hidden;
-  w.hidden = false;
-  if (fresh || wasHidden) void w.offsetWidth;
-  const stlab = $('#stlab'),
-    labH = `<b>Schritt ${i + 1} von ${n}</b> · ${esc(pages[i].short)}`;
-  if (stlab._lastHtml !== labH) {
-    stlab._lastHtml = labH;
-    stlab.innerHTML = labH;
-  }
-  $('#stbar').style.transform = 'scaleX(' + ((i + 1) / n).toFixed(4) + ')'; // transform statt width: kein Neu-Layout je Bild
-  w.querySelectorAll('.steps button').forEach((b, k) => {
-    b.classList.toggle('done', k !== i && m.done(k));
-    b.classList.toggle('on', k === i);
-    if (k === i) b.setAttribute('aria-current', 'step');
-    else b.removeAttribute('aria-current');
-  });
 }
 /* Feste Leiste unten */
 function barRender(h) {
