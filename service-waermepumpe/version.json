@@ -1,5 +1,5 @@
 {
-  "version": "2.1.6",
+  "version": "2.2.0",
   "buildDate": "2026-11-17",
-  "changelog": "Datum linksbündig, fehlende Angaben als Aufzählung"
+  "changelog": "Eingabefelder flach: Glow und Linienverlauf nur bei Fokus. Code in mehrere Dateien aufgeteilt."
 }
