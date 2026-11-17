@@ -1894,7 +1894,7 @@
         if (p) {
           return (
             (p.values.projekt || 'ohne Projektnummer') +
-            (p.values.kunde ? ' · ' + p.values.kunde : '')
+            (p.values.kunde ? ', ' + p.values.kunde : '')
           );
         }
         if (view.name === 'report' && view.db && view.rep) {

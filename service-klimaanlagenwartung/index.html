@@ -922,7 +922,7 @@
               col('Klappenregelung'),
               'Klappenregelung auf Funktion geprüft',
               'Klappenregelung',
-              'Nicht vorhanden → „entfällt“',
+              'Nicht vorhanden: „entfällt“ wählen',
               P,
             ),
           ),
@@ -1151,7 +1151,7 @@
                 'Verdichter Kurbelwannenheizung',
                 'Kurbelwannenheizung auf Funktion geprüft',
                 'Kurbelwannenheizung',
-                'Nicht vorhanden → „entfällt“',
+                'Nicht vorhanden: „entfällt“ wählen',
                 { group: 'Prüfpunkte' },
               ),
               ok(
@@ -1442,7 +1442,7 @@
                 'Dichtheitsprüfung EU-F-Gase-VO',
                 'Dichtheitsprüfung gem. EU-F-Gase-VO',
                 'Dichtheitsprüfung F-Gase-VO',
-                'Nicht prüfpflichtig → „entfällt“',
+                'Nicht prüfpflichtig: „entfällt“ wählen',
                 { group: 'Prüfungen' },
               ),
               ok(
@@ -1458,7 +1458,7 @@
                 'Kondensatförderpumpe & Ablauf',
                 'Kondensatförderpumpe & Ablauf',
                 'Kondensatförderpumpe & Ablauf',
-                'Keine Pumpe vorhanden → „entfällt“',
+                'Keine Pumpe vorhanden: „entfällt“ wählen',
                 { group: 'Prüfungen' },
               ),
             ],
@@ -1957,7 +1957,7 @@
         if (p) {
           return (
             (p.values.projekt || 'ohne Projektnummer') +
-            (p.values.kunde ? ' · ' + p.values.kunde : '')
+            (p.values.kunde ? ', ' + p.values.kunde : '')
           );
         }
         if (view.name === 'report' && view.db && view.rep) {

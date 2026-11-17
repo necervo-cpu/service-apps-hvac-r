@@ -1005,7 +1005,7 @@
             : {
                 lab: 'Arbeitszeit gesamt',
                 val: hrs(k.minTech + k.dauer * k.nH),
-                sub: `Einsatz vor Ort ca. ${hrs(k.dauer)} · ${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`,
+                sub: `Einsatz vor Ort ca. ${hrs(k.dauer)}, ${k.nT + k.nH} ${k.nT + k.nH === 1 ? 'Person' : 'Personen'}`,
               },
         );
         tiles.push(
@@ -1014,7 +1014,7 @@
                 cls: 'warn',
                 lab: 'Dichtheitsprüfung',
                 val: `alle ${pr.monate} Monate`,
-                sub: `Pflicht · ${de(pr.co2, 2)} t CO₂-Äq. je Kreis`,
+                sub: `Pflicht: ${de(pr.co2, 2)} t CO₂-Äq. je Kreis`,
               }
             : pr.state === 'r290'
               ? {
@@ -1079,7 +1079,7 @@
           ? [
               {
                 label: 'Kältemittel',
-                value: pr.km + (isN(v.gwp) ? ` · GWP ${fmtNum(v.gwp)}` : ''),
+                value: pr.km + (isN(v.gwp) ? ` (GWP ${fmtNum(v.gwp)})` : ''),
               },
               {
                 label: 'Füllmenge',
@@ -1405,7 +1405,7 @@
         if (p)
           return (
             (p.values.projekt || 'ohne Projektnummer') +
-            (p.values.kunde ? ' · ' + p.values.kunde : '')
+            (p.values.kunde ? ', ' + p.values.kunde : '')
           );
         if (view.name === 'report' && view.db && view.rep) return view.rep.id || 'Kalkulation';
         return (
@@ -1544,8 +1544,8 @@
         const el = $('#net');
         const on = navigator.onLine;
         el.className = 'net' + (on ? '' : ' off');
-        el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl">&nbsp;ausstehend</span>` : ''}`;
-        el.title = (on ? 'online' : 'offline') + (n ? ` · ${n} ausstehend` : '');
+        el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep">, </span><span class="np">${n}</span><span class="nl">&nbsp;ausstehend</span>` : ''}`;
+        el.title = (on ? 'online' : 'offline') + (n ? `, ${n} ausstehend` : '');
       }
       /* Gesamtpreis im Kopf, F-Gase-Status und Automatik-Werte aktualisieren, ohne das Eingabefeld neu aufzubauen */
       function live() {
@@ -1694,7 +1694,7 @@
         <li><b>Preis:</b> Lohn + Material + Anfahrt + Erschwernis + Sonderposition = netto, zzgl. ${fmtNum(S.mwst)} % MwSt.</li>
       </ul>
       <h2 class="section-title">Stammdaten</h2>
-      <p class="prose">Stundensätze, Richtzeiten und Preise stehen in der Datenbank unter <b>„Stammdaten“</b> und gelten für alle Geräte. Ändern lassen sie sich dort oder in der App unter <b>Einstellungen → Stammdaten → In Datenbank speichern</b>. Jede Kalkulation merkt sich die Werte, mit denen sie begonnen wurde. Ändern sich die Stammdaten später, zeigt die Seite „Ergebnis“ einen Knopf zum Übernehmen.</p>
+      <p class="prose">Stundensätze, Richtzeiten und Preise stehen in der Datenbank unter <b>„Stammdaten“</b> und gelten für alle Geräte. Ändern lassen sie sich dort oder in der App unter Einstellungen im Bereich Stammdaten über <b>In Datenbank speichern</b>. Jede Kalkulation merkt sich die Werte, mit denen sie begonnen wurde. Ändern sich die Stammdaten später, zeigt die Seite „Ergebnis“ einen Knopf zum Übernehmen.</p>
       <h2 class="section-title">PDF</h2>
       <p class="prose">Auf der Seite „Ergebnis“ lässt sich <b>Pauschalangebot</b> einschalten: Dann blendet das PDF Arbeitszeiten und Einzelpreise aus und heißt „Angebot“. Ohne Schalter entsteht die interne Kalkulation mit allen Zeiten und Preisen.</p>
       <p class="lead-note">Entwickelt für die Praxis, © C. Geuther</p>`;
