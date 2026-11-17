@@ -688,7 +688,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.1</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.2</span>
                 </span>
               </div>
               <div class="info-row">
@@ -1984,21 +1984,48 @@
           }
         }
       }
-      /* Abschnittswechsel: Überblenden statt Gleiten, Tastatur vorher schließen */
+      /* Abschnittswechsel ohne Animation: sofort tauschen und nach oben springen.
+         Ist die Tastatur offen, erst schließen und warten, bis sich die Fensterhöhe beruhigt hat.
+         Sonst laufen Tastatur-Animation und Seitenwechsel gleichzeitig und die Seiten überlagern sich. */
       function wechsleSeite(change) {
-        const ae = document.activeElement;
-        if (ae && ae.matches && ae.matches('input,textarea,select')) {
-          ae.blur();
-        }
         const noch = wizSnapshot();
-        fadeThrough(() => {
+        const tausche = () => {
           if (!noch()) {
             return;
           }
           change();
           render();
           window.scrollTo(0, 0);
-        });
+        };
+        const ae = document.activeElement;
+        const vv = window.visualViewport;
+        const feld = !!(ae && ae.matches && ae.matches('input,textarea,select'));
+        const tastaturOffen = feld && !!vv && vv.height < window.innerHeight * 0.85;
+        if (feld) {
+          ae.blur();
+        }
+        if (!tastaturOffen) {
+          tausche();
+          return;
+        }
+        let timer = null;
+        let fertig = false;
+        const los = () => {
+          if (fertig) {
+            return;
+          }
+          fertig = true;
+          vv.removeEventListener('resize', warte);
+          clearTimeout(timer);
+          clearTimeout(grenze);
+          tausche();
+        };
+        const warte = () => {
+          clearTimeout(timer);
+          timer = setTimeout(los, 80);
+        };
+        const grenze = setTimeout(los, 500);
+        vv.addEventListener('resize', warte);
       }
       /* Feste Leiste unten */
       function barHtml() {
@@ -2036,7 +2063,7 @@
         netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
       }
 
-      const APP_VERSION = '2.1.1';
+      const APP_VERSION = '2.1.2';
       const BUILD_DATE = '2026-11-17';
 
       /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

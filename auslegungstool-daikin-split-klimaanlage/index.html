@@ -782,7 +782,7 @@
       /* ====== Zustand ====== */
       let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
       delete settings.sheetId;
-      const APP_VERSION = '2.1.1';
+      const APP_VERSION = '2.1.2';
       const BUILD_DATE = '2026-11-17';
 
       /* Zahlenfelder: beim Antippen alles markieren */
@@ -1634,15 +1634,13 @@
         return { blocks, head, smallHead, foot, id, maxSeiten: 30 };
       }
 
-      /* Wechsel Eingabe und Ergebnis: Überblenden, erst dann neu zeichnen */
+      /* Wechsel Eingabe und Ergebnis: sofort neu zeichnen, ohne Animation */
       function swapStep(step) {
         if (isRes() === (step === 'res')) return;
         view.step = step;
         prevKpi = null;
-        fadeThrough(() => {
-          render();
-          window.scrollTo(0, 0);
-        });
+        render();
+        window.scrollTo(0, 0);
       }
       /* ====== Aktionen ====== */
       const Act = {

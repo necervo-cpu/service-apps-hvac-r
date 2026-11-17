@@ -1,5 +1,5 @@
 {
-  "version": "2.1.1",
+  "version": "2.1.2",
   "buildDate": "2026-11-17",
-  "changelog": "Seitenwechsel: Ausblenden und Einblenden ohne Aufblitzen der alten Seite"
+  "changelog": "Eingabefelder mit Fläche und Rand, Abschnittswechsel ohne Animation, Tastatur beim Wechsel abwarten"
 }

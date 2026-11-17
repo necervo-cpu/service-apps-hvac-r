@@ -1,5 +1,5 @@
 /**
- * Auswahl-Dropdown und mittige Zahlenfelder (Vorlage, Design-Stand 2026-11-18)
+ * Auswahl-Dropdown und mittige Zahlenfelder (Vorlage, Design-Stand 2026-11-20)
  * In shared.js des Projekts übernehmen und im DOMContentLoaded-Handler aufrufen:
  *   initChoiceDropdowns();  initUnitPadding();
  *

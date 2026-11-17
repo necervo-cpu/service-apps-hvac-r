@@ -1,5 +1,5 @@
 /**
- * Modul: Dual-Theme Stylesheet (liquid-glass-tokens.css), Design-Stand 2026-11-18
+ * Modul: Dual-Theme Stylesheet (liquid-glass-tokens.css), Design-Stand 2026-11-20
  * Zweck: Verbindliches CSS für alle Projekte. Wird als global.css ins Projekt kopiert.
  * Stil: Minimal. Aufbau nach Apple HIG (Grosstitel, Listen, Segmented Control), Farbgebung nach Material
  *   (Akzent --accent, aktive Segmente --tonal). Inhalt steht direkt auf dem Canvas und wird nur durch
@@ -1866,7 +1866,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ==========================================================================
-   19. AUSWAHL ALS DROPDOWN, ZAHLENFELDER MITTIG (Design-Stand 2026-11-18)
+   19. AUSWAHL ALS DROPDOWN, ZAHLENFELDER MITTIG (Design-Stand 2026-11-20)
    Mehr als 3 Optionen oder breiter als der Bildschirm: Dropdown (choice-dropdown.js).
    Zahlenfelder: Wert mittig, Einheit rechts außen, Innenabstand links gleicht sie aus.
    ========================================================================== */
@@ -1946,4 +1946,47 @@ input[type="range"]::-moz-range-thumb {
   .row:hover + .row::before {
     opacity: 0;
   }
+}
+
+/* ==========================================================================
+   20. EINGABEFELDER ERKENNBAR
+   Jedes Feld, in das getippt wird, hat eine Fläche und einen 1px-Rand, damit es als Eingabe wahrgenommen wird.
+   Gilt für Textfelder, Zahlenfelder, Suche und Auswahl. Fokus: Rand in --accent, kein Schatten.
+   ========================================================================== */
+:root,
+[data-theme='dark'] {
+  --field-bg: rgba(255, 255, 255, 0.10);
+  --field-border: rgba(255, 255, 255, 0.24);
+}
+
+[data-theme='light'] {
+  --field-bg: rgba(255, 255, 255, 0.92);
+  --field-border: rgba(60, 60, 67, 0.30);
+}
+
+.input-wrapper.liquid-surface-inner,
+.text-input,
+.value-input,
+.choice-select-input,
+.search {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+}
+
+.text-input {
+  margin-top: 0.375rem;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-control);
+}
+
+textarea.text-input {
+  padding: 0.625rem 0.875rem;
+}
+
+.input-wrapper.liquid-surface-inner:focus-within,
+.text-input:focus,
+.value-input:focus,
+.choice-select-input:focus,
+.search:focus-within {
+  border-color: var(--accent);
 }

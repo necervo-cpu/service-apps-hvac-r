@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.1",
   "buildDate": "2026-11-17",
-  "changelog": "Haupt-Übersicht auf Design-Stand 2026-11-18: Minimal-Standard, global.css"
+  "changelog": "Eingabefelder mit Fläche und Rand"
 }
