@@ -496,7 +496,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.4';
+const APP_VERSION = '2.2.5';
 const BUILD_DATE = '2026-11-17';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

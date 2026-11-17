@@ -1,5 +1,5 @@
 {
-  "version": "2.2.4",
+  "version": "2.2.5",
   "buildDate": "2026-11-17",
-  "changelog": "Dropdown: 8 px Abstand zwischen Beschriftung und Auswahlfeld"
+  "changelog": "Zoomen gesperrt (Pinch und Doppeltippen)"
 }
