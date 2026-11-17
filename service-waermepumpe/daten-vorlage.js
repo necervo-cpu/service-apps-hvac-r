@@ -127,6 +127,7 @@ const TEMPLATE = {
           type: 'date',
           notFuture: true,
           hint: 'Baujahr laut Typenschild',
+          init: () => today(),
         },
         {
           id: 'igModell',
@@ -152,6 +153,7 @@ const TEMPLATE = {
           pdf: 'IG Herstellungsdatum',
           type: 'date',
           notFuture: true,
+          init: () => today(),
         },
         {
           id: 'zusInfo',

@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.1",
   "buildDate": "2026-11-17",
-  "changelog": "Eingabefelder flach: Glow und Linienverlauf nur bei Fokus. Code in mehrere Dateien aufgeteilt."
+  "changelog": "Alle Datumsfelder sind mit dem aktuellen Datum vorbelegt"
 }
