@@ -1,5 +1,5 @@
 {
-  "version": "2.2.1",
+  "version": "2.2.4",
   "buildDate": "2026-11-17",
-  "changelog": "Alle Datumsfelder sind mit dem aktuellen Datum vorbelegt"
+  "changelog": "Dropdown: 8 px Abstand zwischen Beschriftung und Auswahlfeld"
 }

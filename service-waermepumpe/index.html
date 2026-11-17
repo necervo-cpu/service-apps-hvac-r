@@ -327,6 +327,10 @@
       .group--form > * + * {
         border-top: 1px solid var(--border-separator);
       }
+      /* Abstand zwischen berechneten Zeilen und der Trennlinie darunter */
+      .group--form > .calc-row + :not(.calc-row) {
+        margin-top: 12px;
+      }
       .allok-btn {
         margin-bottom: 1.5rem;
       }
@@ -347,6 +351,10 @@
       }
       .field .field-box {
         margin: 0.5rem 0 0.25rem;
+      }
+      /* Dropdown: Abstand zur Beschriftung wie bei den Eingabefeldern */
+      .field > .choice-select {
+        margin-top: 0.5rem;
       }
       .field .tab-strip {
         margin-inline: 0;
@@ -446,8 +454,8 @@
       :root {
         --radius: 12px;
         --field-rgb: 255, 255, 255;
-        --bg-a: 0.008;
-        --bg-focus-a: 0.025;
+        --bg-a: 0.05;
+        --bg-focus-a: 0.07;
         --border-a: 0;
         --border-focus-a: 0.3;
         --glow-alpha: 0.15;
@@ -459,8 +467,8 @@
       }
       [data-theme='light'] {
         --field-rgb: 0, 0, 0;
-        --bg-a: 0.012;
-        --bg-focus-a: 0.008;
+        --bg-a: 0.035;
+        --bg-focus-a: 0.02;
         --accent-rgb: 11, 87, 208;
       }
       .vwrap,
@@ -865,7 +873,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.1</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.4</span>
                 </span>
               </div>
               <div class="info-row">
