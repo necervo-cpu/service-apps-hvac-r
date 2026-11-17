@@ -184,6 +184,16 @@
       .proto-act.is-danger {
         color: var(--system-red);
       }
+      /* Aktions-Icons in Listenzeilen: 25px, Tippfläche 48×48 (EINGABEFELDER.md) */
+      .proto-act,
+      .matrow .icon-btn {
+        width: 48px;
+        height: 48px;
+      }
+      .proto-act .material-symbols-rounded,
+      .matrow .icon-btn .material-symbols-rounded {
+        font-size: 25px;
+      }
       .proto-pills {
         display: flex;
         flex-wrap: wrap;
@@ -433,6 +443,87 @@
       }
       .matrow .icon-btn {
         color: var(--system-red);
+      }
+      /* Wertefeld 3b (EINGABEFELDER.md): Wert rechtsbündig, Einheit fest rechts im Feld */
+      .vwrap {
+        position: relative;
+        display: flex;
+        flex: none;
+        align-items: center;
+        width: 180px;
+        max-width: 55%;
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        box-shadow: var(--input-shadow-top), var(--input-shadow-bottom);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .vwrap::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 0;
+        background: linear-gradient(to top, rgba(var(--accent-rgb), 0.12), transparent);
+        transition: height 0.25s ease;
+        pointer-events: none;
+      }
+      .vwrap:focus-within {
+        background: var(--input-focus-bg);
+        border-color: var(--accent);
+        box-shadow: var(--input-shadow-top), 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+      }
+      .vwrap:focus-within::after {
+        height: 24px;
+      }
+      .meas-row:focus-within .meas-label {
+        color: var(--accent);
+      }
+      .vwrap .value-input {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        width: auto;
+        min-width: 0;
+        padding: 0 0.375rem 0 0.75rem;
+        border: 0;
+        background: transparent;
+        text-align: right;
+      }
+      .vwrap .input-unit-addon {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+        padding: 0 0.875rem 0 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        white-space: nowrap;
+        text-align: right;
+      }
+      :root {
+        --input-bg: rgba(255, 255, 255, 0.032);
+        --input-border: rgba(255, 255, 255, 0.07);
+        --input-shadow-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        --input-shadow-bottom: inset 0 -1.5px 0 rgba(255, 255, 255, 0.02);
+        --input-focus-bg: rgba(255, 255, 255, 0.048);
+        --accent-rgb: 168, 199, 250;
+      }
+      [data-theme='light'] {
+        --input-bg: rgba(0, 0, 0, 0.025);
+        --input-border: rgba(0, 0, 0, 0.08);
+        --input-shadow-top: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        --input-shadow-bottom: inset 0 -1.5px 0 rgba(0, 0, 0, 0.03);
+        --input-focus-bg: rgba(0, 0, 0, 0.015);
+        --accent-rgb: 11, 87, 208;
+      }
+      /* Datum: Block horizontal mittig, Text linksbündig */
+      .field--date {
+        display: grid;
+        justify-content: center;
+        justify-items: start;
+      }
+      .field--date input[type='date'] {
+        width: 9.5rem;
       }
       .matlist .empty-note {
         margin: 0;
@@ -688,7 +779,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.4</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.5</span>
                 </span>
               </div>
               <div class="info-row">
@@ -2063,7 +2154,7 @@
         netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
       }
 
-      const APP_VERSION = '2.1.4';
+      const APP_VERSION = '2.1.5';
       const BUILD_DATE = '2026-11-17';
 
       /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -2586,14 +2677,14 @@
               .map((t) => `<div>${esc(t)}</div>`)
               .join('');
             return `<div class="meas-wrap${fehler}">
-          <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="input-unit-addon">${esc(f.unit || '')}</span></label>
+          <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
           ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
         </div>`;
           }
           case 'calc':
             return `<div class="calc-row"><span class="calc-label">${esc(f.label)}<small class="field-hint" id="note-${f.id}">${f.note ? esc(f.note(v)) : 'wird berechnet'}</small></span>${calcPillHtml(f, v)}<span class="calc-value numeric" id="calc-${f.id}">${esc(display(f, x) || '–')}</span></div>`;
           case 'date':
-            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
+            return `<label class="field field--date${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
           case 'longtext':
             return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></label>`;
           default:

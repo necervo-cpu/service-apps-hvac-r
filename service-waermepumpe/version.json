@@ -1,5 +1,5 @@
 {
-  "version": "2.1.4",
+  "version": "2.1.5",
   "buildDate": "2026-11-17",
-  "changelog": "Eingabefelder wieder ohne Rand und Fläche"
+  "changelog": "Wertefelder rechtsbündig mit fester Einheit, größere Aktions-Icons, Datum mittig"
 }
