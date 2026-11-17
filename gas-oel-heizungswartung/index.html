@@ -4,27 +4,36 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
-        <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Service Heizung" />
-    <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <title>Gas-/Öl-Heizungswartung</title>
+
     <script>
       (function () {
+        var root = document.documentElement,
+          saved = null;
         try {
-          var saved = localStorage.getItem('ag-theme');
-          var sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-          document.documentElement.setAttribute('data-theme', saved || (sysLight ? 'light' : 'dark'));
+          saved = localStorage.getItem('ag-theme');
         } catch (e) {}
+        var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+        root.setAttribute(
+          'data-theme',
+          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
+        );
       })();
     </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      id="agFonts"
       href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
       rel="stylesheet"
       media="print"
@@ -36,148 +45,196 @@
         rel="stylesheet"
       />
     </noscript>
+    <script>
+      (function () {
+        var root = document.documentElement,
+          link = document.getElementById('agFonts');
+        if (!link || !document.fonts || !document.fonts.load) return;
+        var done = function () {
+          root.classList.remove('icons-pending');
+        };
+        root.classList.add('icons-pending');
+        setTimeout(done, 4000);
+        link.addEventListener('load', function () {
+          setTimeout(function () {
+            document.fonts.load('24px "Material Symbols Rounded"').then(done, done);
+          }, 0);
+        });
+        link.addEventListener('error', done);
+      })();
+    </script>
+
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="icon" type="image/png" href="icon-180.png" />
-    <title>Gas-/Öl-Heizungswartung</title>
     <script src="shared/lib/html2canvas.min.js" defer></script>
     <script src="shared/lib/jspdf.umd.min.js" defer></script>
-    <link rel="preload" as="font" type="font/woff2" href="shared/lib/fonts/material-symbols-rounded.woff2" crossorigin />
-    <link rel="stylesheet" href="shared/base.css" />
-    <link rel="stylesheet" href="shared/knoepfe.css" />
-    <link rel="stylesheet" href="shared/kacheln.css" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="shared/lib/fonts/material-symbols-rounded.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="shared/global.css" />
     <link rel="stylesheet" href="shared/pdf.css" />
     <style>
-      .ferr {
-        color: var(--bad);
-        font-size: 14px;
-        font-weight: 600;
-        margin-top: 6px;
+      /* ===== Rahmen: Übersicht, Kopf, untere Leiste ===== */
+      html {
+        overscroll-behavior-y: none;
       }
-      .field.err input,
-      .field.err textarea {
-        border-color: var(--bad);
+      .htitle {
+        display: none;
       }
-      .inunit input {
-        max-width: 260px;
-        font-size: 22px;
+      .brand-title {
+        font-size: 1.65rem;
+        hyphens: none;
       }
-      .inunit .unit {
-        color: var(--muted);
-        font-weight: 600;
-      }
-      .soll {
-        font-size: 14px;
-        margin-top: 6px;
-      }
-      .calc {
-        display: inline-block;
-        padding: 10px 14px;
-        background: var(--gold-soft);
-        border: 1px solid var(--line);
-        color: var(--ink);
-        border-radius: 14px;
-        font-weight: 700;
-        min-width: 120px;
-      }
-      .calcnote {
-        font-size: 13px;
-        color: var(--muted);
-        margin-left: 8px;
-      }
-      @media (max-width: 700px) {
-        .frow {
-          flex-direction: column;
-          align-items: stretch;
-        }
-        .seg .btn {
-          flex: 1;
-        }
-      }
-      .sigwrap {
-        border: 2px dashed var(--line);
-        border-radius: 12px;
-        background: #fff;
-        margin-bottom: 8px;
-      }
-      canvas.sig {
-        width: 100%;
-        height: 170px;
-        display: block;
-        touch-action: none;
-      }
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 16px;
-      }
-      @media (max-width: 640px) {
-        .grid2 {
-          grid-template-columns: 1fr;
-        }
-      }
-      .err {
-        color: var(--bad);
-        font-weight: 600;
-        margin-top: 10px;
-        min-height: 1.2em;
-      }
-      a.jump {
-        color: var(--ink);
-        font-weight: 600;
+      button.row,
+      .proto-open {
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        background: transparent;
+        border: 0;
         cursor: pointer;
-        text-decoration: underline;
-        text-decoration-color: var(--pri2);
-        text-decoration-thickness: 2px;
+        touch-action: manipulation;
       }
-      input:focus,
-      select:focus,
-      textarea:focus {
-        outline: 3px solid var(--gold);
-        outline-offset: 0;
-        border-color: var(--pri2);
+      a.btn-primary,
+      a.btn-secondary {
+        text-decoration: none;
       }
-      /* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
-      #toast {
-        position: fixed;
-        left: 50%;
-        opacity: 0;
-        max-width: 90vw;
-        text-align: center;
-        pointer-events: none;
+      .btn-secondary:disabled {
+        opacity: 0.4;
+        cursor: default;
       }
-      #toast.show {
-        opacity: 1;
+      .net {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        min-height: 20px;
+        margin-top: 0.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
       }
-      /* Feste Leiste unten (Zurück / Weiter / Abschließen / PDF) */
+      .net .nd {
+        width: 6px;
+        height: 6px;
+        flex: none;
+        border-radius: 50%;
+        background: var(--system-green);
+      }
+      .net.off .nd {
+        background: var(--system-orange);
+      }
+      .net.off .nt {
+        color: var(--system-orange);
+        font-weight: 600;
+      }
+      .net .sep {
+        display: none;
+      }
+      .net .np {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .settings-update-dot[hidden] {
+        display: none;
+      }
+      .notice {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--system-orange-border);
+        border-radius: var(--radius-control);
+        background: var(--system-orange-tint);
+        color: var(--text-primary);
+        font-size: var(--text-sub);
+      }
+      .empty-note {
+        margin: 0 0 2.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .lead-note {
+        margin: 0 0 1rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .btn-wide {
+        margin-bottom: 1.5rem;
+      }
+      /* Protokoll-Zeile: antippbarer Hauptteil, rechts Einzel-Aktionen ohne Fläche */
+      .proto-row {
+        padding-right: 0.25rem;
+      }
+      .proto-open {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 0.875rem;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0;
+        text-decoration: none;
+      }
+      .proto-open .row-text {
+        overflow-wrap: anywhere;
+      }
+      .proto-act.is-danger {
+        color: var(--system-red);
+      }
+      .proto-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-top: 0.375rem;
+      }
+      .proto-pills .status-pill {
+        padding: 0.15rem 0.55rem;
+      }
+      /* Untere Leiste (Zurück / Weiter / Abschließen / PDF) */
       .bar {
         position: fixed;
         left: 0;
         right: 0;
         bottom: 0;
         z-index: 6;
-        padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+        padding: 0.625rem max(1rem, env(safe-area-inset-right))
+          calc(0.75rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+        background: var(--bg-canvas);
+        border-top: 1px solid var(--border-separator);
       }
-      .bar .btn {
+      .bar > div {
+        display: flex;
+        gap: 0.625rem;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+      .bar > div > * {
         flex: 1;
+        min-width: 0;
+      }
+      .bar .btn-primary,
+      .bar .btn-secondary {
         min-height: 52px;
-        font-weight: 700;
-        font-size: 15px;
       }
-      .bar .btn.primary {
-        border-color: var(--gold-dark);
-      }
-      body.hasbar main {
-        padding-bottom: calc(110px + env(safe-area-inset-bottom));
+      body.hasbar #app {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
       /* PDF-Knopf mit Fortschritt */
-      .bar .btn.pdfb {
+      .pdfb {
+        position: relative;
         overflow: hidden;
       }
       .pdfb .fill {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.14);
+        background: var(--on-accent);
+        opacity: 0.22;
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 220ms linear;
@@ -188,11 +245,11 @@
       .pdfb .lr {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 0.375rem;
         position: relative;
         transition:
-          opacity var(--t-fast),
-          transform var(--t-fast) var(--out);
+          opacity 0.2s ease,
+          transform 0.2s var(--ease-spring);
       }
       .pdfb .l2,
       .pdfb .lr {
@@ -219,44 +276,207 @@
       .pdfb.done .fill {
         opacity: 0;
       }
-      /* Wert wechselt: kurzes Aufleuchten */
-      .flash {
-        animation: flash 900ms var(--out);
+      /* Einstellungen und Rückfrage: Inhalt der Modal-Karte */
+      .panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
-      @keyframes flash {
+      .panel[hidden] {
+        display: none;
+      }
+      .panel .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+      }
+      .field-box {
+        display: flex;
+        align-items: center;
+        min-height: 50px;
+        padding: 0 0.875rem;
+      }
+      .field-box textarea.text-input {
+        min-height: 88px;
+        padding: 0.625rem 0;
+      }
+      .toast-pill .material-symbols-rounded {
+        color: var(--accent);
+      }
+      /* ===== Formular-Seiten: Fortschritt, Abschnitte, Felder ===== */
+      #stepwrap .hero {
+        margin-bottom: 0.875rem;
+      }
+      #stepwrap .progress-bar {
+        color: var(--accent);
+      }
+      #stepwrap .back-btn {
+        margin-bottom: 0.25rem;
+      }
+      #stepwrap .tab-strip {
+        margin-top: 0.875rem;
+        margin-bottom: 1rem;
+      }
+      .group--form > * + * {
+        border-top: 1px solid var(--border-separator);
+      }
+      .allok-btn {
+        margin-bottom: 1.5rem;
+      }
+      textarea.text-input {
+        resize: none;
+      }
+      .field-hint,
+      .check-label small {
+        display: block;
+        color: var(--text-tertiary);
+        font-size: var(--text-caption);
+      }
+      .field .input-wrapper {
+        margin: 0.375rem 0 0.25rem;
+      }
+      .field .glass-input {
+        font-size: 1rem;
+      }
+      .field .field-box {
+        margin: 0.5rem 0 0.25rem;
+      }
+      .field .tab-strip {
+        margin-inline: 0;
+        padding-inline: 0;
+        margin-top: 0.375rem;
+        margin-bottom: 0.5rem;
+      }
+      .field .note-input {
+        width: 100%;
+        margin: 0.5rem 0 0.25rem;
+      }
+      .field.check {
+        padding-bottom: 0.5rem;
+      }
+      .segmented-inline {
+        flex: none;
+        width: 9.5rem;
+      }
+      .check-label .status-pill {
+        margin-top: 0.375rem;
+      }
+      .meas-notes {
+        padding: 0 0.25rem 0.625rem;
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
+      }
+      .meas-wrap .meas-row {
+        min-height: 56px;
+      }
+      .meas-wrap .ferr {
+        padding: 0 0.25rem 0.625rem;
+        margin-top: 0;
+      }
+      .ferr {
+        color: var(--system-red);
+        font-size: var(--text-sub);
+        font-weight: 600;
+        margin-top: 0.375rem;
+      }
+      .has-error .value-input {
+        border-color: var(--system-red-border);
+      }
+      .has-error .input-wrapper {
+        outline: 1px solid var(--system-red);
+      }
+      .page-error {
+        min-height: 1.2em;
+        margin-top: 0.625rem;
+        color: var(--system-red);
+        font-weight: 600;
+      }
+      .typinfo {
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+      .notice-list {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .jump-link {
+        min-height: 44px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--accent);
+        font: inherit;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+      }
+      .sigwrap {
+        margin-bottom: 0.75rem;
+        border: 1px dashed var(--border-separator);
+        border-radius: var(--radius-icon);
+        background: white;
+        overscroll-behavior: contain;
+      }
+      canvas.sig {
+        display: block;
+        width: 100%;
+        height: 170px;
+        touch-action: none;
+      }
+      .matrow .meas-label {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .matrow .value-input {
+        flex: none;
+        width: 76px;
+      }
+      .matrow .icon-btn {
+        color: var(--system-red);
+      }
+      .matlist .empty-note {
+        margin: 0;
+        padding: 0.75rem 0.25rem;
+      }
+      .matadd {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        padding-top: 0.75rem;
+      }
+      .fx-in {
+        animation: mat-in 220ms var(--ease-spring);
+      }
+      .fx-pulse {
+        animation: mat-pulse 200ms var(--ease-spring);
+      }
+      @keyframes mat-in {
         from {
-          background-color: var(--flash);
+          opacity: 0;
+          transform: translateY(8px);
         }
-      }
-      /* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
-      /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
-      .entering .stag {
-        opacity: 0;
-        transform: translateY(12px);
-        animation: up var(--t-med) var(--out) forwards;
-        animation-delay: calc(var(--i) * 70ms + 120ms);
-      }
-      @keyframes up {
         to {
           opacity: 1;
           transform: none;
         }
       }
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *:before,
-        *:after {
-          transition-duration: 0.001ms !important;
-          transition-delay: 0ms !important;
-          animation-duration: 0.001ms !important;
-          animation-delay: 0ms !important;
+      @keyframes mat-pulse {
+        from {
+          transform: scale(1.12);
         }
-        .entering .stag {
-          opacity: 1;
+        to {
           transform: none;
         }
       }
-      /* ===== Handy-Layout ===== */
+      @media (prefers-reduced-motion: reduce) {
+        .fx-in,
+        .fx-pulse {
+          animation: none;
+        }
+      }
       /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
       input[type='date'] {
         -webkit-appearance: none;
@@ -265,8 +485,6 @@
         width: 100%;
         min-width: 0;
         max-width: 100%;
-        min-height: 50px;
-        height: 50px;
         text-align: left;
         margin: 0;
       }
@@ -279,263 +497,20 @@
         padding: 0;
         text-align: left;
       }
-      /* Schmale Bildschirme (iPhone hochkant): Status kompakt, Tabellen als Karten */
-      @media (max-width: 480px) {
-        .net:not(.off) .nt,
-        .net:not(.off) .sep,
-        .net .nl {
-          display: none;
-        }
-        .net:not(.off) .nd {
-          margin-right: 0;
-        }
-        .net:not(.off) .np {
-          margin-left: 5px;
-        }
-        .ib {
-          width: 44px;
-          height: 44px;
-          min-width: 44px;
-          min-height: 44px;
-        }
-        header {
-          gap: 8px;
-        }
-        header .tt h1 {
-          font-size: 15px;
-        }
+      /* Bericht-Vorschau (A4-Seiten) */
+      .sheetwrap {
+        padding: 1rem 0 1px;
+        border-radius: var(--radius-icon);
+        background: var(--surface-inner-bg);
+        overflow: hidden;
       }
-      @media (max-width: 600px) {
-        header {
-          padding-left: 12px;
-          padding-right: 12px;
-        }
-        main,
-        #stepwrap {
-          padding-left: 12px;
-          padding-right: 12px;
-        }
-        .card {
-          padding: 12px 14px;
-        }
-        .pagetitle {
-          font-size: 22px;
-        }
-        .card > table thead {
-          display: none;
-        }
-        .card > table,
-        .card > table tbody,
-        .card > table tr,
-        .card > table td {
-          display: block;
-          width: 100%;
-        }
-        .card > table tr {
-          padding: 10px 0;
-          border-bottom: 1px solid var(--line);
-        }
-        .card > table tr:last-child {
-          border-bottom: 0;
-        }
-        .card > table td {
-          border: 0;
-          padding: 2px 0;
-          text-align: left !important;
-          white-space: normal !important;
-        }
-        .card > table td:last-child {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          padding-top: 8px;
-        }
+      /* Bericht: Tabellen wie vor dem Wechsel auf global.css (gleiche Spezifität wie die frühere Grundregel) */
+      :where(.report) th,
+      :where(.report) td {
+        vertical-align: top;
       }
-      /* ===== Ende Handy-Layout ===== */
-      /* ===== Design-Überarbeitung (Stil der Startseite: Kacheln, Zähler-Chips, ruhige Flächen) ===== */
-      html {
-        overscroll-behavior-y: none;
-      }
-      button,
-      .btn,
-      .ib,
-      .steps > *,
-      .tt,
-      a.jump {
-        touch-action: manipulation;
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-      }
-      .btn {
-        transition:
-          transform var(--t-fast) var(--out),
-          filter var(--t-fast),
-          background-color var(--t-fast),
-          border-color var(--t-fast),
-          color var(--t-fast);
-      }
-      .btn:focus-visible,
-      .ib:focus-visible,
-      .steps button:focus-visible,
-      .tt:focus-visible,
-      a.jump:focus-visible {
-        outline: 2px solid var(--ink);
-        outline-offset: 2px;
-      }
-      :root[data-theme='dark'] .btn:focus-visible,
-      :root[data-theme='dark'] .steps button:focus-visible {
-        outline-color: var(--gold);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .btn:focus-visible,
-        :root:not([data-theme='light']) .steps button:focus-visible {
-          outline-color: var(--gold);
-        }
-      }
-      header {
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-      }
-      main,
-      #stepwrap {
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-      }
-      .bar {
-        padding-left: max(14px, env(safe-area-inset-left));
-        padding-right: max(14px, env(safe-area-inset-right));
-      }
-      /* Startseite */
-      .secth {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .secth .n {
-        background: var(--gold-soft);
-        color: var(--gold-text);
-        border-radius: 99px;
-        padding: 1px 9px;
-        font-size: 12px;
-        letter-spacing: 0;
-      }
-      .emptybox {
-        border: 1.5px dashed var(--line);
-        border-radius: 16px;
-        padding: 20px 16px;
-        text-align: center;
-        color: var(--muted);
-        margin: 10px 0;
-        font-size: 15px;
-      }
-      .warnbox .btn {
-        margin-top: 10px;
-      }
-      /* Protokoll-Karten */
-      .pc {
-        padding: 14px 16px;
-      }
-      .pc-main {
-        min-width: 0;
-        flex: 1;
-        overflow-wrap: anywhere;
-      }
-      .pc-main b {
-        font-size: 17px;
-      }
-      .pc-main .pc-k {
-        display: block;
-        line-height: 1.3;
-      }
-      .pc-meta {
-        margin-top: 4px;
-        font-size: 14px;
-        color: var(--muted);
-        overflow-wrap: anywhere;
-      }
-      .pc-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 10px;
-      }
-      .pc-act {
-        margin-top: 12px;
-        gap: 8px;
-      }
-      .pc-act .btn.primary {
-        flex: 1 1 140px;
-      }
-      .pc.dr {
-        border-left: 4px solid var(--gold);
-      }
-      .badge {
-        overflow-wrap: anywhere;
-      }
-      /* Formular */
-      .field label,
-      .pagetitle,
-      .steplab > span {
-        overflow-wrap: anywhere;
-        -webkit-hyphens: auto;
-        hyphens: auto;
-      }
-      .pagetitle {
-        min-width: 0;
-      }
-      .row.between > .pagetitle {
-        flex: 1 1 200px;
-      }
-      .sigwrap {
-        overscroll-behavior: contain;
-      }
-      textarea {
-        overscroll-behavior: contain;
-      }
-      @media (max-width: 600px) {
-        main,
-        #stepwrap {
-          padding-left: max(12px, env(safe-area-inset-left));
-          padding-right: max(12px, env(safe-area-inset-right));
-        }
-        header {
-          padding-left: max(12px, env(safe-area-inset-left));
-          padding-right: max(12px, env(safe-area-inset-right));
-        }
-        .pc {
-          padding: 12px 14px;
-        }
-      }
-      @media (max-width: 600px) {
-        .seg {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-          width: 100%;
-        }
-        .seg .btn {
-          min-width: 0;
-          padding: 8px 4px;
-          font-size: 15px;
-          white-space: nowrap;
-        }
-      }
-      @media (max-width: 240px) {
-        .net:not(.off) {
-          display: none;
-        }
-      }
-      @media (max-width: 340px) {
-        .logo {
-          display: none;
-        }
-        .bar .btn {
-          font-size: 14px;
-          padding: 8px 10px;
-        }
-        .steps {
-          gap: 3px;
-        }
+      .report table {
+        font-feature-settings: 'tnum' 1;
       }
       /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
       @font-face {
@@ -558,112 +533,205 @@
           U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
           U+A720-A7FF;
       }
-      .sheetwrap {
-        background: var(--sheet);
-        border-radius: 12px;
-        padding: 16px 0 1px;
-        overflow: hidden;
-      }
-      :root {
-        --mat-ease: cubic-bezier(0.25, 1, 0.5, 1);
-        --mat-dur-in: 220ms;
-        --mat-dur-pulse: 200ms;
-        --mat-in-shift: 8px;
-        --mat-pulse-scale: 1.12;
-      }
-      .typinfo {
-        color: var(--muted);
-        font-weight: 600;
-      }
-      .fx-in {
-        animation: mat-in var(--mat-dur-in) var(--mat-ease);
-      }
-      .fx-pulse {
-        animation: mat-pulse var(--mat-dur-pulse) var(--mat-ease);
-      }
-      @keyframes mat-in {
-        from {
-          opacity: 0;
-          transform: translateY(var(--mat-in-shift));
-        }
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
-      @keyframes mat-pulse {
-        from {
-          transform: scale(var(--mat-pulse-scale));
-        }
-        to {
-          transform: none;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .fx-in,
-        .fx-pulse {
-          animation: none;
-        }
-      }
-      .matrow {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 0;
-        border-bottom: 1px solid var(--line);
-      }
-      .matrow .mt {
-        flex: 1;
-        min-width: 0;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-      }
-      .matrow input {
-        width: 88px;
-        max-width: 88px;
-        flex: none;
-      }
-      .matadd {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-      }
-      .matadd input {
-        flex: 1;
-        min-width: 0;
-      }
-      .mangel {
-        margin-top: 4px;
-      }
     </style>
-    <link rel="stylesheet" href="shared/ios.css" />
   </head>
   <body>
-    <div class="ambient-canvas" aria-hidden="true">
-      <div class="ambient-blob ambient-blob--cyan"></div>
-      <div class="ambient-blob ambient-blob--purple"></div>
+    <div class="ambient-canvas" aria-hidden="true"></div>
+
+    <div class="app-shell" id="appShell">
+      <header class="app-header">
+        <div class="app-header-text">
+          <h1 class="brand-title">Heizungswartung</h1>
+          <p class="brand-subtitle" id="hsub">Wartungsprotokolle</p>
+          <div id="net" class="net"></div>
+        </div>
+        <button
+          type="button"
+          class="icon-btn"
+          id="themeToggleBtn"
+          aria-label="Darstellung wechseln"
+        ></button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="btnset"
+          data-act="settings"
+          aria-label="Einstellungen"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+          <span class="status-dot settings-update-dot" id="app-update-dot" hidden></span>
+        </button>
+      </header>
+      <div id="stepwrap" hidden></div>
+      <div class="stage"><main id="app"></main></div>
     </div>
-    <header>
-      <div class="logo">H</div>
-      <div class="tt" id="ttl" data-act="home">
-        <h1>Heizungswartung</h1>
-        <span id="hsub">Wartungsprotokolle</span>
-      </div>
-      <span id="net" class="net"></span>
-      <button
-        type="button"
-        class="ib themebtn"
-        id="themeToggleBtn"
-        aria-label="Darstellung wechseln"
-      ></button>
-      <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
-        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
-      <span class="update-dot" id="app-update-dot" aria-hidden="true"></span></button>
-    </header>
-    <div id="stepwrap" hidden></div>
-    <div class="stage"><main id="app"></main></div>
     <div class="bar" id="bar" hidden></div>
-    <div id="toast"></div>
+
+    <!-- Einstellungen und Rückfragen: mittige Karte, einzige Glasfläche der Seite -->
+    <div
+      class="modal-overlay"
+      id="modalHost"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="liquid-glass modal-card">
+        <div class="panel" id="panelSettings">
+          <div class="modal-head">
+            <h2 class="modal-title" id="settingsTitle">Einstellungen</h2>
+            <button class="icon-btn" id="modalCloseBtn" type="button" aria-label="Schließen">
+              <span class="material-symbols-rounded" aria-hidden="true">close</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Darstellung</div>
+            <div class="segmented-control" id="themeSegment" role="group" aria-label="Darstellung">
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="light"
+                aria-pressed="false"
+              >
+                Hell
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="dark"
+                aria-pressed="false"
+              >
+                Dunkel
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="system"
+                aria-pressed="false"
+              >
+                System
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Datenbank-Verbindung</div>
+            <label class="form-label" for="s_url">Web-App-URL aus Apps Script</label>
+            <div class="liquid-surface-inner field-box">
+              <input
+                class="text-input"
+                id="s_url"
+                type="text"
+                placeholder="https://script.google.com/macros/s/…/exec"
+                autocapitalize="off"
+                autocorrect="off"
+                autocomplete="off"
+              />
+            </div>
+            <label class="form-label" for="s_token">Token (wie TOKEN im Apps Script)</label>
+            <div class="liquid-surface-inner field-box">
+              <input
+                class="text-input"
+                id="s_token"
+                type="text"
+                autocapitalize="off"
+                autocorrect="off"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Allgemein</div>
+            <label class="form-label" for="s_firma">Firmenkopf im PDF (mehrzeilig möglich)</label>
+            <div class="liquid-surface-inner field-box">
+              <textarea
+                class="text-input"
+                id="s_firma"
+                rows="3"
+                placeholder="Firmenname, Straße, PLZ Ort, Telefon"
+              ></textarea>
+            </div>
+            <div id="settingsFields"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="savesettings">
+              <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+              <span>Einstellungen speichern</span>
+            </button>
+            <button type="button" class="btn-secondary" data-act="ping">
+              <span class="material-symbols-rounded" aria-hidden="true">cloud_sync</span>
+              <span>Speichern und Verbindung testen</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Datensicherung</div>
+            <p class="modal-text">
+              Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7
+              Tagen aus der App entfernt und bleiben in der Datenbank.
+            </p>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" data-act="backup">
+                <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                <span>Backup exportieren</span>
+              </button>
+              <label class="btn-secondary" for="s_import">
+                <span class="material-symbols-rounded" aria-hidden="true">upload</span>
+                <span>Backup importieren</span>
+              </label>
+              <input type="file" id="s_import" accept=".json,application/json" hidden />
+            </div>
+          </div>
+
+          <div>
+            <div class="card-title">App-Info und Updates</div>
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-row-label">Installierte Version</span>
+                <span class="info-row-value numeric">
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.0</span>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-row-label">Build-Datum</span>
+                <span class="info-row-value numeric" id="appBuildDateLabel">2026-11-17</span>
+              </div>
+              <div class="info-row" id="updateRow" hidden>
+                <span class="info-row-label">Neue Version</span>
+                <span class="info-row-value numeric" id="updateRemote"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="checkupdate">
+              <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+              <span>Nach Updates suchen</span>
+            </button>
+            <button type="button" class="btn-secondary" data-act="forcereload">
+              <span class="material-symbols-rounded" aria-hidden="true">cleaning_services</span>
+              <span>Cache leeren und neu laden</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel" id="panelConfirm" hidden>
+          <h2 class="modal-title" id="cfTitle"></h2>
+          <p class="modal-text" id="cfText"></p>
+          <div class="modal-actions modal-actions--row">
+            <button type="button" class="btn-secondary" id="cfCancel">Abbrechen</button>
+            <button type="button" class="btn-primary" id="cfOk">Bestätigen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-pill" id="toast" role="status" aria-live="polite">
+      <span class="material-symbols-rounded" aria-hidden="true">info</span>
+      <span id="toastText"></span>
+    </div>
 
     <script src="shared/core.js"></script>
     <script src="shared/pdf-bausteine.js"></script>
@@ -671,7 +739,6 @@
     <script src="shared/sync.js"></script>
     <script src="shared/settings.js"></script>
     <script src="shared/wizard.js"></script>
-    <script src="shared/ios.js"></script>
     <script src="regeln.js"></script>
     <script>
       'use strict';
@@ -1431,11 +1498,35 @@
       let pdfProg = 0;
       let pdfTick = null;
       let hsubAnim = null;
+      /* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
+      let fadenNr = 0;
+      function fadeThrough(change) {
+        if (RM() || !app.animate) {
+          change();
+          return;
+        }
+        const nr = ++fadenNr;
+        app.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: 'ease-out' });
+        setTimeout(() => {
+          if (nr !== fadenNr) {
+            return;
+          }
+          change();
+          app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+        }, 90);
+      }
       function go(name, params) {
         view = Object.assign({ name }, params || {});
         enterNext = name === 'wizard';
-        render();
-        window.scrollTo(0, 0);
+        if (name === 'wizard') {
+          render();
+          window.scrollTo(0, 0);
+          return;
+        }
+        fadeThrough(() => {
+          render();
+          window.scrollTo(0, 0);
+        });
       }
       function cur() {
         return protocols.find((p) => p.id === view.id);
@@ -1464,8 +1555,8 @@
         }
         setSteps();
         setBar();
-        iosAfterRender(view.name);
         updateNet();
+        nachRender();
       }
       function hsubText() {
         const p = view.name === 'wizard' || (view.name === 'report' && !view.db) ? cur() : null;
@@ -1478,22 +1569,93 @@
         if (view.name === 'report' && view.db && view.rep) {
           return view.rep.id || 'Bericht';
         }
-        if (view.name === 'settings') {
-          return 'Einstellungen';
-        }
         return view.name === 'db' ? 'Datenbank / PDF' : 'Wartungsprotokolle';
       }
-      function setSteps() {
-        const p = view.name === 'wizard' ? cur() : null;
-        stepsRender(
-          p && {
-            key: p.id,
-            pages: TEMPLATE.pages,
-            index: p.page,
-            done: (k) => pageDone(p, k) && !TEMPLATE.pages[k].final,
-            pauseAct: 'home',
-          },
+      /* Fortschritt: Prüfpunkte und Messwerte der aktiven Anlagenart, Zahl erledigt von gesamt */
+      function punkteVon(p) {
+        const v = p.values;
+        const liste = ALL_FIELDS.filter(
+          (f) => !f.parent && aktiv(f, v) && (f.type === 'okfail' || f.regel),
         );
+        return {
+          total: liste.length,
+          done: liste.filter((f) => String(v[f.id] ?? '').trim() !== '').length,
+        };
+      }
+      /* Kopf der Formular-Ansicht: Zurück, Fortschritt (.hero), Abschnitte (.tab-strip) */
+      function setSteps() {
+        const w = $('#stepwrap');
+        const p = view.name === 'wizard' ? cur() : null;
+        if (!p) {
+          w.hidden = true;
+          w.dataset.pid = '';
+          return;
+        }
+        const i = p.page;
+        if (w.dataset.pid !== p.id) {
+          w.dataset.pid = p.id;
+          w.dataset.seite = '';
+          w.innerHTML = `
+            <button type="button" class="back-btn" data-act="home"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>Übersicht</button>
+            <section class="hero" aria-live="polite">
+              <div class="hero-line">
+                <span class="hero-value hero-value--compact numeric"><span id="progDone">0</span> <span class="metric-unit">von <span id="progTotal">0</span> Punkten</span></span>
+                <span class="status-pill status-pill--neutral" id="heroPill"></span>
+              </div>
+              <div class="progress-bar" id="progBar" role="progressbar" aria-label="Fortschritt" aria-valuemin="0" aria-valuemax="100"><i id="progFill"></i></div>
+            </section>
+            <nav class="tab-strip" data-choice-keep role="tablist" aria-label="Abschnitte">${TEMPLATE.pages
+              .map(
+                (pg, k) =>
+                  `<button type="button" class="tab-pill" role="tab" data-act="step" data-i="${k}"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>${esc(pg.short)}</button>`,
+              )
+              .join('')}</nav>`;
+        }
+        w.hidden = false;
+        const pt = punkteVon(p);
+        const pct = pt.total ? Math.round((pt.done / pt.total) * 100) : 0;
+        $('#progDone').textContent = pt.done;
+        $('#progTotal').textContent = pt.total;
+        $('#progFill').style.width = pct + '%';
+        $('#progBar').setAttribute('aria-valuenow', String(pct));
+        const m = defects(p).length;
+        const pill = $('#heroPill');
+        pill.className = 'status-pill status-pill--' + (m ? 'orange' : 'neutral');
+        pill.textContent = m ? (m === 1 ? '1 Mangel' : m + ' Mängel') : 'Keine Mängel';
+        w.querySelectorAll('.tab-pill').forEach((b, k) => {
+          b.classList.toggle('is-done', k !== i && !TEMPLATE.pages[k].final && pageDone(p, k));
+          b.setAttribute('aria-selected', String(k === i));
+          if (k === i) {
+            b.setAttribute('aria-current', 'step');
+          } else {
+            b.removeAttribute('aria-current');
+          }
+        });
+        if (w.dataset.seite !== String(i)) {
+          w.dataset.seite = String(i);
+          const aktiv = w.querySelector('.tab-pill[aria-selected="true"]');
+          const leiste = w.querySelector('.tab-strip');
+          if (aktiv && leiste) {
+            const dx = aktiv.getBoundingClientRect().left - leiste.getBoundingClientRect().left;
+            leiste.scrollLeft += dx - (leiste.clientWidth - aktiv.offsetWidth) / 2;
+          }
+        }
+      }
+      /* Abschnittswechsel: Überblenden statt Gleiten, Tastatur vorher schließen */
+      function wechsleSeite(change) {
+        const ae = document.activeElement;
+        if (ae && ae.matches && ae.matches('input,textarea,select')) {
+          ae.blur();
+        }
+        const noch = wizSnapshot();
+        fadeThrough(() => {
+          if (!noch()) {
+            return;
+          }
+          change();
+          render();
+          window.scrollTo(0, 0);
+        });
       }
       function barHtml() {
         if (view.name === 'wizard') {
@@ -1504,18 +1666,18 @@
           const i = p.page;
           const pg = TEMPLATE.pages[i];
           const weiter = pg.final
-            ? '<button class="btn primary" data-act="finish">Abschließen ✓</button>'
-            : '<button class="btn primary" data-act="next">Weiter →</button>';
-          return `<div><button class="btn" data-act="prev"${i === 0 ? ' disabled' : ''}>← Zurück</button>${weiter}</div>`;
+            ? '<button type="button" class="btn-primary" data-act="finish">Protokoll abschließen</button>'
+            : '<button type="button" class="btn-primary" data-act="next">Weiter</button>';
+          return `<div><button type="button" class="btn-secondary" data-act="prev"${i === 0 ? ' disabled' : ''}>Zurück</button>${weiter}</div>`;
         }
         if (view.name === 'report' && reportForView()) {
           const run = pdfBusy === viewKey();
           const fill = run ? ` style="transform:scaleX(${pdfProg})"` : '';
           const teilen =
             lastPdf && lastPdf.key === viewKey()
-              ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>'
+              ? '<button type="button" class="btn-secondary" data-act="sharepdf">Teilen</button>'
               : '';
-          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'home'}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${fill}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${teilen}</div>`;
+          return `<div><button type="button" class="btn-secondary" data-act="${view.db ? 'db' : 'home'}">Zurück</button><button type="button" class="btn-primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${fill}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${teilen}</div>`;
         }
         return '';
       }
@@ -1530,32 +1692,207 @@
         netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
       }
 
-      function wizardHtml(p, i) {
-        const pg = TEMPLATE.pages[i];
-        const v = p.values;
-        const sichtbar = pg.fields.filter((f) => aktiv(f, v));
-        const allOk = sichtbar.some((f) => f.type === 'okfail' && !v[f.id]);
-        return `
-    <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div>${allOk ? '<button class="btn small" data-act="allok">Offene Punkte auf i.O.</button>' : ''}</div>
-    ${iosGroups(sichtbar, (f) => fieldHtml(f, p), 1)}
-    ${pg.final ? finalHtml(p) : ''}
-    <div class="err" id="pageerr"></div>`;
-      }
-
-      const APP_VERSION = '2.0.3';
+      const APP_VERSION = '2.1.0';
       const BUILD_DATE = '2026-11-15';
-      function settingsBody() {
-        return (
-          settingsConnectionHtml() +
-          settingsGeneralHtml(SETTINGS_FIELDS) +
-          settingsButtonsHtml() +
-          settingsBackupHtml(
-            'Sichert alle Protokolle der App als JSON-Datei. Übertragene Protokolle werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.',
-          ) +
-          settingsVersionHtml(APP_VERSION, BUILD_DATE)
-        );
+
+      /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
+      let toastTimer2;
+      function toast(msg) {
+        const t = $('#toast');
+        if (!t) {
+          return;
+        }
+        $('#toastText').textContent = msg;
+        t.classList.add('is-visible');
+        clearTimeout(toastTimer2);
+        toastTimer2 = setTimeout(() => t.classList.remove('is-visible'), 3500);
       }
 
+      /* Mittige Karte (Einstellungen und Rückfragen): Rest der Seite inaktiv, Escape schließt */
+      let modalFocus = null;
+      let modalPanel = null;
+      let confirmDone = null;
+      function modalOpen(panel) {
+        const host = $('#modalHost');
+        modalPanel = panel;
+        $('#panelSettings').hidden = panel !== 'settings';
+        $('#panelConfirm').hidden = panel !== 'confirm';
+        host.setAttribute('aria-labelledby', panel === 'settings' ? 'settingsTitle' : 'cfTitle');
+        $('#appShell').inert = true;
+        $('#bar').inert = true;
+        modalFocus = document.activeElement;
+        host.classList.add('is-open');
+        const first = host.querySelector(
+          `#${panel === 'settings' ? 'panelSettings' : 'panelConfirm'} button`,
+        );
+        if (first) {
+          first.focus();
+        }
+      }
+      function modalClose() {
+        if (!modalPanel) {
+          return;
+        }
+        const war = modalPanel;
+        modalPanel = null;
+        $('#modalHost').classList.remove('is-open');
+        $('#appShell').inert = false;
+        $('#bar').inert = false;
+        if (modalFocus && modalFocus.focus) {
+          modalFocus.focus();
+        }
+        if (war === 'confirm' && confirmDone) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          fertig(false);
+        }
+        if (war === 'settings') {
+          render();
+        }
+      }
+      /* Rückfrage (ersetzt den Browser-Dialog): gleiche Aufrufschnittstelle wie in shared/core.js */
+      function confirmModal(title, message, confirmLabel = 'Bestätigen', danger = false) {
+        return new Promise((resolve) => {
+          $('#cfTitle').textContent = title;
+          $('#cfText').textContent = message;
+          const ok = $('#cfOk');
+          ok.textContent = confirmLabel;
+          ok.className = danger ? 'btn-danger' : 'btn-primary';
+          confirmDone = resolve;
+          modalOpen('confirm');
+        });
+      }
+      function openSettings() {
+        $('#s_url').value = settings.url || '';
+        $('#s_token').value = settings.token || '';
+        $('#s_firma').value = settings.firma || '';
+        $('#settingsFields').innerHTML = SETTINGS_FIELDS.map(
+          (f) => `
+            <div class="form-group">
+              <label class="form-label" for="${f.id}">${esc(f.label)}</label>
+              <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}" autocomplete="off"></div>
+            </div>`,
+        ).join('');
+        syncThemeUi();
+        modalOpen('settings');
+      }
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#modalCloseBtn') || e.target === $('#modalHost')) {
+          modalClose();
+        } else if (e.target.closest('#cfCancel')) {
+          modalClose();
+        } else if (e.target.closest('#cfOk')) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          modalPanel = null;
+          $('#modalHost').classList.remove('is-open');
+          $('#appShell').inert = false;
+          $('#bar').inert = false;
+          if (modalFocus && modalFocus.focus) {
+            modalFocus.focus();
+          }
+          if (fertig) {
+            fertig(true);
+          }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          modalClose();
+        }
+      });
+
+      /* Darstellung: Segment in den Einstellungen kennt zusätzlich „System“, der Kopf-Knopf schaltet Hell und Dunkel */
+      const systemHell = window.matchMedia('(prefers-color-scheme: light)');
+      function gespeicherteDarstellung() {
+        try {
+          const v = localStorage.getItem('ag-theme');
+          return v === 'light' || v === 'dark' ? v : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      function syncThemeUi() {
+        const wahl = gespeicherteDarstellung() || 'system';
+        document
+          .querySelectorAll('[data-theme-choice]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === wahl)));
+        const btn = $('#themeToggleBtn');
+        if (btn) {
+          const dunkel = document.documentElement.getAttribute('data-theme') !== 'light';
+          btn.innerHTML = `<span class="material-symbols-rounded" aria-hidden="true">${dunkel ? 'light_mode' : 'dark_mode'}</span>`;
+          btn.setAttribute(
+            'aria-label',
+            dunkel ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren',
+          );
+        }
+      }
+      function setzeDarstellung(wahl) {
+        try {
+          if (wahl === 'system') {
+            localStorage.removeItem('ag-theme');
+          } else {
+            localStorage.setItem('ag-theme', wahl);
+          }
+        } catch (e) {}
+        document.documentElement.setAttribute(
+          'data-theme',
+          wahl === 'system' ? (systemHell.matches ? 'light' : 'dark') : wahl,
+        );
+        syncThemeUi();
+      }
+      document
+        .querySelectorAll('[data-theme-choice]')
+        .forEach((b) => b.addEventListener('click', () => setzeDarstellung(b.dataset.themeChoice)));
+      new MutationObserver(syncThemeUi).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+
+      /* Update-Prüfung über version.json. Offline: nur Meldung, Caches und localStorage bleiben erhalten. */
+      async function pruefeUpdate(manuell) {
+        const knopf = $('[data-act="checkupdate"]');
+        if (manuell && knopf) {
+          knopf.disabled = true;
+        }
+        try {
+          const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) {
+            throw new Error('version.json nicht erreichbar');
+          }
+          const data = await res.json();
+          const remote = String(data.version || '').trim();
+          const neu = !!remote && remote !== APP_VERSION;
+          $('#app-update-dot').hidden = !neu;
+          $('#updateRow').hidden = !neu;
+          $('#updateRemote').textContent = neu ? 'v' + remote : '';
+          $('#app-version-label').className =
+            'status-pill ' + (neu ? 'status-pill--orange' : 'status-pill--green');
+          if (manuell) {
+            if (neu) {
+              toast('Update auf v' + remote + ' wird geladen.');
+              setTimeout(clearCachesAndReload, 900);
+            } else {
+              toast('Aktuellste Version v' + APP_VERSION + ' ist installiert.');
+            }
+          }
+        } catch (e) {
+          if (manuell) {
+            toast('Update-Prüfung nicht möglich. Internetverbindung prüfen und erneut versuchen.');
+          }
+        } finally {
+          if (knopf) {
+            knopf.disabled = false;
+          }
+        }
+      }
+
+      /* Auswahl-Dropdowns und mittige Zahlenfelder (shared/choice-dropdown.js, Modul unten) */
+      function nachRender() {
+        if (window.agUiInit) {
+          window.agUiInit();
+        }
+      }
       const Views = {
         home() {
           const drafts = protocols.filter((p) => p.status === 'draft');
@@ -1563,28 +1900,50 @@
             .filter((p) => p.status === 'done')
             .sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
           const pending = done.filter((p) => !p.synced).length;
-          const plus =
-            '<span class="material-symbols-rounded" aria-hidden="true">add</span>';
+          const chev =
+            '<span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>';
+          const neu = (typ, icon, titel) => `
+        <button type="button" class="row" data-act="new" data-typ="${typ}">
+          <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">${icon}</span></span>
+          <span class="row-text"><span class="row-title">${titel}</span><span class="row-sub">Neue Wartung starten</span></span>
+          ${chev}
+        </button>`;
+          const pendHtml = pending
+            ? `<span class="status-pill status-pill--orange">${pending} offen</span>`
+            : '';
           return `
-      <div class="kstart">
-      <button type="button" class="cta" data-act="new" data-typ="gas"><span class="hi">${plus}</span><span class="txt"><strong>Gasheizung</strong><small>Neue Wartung starten</small></span></button>
-      <button type="button" class="cta" data-act="new" data-typ="oel"><span class="hi">${plus}</span><span class="txt"><strong>Ölheizung</strong><small>Neue Wartung starten</small></span></button>
-      <div class="qa">
-        <button class="qt" data-act="db"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">description</span></span><span><b>Datenbank / PDF</b><small>Suchen &amp; öffnen</small></span></button>
-        <button class="qt" data-act="sync"><span class="qi"><span class="material-symbols-rounded" aria-hidden="true">sync</span></span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+      ${
+        !settings.url
+          ? '<div class="notice"><span>Noch keine Verbindung zur Datenbank eingerichtet. Protokolle bleiben lokal gespeichert, bis die Web-App-URL in den Einstellungen steht.</span><button type="button" class="btn-secondary" data-act="settings">Einstellungen öffnen</button></div>'
+          : ''
+      }
+      <h2 class="section-title">Neue Wartung</h2>
+      <div class="group">${neu('gas', 'local_fire_department', 'Gasheizung')}${neu('oel', 'oil_barrel', 'Ölheizung')}
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Protokolle werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      <h2 class="section-title">Datenbank</h2>
+      <div class="group">
+        <button type="button" class="row" data-act="db">
+          <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">description</span></span>
+          <span class="row-text"><span class="row-title">Datenbank und PDF</span><span class="row-sub">Protokolle suchen und öffnen</span></span>
+          ${chev}
+        </button>
+        <button type="button" class="row" data-act="sync">
+          <span class="row-icon row-icon--green"><span class="material-symbols-rounded" aria-hidden="true">sync</span></span>
+          <span class="row-text"><span class="row-title">Synchronisieren</span><span class="row-sub">${pending ? 'Protokolle warten auf die Übertragung' : 'Alles ist übertragen'}</span></span>
+          ${pendHtml}
+          ${chev}
+        </button>
       </div>
-      <h2 class="secth">Offene Wartungen <span class="n">${drafts.length}</span></h2>
-      ${drafts.length ? drafts.map(protoCard).join('') : '<div class="emptybox">Keine offenen Wartungen.</div>'}
-      <h2 class="secth">Abgeschlossen <span class="n">${done.length}</span></h2>
-      ${done.length ? done.map(protoCard).join('') : '<div class="emptybox">Noch keine abgeschlossenen Wartungen.</div>'}`;
+      <h2 class="section-title">Offene Wartungen <span class="section-count">${drafts.length}</span></h2>
+      ${drafts.length ? `<div class="group">${drafts.map(protoCard).join('')}</div>` : '<p class="empty-note">Noch keine offene Wartung. Oben Gas- oder Ölheizung wählen.</p>'}
+      <h2 class="section-title">Abgeschlossen <span class="section-count">${done.length}</span></h2>
+      ${done.length ? `<div class="group">${done.map(protoCard).join('')}</div>` : '<p class="empty-note">Noch keine abgeschlossene Wartung. Sie erscheint hier nach dem Abschließen.</p>'}`;
         },
 
         wizard() {
           const p = cur();
           if (!p) {
-            return '<p>Protokoll nicht gefunden.</p>';
+            return '<p class="empty-note">Protokoll nicht gefunden. Zurück zur Übersicht wechseln.</p>';
           }
           return wizardHtml(p, p.page);
         },
@@ -1592,35 +1951,29 @@
         report() {
           const r = reportForView();
           if (!r) {
-            return '<p>Protokoll nicht gefunden.</p>';
+            return '<p class="empty-note">Protokoll nicht gefunden. Zurück zur Übersicht wechseln.</p>';
           }
           const p = !view.db && protocols.find((x) => x.id === view.id);
           return `
-      <div class="row noprint" style="margin-bottom:12px">
-        <span id="pdfbar" class="row">${pdfBarHtml()}</span>
-        ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
-        ${p && !p.synced ? '<span class="badge warn">noch nicht in der Datenbank</span>' : ''}
+      <div class="btn-row">
+        <span id="pdfbar" class="btn-row">${pdfBarHtml()}</span>
+        ${view.db && settings.url ? `<button type="button" class="btn-secondary" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
       </div>
-      <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
+      ${p && !p.synced ? '<p class="lead-note"><span class="status-pill status-pill--orange">nicht in der Datenbank</span></p>' : ''}
+      <p class="lead-note">„PDF erstellen“ und „Teilen“ speichern den Bericht in Dateien oder senden ihn per Mail oder AirDrop. Das geht auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
         },
 
         db() {
           return `
-      <div class="row">
-        <button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
-      </div>
-      <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
-      <input id="dbsearch" type="search" placeholder="Suchen: Protokoll-Nr., Kundennummer, Techniker, Modell, Datum …" value="${esc(view.q || '')}">
+      <button type="button" class="back-btn" data-act="home"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>Übersicht</button>
+      <button type="button" class="btn-primary btn-wide" data-act="dbload"><span class="material-symbols-rounded" aria-hidden="true">cloud_download</span><span>Aus Datenbank laden</span></button>
+      <p class="lead-note">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)}, ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen. „Aus Datenbank laden“ ruft die Protokollliste ab.'}</p>
+      <label class="search">
+        <span class="material-symbols-rounded" aria-hidden="true">search</span>
+        <input id="dbsearch" type="search" placeholder="Protokoll-Nr., Kunde, Techniker, Datum" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
+      </label>
       <div id="dblist">${dbList()}</div>`;
-        },
-
-        settings() {
-          return (
-            `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` +
-            settingsBody()
-          );
         },
       };
 
@@ -1629,17 +1982,22 @@
         if (k < 0) {
           return '';
         }
-        return `<span class="badge ${BEWERTUNG_STUFEN[k]}">${esc(BEWERTUNG_KURZ[k])}</span>`;
+        const ton = ['green', 'orange', 'red'][k];
+        return `<span class="status-pill status-pill--${ton}">${esc(BEWERTUNG_KURZ[k])}</span>`;
       }
       function protoCard(p) {
         const v = p.values;
+        const pill = (ton, text) =>
+          `<span class="status-pill status-pill--${ton}">${esc(text)}</span>`;
         let badges;
         if (p.status === 'draft') {
-          badges = `<span class="badge warn">Schritt ${p.page + 1}/${TEMPLATE.pages.length}</span>`;
+          badges = pill('orange', `Schritt ${p.page + 1} von ${TEMPLATE.pages.length}`);
         } else {
-          badges = `${bewertungBadge(v.bewertung)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
+          badges =
+            bewertungBadge(v.bewertung) +
+            pill(p.synced ? 'green' : 'orange', p.synced ? 'in der Datenbank' : 'nicht übertragen');
         }
-        const typBadge = `<span class="badge">${esc(TYP_KURZ[v.typ] || '')}</span>`;
+        const typBadge = TYP_KURZ[v.typ] ? pill('neutral', TYP_KURZ[v.typ]) : '';
         const meta = [
           fmtDate(v.datum),
           [v.hersteller, v.modell].filter(Boolean).join(' '),
@@ -1647,21 +2005,67 @@
         ]
           .filter(Boolean)
           .map(esc)
-          .join(' · ');
-        return `
-    <div class="card pc${p.status === 'draft' ? ' dr' : ''}">
-      <div class="pc-main"><b>${esc(v.projekt || 'Ohne Protokoll-Nr.')}</b>${v.kunde ? `<span class="pc-k">${esc(v.kunde)}</span>` : ''}</div>
-      ${meta ? `<div class="pc-meta">${meta}</div>` : ''}
-      <div class="pc-badges">${TYP_KURZ[v.typ] ? typBadge : ''} ${badges}</div>
-      <div class="row btnrow pc-act">
-        ${
+          .join(', ');
+        const open =
           p.status === 'draft'
-            ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
-            : `<button class="btn small primary" data-act="report" data-id="${p.id}">Bericht / PDF</button><button class="btn small" data-act="reopen" data-id="${p.id}">Bearbeiten</button>`
-        }
-        <button class="btn small danger" data-act="del" data-id="${p.id}">Löschen</button>
-      </div>
-    </div>`;
+            ? `data-act="resume" data-id="${p.id}"`
+            : `data-act="report" data-id="${p.id}"`;
+        const icon = p.status === 'draft' ? 'edit_note' : 'task_alt';
+        const farbe = p.status === 'draft' ? 'orange' : 'green';
+        const edit =
+          p.status === 'draft'
+            ? ''
+            : `<button type="button" class="icon-btn proto-act" data-act="reopen" data-id="${p.id}" aria-label="Protokoll bearbeiten"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>`;
+        return `
+        <div class="row proto-row">
+          <button type="button" class="proto-open" ${open}>
+            <span class="row-icon row-icon--${farbe}"><span class="material-symbols-rounded" aria-hidden="true">${icon}</span></span>
+            <span class="row-text">
+              <span class="row-title">${esc(v.projekt || 'Ohne Protokoll-Nr.')}</span>
+              ${v.kunde ? `<span class="row-sub">${esc(v.kunde)}</span>` : ''}
+              ${meta ? `<span class="row-sub">${meta}</span>` : ''}
+              <span class="proto-pills">${typBadge}${badges}</span>
+            </span>
+            <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
+          </button>
+          ${edit}
+          <button type="button" class="icon-btn proto-act is-danger" data-act="del" data-id="${p.id}" aria-label="Protokoll löschen"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
+        </div>`;
+      }
+
+      const KOPF_IDS = new Set(TEMPLATE.pages[0].fields.map((f) => f.id));
+      const OK3_WERT = ['ok', 'mangel', 'na'];
+      const OK3_ICON = ['check', 'priority_high', 'remove'];
+      const OK3_TITEL = ['In Ordnung', 'Mangel', 'Entfällt'];
+
+      function wizardHtml(p, i) {
+        const pg = TEMPLATE.pages[i];
+        const v = p.values;
+        const sichtbar = pg.fields.filter((f) => !f.parent && aktiv(f, v));
+        const hatPruefpunkte = sichtbar.some((f) => f.type === 'okfail');
+        const offen = sichtbar.some((f) => f.type === 'okfail' && !v[f.id]);
+        const gruppen = [];
+        sichtbar.forEach((f) => {
+          const name = f.group || '';
+          const letzte = gruppen[gruppen.length - 1];
+          if (letzte && letzte.name === name) {
+            letzte.liste.push(f);
+          } else {
+            gruppen.push({ name, liste: [f] });
+          }
+        });
+        const abschnitte = gruppen
+          .map(
+            (g) =>
+              `${g.name ? `<h2 class="section-title">${esc(g.name)}</h2>` : ''}
+              <div class="group group--form">${g.liste.map((f) => fieldHtml(f, p)).join('')}</div>`,
+          )
+          .join('');
+        const alleOk = hatPruefpunkte
+          ? `<button type="button" class="btn-secondary allok-btn" id="allokBtn" data-act="allok"${offen ? '' : ' hidden'}><span class="material-symbols-rounded" aria-hidden="true">done_all</span><span>Offene Prüfpunkte auf i.O. setzen</span></button>`
+          : '';
+        return `${alleOk}${pg.final ? finalHtml(p, abschnitte) : abschnitte}
+    <div class="page-error" id="pageerr" role="alert"></div>`;
       }
 
       function playFx(el, cls) {
@@ -1687,137 +2091,170 @@
         const liste = materialArray(p);
         const zeilen = liste
           .map(
-            (m, i) => `<div class="matrow">
-        <span class="mt">${esc(m.teil)}</span>
-        <input data-mat="menge" data-i="${i}" inputmode="decimal" maxlength="12" value="${esc(m.menge)}" placeholder="Menge" aria-label="Menge ${esc(m.teil)}" autocomplete="off">
-        <button type="button" class="btn small danger" data-act="matdel" data-i="${i}" aria-label="${esc(m.teil)} entfernen">Entfernen</button>
+            (m, i) => `<div class="meas-row matrow">
+        <span class="meas-label">${esc(m.teil)}</span>
+        <input class="value-input numeric" data-mat="menge" data-i="${i}" inputmode="decimal" maxlength="12" value="${esc(m.menge)}" placeholder="Menge" aria-label="Menge ${esc(m.teil)}" autocomplete="off">
+        <button type="button" class="icon-btn" data-act="matdel" data-i="${i}" aria-label="${esc(m.teil)} entfernen"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
       </div>`,
           )
           .join('');
-        return `<div class="fhint">Benötigtes Material eintragen.</div>
-      <div>${zeilen || '<div class="emptybox">Noch kein Material eingetragen.</div>'}</div>
-      <div class="matadd"><input id="matfree" placeholder="Eigenes Material …" autocomplete="off"><button type="button" class="btn" data-act="matfree">Hinzufügen</button></div>`;
+        return `<div class="matlist">${zeilen || '<p class="empty-note">Noch kein Material eingetragen. Bezeichnung unten eingeben und hinzufügen.</p>'}</div>
+      <div class="matadd">
+        <div class="liquid-surface-inner field-box"><input class="text-input" id="matfree" placeholder="Material, z. B. Düse 0,50 gal/h" aria-label="Bezeichnung des Materials" autocomplete="off"></div>
+        <button type="button" class="btn-secondary" data-act="matfree"><span class="material-symbols-rounded" aria-hidden="true">add</span><span>Material hinzufügen</span></button>
+      </div>`;
       }
 
       function altwertHint(x) {
         if (!x || BEWERTUNG.includes(x) || bewertungStufe(x) < 0) {
           return '';
         }
-        return `<div class="fhint">Altwert: ${esc(x)}</div>`;
+        return `<div class="field-hint altwert">Altwert: ${esc(x)}</div>`;
       }
+      /* Status zum Messwert: Passt, Prüfen oder nichts, solange kein Wert steht */
+      function messPill(f, v) {
+        const ev = f.regel ? evalField(f, v) : 'none';
+        const art = { ok: ['green', 'Passt'], warn: ['orange', 'Prüfen'], bad: ['red', 'Prüfen'] }[
+          ev
+        ];
+        return art
+          ? `<span class="status-pill status-pill--${art[0]}" id="pill-${f.id}">${art[1]}</span>`
+          : `<span class="status-pill status-pill--neutral" id="pill-${f.id}" hidden></span>`;
+      }
+      function messPillAktualisieren(f, v) {
+        const el = $('#pill-' + f.id);
+        if (!el) {
+          return;
+        }
+        const ev = evalField(f, v);
+        const art = { ok: ['green', 'Passt'], warn: ['orange', 'Prüfen'], bad: ['red', 'Prüfen'] }[
+          ev
+        ];
+        el.hidden = !art;
+        el.className = 'status-pill status-pill--' + (art ? art[0] : 'neutral');
+        el.textContent = art ? art[1] : '';
+      }
+      function mangelNote(f, v, offen) {
+        const kind = ALL_FIELDS.find((x) => x.parent === f.id);
+        if (!kind) {
+          return '';
+        }
+        return `<div class="check-note"><div><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" placeholder="${esc(kind.ph || '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></div></div>`;
+      }
+
       function fieldHtml(f, p) {
         const v = p.values;
         const x = wert(f, v);
         const err = view.tried ? fieldError(f, p) : '';
         const req = isRequired(f) ? ' *' : '';
-        const lab = `<label for="in-${f.id}">${esc(f.label)}${req}</label>${f.hint ? `<div class="fhint">${esc(f.hint)}</div>` : ''}`;
-        const errHtml = err ? `<div class="ferr">${esc(err)}</div>` : '';
-        const buttons = (vals, cls, act, labels) =>
+        const hint = f.hint ? `<small class="field-hint">${esc(f.hint)}</small>` : '';
+        const errHtml = err ? `<div class="ferr" role="alert">${esc(err)}</div>` : '';
+        const fehler = err ? ' has-error' : '';
+        const optionen = (vals, art) =>
           vals
-            .map(
-              (o, k) =>
-                `<button class="btn ${cls[k] || ''} ${x === o ? 'sel' : ''}" data-act="${act}" data-f="${f.id}" data-v="${esc(o)}">${esc(labels ? labels[k] : o)}</button>`,
-            )
+            .map((o) => {
+              const an = x === o;
+              return art === 'pill'
+                ? `<button type="button" class="tab-pill" data-act="set" data-f="${f.id}" data-v="${esc(o)}" aria-selected="${an}">${esc(o)}</button>`
+                : `<button type="button" class="segmented-option" data-act="set" data-f="${f.id}" data-v="${esc(o)}" aria-pressed="${an}">${esc(o)}</button>`;
+            })
             .join('');
-        const seg = (vals, cls, act, labels) =>
-          `<div class="seg">${buttons(vals, cls, act || 'set', labels)}</div>`;
-        let body;
         switch (f.type) {
-          case 'okfail':
-            return `<div class="field"><div class="frow"><div>${lab}</div>${seg(OK3, ['ok', 'bad', 'na'])}</div></div>`;
+          case 'okfail': {
+            const offen = x === 'n.i.O.';
+            const tri = OK3.map(
+              (o, k) =>
+                `<button type="button" data-act="set" data-f="${f.id}" data-v="${esc(o)}" data-value="${OK3_WERT[k]}" aria-pressed="${x === o}" aria-label="${OK3_TITEL[k]}"><span class="material-symbols-rounded" aria-hidden="true">${OK3_ICON[k]}</span></button>`,
+            ).join('');
+            return `<div class="check${offen ? ' has-defect' : ''}" data-item="${f.id}">
+          <div class="check-main"><span class="check-label">${esc(f.label)}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}</span><div class="tri" role="group" aria-label="Bewertung: ${esc(f.label)}">${tri}</div></div>
+          ${mangelNote(f, v, offen)}
+        </div>`;
+          }
           case 'typ':
-            return `<div class="field"><div class="frow"><div>${lab}</div><span class="typinfo">${esc(TYP_NAME[x] || '')}</span></div></div>`;
-          case 'yesno':
-            return `<div class="field"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.warn)}</div></div>`;
-          case 'bewertung':
-            return `<div class="field"><div class="frow"><div>${lab}</div>${seg(BEWERTUNG, BEWERTUNG_KLASSEN)}</div>${altwertHint(x)}</div>`;
+            return `<div class="check-main"><span class="check-label">${esc(f.label)}</span><span class="typinfo">${esc(TYP_NAME[x] || '')}</span></div>`;
+          case 'yesno': {
+            const ev = evalField(f, v);
+            const warn =
+              ev === 'warn' || ev === 'bad'
+                ? '<span class="status-pill status-pill--orange">Prüfen</span>'
+                : '';
+            return `<div class="check-main"><span class="check-label">${esc(f.label)}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}${warn}</span><div class="segmented-control segmented-inline" role="group" aria-label="${esc(f.label)}">${optionen(['Ja', 'Nein'], 'seg')}</div></div>`;
+          }
+          case 'bewertung': {
+            const offen = x === 'n.i.O.';
+            return `<div class="field check${offen ? ' has-defect' : ''}" data-item="${f.id}">
+          <span class="field-label" id="lab-${f.id}">${esc(f.label)}${req}</span>
+          <div class="segmented-control" role="group" aria-labelledby="lab-${f.id}">${optionen(BEWERTUNG, 'seg')}</div>
+          ${altwertHint(x)}
+          ${mangelNote(f, v, offen)}
+        </div>`;
+          }
           case 'material':
-            return `<div class="field">${materialHtml(p)}</div>`;
+            return materialHtml(p);
           case 'select': {
             const opts = optsOf(f, v);
-            const custom = f.other && x && !opts.includes(x);
-            let auswahl;
-            if (opts.length >= 3) {
-              const tones = opts.map((o) => {
-                if (f.good && f.good.includes(o)) {
-                  return 'ok';
-                }
-                if (f.bad && f.bad.includes(o)) {
-                  return 'bad';
-                }
-                return '';
-              });
-              auswahl = iosSelect(f, x, opts, tones, isRequired(f));
-            } else if (f.seg) {
-              auswahl = seg(opts, []);
-            } else {
-              auswahl = `<div class="opts">${buttons(opts, [], 'set')}</div>`;
-            }
-            body = `${auswahl}
-        ${f.other ? `<input id="in-${f.id}-o" aria-label="Anderer Wert" data-f="${f.id}" data-other="1" placeholder="oder anderer Wert …" value="${custom ? esc(x) : ''}" autocomplete="off">` : ''}`;
-            break;
+            const lang = opts.length > 3;
+            const schnell = f.other ? ' data-choice-action="Kennbuchstabe wählen"' : '';
+            const auswahl = lang
+              ? `<div class="tab-strip" role="group" aria-label="${esc(f.label)}"${schnell}>${optionen(opts, 'pill')}</div>`
+              : `<div class="segmented-control" role="group" aria-label="${esc(f.label)}"${schnell}>${optionen(opts, 'seg')}</div>`;
+            const eingabe = f.other
+              ? `<div class="liquid-surface-inner field-box"><input class="text-input" id="in-${f.id}-o" aria-label="${esc(f.label)}" data-f="${f.id}" data-other="1" placeholder="Wert eintragen" value="${esc(x)}" autocomplete="off"></div>`
+              : '';
+            return `<div class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span>${eingabe}${auswahl}</div>`;
           }
           case 'number': {
             const m = f.regel ? MESSWERTE[f.regel] : null;
-            const modus = m && m.min < 0 ? 'text' : m && m.ganz ? 'numeric' : 'decimal';
+            const modus = m && m.min < 0 ? 'text' : (m && m.ganz) || f.ganz ? 'numeric' : 'decimal';
             const ph = esc(f.ph || '');
-            body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${ph}"><span class="unit">${esc(f.unit || '')}</span></div>
-        <div class="soll" id="soll-${f.id}">${sollHtml(f, v)}</div>`;
-            break;
+            if (KOPF_IDS.has(f.id)) {
+              return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}${req}${hint}</label>
+          <div class="liquid-surface-inner input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${ph}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
+            }
+            const soll = f.regel ? sollText(f, v) : '';
+            const notizen = [f.hint, soll]
+              .filter(Boolean)
+              .map((t) => `<div>${esc(t)}</div>`)
+              .join('');
+            return `<div class="meas-wrap${fehler}">
+          <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${f.regel ? messPill(f, v) : ''}<input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${ph}"><span class="input-unit-addon">${esc(f.unit || '')}</span></label>
+          ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
+        </div>`;
           }
           case 'date':
-            body = `<input id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}" style="max-width:260px">`;
-            break;
+            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
           case 'longtext':
-            body = `<textarea id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea>`;
-            break;
+            return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></label>`;
           default:
-            body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
+            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">${errHtml}</label>`;
         }
-        return `<div class="field ${err ? 'err' : ''}${f.parent ? ' mangel' : ''}">${lab}${body}${errHtml}</div>`;
-      }
-      function sollHtml(f, v) {
-        const s = sollText(f, v);
-        const ev = evalField(f, v);
-        if (ev === 'warn') {
-          return `<span class="badge warn">außerhalb Sollbereich</span> <span class="muted">${esc(s)}</span>`;
-        }
-        if (ev === 'ok') {
-          return `<span class="badge ok">im Sollbereich</span> <span class="muted">${esc(s)}</span>`;
-        }
-        return s ? `<span class="muted">${esc(s)}</span>` : '';
       }
 
-      function finalHtml(p) {
+      function finalHtml(p, felder) {
         const d = defects(p);
-        const missing = TEMPLATE.pages
+        const fehlend = TEMPLATE.pages
           .slice(0, -1)
           .map((pg, k) => [k, pageErrors(p, k)])
           .filter((x) => x[1].length);
-        const unvollstaendig = missing.length
-          ? `<div class="warnbox stag" style="--i:2"><b>Noch unvollständig:</b><ul style="margin:6px 0 0">${missing
+        const unvollstaendig = fehlend.length
+          ? `<div class="notice" role="status"><b>Noch unvollständig</b><ul class="notice-list">${fehlend
               .map(
                 ([k, errs]) =>
-                  `<li><a class="jump" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</a>: ${errs.map((e) => esc(e[0].label)).join(', ')}</li>`,
+                  `<li><button type="button" class="jump-link" data-act="jump" data-i="${k}">${esc(TEMPLATE.pages[k].title)}</button>: ${errs.map((e) => esc(e[0].label)).join(', ')}</li>`,
               )
               .join('')}</ul></div>`
           : '';
-        const auffaellig = d.length
-          ? `<span class="badge bad">${d.length}</span><ul>${d.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`
-          : '<span class="badge ok">keine</span>';
-        const name = p.values.techniker ? ' (' + esc(p.values.techniker) + ')' : '';
-        return `
-    ${unvollstaendig}
-    <div class="card stag" style="--i:3"><b>Auffälligkeiten:</b> ${auffaellig}</div>
-    <div class="card stag" style="--i:4">
-      <div class="grid2">
-        <div>
-          <label>Unterschrift Techniker${PFLICHTFELDER ? ' *' : ''}${name}</label>
-          <div class="sigwrap"><canvas class="sig" data-sig="tech"></canvas></div>
-          <button class="btn small" data-act="sigclear" data-sig="tech">Unterschrift löschen</button>
-        </div>
-      </div>
-    </div>`;
+        const maengel = `<h2 class="section-title">Mängel und auffällige Messwerte <span class="section-count">${d.length}</span></h2>${
+          d.length
+            ? `<div class="group group--form">${d.map((x) => `<div class="defect">${esc(x)}</div>`).join('')}</div>`
+            : '<p class="empty-note">Keine Mängel erfasst.</p>'
+        }`;
+        const name = p.values.techniker ? esc(p.values.techniker) : '';
+        const unterschrift = `<h2 class="section-title">Unterschrift Techniker${PFLICHTFELDER ? ' *' : ''}${name ? ` <span class="section-count">${name}</span>` : ''}</h2>
+      <div class="sigwrap"><canvas class="sig" data-sig="tech" aria-label="Unterschrift Techniker"></canvas></div>
+      <button type="button" class="btn-secondary" data-act="sigclear" data-sig="tech"><span class="material-symbols-rounded" aria-hidden="true">ink_eraser</span><span>Unterschrift löschen</span></button>`;
+        return `${unvollstaendig}${maengel}${felder}${unterschrift}`;
       }
 
       /* @@quelle:reportParts */
@@ -2026,7 +2463,7 @@
         if (isStandalone()) {
           return '';
         }
-        return `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`;
+        return `<a class="btn-secondary" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">PDF öffnen</a>`;
       }
       function dbList() {
         const q = (view.q || '').toLowerCase().trim();
@@ -2041,27 +2478,35 @@
           )
           .sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
         if (!list.length) {
-          return `<div class="emptybox">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</div>`;
+          return `<p class="empty-note">${dbCache.list.length ? 'Keine Treffer. Suchbegriff ändern oder leeren.' : 'Keine Daten. „Aus Datenbank laden“ ruft die Protokollliste ab.'}</p>`;
         }
         const lim = view.lim || 100;
         const shown = list.slice(0, lim);
-        return `<div class="card"><table>
-    <thead><tr><th>Datum</th><th>Protokoll / Kundennr.</th><th>Bewertung</th><th></th></tr></thead>
-    <tbody>${shown
-      .map(
-        (e) => `<tr>
-      <td>${esc(fmtDate(e.datum))}</td>
-      <td><b>${esc(e.projekt)}</b>${e.kunde ? ' · ' + esc(e.kunde) : ''}<br><span class="muted" style="font-size:14px">${esc([e.typ, e.modell, e.techniker].filter(Boolean).join(' · '))}</span></td>
-      <td>${bewertungBadge(e.bewertung)}</td>
-      <td style="text-align:right;white-space:nowrap">${
-        e.pdfUrl
-          ? `<a class="btn small primary" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`
-          : `<button class="btn small primary" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`
-      }
-        <button class="btn small" data-act="dbedit" data-key="${esc(e.key)}">Bearbeiten</button></td></tr>`,
-      )
-      .join('')}</tbody></table></div>
-    ${list.length > lim ? `<button class="btn bfull" data-act="dbmore">Weitere anzeigen (${lim} von ${list.length})</button>` : ''}`;
+        const zeilen = shown
+          .map((e) => {
+            const unter = [e.typ, e.modell, e.techniker].filter(Boolean).map(esc).join(', ');
+            const pdf = e.pdfUrl
+              ? `<a class="proto-open" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">`
+              : `<button type="button" class="proto-open" data-act="dbreport" data-key="${esc(e.key)}">`;
+            const pdfEnde = e.pdfUrl ? '</a>' : '</button>';
+            return `
+        <div class="row proto-row">
+          ${pdf}
+            <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">description</span></span>
+            <span class="row-text">
+              <span class="row-title">${esc(e.projekt)}${e.kunde ? ', ' + esc(e.kunde) : ''}</span>
+              <span class="row-sub numeric">${esc(fmtDate(e.datum))}</span>
+              ${unter ? `<span class="row-sub">${unter}</span>` : ''}
+              ${e.bewertung ? `<span class="proto-pills">${bewertungBadge(e.bewertung)}</span>` : ''}
+            </span>
+            <span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>
+          ${pdfEnde}
+          <button type="button" class="icon-btn proto-act" data-act="dbedit" data-key="${esc(e.key)}" aria-label="Protokoll bearbeiten"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+        </div>`;
+          })
+          .join('');
+        return `<div class="group">${zeilen}</div>
+    ${list.length > lim ? `<button type="button" class="btn-secondary" data-act="dbmore">Weitere anzeigen (${lim} von ${list.length})</button>` : ''}`;
       }
 
       function initSig(canvas, p) {
@@ -2206,12 +2651,45 @@
         }
       }
 
+      /* Prüfpunkt oder Gesamtbewertung: Wahl, Mangel-Feld und Fortschritt an Ort ändern */
+      function wahlMarkieren(f, p) {
+        const zeile = app.querySelector(`[data-item="${f.id}"]`);
+        if (!zeile) {
+          render();
+          return;
+        }
+        const x = p.values[f.id];
+        zeile
+          .querySelectorAll('[data-act="set"]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === x)));
+        const offen = x === 'n.i.O.';
+        zeile.classList.toggle('has-defect', offen);
+        const hinweis = zeile.querySelector('.altwert');
+        if (hinweis) {
+          hinweis.remove();
+        }
+        const notiz = zeile.querySelector('.note-input');
+        if (notiz) {
+          notiz.tabIndex = offen ? 0 : -1;
+          if (offen && !notiz.value) {
+            setTimeout(() => notiz.focus(), 250);
+          }
+        }
+        const alleOk = $('#allokBtn');
+        if (alleOk) {
+          alleOk.hidden = !TEMPLATE.pages[p.page].fields.some(
+            (g) => g.type === 'okfail' && aktiv(g, p.values) && !p.values[g.id],
+          );
+        }
+        setSteps();
+      }
+
       const Actions = {
         home() {
           go('home');
         },
         settings() {
-          iosSheet.open(settingsBody(), render);
+          openSettings();
         },
         db() {
           go('db', { q: view.q });
@@ -2260,7 +2738,7 @@
           const p = protocols.find((x) => x.id === d.id);
           const frage =
             'Protokoll wieder öffnen und bearbeiten? Nach erneutem Abschließen wird der Eintrag in der Datenbank aktualisiert.';
-          if (!(await confirmModal('Bestätigen', frage, 'Fortsetzen', true))) {
+          if (!(await confirmModal('Protokoll bearbeiten', frage, 'Bearbeiten', false))) {
             return;
           }
           p.status = 'draft';
@@ -2278,7 +2756,7 @@
             msg =
               'ACHTUNG: Dieses Protokoll ist noch NICHT in der Datenbank. Wirklich endgültig löschen?';
           }
-          if (!(await confirmModal('Bestätigen', msg, 'Fortsetzen', true))) {
+          if (!(await confirmModal('Protokoll löschen', msg, 'Löschen', true))) {
             return;
           }
           protocols = protocols.filter((x) => x.id !== d.id);
@@ -2291,13 +2769,18 @@
           const gleich = p.values[d.f] === d.v && !isRequired(FIELD[d.f]);
           p.values[d.f] = gleich ? '' : d.v;
           save();
-          render();
+          const art = FIELD[d.f].type;
+          if (art === 'okfail' || art === 'bewertung') {
+            wahlMarkieren(FIELD[d.f], p);
+          } else {
+            render();
+          }
         },
         matfree() {
           const feld = $('#matfree');
           const teil = feld ? feld.value.trim() : '';
           if (!teil) {
-            toast('Bitte eine Bezeichnung eingeben.');
+            toast('Bezeichnung fehlt. Material benennen und erneut hinzufügen.');
             return;
           }
           const liste = materialArray(cur());
@@ -2328,13 +2811,13 @@
             render();
             $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.';
             toast('Bitte die markierten Felder prüfen.');
-            const first = document.querySelector('.field.err');
+            const first = document.querySelector('.has-error');
             if (first) {
               first.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             return;
           }
-          stepTo('fwd', () => {
+          wechsleSeite(() => {
             p.page++;
             save();
             view.tried = false;
@@ -2343,7 +2826,7 @@
         prev() {
           const p = cur();
           if (p.page > 0) {
-            stepTo('back', () => {
+            wechsleSeite(() => {
               p.page--;
               save();
               view.tried = false;
@@ -2359,10 +2842,22 @@
             window.scrollTo(0, 0);
             return;
           }
-          stepTo(t > p.page ? 'fwd' : 'back', () => {
+          wechsleSeite(() => {
             p.page = t;
             save();
             view.tried = true;
+          });
+        },
+        step(d) {
+          const p = cur();
+          const t = Number(d.i);
+          if (t === p.page) {
+            return;
+          }
+          wechsleSeite(() => {
+            p.page = t;
+            save();
+            view.tried = false;
           });
         },
         sigclear(d) {
@@ -2392,7 +2887,7 @@
           p.completedAt = new Date().toISOString();
           p.synced = false;
           save();
-          iosCheck();
+          toast('Protokoll abgeschlossen.');
           go('report', { id: p.id });
           syncAll(true);
         },
@@ -2535,16 +3030,24 @@
               local &&
               local.status === 'done' &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
-            , 'Fortsetzen', true))
+              !(await confirmModal(
+                'Version aus Datenbank laden',
+                'In der App gibt es zu diesem Protokoll noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
+                'Ersetzen',
+                true,
+              ))
             ) {
               return;
             }
             if (
               local &&
               local.status === 'draft' &&
-              !(await confirmModal('Bestätigen', 'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?'
-            , 'Fortsetzen', true))
+              !(await confirmModal(
+                'Version aus Datenbank laden',
+                'Dieses Protokoll ist hier schon als Entwurf geöffnet. Durch die Version aus der Datenbank ersetzen?',
+                'Ersetzen',
+                true,
+              ))
             ) {
               return;
             }
@@ -2610,8 +3113,12 @@
             toast('Fehler: ' + e.message);
           }
         },
-        checkupdate() { checkAppUpdate(APP_VERSION); },
-        forcereload() { clearCachesAndReload(); },
+        checkupdate() {
+          pruefeUpdate(true);
+        },
+        forcereload() {
+          clearCachesAndReload();
+        },
 
         savesettings(d) {
           settingsSave(SETTINGS_FIELDS, SPEICHER.settings);
@@ -2623,7 +3130,7 @@
           Actions.savesettings('silent');
           try {
             await api('ping');
-            toast('Verbindung zur Datenbank funktioniert ✓');
+            toast('Verbindung zur Datenbank funktioniert.');
             syncAll(true);
           } catch (e) {
             toast('Verbindung fehlgeschlagen: ' + e.message);
@@ -2657,6 +3164,15 @@
           Actions.matfree();
         }
       });
+      /* Zahlenfelder: beim Antippen ganzen Wert markieren, damit er sich direkt überschreiben lässt */
+      const markiereWert = (e) => {
+        const el = e.target;
+        if (el.matches && el.matches('.value-input, .glass-input')) {
+          setTimeout(() => el.select(), 0);
+        }
+      };
+      app.addEventListener('focusin', markiereWert);
+      app.addEventListener('click', markiereWert);
       app.addEventListener('input', (e) => {
         const el = e.target;
         if (el.dataset.f && view.name === 'wizard') {
@@ -2668,13 +3184,18 @@
             setHeader(false);
           }
           if (el.dataset.other) {
-            document
-              .querySelectorAll(`[data-act=set][data-f="${f.id}"]`)
-              .forEach((b) => b.classList.toggle('sel', b.dataset.v === el.value));
+            document.querySelectorAll(`[data-act=set][data-f="${f.id}"]`).forEach((b) => {
+              const an = String(b.dataset.v === el.value);
+              b.setAttribute(
+                b.hasAttribute('aria-selected') ? 'aria-selected' : 'aria-pressed',
+                an,
+              );
+            });
           }
-          if (f.type === 'number') {
-            $('#soll-' + f.id).innerHTML = sollHtml(f, p.values);
+          if (f.regel) {
+            messPillAktualisieren(f, p.values);
           }
+          setSteps();
         } else if (el.dataset.mat === 'menge' && view.name === 'wizard') {
           const m = materialArray(cur())[Number(el.dataset.i)];
           if (m) {
@@ -2699,60 +3220,6 @@
             save();
           });
         }
-      });
-      iosSwipe.init({
-        back() {
-          if (view.name === 'wizard') {
-            const p = cur();
-            if (!p) {
-              return null;
-            }
-            if (p.page > 0) {
-              const t = p.page - 1;
-              return {
-                html: wizardHtml(p, t),
-                go() {
-                  p.page = t;
-                  save();
-                  view.tried = false;
-                  render();
-                  window.scrollTo(0, 0);
-                },
-              };
-            }
-            return {
-              html: Views.home(),
-              go() {
-                Actions.home();
-              },
-            };
-          }
-          if (view.name === 'report') {
-            if (view.db) {
-              return {
-                html: Views.db(),
-                go() {
-                  Actions.db();
-                },
-              };
-            }
-            return {
-              html: Views.home(),
-              go() {
-                Actions.home();
-              },
-            };
-          }
-          if (view.name === 'db' || view.name === 'settings') {
-            return {
-              html: Views.home(),
-              go() {
-                Actions.home();
-              },
-            };
-          }
-          return null;
-        },
       });
       window.addEventListener('online', () => {
         updateNet();
@@ -2779,10 +3246,26 @@
         navigator.storage.persist().catch(() => {});
       }
       pruneSynced();
+      syncThemeUi();
       render();
       syncAll(true);
-      if (typeof initUpdateBadge === "function") initUpdateBadge(APP_VERSION);
+      if (navigator.onLine) {
+        pruefeUpdate(false);
+      }
     </script>
     <script src="shared/theme.js"></script>
+    <script type="module">
+      import { initChoiceDropdowns, initUnitPadding } from './shared/choice-dropdown.js';
+      let bereit = false;
+      window.agUiInit = () => {
+        if (bereit) {
+          return;
+        }
+        bereit = true;
+        initChoiceDropdowns();
+        initUnitPadding();
+      };
+      window.agUiInit();
+    </script>
   </body>
 </html>

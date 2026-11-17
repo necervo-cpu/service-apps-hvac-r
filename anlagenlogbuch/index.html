@@ -4,27 +4,36 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
-        <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Anlagenlogbuch" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
-    <meta name="color-scheme" content="light dark" />
+    <title>Anlagenlogbuch</title>
+
     <script>
       (function () {
+        var root = document.documentElement,
+          saved = null;
         try {
-          var saved = localStorage.getItem('ag-theme');
-          var sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-          document.documentElement.setAttribute('data-theme', saved || (sysLight ? 'light' : 'dark'));
+          saved = localStorage.getItem('ag-theme');
         } catch (e) {}
+        var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+        root.setAttribute(
+          'data-theme',
+          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
+        );
       })();
     </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      id="agFonts"
       href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
       rel="stylesheet"
       media="print"
@@ -36,160 +45,196 @@
         rel="stylesheet"
       />
     </noscript>
+    <script>
+      (function () {
+        var root = document.documentElement,
+          link = document.getElementById('agFonts');
+        if (!link || !document.fonts || !document.fonts.load) return;
+        var done = function () {
+          root.classList.remove('icons-pending');
+        };
+        root.classList.add('icons-pending');
+        setTimeout(done, 4000);
+        link.addEventListener('load', function () {
+          setTimeout(function () {
+            document.fonts.load('24px "Material Symbols Rounded"').then(done, done);
+          }, 0);
+        });
+        link.addEventListener('error', done);
+      })();
+    </script>
+
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="icon" type="image/png" href="icon-180.png" />
-    <title>Anlagenlogbuch</title>
     <script src="shared/lib/html2canvas.min.js" defer></script>
     <script src="shared/lib/jspdf.umd.min.js" defer></script>
-    <link rel="preload" as="font" type="font/woff2" href="shared/lib/fonts/material-symbols-rounded.woff2" crossorigin />
-    <link rel="stylesheet" href="shared/base.css" />
-    <link rel="stylesheet" href="shared/knoepfe.css" />
-    <link rel="stylesheet" href="shared/kacheln.css" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="shared/lib/fonts/material-symbols-rounded.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="shared/global.css" />
     <link rel="stylesheet" href="shared/pdf.css" />
     <style>
-      .pagehint {
-        color: var(--muted);
-        margin: 0 0 6px;
+      /* ===== Rahmen: Übersicht, Kopf, untere Leiste ===== */
+      html {
+        overscroll-behavior-y: none;
       }
-      .ferr {
-        color: var(--bad);
-        font-size: 14px;
-        font-weight: 600;
-        margin-top: 6px;
+      .htitle {
+        display: none;
       }
-      .field.err input,
-      .field.err textarea {
-        border-color: var(--bad);
+      .brand-title {
+        font-size: 1.65rem;
+        hyphens: none;
       }
-      .inunit input {
-        max-width: 260px;
-        font-size: 22px;
-      }
-      .inunit .unit {
-        color: var(--muted);
-        font-weight: 600;
-      }
-      .autonote {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 6px;
-      }
-      .autonote.man {
-        color: var(--warn);
-      }
-      @media (max-width: 700px) {
-        .frow {
-          flex-direction: column;
-          align-items: stretch;
-        }
-        .seg .btn {
-          flex: 1;
-        }
-      }
-      .kv {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4px 16px;
-      }
-      .kv div {
-        font-size: 15px;
-      }
-      .kv b {
-        font-weight: 600;
-        color: var(--muted);
-        font-size: 13px;
-        display: block;
-      }
-      @media (max-width: 640px) {
-        .kv {
-          grid-template-columns: 1fr;
-        }
-      }
-      .sigs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px 16px;
-      }
-      @media (max-width: 640px) {
-        .sigs {
-          grid-template-columns: 1fr;
-        }
-      }
-      .sigwrap {
-        border: 2px dashed var(--line);
-        border-radius: 12px;
-        background: #fff;
-        margin-bottom: 8px;
-      }
-      canvas.sig {
-        width: 100%;
-        height: 170px;
-        display: block;
-        touch-action: none;
-      }
-      .err {
-        color: var(--bad);
-        font-weight: 600;
-        margin-top: 10px;
-        min-height: 1.2em;
-      }
-      a.jump {
-        color: var(--ink);
-        font-weight: 600;
+      button.row,
+      .proto-open {
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        background: transparent;
+        border: 0;
         cursor: pointer;
-        text-decoration: underline;
-        text-decoration-color: var(--pri2);
-        text-decoration-thickness: 2px;
+        touch-action: manipulation;
       }
-      input:focus,
-      select:focus,
-      textarea:focus {
-        outline: 3px solid var(--gold);
-        outline-offset: 0;
-        border-color: var(--pri2);
+      a.btn-primary,
+      a.btn-secondary {
+        text-decoration: none;
       }
-      /* Meldung: Kapsel oben, Aussehen und Bewegung in shared/ios.css */
-      #toast {
-        position: fixed;
-        left: 50%;
-        opacity: 0;
-        max-width: 90vw;
-        text-align: center;
-        pointer-events: none;
+      .btn-secondary:disabled {
+        opacity: 0.4;
+        cursor: default;
       }
-      #toast.show {
-        opacity: 1;
+      .net {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        min-height: 20px;
+        margin-top: 0.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
       }
-      /* Feste Leiste unten (Zurück / Weiter / Speichern / PDF) */
+      .net .nd {
+        width: 6px;
+        height: 6px;
+        flex: none;
+        border-radius: 50%;
+        background: var(--system-green);
+      }
+      .net.off .nd {
+        background: var(--system-orange);
+      }
+      .net.off .nt {
+        color: var(--system-orange);
+        font-weight: 600;
+      }
+      .net .sep {
+        display: none;
+      }
+      .net .np {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .settings-update-dot[hidden] {
+        display: none;
+      }
+      .notice {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--system-orange-border);
+        border-radius: var(--radius-control);
+        background: var(--system-orange-tint);
+        color: var(--text-primary);
+        font-size: var(--text-sub);
+      }
+      .empty-note {
+        margin: 0 0 2.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .lead-note {
+        margin: 0 0 1rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .btn-wide {
+        margin-bottom: 1.5rem;
+      }
+      /* Protokoll-Zeile: antippbarer Hauptteil, rechts Einzel-Aktionen ohne Fläche */
+      .proto-row {
+        padding-right: 0.25rem;
+      }
+      .proto-open {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 0.875rem;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0;
+        text-decoration: none;
+      }
+      .proto-open .row-text {
+        overflow-wrap: anywhere;
+      }
+      .proto-act.is-danger {
+        color: var(--system-red);
+      }
+      .proto-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-top: 0.375rem;
+      }
+      .proto-pills .status-pill {
+        padding: 0.15rem 0.55rem;
+      }
+      /* Untere Leiste (Zurück / Weiter / Abschließen / PDF) */
       .bar {
         position: fixed;
         left: 0;
         right: 0;
         bottom: 0;
         z-index: 6;
-        padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+        padding: 0.625rem max(1rem, env(safe-area-inset-right))
+          calc(0.75rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+        background: var(--bg-canvas);
+        border-top: 1px solid var(--border-separator);
       }
-      .bar .btn {
+      .bar > div {
+        display: flex;
+        gap: 0.625rem;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+      .bar > div > * {
         flex: 1;
+        min-width: 0;
+      }
+      .bar .btn-primary,
+      .bar .btn-secondary {
         min-height: 52px;
-        font-weight: 700;
-        font-size: 15px;
       }
-      .bar .btn.primary {
-        border-color: var(--gold-dark);
-      }
-      body.hasbar main {
-        padding-bottom: calc(110px + env(safe-area-inset-bottom));
+      body.hasbar #app {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
       /* PDF-Knopf mit Fortschritt */
-      .bar .btn.pdfb {
+      .pdfb {
+        position: relative;
         overflow: hidden;
       }
       .pdfb .fill {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.14);
+        background: var(--on-accent);
+        opacity: 0.22;
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 220ms linear;
@@ -200,11 +245,11 @@
       .pdfb .lr {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 0.375rem;
         position: relative;
         transition:
-          opacity var(--t-fast),
-          transform var(--t-fast) var(--out);
+          opacity 0.2s ease,
+          transform 0.2s var(--ease-spring);
       }
       .pdfb .l2,
       .pdfb .lr {
@@ -231,367 +276,213 @@
       .pdfb.done .fill {
         opacity: 0;
       }
-      /* Wert wechselt: kurzes Aufleuchten */
+      /* Einstellungen und Rückfrage: Inhalt der Modal-Karte */
+      .panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .panel[hidden] {
+        display: none;
+      }
+      .panel .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+      }
+      .field-box {
+        display: flex;
+        align-items: center;
+        min-height: 50px;
+        padding: 0 0.875rem;
+      }
+      .field-box textarea.text-input {
+        min-height: 88px;
+        padding: 0.625rem 0;
+      }
+      .toast-pill .material-symbols-rounded {
+        color: var(--accent);
+      }
+      /* ===== Formular-Seiten: Fortschritt, Abschnitte, Felder ===== */
+      #stepwrap .hero {
+        margin-bottom: 0.875rem;
+      }
+      #stepwrap .progress-bar {
+        color: var(--accent);
+      }
+      #stepwrap .back-btn {
+        margin-bottom: 0.25rem;
+      }
+      #stepwrap .tab-strip {
+        margin-top: 0.875rem;
+        margin-bottom: 1rem;
+      }
+      .group--form > * + * {
+        border-top: 1px solid var(--border-separator);
+      }
+      .allok-btn {
+        margin-bottom: 1.5rem;
+      }
+      textarea.text-input {
+        resize: none;
+      }
+      .field-hint,
+      .check-label small {
+        display: block;
+        color: var(--text-tertiary);
+        font-size: var(--text-caption);
+      }
+      .field .input-wrapper {
+        margin: 0.375rem 0 0.25rem;
+      }
+      .field .glass-input {
+        font-size: 1rem;
+      }
+      .field .field-box {
+        margin: 0.5rem 0 0.25rem;
+      }
+      .field .tab-strip {
+        margin-inline: 0;
+        padding-inline: 0;
+        margin-top: 0.375rem;
+        margin-bottom: 0.5rem;
+      }
+      .field .note-input {
+        width: 100%;
+        margin: 0.5rem 0 0.25rem;
+      }
+      .field.check {
+        padding-bottom: 0.5rem;
+      }
+      .segmented-inline {
+        flex: none;
+        width: 9.5rem;
+      }
+      .check-label .status-pill {
+        margin-top: 0.375rem;
+      }
+      .meas-notes {
+        padding: 0 0.25rem 0.625rem;
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
+      }
+      .meas-wrap .meas-row {
+        min-height: 56px;
+      }
+      .meas-wrap .ferr {
+        padding: 0 0.25rem 0.625rem;
+        margin-top: 0;
+      }
+      .ferr {
+        color: var(--system-red);
+        font-size: var(--text-sub);
+        font-weight: 600;
+        margin-top: 0.375rem;
+      }
+      .has-error .value-input {
+        border-color: var(--system-red-border);
+      }
+      .has-error .input-wrapper {
+        outline: 1px solid var(--system-red);
+      }
+      .page-error {
+        min-height: 1.2em;
+        margin-top: 0.625rem;
+        color: var(--system-red);
+        font-weight: 600;
+      }
+      .typinfo {
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+      .notice-list {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .jump-link {
+        min-height: 44px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--accent);
+        font: inherit;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+      }
+      .sigwrap {
+        margin-bottom: 0.75rem;
+        border: 1px dashed var(--border-separator);
+        border-radius: var(--radius-icon);
+        background: white;
+        overscroll-behavior: contain;
+      }
+      canvas.sig {
+        display: block;
+        width: 100%;
+        height: 170px;
+        touch-action: none;
+      }
+      /* ===== Logbuch: Kennwerte, Hinweise, Berechnungen, Berichtsteile ===== */
+      .kv-list {
+        margin: 0 0 2.25rem;
+      }
+      .kv-item {
+        padding: 0.625rem 0.25rem;
+        overflow-wrap: anywhere;
+      }
+      .kv-item + .kv-item {
+        border-top: 1px solid var(--border-separator);
+      }
+      .kv-label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
+      }
+      .kv-value {
+        display: block;
+        font-size: var(--text-sub);
+      }
+      .field-hint.is-manual {
+        color: var(--system-orange);
+      }
       .flash {
-        animation: flash 900ms var(--out);
+        animation: flash 900ms ease-out;
       }
       @keyframes flash {
         from {
-          background-color: var(--flash);
-        }
-      }
-      /* Seitenwechsel zwischen den Schritten (.pg-*): shared/ios.css */
-      /* Karten erscheinen gestaffelt (nur solange .entering am Container hängt) */
-      .entering .stag {
-        opacity: 0;
-        transform: translateY(12px);
-        animation: up var(--t-med) var(--out) forwards;
-        animation-delay: calc(var(--i) * 70ms + 120ms);
-      }
-      @keyframes up {
-        to {
-          opacity: 1;
-          transform: none;
+          background-color: var(--system-blue-tint);
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        *,
-        *:before,
-        *:after {
-          transition-duration: 0.001ms !important;
-          transition-delay: 0ms !important;
-          animation-duration: 0.001ms !important;
-          animation-delay: 0ms !important;
-        }
-        .entering .stag {
-          opacity: 1;
-          transform: none;
+        .flash {
+          animation: none;
         }
       }
-      /* ===== Handy-Layout ===== */
-      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
-      input[type='date'] {
-        -webkit-appearance: none;
-        appearance: none;
-        display: block;
-        width: 100%;
-        min-width: 0;
+      .proto-pills .status-pill {
         max-width: 100%;
-        min-height: 50px;
-        height: 50px;
-        text-align: left;
-        margin: 0;
+        white-space: normal;
       }
-      input[type='date']::-webkit-date-and-time-value {
-        text-align: left;
-        min-width: 0;
-        margin: 0;
+      .proto-act {
+        flex: none;
       }
-      input[type='date']::-webkit-datetime-edit {
-        padding: 0;
-        text-align: left;
+      .seg-block {
+        margin-bottom: 0.875rem;
       }
-      /* Schmale Bildschirme (iPhone hochkant): Status kompakt, Tabellen als Karten */
-      @media (max-width: 480px) {
-        .net:not(.off) .nt,
-        .net:not(.off) .sep,
-        .net .nl {
-          display: none;
-        }
-        .net:not(.off) .nd {
-          margin-right: 0;
-        }
-        .net:not(.off) .np {
-          margin-left: 5px;
-        }
-        .ib {
-          width: 44px;
-          height: 44px;
-          min-width: 44px;
-          min-height: 44px;
-        }
-        header {
-          gap: 8px;
-        }
-        header .tt h1 {
-          font-size: 15px;
-        }
-      }
-      @media (max-width: 600px) {
-        header {
-          padding-left: 12px;
-          padding-right: 12px;
-        }
-        main,
-        #stepwrap {
-          padding-left: 12px;
-          padding-right: 12px;
-        }
-        .card {
-          padding: 12px 14px;
-        }
-        .pagetitle {
-          font-size: 22px;
-        }
-        .card > table thead {
-          display: none;
-        }
-        .card > table,
-        .card > table tbody,
-        .card > table tr,
-        .card > table td {
-          display: block;
-          width: 100%;
-        }
-        .card > table tr {
-          padding: 10px 0;
-          border-bottom: 1px solid var(--line);
-        }
-        .card > table tr:last-child {
-          border-bottom: 0;
-        }
-        .card > table td {
-          border: 0;
-          padding: 2px 0;
-          text-align: left !important;
-          white-space: normal !important;
-        }
-        .card > table td:last-child {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          padding-top: 8px;
-        }
-      }
-      /* ===== Ende Handy-Layout ===== */
-      /* ===== Design-Update: Startseiten-Look, Handy-Feinschliff ===== */
-      html {
-        overscroll-behavior-y: none;
-      }
-      header {
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-      }
-      main,
-      #stepwrap {
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-      }
-      .bar {
-        padding-left: max(14px, env(safe-area-inset-left));
-        padding-right: max(14px, env(safe-area-inset-right));
-      }
-      button,
-      a.btn,
-      .steps > *,
-      .opts .btn,
-      .seg .btn,
-      [role='button'],
-      [data-act] {
-        touch-action: manipulation;
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-      }
-      input,
-      select,
-      textarea {
-        font-size: 16px;
-      }
-      :where(button, a, input, select, textarea, [data-act]):focus-visible {
-        outline: 2px solid var(--gold);
-        outline-offset: 2px;
-      }
-      body {
-        overflow-wrap: break-word;
-      }
-      .card,
-      .bk-t,
-      .kv div,
-      .pagetitle,
-      .ent-m {
-        overflow-wrap: anywhere;
-        min-width: 0;
-      }
-      h2 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12.5px;
-        font-weight: 700;
-        margin: 24px 2px 10px;
-      }
-      h2 .n {
-        background: var(--k1);
-        color: var(--gold-text);
-        border-radius: 99px;
-        padding: 1px 8px;
-        font-size: 12px;
-        letter-spacing: 0;
-      }
-      .hint {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        color: var(--muted);
-        font-size: 14px;
-        margin: 14px 2px 0;
-      }
-      .hint .ico {
-        width: 18px;
-        height: 18px;
-        margin-top: 2px;
-        color: var(--gold-text);
-      }
-      /* Logbuch-Karten */
-      .bk {
-        border-left: 4px solid var(--gold);
-        padding: 14px 14px 12px;
-      }
-      .bk.due-bad {
-        border-left-color: var(--bad);
-      }
-      .bk.due-warn {
-        border-left-color: var(--warn);
-      }
-      .bk.due-ok {
-        border-left-color: var(--ok);
-      }
-      .bk-t b {
-        display: block;
-        font-size: 16px;
-        line-height: 1.25;
-      }
-      .bk-t .bk-s {
-        display: block;
-        font-size: 15px;
-        margin-top: 2px;
-      }
-      .bk-t .muted {
-        display: block;
-        font-size: 14px;
-        margin-top: 2px;
-      }
-      .bk-b {
+      .count-pills {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
-        margin: 10px 0 0;
+        gap: 0.375rem;
+        margin-bottom: 0.875rem;
       }
-      .bk-a {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        margin-top: 12px;
+      .search {
+        margin-bottom: 0.875rem;
       }
-      .bk-a .btn {
+      #stepwrap .hero-value--compact {
         min-width: 0;
-        text-align: center;
-      }
-      .bk-a .primary {
-        grid-column: 1/-1;
-      }
-      .bk-a .btn.danger {
-        grid-column: 1/-1;
-        min-height: 44px;
-        background: transparent;
-        border-color: transparent;
-      }
-      @media (min-width: 700px) {
-        .bk-a {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-        .bk-a .btn {
-          padding-left: 20px;
-          padding-right: 20px;
-          min-width: 140px;
-        }
-        .bk-a .btn.danger {
-          margin-left: auto;
-          min-width: 0;
-        }
-      }
-      .warnbox .btn {
-        margin-top: 10px;
-      }
-      .bk .ent-m {
-        margin-top: 6px;
-      }
-      .emptybox {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        text-align: center;
-        color: var(--muted);
-        padding: 28px 16px;
-        border: 1px dashed var(--line);
-        border-radius: 16px;
-        margin: 10px 0;
-      }
-      .emptybox .qi {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        background: var(--k1);
-        color: var(--gold-text);
-        display: grid;
-        place-items: center;
-      }
-      .emptybox b {
-        color: var(--ink);
-        font-size: 16px;
-      }
-      .kvcard {
-        border-left: 4px solid var(--gold);
-      }
-      @media (pointer: coarse) {
-        .btn.small {
-          min-height: 44px;
-        }
-      }
-      @media (max-width: 600px) {
-        .bk-a .btn.small {
-          padding: 6px 8px;
-        }
-        .row.tb {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        .row.tb .btn {
-          min-width: 0;
-          text-align: center;
-        }
-      }
-      /* ===== Ende Design-Update ===== */
-      /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
-      @font-face {
-        font-family: var(--font-sans);
-        font-style: normal;
-        font-weight: 400 800;
-        font-display: swap;
-        src: url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
-          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
-          U+FFFD;
-      }
-      @font-face {
-        font-family: var(--font-sans);
-        font-style: normal;
-        font-weight: 400 800;
-        font-display: swap;
-        src: url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
-        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
-          U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
-          U+A720-A7FF;
-      }
-      .sheetwrap {
-        background: var(--sheet);
-        border-radius: 12px;
-        padding: 16px 0 1px;
-        overflow: hidden;
       }
       /* Logbuch-spezifisch (ausserhalb shared/pdf.css; identisch in google-apps-script/PdfDialog.html): Unterschrift Erstprüfung, Unterschriften in Tabellenzellen */
       .report .sigbox {
@@ -623,35 +514,260 @@
       .report td.sigc .small {
         display: block;
       }
+      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
+      input[type='date'] {
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        text-align: left;
+        margin: 0;
+      }
+      input[type='date']::-webkit-date-and-time-value {
+        text-align: left;
+        min-width: 0;
+        margin: 0;
+      }
+      input[type='date']::-webkit-datetime-edit {
+        padding: 0;
+        text-align: left;
+      }
+      /* Bericht-Vorschau (A4-Seiten) */
+      .sheetwrap {
+        padding: 1rem 0 1px;
+        border-radius: var(--radius-icon);
+        background: var(--surface-inner-bg);
+        overflow: hidden;
+      }
+      /* Bericht: Tabellen wie vor dem Wechsel auf global.css (gleiche Spezifität wie die frühere Grundregel) */
+      :where(.report) th,
+      :where(.report) td {
+        vertical-align: top;
+      }
+      .report table {
+        font-feature-settings: 'tnum' 1;
+      }
+      /* Schrift des Ausdrucks – lokal, damit das PDF auch offline gleich aussieht (SIL Open Font License) */
+      @font-face {
+        font-family: var(--font-sans);
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+          U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF,
+          U+FFFD;
+      }
+      @font-face {
+        font-family: var(--font-sans);
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(shared/lib/fonts/plus-jakarta-sans-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
+          U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+          U+A720-A7FF;
+      }
     </style>
-    <link rel="stylesheet" href="shared/ios.css" />
   </head>
   <body>
-    <div class="ambient-canvas" aria-hidden="true">
-      <div class="ambient-blob ambient-blob--cyan"></div>
-      <div class="ambient-blob ambient-blob--purple"></div>
+    <div class="ambient-canvas" aria-hidden="true"></div>
+
+    <div class="app-shell" id="appShell">
+      <header class="app-header">
+        <div class="app-header-text">
+          <h1 class="brand-title">Anlagenlogbuch</h1>
+          <p class="brand-subtitle" id="hsub">Logbücher</p>
+          <div id="net" class="net"></div>
+        </div>
+        <button
+          type="button"
+          class="icon-btn"
+          id="themeToggleBtn"
+          aria-label="Darstellung wechseln"
+        ></button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="btnset"
+          data-act="settings"
+          aria-label="Einstellungen"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+          <span class="status-dot settings-update-dot" id="app-update-dot" hidden></span>
+        </button>
+      </header>
+      <div id="stepwrap" hidden></div>
+      <div class="stage"><main id="app"></main></div>
     </div>
-    <header>
-      <div class="logo">L</div>
-      <div class="tt" id="ttl" data-act="home">
-        <h1>Anlagenlogbuch</h1>
-        <span id="hsub">Logbücher</span>
-      </div>
-      <span id="net" class="net"></span>
-      <button
-        type="button"
-        class="ib themebtn"
-        id="themeToggleBtn"
-        aria-label="Darstellung wechseln"
-      ></button>
-      <button type="button" class="ib" id="btnset" data-act="settings" aria-label="Einstellungen">
-        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
-      <span class="update-dot" id="app-update-dot" aria-hidden="true"></span></button>
-    </header>
-    <div id="stepwrap" hidden></div>
-    <div class="stage"><main id="app"></main></div>
     <div class="bar" id="bar" hidden></div>
-    <div id="toast"></div>
+    <!-- Einstellungen und Rückfragen: mittige Karte, einzige Glasfläche der Seite -->
+    <div
+      class="modal-overlay"
+      id="modalHost"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="liquid-glass modal-card">
+        <div class="panel" id="panelSettings">
+          <div class="modal-head">
+            <h2 class="modal-title" id="settingsTitle">Einstellungen</h2>
+            <button class="icon-btn" id="modalCloseBtn" type="button" aria-label="Schließen">
+              <span class="material-symbols-rounded" aria-hidden="true">close</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Darstellung</div>
+            <div class="segmented-control" id="themeSegment" role="group" aria-label="Darstellung">
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="light"
+                aria-pressed="false"
+              >
+                Hell
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="dark"
+                aria-pressed="false"
+              >
+                Dunkel
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="system"
+                aria-pressed="false"
+              >
+                System
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Datenbank-Verbindung</div>
+            <label class="form-label" for="s_url">Web-App-URL aus Apps Script</label>
+            <div class="liquid-surface-inner field-box">
+              <input
+                class="text-input"
+                id="s_url"
+                type="text"
+                placeholder="https://script.google.com/macros/s/…/exec"
+                autocapitalize="off"
+                autocorrect="off"
+                autocomplete="off"
+              />
+            </div>
+            <label class="form-label" for="s_token">Token (wie TOKEN im Apps Script)</label>
+            <div class="liquid-surface-inner field-box">
+              <input
+                class="text-input"
+                id="s_token"
+                type="text"
+                autocapitalize="off"
+                autocorrect="off"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Allgemein</div>
+            <label class="form-label" for="s_firma">Firmenkopf im PDF (mehrzeilig möglich)</label>
+            <div class="liquid-surface-inner field-box">
+              <textarea
+                class="text-input"
+                id="s_firma"
+                rows="3"
+                placeholder="Firmenname, Straße, PLZ Ort, Telefon"
+              ></textarea>
+            </div>
+            <div id="settingsFields"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="savesettings">
+              <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+              <span>Einstellungen speichern</span>
+            </button>
+            <button type="button" class="btn-secondary" data-act="ping">
+              <span class="material-symbols-rounded" aria-hidden="true">cloud_sync</span>
+              <span>Speichern und Verbindung testen</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Datensicherung</div>
+            <p class="modal-text">
+              Sichert alle Logbücher der App als JSON-Datei. Übertragene Logbücher ohne angefangenen
+              Eintrag werden nach 7 Tagen aus der App entfernt und bleiben in der Datenbank.
+            </p>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" data-act="backup">
+                <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                <span>Backup exportieren</span>
+              </button>
+              <label class="btn-secondary" for="s_import">
+                <span class="material-symbols-rounded" aria-hidden="true">upload</span>
+                <span>Backup importieren</span>
+              </label>
+              <input type="file" id="s_import" accept=".json,application/json" hidden />
+            </div>
+          </div>
+
+          <div>
+            <div class="card-title">App-Info und Updates</div>
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-row-label">Installierte Version</span>
+                <span class="info-row-value numeric">
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.1.0</span>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-row-label">Build-Datum</span>
+                <span class="info-row-value numeric" id="appBuildDateLabel">2026-11-17</span>
+              </div>
+              <div class="info-row" id="updateRow" hidden>
+                <span class="info-row-label">Neue Version</span>
+                <span class="info-row-value numeric" id="updateRemote"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="checkupdate">
+              <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+              <span>Nach Updates suchen</span>
+            </button>
+            <button type="button" class="btn-secondary" data-act="forcereload">
+              <span class="material-symbols-rounded" aria-hidden="true">cleaning_services</span>
+              <span>Cache leeren und neu laden</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel" id="panelConfirm" hidden>
+          <h2 class="modal-title" id="cfTitle"></h2>
+          <p class="modal-text" id="cfText"></p>
+          <div class="modal-actions modal-actions--row">
+            <button type="button" class="btn-secondary" id="cfCancel">Abbrechen</button>
+            <button type="button" class="btn-primary" id="cfOk">Bestätigen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-pill" id="toast" role="status" aria-live="polite">
+      <span class="material-symbols-rounded" aria-hidden="true">info</span>
+      <span id="toastText"></span>
+    </div>
 
     <script src="shared/core.js"></script>
     <script src="shared/pdf-bausteine.js"></script>
@@ -659,7 +775,6 @@
     <script src="shared/sync.js"></script>
     <script src="shared/settings.js"></script>
     <script src="shared/wizard.js"></script>
-    <script src="shared/ios.js"></script>
     <script>
       'use strict';
       LS.fullMsg += ' Übertragene Logbücher aus der App entfernen.';
@@ -1583,55 +1698,89 @@
 
       /* ---------- Navigation ---------- */
       let view = { name: 'home' };
-      let enterNext = false,
-        enterT = null,
-        navBusy = false,
-        pdfBusy = null,
-        pdfProg = 0,
-        pdfTick = null,
-        hsubAnim = null;
+      let enterNext = false;
+      let enterT = null;
+      let navBusy = false;
+      let pdfBusy = null;
+      let pdfProg = 0;
+      let pdfTick = null;
+      let hsubAnim = null;
+      /* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
+      let fadenNr = 0;
+      function fadeThrough(change) {
+        if (RM() || !app.animate) {
+          change();
+          return;
+        }
+        const nr = ++fadenNr;
+        app.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: 'ease-out' });
+        setTimeout(() => {
+          if (nr !== fadenNr) {
+            return;
+          }
+          change();
+          app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+        }, 90);
+      }
       function go(name, params) {
         const was = view.name;
         view = Object.assign({ name }, params || {});
-        if (name === 'wizard' && was !== 'wizard') calcSeen = {};
-        enterNext = name === 'wizard'; // Karten beim Betreten gestaffelt einblenden
-        render();
-        window.scrollTo(0, 0);
+        if (name === 'wizard' && was !== 'wizard') {
+          calcSeen = {};
+        }
+        enterNext = name === 'wizard';
+        if (name === 'wizard') {
+          render();
+          window.scrollTo(0, 0);
+          return;
+        }
+        fadeThrough(() => {
+          render();
+          window.scrollTo(0, 0);
+        });
       }
       function render() {
         const enter = enterNext;
         enterNext = false;
         app.innerHTML = (Views[view.name] || Views.home)();
         if (!navBusy) {
-          // Klassen nur zurücksetzen, wenn gerade kein Seitenübergang läuft
           app.className = enter && !RM() ? 'entering' : '';
           clearTimeout(enterT);
-          if (enter)
+          if (enter) {
             enterT = setTimeout(() => {
-              if (!navBusy) app.classList.remove('entering');
+              if (!navBusy) {
+                app.classList.remove('entering');
+              }
             }, 900);
+          }
         }
         setHeader(true);
-        if (view.name === 'report') showReport();
+        if (view.name === 'report') {
+          showReport();
+        }
         initSigs();
         touchAutos();
         setSteps();
         setBar();
-        iosAfterRender(view.name);
         updateNet();
+        nachRender();
       }
       /* Auto-Felder der aktuellen Seite: Werte merken (Aufleuchten erst bei späterer Änderung) */
       function touchAutos() {
         const c = view.name === 'wizard' && ctx();
-        if (!c) return;
+        if (!c) {
+          return;
+        }
         c.tpl.pages[c.obj.page].fields
           .filter((f) => f.type === 'auto')
           .forEach((f) => {
             const el = $('#in-' + f.id);
-            if (el) calcTouch(f.id, el.value, el);
+            if (el) {
+              calcTouch(f.id, el.value, el);
+            }
           });
       }
-      /* Kopf: Unterzeile = Logbuch-Nr. · Betreiber (im Formular / Logbuch / Bericht), sonst Bereichsname */
+      /* Kopf: Unterzeile = Logbuch-Nr. und Betreiber (im Formular, Logbuch und Bericht), sonst Bereichsname */
       function hsubText() {
         const p =
           ['wizard', 'book'].includes(view.name) || (view.name === 'report' && !view.db)
@@ -1642,41 +1791,130 @@
             view.name === 'wizard' && view.eid ? p.entries.find((x) => x.id === view.eid) : null;
           return (
             (p.values.projekt || 'ohne Logbuch-Nr.') +
-            (betrText(p.values) ? ' · ' + betrText(p.values) : '') +
-            (eP ? ' · Eintrag ' + (fmtDate(eP.values.datum) || 'neu') : '')
+            (betrText(p.values) ? ', ' + betrText(p.values) : '') +
+            (eP ? ', Eintrag ' + (fmtDate(eP.values.datum) || 'neu') : '')
           );
         }
-        if (view.name === 'report' && view.db && view.rep) return view.rep.id || 'Logbuch';
-        return view.name === 'settings'
-          ? 'Einstellungen'
-          : view.name === 'db'
-            ? 'Datenbank / alle Logbücher'
-            : 'Logbücher';
+        if (view.name === 'report' && view.db && view.rep) {
+          return view.rep.id || 'Logbuch';
+        }
+        return view.name === 'db' ? 'Datenbank und alle Logbücher' : 'Logbücher';
       }
+      /* Fortschritt der Formular-Ansicht: erledigte Abschnitte und offene Eingabefehler */
+      function fortschritt(c) {
+        const n = c.tpl.pages.length - 1;
+        let done = 0;
+        let fehler = 0;
+        for (let k = 0; k < n; k++) {
+          if (pageDone(c, k)) {
+            done++;
+          }
+          fehler += pageErrors(c, k).length;
+        }
+        return { total: n, done, fehler };
+      }
+      /* Kopf der Formular-Ansicht: Zurück, Fortschritt (.hero), Abschnitte (.tab-strip) */
       function setSteps() {
+        const w = $('#stepwrap');
         const c = view.name === 'wizard' ? ctx() : null;
-        stepsRender(
-          c && {
-            key: view.id + ':' + (view.eid || ''),
-            pages: c.tpl.pages,
-            index: c.obj.page,
-            done: (k) => pageDone(c, k) && !c.tpl.pages[k].final,
-            pauseAct: 'pause',
-          },
-        );
+        if (!c) {
+          w.hidden = true;
+          w.dataset.pid = '';
+          return;
+        }
+        const i = c.obj.page;
+        const key = view.id + ':' + (view.eid || '');
+        if (w.dataset.pid !== key) {
+          w.dataset.pid = key;
+          w.dataset.seite = '';
+          const zurueck = view.eid || c.p.completedAt ? 'Logbuch' : 'Übersicht';
+          w.innerHTML = `
+            <button type="button" class="back-btn" data-act="pause"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>${zurueck}</button>
+            <section class="hero" aria-live="polite">
+              <div class="hero-line">
+                <span class="hero-value hero-value--compact numeric"><span id="progDone">0</span> <span class="metric-unit">von <span id="progTotal">0</span> Abschnitten</span></span>
+                <span class="status-pill status-pill--neutral" id="heroPill"></span>
+              </div>
+              <div class="progress-bar" id="progBar" role="progressbar" aria-label="Fortschritt" aria-valuemin="0" aria-valuemax="100"><i id="progFill"></i></div>
+            </section>
+            <nav class="tab-strip" data-choice-keep role="tablist" aria-label="Abschnitte">${c.tpl.pages
+              .map(
+                (pg, k) =>
+                  `<button type="button" class="tab-pill" role="tab" data-act="step" data-i="${k}"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>${esc(pg.short)}</button>`,
+              )
+              .join('')}</nav>`;
+        }
+        w.hidden = false;
+        const pt = fortschritt(c);
+        const pct = pt.total ? Math.round((pt.done / pt.total) * 100) : 0;
+        $('#progDone').textContent = pt.done;
+        $('#progTotal').textContent = pt.total;
+        $('#progFill').style.width = pct + '%';
+        $('#progBar').setAttribute('aria-valuenow', String(pct));
+        const pill = $('#heroPill');
+        pill.className = 'status-pill status-pill--' + (pt.fehler ? 'orange' : 'neutral');
+        pill.textContent = pt.fehler
+          ? pt.fehler === 1
+            ? '1 Eingabe prüfen'
+            : pt.fehler + ' Eingaben prüfen'
+          : 'Keine Hinweise';
+        w.querySelectorAll('.tab-pill').forEach((b, k) => {
+          b.classList.toggle('is-done', k !== i && !c.tpl.pages[k].final && pageDone(c, k));
+          b.setAttribute('aria-selected', String(k === i));
+          if (k === i) {
+            b.setAttribute('aria-current', 'step');
+          } else {
+            b.removeAttribute('aria-current');
+          }
+        });
+        if (w.dataset.seite !== String(i)) {
+          w.dataset.seite = String(i);
+          const aktiv = w.querySelector('.tab-pill[aria-selected="true"]');
+          const leiste = w.querySelector('.tab-strip');
+          if (aktiv && leiste) {
+            const dx = aktiv.getBoundingClientRect().left - leiste.getBoundingClientRect().left;
+            leiste.scrollLeft += dx - (leiste.clientWidth - aktiv.offsetWidth) / 2;
+          }
+        }
+      }
+      /* Abschnittswechsel: Überblenden statt Gleiten, Tastatur vorher schließen */
+      function wechsleSeite(change) {
+        const ae = document.activeElement;
+        if (ae && ae.matches && ae.matches('input,textarea,select')) {
+          ae.blur();
+        }
+        const noch = wizSnapshot();
+        fadeThrough(() => {
+          if (!noch()) {
+            return;
+          }
+          change();
+          render();
+          window.scrollTo(0, 0);
+        });
       }
       /* Feste Leiste unten */
       function barHtml() {
         if (view.name === 'wizard') {
           const c = ctx();
-          if (!c) return '';
-          const i = c.obj.page,
-            pg = c.tpl.pages[i];
-          return `<div><button class="btn" data-act="prev"${i === 0 ? ' disabled' : ''}>← Zurück</button>${pg.final ? `<button class="btn primary" data-act="finish">${view.eid ? 'Eintrag speichern ✓' : 'Logbuch speichern ✓'}</button>` : '<button class="btn primary" data-act="next">Weiter →</button>'}</div>`;
+          if (!c) {
+            return '';
+          }
+          const i = c.obj.page;
+          const pg = c.tpl.pages[i];
+          const weiter = pg.final
+            ? `<button type="button" class="btn-primary" data-act="finish">${view.eid ? 'Eintrag speichern' : 'Logbuch speichern'}</button>`
+            : '<button type="button" class="btn-primary" data-act="next">Weiter</button>';
+          return `<div><button type="button" class="btn-secondary" data-act="prev"${i === 0 ? ' disabled' : ''}>Zurück</button>${weiter}</div>`;
         }
         if (view.name === 'report' && reportForView()) {
           const run = pdfBusy === viewKey();
-          return `<div><button class="btn bback" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">← Zurück</button><button class="btn primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${run ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.key === viewKey() ? '<button class="btn bshare" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+          const fill = run ? ` style="transform:scaleX(${pdfProg})"` : '';
+          const teilen =
+            lastPdf && lastPdf.key === viewKey()
+              ? '<button type="button" class="btn-secondary" data-act="sharepdf">Teilen</button>'
+              : '';
+          return `<div><button type="button" class="btn-secondary" data-act="${view.db ? 'db' : 'openbook'}" data-id="${view.id || ''}">Zurück</button><button type="button" class="btn-primary pdfb${run ? ' run' : ''}" data-act="makepdf"><span class="fill"${fill}></span><span class="l1">PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${teilen}</div>`;
         }
         return '';
       }
@@ -1684,68 +1922,236 @@
         barRender(barHtml());
       }
       function wizSnapshot() {
-        const vid = view.id,
-          veid = view.eid;
+        const vid = view.id;
+        const veid = view.eid;
         return () => view.name === 'wizard' && view.id === vid && view.eid === veid;
       }
       function updateNet() {
         netRender(books.filter((p) => p.status === 'done' && !p.synced).length);
       }
-      const anlageText = (v) => [v.typ, v.sn && 'S/N ' + v.sn].filter(Boolean).join(' · ');
+      const anlageText = (v) => [v.typ, v.sn && 'S/N ' + v.sn].filter(Boolean).join(', ');
       const betrText = (v) => v.bFirma || v.bName || '';
-      /* grün = noch Zeit, gelb = in höchstens 60 Tagen fällig, rot = überfällig */
-      function nextBadge(s) {
-        if (!s.next) return '';
+      const chip = (ton, text) =>
+        `<span class="status-pill status-pill--${ton}">${esc(text)}</span>`;
+      const TON = { ok: 'green', warn: 'orange', bad: 'red' };
+      /* grün = noch Zeit, orange = in höchstens 60 Tagen fällig, rot = überfällig */
+      function nextChips(s) {
+        if (!s.next) {
+          return '';
+        }
         const d = dueState(s.next);
-        if (!d) return `<span class="badge">${esc(s.next)}</span>`;
-        return `<span class="badge ${d.cls}">nächste Prüfung ${esc(fmtDate(s.next))} – ${esc(d.text)}</span>`;
+        return d ? chip(TON[d.cls], d.text) : chip('neutral', s.next);
+      }
+      /* Kurzzeile unter dem Titel: nächste Prüfung als Datum */
+      function nextSub(s) {
+        return s.next && dueState(s.next) ? 'Nächste Prüfung ' + fmtDate(s.next) : '';
       }
 
-      /* Inhalt einer Formularseite (auch für die Unterlage beim Zurück-Wischen) */
-      function wizardHtml(c, i) {
-        const pg = c.tpl.pages[i];
-        const allYes = pg.fields.some((f) => f.allYes && !c.obj.values[f.id]);
-        return `
-    <div class="row between stag" style="--i:0"><div class="pagetitle">${esc(pg.title)}</div><div class="row">
-      ${pg.btn ? `<button class="btn small" data-act="${pg.btn.act}">${esc(pg.btn.label)}</button>` : ''}
-      ${allYes ? '<button class="btn small" data-act="allyes">Offene Prüfpunkte auf Ja</button>' : ''}</div></div>
-    ${pg.hint ? `<p class="pagehint stag" style="--i:0">${esc(pg.hint)}</p>` : ''}
-    ${
-      pg.fields.some((f) => !f.sigName)
-        ? iosGroups(
-            pg.fields.filter((f) => isVis(f, c.obj.values) && !f.sigName),
-            (f) => fieldHtml(f, c),
-            1,
-          )
-        : ''
-    }
-    ${pg.final ? finalHtml(c) : ''}
-    ${pg.sign ? sigHtml(c) : ''}
-    <div class="err" id="pageerr"></div>`;
+      const APP_VERSION = '2.1.0';
+      const BUILD_DATE = '2026-11-17';
+
+      /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
+      let toastTimer2;
+      function toast(msg) {
+        const t = $('#toast');
+        if (!t) {
+          return;
+        }
+        $('#toastText').textContent = msg;
+        t.classList.add('is-visible');
+        clearTimeout(toastTimer2);
+        toastTimer2 = setTimeout(() => t.classList.remove('is-visible'), 3500);
       }
 
-      const APP_VERSION = '2.0.3';
-      const BUILD_DATE = '2026-11-15';
-      function settingsBody() {
-        return (
-          settingsConnectionHtml() +
-          settingsGeneralHtml(SETTINGS_FIELDS) +
-          settingsButtonsHtml() +
-          settingsBackupHtml(
-            'Sichert alle Logbücher der App als JSON-Datei. Übertragene Logbücher ohne angefangenen Eintrag werden nach 7 Tagen automatisch aus der App entfernt – sie bleiben in der Datenbank.',
-          ) +
-          settingsVersionHtml(APP_VERSION, BUILD_DATE)
+      /* Mittige Karte (Einstellungen und Rückfragen): Rest der Seite inaktiv, Escape schließt */
+      let modalFocus = null;
+      let modalPanel = null;
+      let confirmDone = null;
+      function modalOpen(panel) {
+        const host = $('#modalHost');
+        modalPanel = panel;
+        $('#panelSettings').hidden = panel !== 'settings';
+        $('#panelConfirm').hidden = panel !== 'confirm';
+        host.setAttribute('aria-labelledby', panel === 'settings' ? 'settingsTitle' : 'cfTitle');
+        $('#appShell').inert = true;
+        $('#bar').inert = true;
+        modalFocus = document.activeElement;
+        host.classList.add('is-open');
+        const first = host.querySelector(
+          `#${panel === 'settings' ? 'panelSettings' : 'panelConfirm'} button`,
         );
+        if (first) {
+          first.focus();
+        }
       }
+      function modalClose() {
+        if (!modalPanel) {
+          return;
+        }
+        const war = modalPanel;
+        modalPanel = null;
+        $('#modalHost').classList.remove('is-open');
+        $('#appShell').inert = false;
+        $('#bar').inert = false;
+        if (modalFocus && modalFocus.focus) {
+          modalFocus.focus();
+        }
+        if (war === 'confirm' && confirmDone) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          fertig(false);
+        }
+        if (war === 'settings') {
+          render();
+        }
+      }
+      /* Rückfrage (ersetzt den Browser-Dialog): gleiche Aufrufschnittstelle wie in shared/core.js */
+      function confirmModal(title, message, confirmLabel = 'Bestätigen', danger = false) {
+        return new Promise((resolve) => {
+          $('#cfTitle').textContent = title;
+          $('#cfText').textContent = message;
+          const ok = $('#cfOk');
+          ok.textContent = confirmLabel;
+          ok.className = danger ? 'btn-danger' : 'btn-primary';
+          confirmDone = resolve;
+          modalOpen('confirm');
+        });
+      }
+      function openSettings() {
+        $('#s_url').value = settings.url || '';
+        $('#s_token').value = settings.token || '';
+        $('#s_firma').value = settings.firma || '';
+        $('#settingsFields').innerHTML = SETTINGS_FIELDS.map(
+          (f) => `
+            <div class="form-group">
+              <label class="form-label" for="${f.id}">${esc(f.label)}</label>
+              <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}" autocomplete="off"></div>
+            </div>`,
+        ).join('');
+        syncThemeUi();
+        modalOpen('settings');
+      }
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#modalCloseBtn') || e.target === $('#modalHost')) {
+          modalClose();
+        } else if (e.target.closest('#cfCancel')) {
+          modalClose();
+        } else if (e.target.closest('#cfOk')) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          modalPanel = null;
+          $('#modalHost').classList.remove('is-open');
+          $('#appShell').inert = false;
+          $('#bar').inert = false;
+          if (modalFocus && modalFocus.focus) {
+            modalFocus.focus();
+          }
+          if (fertig) {
+            fertig(true);
+          }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          modalClose();
+        }
+      });
+
+      /* Darstellung: Segment in den Einstellungen kennt zusätzlich „System“, der Kopf-Knopf schaltet Hell und Dunkel */
+      const systemHell = window.matchMedia('(prefers-color-scheme: light)');
+      function gespeicherteDarstellung() {
+        try {
+          const v = localStorage.getItem('ag-theme');
+          return v === 'light' || v === 'dark' ? v : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      function syncThemeUi() {
+        const wahl = gespeicherteDarstellung() || 'system';
+        document
+          .querySelectorAll('[data-theme-choice]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === wahl)));
+        const btn = $('#themeToggleBtn');
+        if (btn) {
+          const dunkel = document.documentElement.getAttribute('data-theme') !== 'light';
+          btn.innerHTML = `<span class="material-symbols-rounded" aria-hidden="true">${dunkel ? 'light_mode' : 'dark_mode'}</span>`;
+          btn.setAttribute(
+            'aria-label',
+            dunkel ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren',
+          );
+        }
+      }
+      function setzeDarstellung(wahl) {
+        try {
+          if (wahl === 'system') {
+            localStorage.removeItem('ag-theme');
+          } else {
+            localStorage.setItem('ag-theme', wahl);
+          }
+        } catch (e) {}
+        document.documentElement.setAttribute(
+          'data-theme',
+          wahl === 'system' ? (systemHell.matches ? 'light' : 'dark') : wahl,
+        );
+        syncThemeUi();
+      }
+      document
+        .querySelectorAll('[data-theme-choice]')
+        .forEach((b) => b.addEventListener('click', () => setzeDarstellung(b.dataset.themeChoice)));
+      new MutationObserver(syncThemeUi).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+
+      /* Update-Prüfung über version.json. Offline: nur Meldung, Caches und localStorage bleiben erhalten. */
+      async function pruefeUpdate(manuell) {
+        const knopf = $('[data-act="checkupdate"]');
+        if (manuell && knopf) {
+          knopf.disabled = true;
+        }
+        try {
+          const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) {
+            throw new Error('version.json nicht erreichbar');
+          }
+          const data = await res.json();
+          const remote = String(data.version || '').trim();
+          const neu = !!remote && remote !== APP_VERSION;
+          $('#app-update-dot').hidden = !neu;
+          $('#updateRow').hidden = !neu;
+          $('#updateRemote').textContent = neu ? 'v' + remote : '';
+          $('#app-version-label').className =
+            'status-pill ' + (neu ? 'status-pill--orange' : 'status-pill--green');
+          if (manuell) {
+            if (neu) {
+              toast('Update auf v' + remote + ' wird geladen.');
+              setTimeout(clearCachesAndReload, 900);
+            } else {
+              toast('Aktuellste Version v' + APP_VERSION + ' ist installiert.');
+            }
+          }
+        } catch (e) {
+          if (manuell) {
+            toast('Update-Prüfung nicht möglich. Internetverbindung prüfen und erneut versuchen.');
+          }
+        } finally {
+          if (knopf) {
+            knopf.disabled = false;
+          }
+        }
+      }
+
+      /* Auswahl-Dropdowns und mittige Zahlenfelder (shared/choice-dropdown.js, Modul unten) */
+      function nachRender() {
+        if (window.agUiInit) {
+          window.agUiInit();
+        }
+      }
+
       /* ---------- Ansichten ---------- */
-      const IC = {
-        plus: '<span class="material-symbols-rounded" aria-hidden="true">add</span>',
-        db: '<span class="material-symbols-rounded" aria-hidden="true">database</span>',
-        sync: '<span class="material-symbols-rounded" aria-hidden="true">sync</span>',
-        set: '<span class="material-symbols-rounded" aria-hidden="true">light_mode</span>',
-        book: '<span class="material-symbols-rounded" aria-hidden="true">menu_book</span>',
-        info: '<span class="material-symbols-rounded" aria-hidden="true">info</span>',
-      };
+      const CHEV =
+        '<span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>';
       const Views = {
         home() {
           const drafts = books.filter((p) => p.status === 'draft');
@@ -1757,208 +2163,276 @@
               ),
             );
           const pending = done.filter((p) => !p.synced).length;
+          const pendHtml = pending ? chip('orange', pending + ' offen') : '';
           return `
-      <div class="kstart">
-      <button type="button" class="cta" data-act="newbook"><span class="hi">${IC.plus}</span><span class="txt"><strong>Neues Logbuch</strong><small>Logbuch für eine neue Anlage anlegen</small></span></button>
-      <div class="qa">
-        <button class="qt" data-act="db"><span class="qi">${IC.db}</span><span><b>Datenbank / PDF</b><small>alle Logbücher</small></span></button>
-        <button class="qt" data-act="sync"><span class="qi">${IC.sync}</span><span><b>Synchronisieren</b><small>${pending ? pending + ' offen' : 'alles übertragen'}</small></span>${pending ? `<span class="pend" aria-hidden="true">${pending}</span>` : ''}</button>
+      ${
+        !settings.url
+          ? '<div class="notice"><span>Noch keine Verbindung zur Datenbank eingerichtet. Logbücher bleiben lokal gespeichert, bis die Web-App-URL in den Einstellungen steht.</span><button type="button" class="btn-secondary" data-act="settings">Einstellungen öffnen</button></div>'
+          : ''
+      }
+      <h2 class="section-title">Neues Logbuch</h2>
+      <div class="group">
+        <button type="button" class="row" data-act="newbook">
+          <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span></span>
+          <span class="row-text"><span class="row-title">Neues Logbuch</span><span class="row-sub">Logbuch für eine neue Anlage anlegen</span></span>
+          ${CHEV}
+        </button>
       </div>
-      ${!settings.url ? '<div class="warnbox">Noch keine Verbindung zur Datenbank eingerichtet. Logbücher werden lokal gespeichert, bis die Web-App-URL in den Einstellungen eingetragen ist.<br><button type="button" class="btn" data-act="settings">Einstellungen öffnen</button></div>' : ''}
+      <h2 class="section-title">Datenbank</h2>
+      <div class="group">
+        <button type="button" class="row" data-act="db">
+          <span class="row-icon row-icon--blue"><span class="material-symbols-rounded" aria-hidden="true">database</span></span>
+          <span class="row-text"><span class="row-title">Datenbank und PDF</span><span class="row-sub">Alle Logbücher suchen und öffnen</span></span>
+          ${CHEV}
+        </button>
+        <button type="button" class="row" data-act="sync">
+          <span class="row-icon row-icon--green"><span class="material-symbols-rounded" aria-hidden="true">sync</span></span>
+          <span class="row-text"><span class="row-title">Synchronisieren</span><span class="row-sub">${pending ? 'Logbücher warten auf die Übertragung' : 'Alles ist übertragen'}</span></span>
+          ${pendHtml}
+          ${CHEV}
+        </button>
       </div>
-      <p class="hint">${IC.info}<span>Jährliche Prüfung einer vorhandenen Anlage: <b>Datenbank</b> → Anlage suchen → <b>+ Eintrag</b>.</span></p>
-      ${drafts.length ? `<h2>Logbuch in Arbeit <span class="n">${drafts.length}</span></h2>${drafts.map(bookCard).join('')}` : ''}
-      <h2>Logbücher <span class="n">${done.length}</span></h2>
-      ${done.length ? done.map(bookCard).join('') : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Logbücher</b><span>Lege die erste Anlage an oder lade vorhandene aus der Datenbank.</span></div>`}`;
+      <p class="lead-note">Jährliche Prüfung einer vorhandenen Anlage: unter „Datenbank und PDF“ die Anlage suchen und einen neuen Eintrag anlegen.</p>
+      ${drafts.length ? `<h2 class="section-title">Logbuch in Arbeit <span class="section-count">${drafts.length}</span></h2><div class="group">${drafts.map(bookRow).join('')}</div>` : ''}
+      <h2 class="section-title">Logbücher <span class="section-count">${done.length}</span></h2>
+      ${done.length ? `<div class="group">${done.map(bookRow).join('')}</div>` : '<p class="empty-note">Noch keine Logbücher. Oben ein neues Logbuch anlegen oder vorhandene aus der Datenbank laden.</p>'}`;
         },
 
         book() {
           const p = book();
-          if (!p) return '<p>Logbuch nicht gefunden.</p>';
-          const v = p.values,
-            s = summary(p);
+          if (!p) {
+            return '<p class="empty-note">Logbuch nicht gefunden. Zurück zur Übersicht wechseln.</p>';
+          }
+          const v = p.values;
+          const s = summary(p);
           const draftE = p.entries.filter((e) => e.status === 'draft');
           const es = doneEntries(p).reverse();
-          const kv = (k, x) => `<div><b>${esc(k)}</b>${esc(x || '—')}</div>`;
+          const kv = (k, x) =>
+            `<div class="kv-item"><span class="kv-label">${esc(k)}</span><span class="kv-value">${esc(x || '–')}</span></div>`;
+          const dd = s.next ? dueState(s.next) : null;
+          let hero;
+          if (dd) {
+            const tage = Math.abs(dd.days);
+            hero = `<div class="hero-caption">${dd.days < 0 ? 'Dichtheitsprüfung überfällig seit' : 'Bis zur nächsten Dichtheitsprüfung'}</div>
+            <div class="hero-line"><span class="hero-value numeric">${tage} <span class="metric-unit">${tage === 1 ? 'Tag' : 'Tage'}</span></span>${chip(TON[dd.cls], fmtDate(s.next))}</div>`;
+          } else {
+            hero = `<div class="hero-caption">Nächste Dichtheitsprüfung</div>
+            <div class="hero-line"><span class="hero-value hero-value--compact">${esc(s.next || '–')}</span>${s.next ? '' : chip('neutral', 'Noch keine Prüfung eingetragen')}</div>`;
+          }
+          const eintrag = (e, entwurf) => {
+            const x = e.values;
+            const was = [(isN(x.auf) || isN(x.ent)) && 'Kältemittel', x.art, x.erg && 'Ergänzung']
+              .filter(Boolean)
+              .map(esc)
+              .join(', ');
+            const pills = entwurf
+              ? chip('orange', 'In Arbeit')
+              : (x.dicht
+                  ? chip(x.dicht === 'erfüllt' ? 'green' : 'red', 'Dichtheit ' + x.dicht)
+                  : '') + (x.mang ? chip('red', 'Mangel') : '');
+            const sub = [x.sk, x.zert].filter(Boolean).map(esc).join(', ');
+            return `
+        <div class="row proto-row">
+          <button type="button" class="proto-open" data-act="${entwurf ? 'resume' : 'editentry'}" data-id="${p.id}" data-eid="${e.id}">
+            <span class="row-icon row-icon--${entwurf ? 'orange' : 'blue'}"><span class="material-symbols-rounded" aria-hidden="true">${entwurf ? 'edit_note' : 'event_note'}</span></span>
+            <span class="row-text">
+              <span class="row-title numeric">${esc(fmtDate(x.datum) || 'Ohne Datum')}</span>
+              ${sub ? `<span class="row-sub">${sub}</span>` : ''}
+              ${was ? `<span class="row-sub">${was}</span>` : ''}
+              ${pills ? `<span class="proto-pills">${pills}</span>` : ''}
+            </span>
+            ${CHEV}
+          </button>
+          <button type="button" class="icon-btn proto-act is-danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}" aria-label="Eintrag löschen"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
+        </div>`;
+          };
           return `
-      <div class="row tb"><button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="newentry" data-id="${p.id}">+ Neuer Eintrag</button>
-        <button class="btn" data-act="report" data-id="${p.id}">Logbuch / PDF</button>
-        <button class="btn" data-act="editstamm" data-id="${p.id}">Anlagendaten bearbeiten</button></div>
-      <div class="card kvcard">
-        <div class="pagetitle">${esc(v.projekt || 'Ohne Nr.')}</div>
-        <div class="bk-b">${nextBadge(s)} <span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span></div>
-        <div class="kv" style="margin-top:12px">
-          ${kv('Betreiber', [v.bFirma, v.bName].filter(Boolean).join(', '))}
-          ${kv('Aufstellort', [v.aFirma || v.aName, v.aStr, [v.aPlz, v.aOrt].filter(Boolean).join(' ')].filter(Boolean).join(', '))}
-          ${kv('Anlage', [v.herst, anlageText(v)].filter(Boolean).join(' · '))}
-          ${kv('Kältemittel', [v.km, isN(v.fm) && fmtNum(v.fm) + ' kg', isN(v.co2) && fmtNum(v.co2) + ' t CO₂e'].filter(Boolean).join(' · '))}
-          ${kv('Prüfintervall', v.intv)}
-          ${kv('Letzte Dichtheitsprüfung', s.lastDicht ? fmtDate(s.lastDicht) + ' – ' + s.lastErg : '')}
-        </div>
+      <button type="button" class="back-btn" data-act="home"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>Übersicht</button>
+      <section class="hero">${hero}</section>
+      <div class="btn-row">
+        <button type="button" class="btn-primary" data-act="newentry" data-id="${p.id}"><span class="material-symbols-rounded" aria-hidden="true">add</span><span>Neuer Eintrag</span></button>
+        <button type="button" class="btn-secondary" data-act="report" data-id="${p.id}"><span class="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span><span>Logbuch als PDF</span></button>
       </div>
-      ${
-        draftE.length
-          ? `<h2>Eintrag in Arbeit <span class="n">${draftE.length}</span></h2>${draftE
-              .map(
-                (
-                  e,
-                ) => `<div class="card bk"><div class="bk-t"><b>${esc(fmtDate(e.values.datum))}</b><span class="muted">${esc(e.values.sk || '')}</span></div>
-        <div class="bk-a"><button class="btn small primary" data-act="resume" data-id="${p.id}" data-eid="${e.id}">Fortsetzen</button>
-        <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></div></div>`,
-              )
-              .join('')}`
-          : ''
-      }
-      <h2>Einträge <span class="n">${es.length}</span></h2>
-      ${
-        es.length
-          ? es
-              .map((e) => {
-                const x = e.values;
-                const what = [
-                  x.dicht &&
-                    `<span class="badge ${x.dicht === 'erfüllt' ? 'ok' : 'bad'}">Dichtheit ${esc(x.dicht)}</span>`,
-                  x.art && esc(x.art),
-                  (isN(x.auf) || isN(x.ent)) && 'Kältemittel',
-                  x.mang && '<span class="badge bad">Mangel</span>',
-                  x.erg && 'Ergänzung',
-                ]
-                  .filter(Boolean)
-                  .join(' · ');
-                return `<div class="card bk"><div class="bk-t"><b>${esc(fmtDate(x.datum))}</b><span class="muted">${esc([x.sk, x.zert].filter(Boolean).join(' · '))}</span></div>
-          <div class="ent-m">${what || '<span class="muted">—</span>'}</div>
-          <div class="bk-a"><button class="btn small" data-act="editentry" data-id="${p.id}" data-eid="${e.id}">Bearbeiten</button>
-          <button class="btn small danger" data-act="delentry" data-id="${p.id}" data-eid="${e.id}">Löschen</button></div></div>`;
-              })
-              .join('')
-          : `<div class="emptybox"><span class="qi">${IC.book}</span><b>Noch keine Einträge</b><span>Mit <b>+ Neuer Eintrag</b> die erste Prüfung / Wartung eintragen.</span></div>`
-      }`;
+      <button type="button" class="btn-secondary btn-wide" data-act="editstamm" data-id="${p.id}"><span class="material-symbols-rounded" aria-hidden="true">edit</span><span>Anlagendaten bearbeiten</span></button>
+      <div class="count-pills">${chip(p.synced ? 'green' : 'orange', p.synced ? 'in der Datenbank' : 'nicht übertragen')}</div>
+      <h2 class="section-title">Anlage</h2>
+      <div class="kv-list">
+        ${kv('Betreiber', [v.bFirma, v.bName].filter(Boolean).join(', '))}
+        ${kv('Aufstellort', [v.aFirma || v.aName, v.aStr, [v.aPlz, v.aOrt].filter(Boolean).join(' ')].filter(Boolean).join(', '))}
+        ${kv('Anlage', [v.herst, anlageText(v)].filter(Boolean).join(', '))}
+        ${kv('Kältemittel', [v.km, isN(v.fm) && fmtNum(v.fm) + ' kg', isN(v.co2) && fmtNum(v.co2) + ' t CO₂-Äquivalent'].filter(Boolean).join(', '))}
+        ${kv('Prüfintervall', v.intv)}
+        ${kv('Letzte Dichtheitsprüfung', s.lastDicht ? fmtDate(s.lastDicht) + ', ' + s.lastErg : '')}
+      </div>
+      ${draftE.length ? `<h2 class="section-title">Eintrag in Arbeit <span class="section-count">${draftE.length}</span></h2><div class="group">${draftE.map((e) => eintrag(e, true)).join('')}</div>` : ''}
+      <h2 class="section-title">Einträge <span class="section-count">${es.length}</span></h2>
+      ${es.length ? `<div class="group">${es.map((e) => eintrag(e, false)).join('')}</div>` : '<p class="empty-note">Noch keine Einträge. Mit „Neuer Eintrag“ die erste Prüfung oder Wartung eintragen.</p>'}`;
         },
 
         wizard() {
           const c = ctx();
-          if (!c) return '<p>Nicht gefunden.</p>';
+          if (!c) {
+            return '<p class="empty-note">Nicht gefunden. Zurück zur Übersicht wechseln.</p>';
+          }
           return wizardHtml(c, c.obj.page);
         },
 
         report() {
           const r = reportForView();
-          if (!r) return '<p>Logbuch nicht gefunden.</p>';
+          if (!r) {
+            return '<p class="empty-note">Logbuch nicht gefunden. Zurück zur Übersicht wechseln.</p>';
+          }
           const p = !view.db && book();
           return `
-      <div class="row noprint" style="margin-bottom:12px">
-        <span id="pdfbar" class="row">${pdfBarHtml()}</span>
-        ${view.db && settings.url ? `<button class="btn" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
-        ${p && !p.synced ? '<span class="badge warn">noch nicht in der Datenbank</span>' : ''}
+      <div class="btn-row">
+        <span id="pdfbar" class="btn-row">${pdfBarHtml()}</span>
+        ${view.db && settings.url ? `<button type="button" class="btn-secondary" data-act="drivepdf">PDF in Google Drive ablegen</button>` : ''}
       </div>
-      <p class="muted noprint" style="font-size:14px">„PDF erstellen“ → „Teilen“ → im Menü <b>Drucken</b>, <b>In Dateien sichern</b>, Mail oder AirDrop wählen. Funktioniert auch offline.</p>
+      ${p && !p.synced ? '<p class="lead-note">' + chip('orange', 'nicht in der Datenbank') + '</p>' : ''}
+      <p class="lead-note">„PDF erstellen“ und „Teilen“ speichern den Bericht in Dateien oder senden ihn per Mail oder AirDrop. Das geht auch offline.</p>
       <div class="sheetwrap"><div id="sheet" class="report"></div></div>`;
         },
 
         db() {
           const due = dbCache.list.map((e) => dueState(e.next)).filter(Boolean);
-          const over = due.filter((d) => d.cls === 'bad').length,
-            soon = due.filter((d) => d.cls === 'warn').length;
+          const over = due.filter((d) => d.cls === 'bad').length;
+          const soon = due.filter((d) => d.cls === 'warn').length;
+          const zaehler =
+            (over ? chip('red', over + ' überfällig') : '') +
+            (soon ? chip('orange', soon + ' in den nächsten 60 Tagen fällig') : '');
           return `
-      <div class="row tb">
-        <button class="btn" data-act="home">← Zurück</button>
-        <button class="btn primary" data-act="dbload">Aus Datenbank laden</button>
+      <button type="button" class="back-btn" data-act="home"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>Übersicht</button>
+      <button type="button" class="btn-primary btn-wide" data-act="dbload"><span class="material-symbols-rounded" aria-hidden="true">cloud_download</span><span>Aus Datenbank laden</span></button>
+      <p class="lead-note">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)}, ${dbCache.list.length} Logbücher. Zum Öffnen wird Internet benötigt.` : 'Noch nicht geladen. „Aus Datenbank laden“ ruft die Logbuchliste ab.'}</p>
+      <div class="segmented-control seg-block" role="group" aria-label="Sortierung">
+        <button type="button" class="segmented-option" data-act="dbsort" data-v="last" aria-pressed="${view.sort !== 'due'}">Zuletzt geprüft</button>
+        <button type="button" class="segmented-option" data-act="dbsort" data-v="due" aria-pressed="${view.sort === 'due'}">Nach Fälligkeit</button>
       </div>
-      <p class="muted">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)} · ${dbCache.list.length} Logbücher. Zum Öffnen wird Internet benötigt.` : 'Noch nicht geladen.'}</p>
-      <div class="row" style="margin-bottom:10px">
-        <div class="opts" style="margin:0">
-          <button class="btn small ${view.sort !== 'due' ? 'sel' : ''}" data-act="dbsort" data-v="last">Zuletzt geprüft</button>
-          <button class="btn small ${view.sort === 'due' ? 'sel' : ''}" data-act="dbsort" data-v="due">Nach Fälligkeit</button>
-        </div>
-        ${over ? `<span class="badge bad">${over} überfällig</span>` : ''}${soon ? `<span class="badge warn">${soon} in den nächsten 60 Tagen fällig</span>` : ''}
-      </div>
-      <input id="dbsearch" type="search" placeholder="Suchen: Logbuch-Nr., Betreiber, Ort, Anlage, Seriennummer …" value="${esc(view.q || '')}">
+      ${zaehler ? `<div class="count-pills">${zaehler}</div>` : ''}
+      <label class="search">
+        <span class="material-symbols-rounded" aria-hidden="true">search</span>
+        <input id="dbsearch" type="search" placeholder="Logbuch-Nr., Betreiber, Ort, Anlage" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
+      </label>
       <div id="dblist">${dbList()}</div>`;
-        },
-
-        settings() {
-          // Ausweich-Ansicht; normal öffnet Actions.settings das Blatt
-          return (
-            `<div class="row"><button class="btn" data-act="home">← Zurück</button></div>` +
-            settingsBody()
-          );
         },
       };
 
-      function bookCard(p) {
-        const v = p.values,
-          s = summary(p);
+      function bookRow(p) {
+        const v = p.values;
+        const s = summary(p);
+        const draft = p.status === 'draft';
         const draftE = p.entries.some((e) => e.status === 'draft');
-        const badges =
-          p.status === 'draft'
-            ? `<span class="badge warn">Schritt ${p.page + 1}/${STAMM.pages.length}</span>`
-            : `<span class="badge">${s.n} Einträge</span> ${nextBadge(s)} ${draftE ? '<span class="badge warn">Eintrag in Arbeit</span> ' : ''}<span class="badge ${p.synced ? 'ok' : 'warn'}">${p.synced ? 'in der Datenbank' : 'nicht übertragen'}</span>`;
-        const dd = dueState(s.next),
-          stripe = p.status !== 'draft' && dd ? ' due-' + dd.cls : '';
+        const pills = draft
+          ? chip('orange', `Schritt ${p.page + 1} von ${STAMM.pages.length}`)
+          : chip('neutral', s.n === 1 ? '1 Eintrag' : s.n + ' Einträge') +
+            nextChips(s) +
+            (draftE ? chip('orange', 'Eintrag in Arbeit') : '') +
+            chip(p.synced ? 'green' : 'orange', p.synced ? 'in der Datenbank' : 'nicht übertragen');
+        const meta = esc([anlageText(v), v.aOrt || v.bOrt].filter(Boolean).join(', '));
+        const sub = nextSub(s);
+        const add = draft
+          ? ''
+          : `<button type="button" class="icon-btn proto-act" data-act="newentry" data-id="${p.id}" aria-label="Neuen Eintrag anlegen"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>`;
         return `
-    <div class="card bk${stripe}">
-      <div class="bk-t"><b>${esc(v.projekt || 'Ohne Logbuch-Nr.')}</b>${betrText(v) ? `<span class="bk-s">${esc(betrText(v))}</span>` : ''}
-        <span class="muted">${esc([anlageText(v), v.aOrt || v.bOrt].filter(Boolean).join(' · '))}</span></div>
-      <div class="bk-b">${badges}</div>
-      <div class="bk-a">
-        ${
-          p.status === 'draft'
-            ? `<button class="btn small primary" data-act="resume" data-id="${p.id}">Fortsetzen</button>`
-            : `<button class="btn small primary" data-act="newentry" data-id="${p.id}">+ Neuer Eintrag</button>
-             <button class="btn small" data-act="openbook" data-id="${p.id}">Öffnen</button>
-             <button class="btn small" data-act="report" data-id="${p.id}">Logbuch / PDF</button>`
-        }
-        <button class="btn small danger" data-act="delbook" data-id="${p.id}">Aus App entfernen</button>
-      </div>
-    </div>`;
+        <div class="row proto-row">
+          <button type="button" class="proto-open" data-act="${draft ? 'resume' : 'openbook'}" data-id="${p.id}">
+            <span class="row-icon row-icon--${draft ? 'orange' : 'green'}"><span class="material-symbols-rounded" aria-hidden="true">${draft ? 'edit_note' : 'menu_book'}</span></span>
+            <span class="row-text">
+              <span class="row-title">${esc(v.projekt || 'Ohne Logbuch-Nr.')}</span>
+              ${betrText(v) ? `<span class="row-sub">${esc(betrText(v))}</span>` : ''}
+              ${meta ? `<span class="row-sub">${meta}</span>` : ''}
+              ${!draft && sub ? `<span class="row-sub numeric">${esc(sub)}</span>` : ''}
+              <span class="proto-pills">${pills}</span>
+            </span>
+            ${CHEV}
+          </button>
+          ${add}
+          <button type="button" class="icon-btn proto-act is-danger" data-act="delbook" data-id="${p.id}" aria-label="Logbuch aus der App entfernen"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
+        </div>`;
+      }
+
+      /* Inhalt einer Formularseite */
+      function wizardHtml(c, i) {
+        const pg = c.tpl.pages[i];
+        const v = c.obj.values;
+        const sichtbar = pg.fields.filter((f) => isVis(f, v) && !f.sigName);
+        const allYes = pg.fields.some((f) => f.allYes && !v[f.id]);
+        const gruppen = [];
+        sichtbar.forEach((f) => {
+          const name = f.group || '';
+          const letzte = gruppen[gruppen.length - 1];
+          if (letzte && letzte.name === name) {
+            letzte.liste.push(f);
+          } else {
+            gruppen.push({ name, liste: [f] });
+          }
+        });
+        const abschnitte = gruppen
+          .map(
+            (g) =>
+              `${g.name ? `<h2 class="section-title">${esc(g.name)}</h2>` : ''}
+              <div class="group group--form">${g.liste.map((f) => fieldHtml(f, c)).join('')}</div>`,
+          )
+          .join('');
+        const kopf = `${pg.hint ? `<p class="lead-note">${esc(pg.hint)}</p>` : ''}${
+          pg.btn
+            ? `<button type="button" class="btn-secondary allok-btn" data-act="${pg.btn.act}"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span><span>${esc(pg.btn.label)}</span></button>`
+            : ''
+        }${
+          allYes
+            ? '<button type="button" class="btn-secondary allok-btn" data-act="allyes"><span class="material-symbols-rounded" aria-hidden="true">done_all</span><span>Offene Prüfpunkte auf Ja setzen</span></button>'
+            : ''
+        }`;
+        return `${pg.final ? finalWarn(c) : ''}${kopf}${abschnitte}${pg.final ? finalInfo(c) : ''}${pg.sign ? sigHtml(c) : ''}
+    <div class="page-error" id="pageerr" role="alert"></div>`;
       }
 
       function fieldHtml(f, c) {
-        const v = c.obj.values,
-          x = v[f.id] ?? '';
+        const v = c.obj.values;
+        const x = v[f.id] ?? '';
         const err = view.tried ? fieldError(f, c.obj) : '';
-        const lab = `<label for="in-${f.id}">${esc(f.label)}</label>${f.hint ? `<div class="fhint">${esc(f.hint)}</div>` : ''}`;
-        const errHtml = err ? `<div class="ferr">${esc(err)}</div>` : '';
-        const seg = (vals, cls) =>
-          `<div class="seg">${vals.map((o, k) => `<button class="btn ${cls[k]} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
-        const tone = (o) =>
-          f.good && f.good.includes(o) ? 'ok' : f.bad && f.bad.includes(o) ? 'bad' : '';
-        let body;
+        const fehler = err ? ' has-error' : '';
+        const hint = f.hint ? `<small class="field-hint">${esc(f.hint)}</small>` : '';
+        const errHtml = err ? `<div class="ferr" role="alert">${esc(err)}</div>` : '';
+        const optionen = (vals) =>
+          vals
+            .map(
+              (o) =>
+                `<button type="button" class="segmented-option" data-act="set" data-f="${f.id}" data-v="${esc(o)}" aria-pressed="${x === o}">${esc(o)}</button>`,
+            )
+            .join('');
         switch (f.type) {
-          case 'yesno':
-            return `<div class="field ${err ? 'err' : ''}"><div class="frow"><div>${lab}</div>${iosSwitch(f, x, f.bad)}</div>${errHtml}</div>`;
-          case 'select': {
-            if (f.opts.length >= 3) {
-              const tones = f.opts.map((o) => tone(o));
-              body = iosSelect(f, x, f.opts, tones, PFLICHTFELDER && !!f.req);
-            } else {
-              body = `<div class="opts">${f.opts.map((o) => `<button class="btn ${tone(o)} ${x === o ? 'sel' : ''}" data-act="set" data-f="${f.id}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
-            }
-            break;
+          case 'yesno': {
+            const ev = evalField(f, v);
+            const warn = ev === 'bad' ? chip('orange', 'Prüfen') : '';
+            return `<div class="check-main"><span class="check-label">${esc(f.label)}${hint}${warn}</span><div class="segmented-control segmented-inline" role="group" aria-label="${esc(f.label)}">${optionen(['Ja', 'Nein'])}</div></div>`;
           }
-          case 'number':
-            body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="unit">${esc(f.unit || '')}</span></div>`;
-            break;
-          case 'auto':
-            body = `<div class="inunit"><input id="in-${f.id}" data-f="${f.id}" ${f.input === 'date' ? 'type="date"' : 'autocomplete="off"'} value="${esc(x)}" placeholder="${esc(f.ph || '')}" style="${f.input === 'date' ? 'font-size:17px' : ''}${f.unit ? '' : ';max-width:none'}"><span class="unit">${esc(f.unit || '')}</span></div>
-        <div class="autonote" id="note-${f.id}">${autoNote(f, c)}</div>`;
-            break;
+          case 'select':
+            return `<div class="field"><span class="field-label" id="lab-${f.id}">${esc(f.label)}${hint}</span><div class="segmented-control" role="group" aria-labelledby="lab-${f.id}">${optionen(f.opts)}</div></div>`;
+          case 'number': {
+            const neg = f.min != null && f.min < 0;
+            return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}${hint}</label>
+          <div class="liquid-surface-inner input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
+          }
+          case 'auto': {
+            const datum = f.input === 'date';
+            const modus = f.unit || f.id === 'gwp' ? 'decimal' : 'text';
+            return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}</label>
+          <div class="liquid-surface-inner input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" ${datum ? 'type="date"' : `inputmode="${modus}" autocomplete="off"`} value="${esc(x)}" placeholder="${esc(f.ph || '')}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>
+          <small class="field-hint${v['_m_' + f.id] ? ' is-manual' : ''}" id="note-${f.id}">${esc(autoNote(f, c))}</small>${errHtml}</div>`;
+          }
           case 'date':
-            body = `<input id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}" style="max-width:260px">`;
-            break;
+            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
           case 'longtext':
-            body = `<textarea id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea>`;
-            break;
+            return `<label class="field"><span class="field-label">${esc(f.label)}${hint}</span><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></label>`;
           default:
-            body = `<input id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
+            return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${hint}</span><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">${errHtml}</label>`;
         }
-        return `<div class="field ${err ? 'err' : ''}">${lab}${body}${errHtml}</div>`;
       }
       function autoNote(f, c) {
         return c.obj.values['_m_' + f.id]
-          ? '<span class="autonote man">von Hand eingetragen – Feld leeren, um wieder automatisch zu berechnen</span>'
-          : 'automatisch: ' + esc(f.note ? f.note(c.obj.values, c.L) : '');
+          ? 'Von Hand eingetragen. Feld leeren, um wieder automatisch zu berechnen.'
+          : 'Automatisch: ' + (f.note ? f.note(c.obj.values, c.L) : '');
       }
 
       /* ---------- Unterschriften (Erstprüfung und jeder Eintrag): obj.sig = Bilder, obj.sigF = Datei-IDs in Google Drive ---------- */
@@ -1970,14 +2444,13 @@
       }
       const sigOwner = () => view.eid || 'book';
       function sigHtml(c) {
-        const v = c.obj.values,
-          sk = view.eid ? v.sk : v.iSk;
-        return `<h2>Unterschriften</h2><div class="card stag" style="--i:3"><div class="sigs">
-    <div><label>Unterschrift Sachkundiger${sk ? ' (' + esc(sk) + ')' : ''}</label>
-      <div class="sigwrap"><canvas class="sig" data-sig="sk"></canvas></div>
-      <button class="btn small" data-act="sigclear" data-sig="sk">Unterschrift löschen</button></div>
-  </div></div>`;
+        const v = c.obj.values;
+        const sk = view.eid ? v.sk : v.iSk;
+        return `<h2 class="section-title">Unterschrift Sachkundiger${sk ? ` <span class="section-count">${esc(sk)}</span>` : ''}</h2>
+      <div class="sigwrap"><canvas class="sig" data-sig="sk" aria-label="Unterschrift Sachkundiger"></canvas></div>
+      <button type="button" class="btn-secondary" data-act="sigclear" data-sig="sk"><span class="material-symbols-rounded" aria-hidden="true">ink_eraser</span><span>Unterschrift löschen</span></button>`;
       }
+
       function initSig(canvas, obj) {
         const key = canvas.dataset.sig;
         const r = canvas.getBoundingClientRect(),
@@ -2063,26 +2536,34 @@
         });
       }
 
-      function finalHtml(c) {
-        const missing = c.tpl.pages
+      /* Abschlussseite: Hinweis auf unvollständige Abschnitte (oben) und Übersicht des Eintrags (unten) */
+      function finalWarn(c) {
+        const fehlend = c.tpl.pages
           .slice(0, -1)
           .map((pg, k) => [k, pageErrors(c, k)])
           .filter((x) => x[1].length);
-        const warn = missing.length
-          ? `<div class="warnbox stag" style="--i:2"><b>Bitte prüfen:</b><ul style="margin:6px 0 0">${missing
+        return fehlend.length
+          ? `<div class="notice" role="status"><b>Noch unvollständig</b><ul class="notice-list">${fehlend
               .map(
                 ([k, errs]) =>
-                  `<li><a class="jump" data-act="jump" data-i="${k}">${esc(c.tpl.pages[k].title)}</a>: ${errs.map((e) => esc(e[0].label)).join(', ')}</li>`,
+                  `<li><button type="button" class="jump-link" data-act="jump" data-i="${k}">${esc(c.tpl.pages[k].title)}</button>: ${errs.map((e) => esc(e[0].label)).join(', ')}</li>`,
               )
               .join('')}</ul></div>`
           : '';
-        if (!view.eid) return warn;
-        // Übersicht: in welche Tabellen des Logbuchs dieser Eintrag kommt
+      }
+      function finalInfo(c) {
+        if (!view.eid) {
+          return '';
+        }
         const ec = entryCols(c.obj);
         const tabs = LISTS.filter((l) => l.need.some((k) => ec[k])).map((l) => l.title);
-        return `${warn}<div class="card stag" style="--i:3"><b>Dieser Eintrag erscheint im Logbuch unter:</b>
-    ${tabs.length ? `<ul>${tabs.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '<p class="muted">Noch nichts ausgefüllt – bitte mindestens Dichtheitsprüfung, Wartung, Kältemittel, Mangel oder Ergänzung eintragen.</p>'}
-    ${c.obj.values.dicht === 'nicht erfüllt' ? '<div class="warnbox" style="margin-bottom:0">Dichtheitsanforderung nicht erfüllt: Undichtigkeit beheben und die Reparatur mit einer erneuten Dichtheitsprüfung (in der Regel innerhalb eines Monats) als eigenen Eintrag dokumentieren.</div>' : ''}</div>`;
+        const mangel =
+          c.obj.values.dicht === 'nicht erfüllt'
+            ? '<div class="notice" role="status"><span>Dichtheitsanforderung nicht erfüllt. Undichtigkeit beheben und die Reparatur mit einer erneuten Dichtheitsprüfung, in der Regel innerhalb eines Monats, als eigenen Eintrag dokumentieren.</span></div>'
+            : '';
+        return `<h2 class="section-title">Dieser Eintrag erscheint im Logbuch unter <span class="section-count">${tabs.length}</span></h2>
+      ${tabs.length ? `<div class="group group--form">${tabs.map((t) => `<div class="defect">${esc(t)}</div>`).join('')}</div>` : '<p class="empty-note">Noch nichts ausgefüllt. Mindestens Dichtheitsprüfung, Wartung, Kältemittel, Mangel oder Ergänzung eintragen.</p>'}
+      ${mangel}`;
       }
 
       /* @@quelle:reportParts */
@@ -2448,9 +2929,14 @@
       let lastPdf = null; // {key, file, url}
       const viewKey = () => (view.db ? 'db:' + view.key : 'loc:' + view.id);
       function pdfBarHtml() {
-        if (!lastPdf || lastPdf.key !== viewKey()) return '';
+        if (!lastPdf || lastPdf.key !== viewKey()) {
+          return '';
+        }
         // „Öffnen“ nur im normalen Browser – in der Home-Bildschirm-App gäbe es keinen Weg zurück
-        return `${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+        if (isStandalone()) {
+          return '';
+        }
+        return `<a class="btn-secondary" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">PDF öffnen</a>`;
       }
 
       function dbList() {
@@ -2473,21 +2959,38 @@
                   )
               : (a, b) => String(b.last).localeCompare(String(a.last)),
           );
-        if (!list.length)
-          return `<p class="muted">${dbCache.list.length ? 'Keine Treffer.' : 'Keine Daten.'}</p>`;
-        return list
+        if (!list.length) {
+          return `<p class="empty-note">${dbCache.list.length ? 'Keine Treffer. Suchbegriff ändern oder leeren.' : 'Keine Daten. „Aus Datenbank laden“ ruft die Logbuchliste ab.'}</p>`;
+        }
+        const zeilen = list
           .map((e) => {
             const dd = dueState(e.next);
-            return `<div class="card bk${dd ? ' due-' + dd.cls : ''}">
-      <div class="bk-t"><b>${esc(e.projekt)}</b>${e.kunde ? `<span class="bk-s">${esc(e.kunde)}</span>` : ''}<span class="muted">${esc([e.anlage, e.sn && 'S/N ' + e.sn, e.ort].filter(Boolean).join(' · '))}</span></div>
-      <div class="bk-b">${e.n ? `<span class="badge">${esc(e.n)} Einträge</span>` : ''}${e.next ? nextBadge({ next: e.next }) : ''}${e.erg === 'nicht erfüllt' ? '<span class="badge bad">nicht erfüllt</span>' : ''}</div>
-      <div class="bk-a">
-        <button class="btn small primary" data-act="dbopen" data-key="${esc(e.key)}" data-then="entry">+ Eintrag</button>
-        <button class="btn small" data-act="dbopen" data-key="${esc(e.key)}">Öffnen</button>
-        ${e.pdfUrl ? `<a class="btn small" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : `<button class="btn small" data-act="dbreport" data-key="${esc(e.key)}">PDF</button>`}
-      </div></div>`;
+            const unter = esc([e.anlage, e.sn && 'S/N ' + e.sn, e.ort].filter(Boolean).join(', '));
+            const pills =
+              (e.n ? chip('neutral', e.n + (Number(e.n) === 1 ? ' Eintrag' : ' Einträge')) : '') +
+              (e.next ? nextChips({ next: e.next }) : '') +
+              (e.erg === 'nicht erfüllt' ? chip('red', 'nicht erfüllt') : '');
+            const pdf = e.pdfUrl
+              ? `<a class="icon-btn proto-act" href="${esc(e.pdfUrl)}" target="_blank" rel="noopener" aria-label="PDF öffnen"><span class="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span></a>`
+              : `<button type="button" class="icon-btn proto-act" data-act="dbreport" data-key="${esc(e.key)}" aria-label="PDF ansehen"><span class="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span></button>`;
+            return `
+        <div class="row proto-row">
+          <button type="button" class="proto-open" data-act="dbopen" data-key="${esc(e.key)}">
+            <span class="row-icon row-icon--${dd ? TON[dd.cls] : 'blue'}"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span></span>
+            <span class="row-text">
+              <span class="row-title">${esc(e.projekt)}</span>
+              ${e.kunde ? `<span class="row-sub">${esc(e.kunde)}</span>` : ''}
+              ${unter ? `<span class="row-sub">${unter}</span>` : ''}
+              ${e.next && dd ? `<span class="row-sub numeric">${esc(nextSub({ next: e.next }))}</span>` : ''}
+              ${pills ? `<span class="proto-pills">${pills}</span>` : ''}
+            </span>
+          </button>
+          <button type="button" class="icon-btn proto-act" data-act="dbopen" data-key="${esc(e.key)}" data-then="entry" aria-label="Neuen Eintrag anlegen"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
+          ${pdf}
+        </div>`;
           })
           .join('');
+        return `<div class="group">${zeilen}</div>`;
       }
 
       /* ---------- Google-Sheet-Schnittstelle ---------- */
@@ -2641,7 +3144,7 @@
           go('home');
         },
         settings() {
-          iosSheet.open(settingsBody(), render);
+          openSettings();
         },
         db() {
           go('db', { q: view.q, sort: view.sort });
@@ -2686,7 +3189,14 @@
             return;
           }
           const draft = p.entries.find((e) => e.status === 'draft');
-          if (draft && (await confirmModal('Entwurf fortsetzen', 'Es gibt schon einen angefangenen Eintrag. Diesen fortsetzen?', 'Fortsetzen'))) {
+          if (
+            draft &&
+            (await confirmModal(
+              'Entwurf fortsetzen',
+              'Es gibt schon einen angefangenen Eintrag. Diesen fortsetzen?',
+              'Fortsetzen',
+            ))
+          ) {
             go('wizard', { id: p.id, eid: draft.id });
             return;
           }
@@ -2729,10 +3239,14 @@
           const p = book(d.id),
             e = p.entries.find((x) => x.id === d.eid);
           if (
-            !(await confirmModal('Bestätigen', e.status === 'draft' && !e.completedAt
+            !(await confirmModal(
+              'Eintrag löschen',
+              e.status === 'draft' && !e.completedAt
                 ? 'Angefangenen Eintrag verwerfen?'
-                : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch in der Datenbank entfernt.'
-            , 'Fortsetzen', true))
+                : 'Diesen Eintrag aus dem Logbuch löschen? Er wird beim Übertragen auch in der Datenbank entfernt.',
+              'Löschen',
+              true,
+            ))
           )
             return;
           p.entries = p.entries.filter((x) => x.id !== d.eid);
@@ -2751,7 +3265,7 @@
             : p.status === 'done'
               ? 'ACHTUNG: Änderungen an diesem Logbuch sind noch NICHT in der Datenbank. Wirklich aus der App entfernen?'
               : 'Angefangenes Logbuch verwerfen?';
-          if (!(await confirmModal('Bestätigen', msg, 'Fortsetzen', true))) return;
+          if (!(await confirmModal('Logbuch entfernen', msg, 'Entfernen', true))) return;
           books = books.filter((x) => x.id !== d.id);
           save();
           go('home');
@@ -2806,11 +3320,11 @@
             render();
             $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.';
             toast('Bitte die markierten Felder prüfen.');
-            const first = document.querySelector('.field.err');
+            const first = document.querySelector('.has-error');
             if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
           }
-          stepTo('fwd', () => {
+          wechsleSeite(() => {
             c.obj.page++;
             save();
             view.tried = false;
@@ -2819,7 +3333,7 @@
         prev() {
           const c = ctx();
           if (c.obj.page > 0)
-            stepTo('back', () => {
+            wechsleSeite(() => {
               c.obj.page--;
               save();
               view.tried = false;
@@ -2834,10 +3348,22 @@
             window.scrollTo(0, 0);
             return;
           }
-          stepTo(t > c.obj.page ? 'fwd' : 'back', () => {
+          wechsleSeite(() => {
             c.obj.page = t;
             save();
             view.tried = true;
+          });
+        },
+        step(d) {
+          const c = ctx();
+          const t = Number(d.i);
+          if (t === c.obj.page) {
+            return;
+          }
+          wechsleSeite(() => {
+            c.obj.page = t;
+            save();
+            view.tried = false;
           });
         },
         finish() {
@@ -2862,7 +3388,6 @@
           c.p.synced = false;
           save();
           const wasEntry = !!view.eid;
-          iosCheck(wasEntry ? 'Eintrag gespeichert' : 'Logbuch gespeichert');
           go('book', { id: c.p.id });
           toast(wasEntry ? 'Eintrag gespeichert.' : 'Logbuch gespeichert.');
           syncAll(true);
@@ -2993,8 +3518,12 @@
             if (
               local &&
               !local.synced &&
-              !(await confirmModal('Bestätigen', 'In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?'
-            , 'Fortsetzen', true))
+              !(await confirmModal(
+                'Version aus Datenbank laden',
+                'In der App gibt es zu diesem Logbuch noch nicht übertragene Änderungen. Durch die Version aus der Datenbank ersetzen?',
+                'Ersetzen',
+                true,
+              ))
             )
               return;
             let p;
@@ -3064,8 +3593,12 @@
             toast('Fehler: ' + e.message);
           }
         },
-        checkupdate() { checkAppUpdate(APP_VERSION); },
-        forcereload() { clearCachesAndReload(); },
+        checkupdate() {
+          pruefeUpdate(true);
+        },
+        forcereload() {
+          clearCachesAndReload();
+        },
 
         savesettings(d) {
           settingsSave(SETTINGS_FIELDS, 'alb.settings');
@@ -3075,7 +3608,7 @@
           Actions.savesettings('silent');
           try {
             await api('ping');
-            toast('Verbindung zur Datenbank funktioniert ✓');
+            toast('Verbindung zur Datenbank funktioniert.');
             syncAll(true);
           } catch (e) {
             toast('Verbindung fehlgeschlagen: ' + e.message);
@@ -3092,38 +3625,63 @@
       /* ---------- Events ---------- */
       document.addEventListener('click', (e) => {
         const b = e.target.closest('[data-act]');
-        if (!b || b.disabled) return;
+        if (!b || b.disabled) {
+          return;
+        }
         const fn = Actions[b.dataset.act];
         if (fn) {
           e.preventDefault();
-          if (navBusy) return;
+          if (navBusy) {
+            return;
+          }
           fn(b.dataset, b);
-        } // während eines Seitenübergangs Tipps ignorieren
+        }
       });
+      /* Zahlenfelder: beim Antippen ganzen Wert markieren, damit er sich direkt überschreiben lässt */
+      const markiereWert = (e) => {
+        const el = e.target;
+        if (el.matches && el.matches('.value-input, .glass-input') && el.type !== 'date') {
+          setTimeout(() => {
+            try {
+              el.select();
+            } catch (err) {}
+          }, 0);
+        }
+      };
+      app.addEventListener('focusin', markiereWert);
+      app.addEventListener('click', markiereWert);
       app.addEventListener('input', (e) => {
         const el = e.target;
         if (el.dataset.f && view.name === 'wizard') {
-          const c = ctx(),
-            f = c.tpl.F[el.dataset.f],
-            v = c.obj.values;
+          const c = ctx();
+          const f = c.tpl.F[el.dataset.f];
+          const v = c.obj.values;
           v[f.id] = el.value;
-          if (f.type === 'auto') v['_m_' + f.id] = el.value !== '';
+          if (f.type === 'auto') {
+            v['_m_' + f.id] = el.value !== '';
+          }
           recompute(c.obj, c.tpl, c.L);
           save();
-          setHeader(false); // Kopf-Unterzeile mitführen (kein Neuzeichnen)
-          if (f.type === 'auto') calcTouch(f.id, el.value, el, true);
+          setHeader(false);
+          if (f.type === 'auto') {
+            calcTouch(f.id, el.value, el, true);
+          }
           // abhängige Auto-Felder dieser Seite live nachführen (nicht das Feld, in dem gerade getippt wird)
           c.tpl.pages[c.obj.page].fields
             .filter((a) => a.type === 'auto')
             .forEach((a) => {
-              const ie = $('#in-' + a.id),
-                ne = $('#note-' + a.id);
+              const ie = $('#in-' + a.id);
+              const ne = $('#note-' + a.id);
               if (ie && ie !== el) {
                 ie.value = v[a.id] || '';
                 calcTouch(a.id, ie.value, ie);
               }
-              if (ne) ne.innerHTML = autoNote(a, c);
+              if (ne) {
+                ne.textContent = autoNote(a, c);
+                ne.classList.toggle('is-manual', !!v['_m_' + a.id]);
+              }
             });
+          setSteps();
         } else if (el.id === 'dbsearch') {
           view.q = el.value;
           $('#dblist').innerHTML = dbList();
@@ -3131,13 +3689,9 @@
       });
       document.addEventListener('change', async (e) => {
         const el = e.target;
-        if (el.dataset && el.dataset.pick && view.name === 'wizard') {
-          Actions.set({ f: el.dataset.pick, v: el.value });
-          return;
-        }
-        if (el.dataset.f && view.name === 'wizard') {
-          const c = ctx(),
-            f = c.tpl.F[el.dataset.f];
+        if (el.dataset && el.dataset.f && view.name === 'wizard') {
+          const c = ctx();
+          const f = c.tpl.F[el.dataset.f];
           if (f.type === 'auto' && el.value === '') {
             el.value = c.obj.values[f.id] || '';
           } // geleert → automatischer Wert erscheint
@@ -3148,70 +3702,12 @@
           });
         }
       });
-      /* Wischen vom linken Rand = zurück (Eltern-Seite als Unterlage) */
-      iosSwipe.init({
-        back() {
-          if (view.name === 'wizard') {
-            const c = ctx();
-            if (!c) return null;
-            const i = c.obj.page;
-            if (i > 0) {
-              const t = i - 1;
-              return {
-                html: wizardHtml(c, t),
-                go() {
-                  c.obj.page = t;
-                  save();
-                  view.tried = false;
-                  render();
-                  window.scrollTo(0, 0);
-                },
-              };
-            }
-            // Seite 1: Eintrag -> Logbuch; Anlagendaten -> Logbuch (beim Bearbeiten) bzw. Start (neues Logbuch)
-            if (view.eid || c.p.completedAt)
-              return {
-                html: Views.book(),
-                go() {
-                  Actions.openbook({ id: view.id });
-                },
-              };
-            return {
-              html: Views.home(),
-              go() {
-                Actions.home();
-              },
-            };
-          }
-          if (view.name === 'report') {
-            if (view.db)
-              return {
-                html: Views.db(),
-                go() {
-                  Actions.db();
-                },
-              };
-            return {
-              html: Views.book(),
-              go() {
-                Actions.openbook({ id: view.id });
-              },
-            };
-          }
-          if (view.name === 'book' || view.name === 'db' || view.name === 'settings')
-            return {
-              html: Views.home(),
-              go() {
-                Actions.home();
-              },
-            };
-          return null;
-        },
-      });
       let lastW = window.innerWidth;
       window.addEventListener('resize', () => {
         // Drehen des Geräts: Unterschriftsfelder neu aufbauen
-        if (window.innerWidth !== lastW && document.querySelector('canvas.sig')) render();
+        if (window.innerWidth !== lastW && document.querySelector('canvas.sig')) {
+          render();
+        }
         lastW = window.innerWidth;
       });
       window.addEventListener('online', () => {
@@ -3221,15 +3717,33 @@
       window.addEventListener('offline', updateNet);
 
       /* ---------- Start ---------- */
-      if ('serviceWorker' in navigator && location.protocol.startsWith('http'))
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
-      if (navigator.storage && navigator.storage.persist)
+      }
+      if (navigator.storage && navigator.storage.persist) {
         navigator.storage.persist().catch(() => {});
+      }
       pruneSynced();
+      syncThemeUi();
       render();
       syncAll(true);
-      if (typeof initUpdateBadge === "function") initUpdateBadge(APP_VERSION);
+      if (navigator.onLine) {
+        pruefeUpdate(false);
+      }
     </script>
     <script src="shared/theme.js"></script>
+    <script type="module">
+      import { initChoiceDropdowns, initUnitPadding } from './shared/choice-dropdown.js';
+      let bereit = false;
+      window.agUiInit = () => {
+        if (bereit) {
+          return;
+        }
+        bereit = true;
+        initChoiceDropdowns();
+        initUnitPadding();
+      };
+      window.agUiInit();
+    </script>
   </body>
 </html>

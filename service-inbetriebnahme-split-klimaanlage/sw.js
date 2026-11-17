@@ -1,7 +1,7 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder shared/ die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
 // Die Handler (install, activate, fetch) stehen in shared/sw-vorlage.js; hier nur Cache-Name und Dateiliste.
-const CACHE = 'split-ibn-v203';
+const CACHE = 'split-ibn-v210';
 const ASSETS = [
   './',
   './index.html',
@@ -12,15 +12,12 @@ const ASSETS = [
   './shared/pdf.js',
   './shared/pdf-bausteine.js',
   './shared/pdf.css',
-  './shared/ios.css',
-  './shared/ios.js',
+  './shared/global.css',
+  './shared/choice-dropdown.js',
   './shared/sync.js',
   './shared/settings.js',
   './shared/wizard.js',
   './shared/theme.js',
-  './shared/base.css',
-  './shared/knoepfe.css',
-  './shared/kacheln.css',
   './shared/sw-vorlage.js',
   './shared/lib/jspdf.umd.min.js',
   './shared/lib/html2canvas.min.js',

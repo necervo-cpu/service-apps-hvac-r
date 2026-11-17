@@ -1,0 +1,1949 @@
+/**
+ * Modul: Dual-Theme Stylesheet (liquid-glass-tokens.css), Design-Stand 2026-11-18
+ * Zweck: Verbindliches CSS für alle Projekte. Wird als global.css ins Projekt kopiert.
+ * Stil: Minimal. Aufbau nach Apple HIG (Grosstitel, Listen, Segmented Control), Farbgebung nach Material
+ *   (Akzent --accent, aktive Segmente --tonal). Inhalt steht direkt auf dem Canvas und wird nur durch
+ *   Abstand und Haarlinien gegliedert. Flächen nur dort, wo sie eine Aufgabe haben: Glas (.liquid-glass)
+ *   nur für Modal-Karten, innere Flächen (.liquid-surface-inner) für Eingaben, Segmente und Regler.
+ *   Icons: Material Symbols Rounded (Apache 2.0). Schrift: Inter, JetBrains Mono (OFL).
+ * Regeln: "Kein Glas auf Glas", flache Bedienelemente, 44 px Touch-Targets, mindestens 16px in Eingabefeldern.
+ * Barrierefreiheit: prefers-reduced-transparency, prefers-contrast und prefers-reduced-motion werden beachtet.
+ */
+
+/* ==========================================================================
+   1A. DARK MODE TOKENS (STANDARD & [data-theme="dark"])
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  --bg-canvas: #000000;
+  --bg-elevated: #1C1C1E;
+  --text-primary: #F4F4F6;
+  --text-secondary: #A1A1AC;
+  --text-tertiary: #6E6E78;
+  --border-separator: rgba(255, 255, 255, 0.14);
+
+  /* Haupt-Flächen (.liquid-glass): Rauchglas, Ambient scheint durch, kein Schlagschatten */
+  --glass-bg: linear-gradient(180deg, rgba(46, 46, 50, 0.62) 0%, rgba(28, 28, 31, 0.72) 100%);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-highlight: rgba(255, 255, 255, 0.18);
+  --glass-shadow: none;
+
+  /* Innere Flächen (.liquid-surface-inner): leichte Aufhellung ohne Blur */
+  --surface-inner-bg: rgba(255, 255, 255, 0.08);
+  --surface-inner-hover: rgba(255, 255, 255, 0.12);
+  --surface-inner-border: transparent;
+
+  /* Akzent und getönte Hauptfläche (Material-Farbgebung) */
+  --accent: #A8C7FA;
+  --on-accent: #062E6F;
+  --accent-border: rgba(168, 199, 250, 0.55);
+  --tonal: rgba(20, 58, 124, 0.86);
+  --on-tonal: #DCE7FF;
+
+  --segmented-active-bg: var(--tonal);
+  --segmented-active-text: var(--on-tonal);
+  --segmented-active-border: var(--glass-border);
+  --segmented-active-shadow: none;
+
+  /* Farbiger Ambient-Hintergrund: nur radial-gradient, nie filter: blur */
+  --ambient-bg:
+    radial-gradient(circle at 12% 6%, rgba(11, 87, 208, 0.36) 0%, transparent 46%),
+    radial-gradient(circle at 96% 44%, rgba(255, 138, 60, 0.26) 0%, transparent 44%),
+    radial-gradient(circle at 18% 96%, rgba(40, 180, 140, 0.24) 0%, transparent 42%);
+  --ambient-canvas-opacity: 0.25;
+  --glass-saturate: 160%;
+  --scrim: rgba(0, 0, 0, 0.45);
+  --chart-grid: rgba(255, 255, 255, 0.10);
+
+  /* Systemfarben (Dark Mode): Status, Medien in Fliessbildern, Rubriken */
+  --system-blue: #5E9BFF;
+  --system-blue-tint: rgba(94, 155, 255, 0.16);
+  --system-blue-border: rgba(94, 155, 255, 0.55);
+
+  --system-cyan: #5AD8E6;
+  --system-cyan-tint: rgba(90, 216, 230, 0.16);
+  --system-cyan-border: rgba(90, 216, 230, 0.55);
+
+  --system-green: #7FD99A;
+  --system-green-tint: rgba(127, 217, 154, 0.16);
+  --system-green-border: rgba(127, 217, 154, 0.55);
+
+  --system-orange: #FFB877;
+  --system-orange-tint: rgba(255, 184, 119, 0.16);
+  --system-orange-border: rgba(255, 184, 119, 0.55);
+
+  --system-yellow: #FFD60A;
+  --system-yellow-tint: rgba(255, 214, 10, 0.16);
+  --system-yellow-border: rgba(255, 214, 10, 0.55);
+
+  --system-red: #FF6961;
+  --system-red-tint: rgba(255, 105, 97, 0.16);
+  --system-red-border: rgba(255, 105, 97, 0.55);
+
+  --system-purple: #BF5AF2;
+  --system-purple-tint: rgba(191, 90, 242, 0.16);
+  --system-purple-border: rgba(191, 90, 242, 0.55);
+}
+
+/* ==========================================================================
+   1B. LIGHT MODE TOKENS ([data-theme="light"])
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-canvas: #F2F2F7;
+  --bg-elevated: #FFFFFF;
+  --text-primary: #111114;
+  --text-secondary: #5A5A66;
+  --text-tertiary: #8A8A94;
+  --border-separator: rgba(60, 60, 67, 0.16);
+
+  /* Haupt-Flächen (.liquid-glass): weisses Milchglas, kein Schlagschatten */
+  --glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.66) 100%);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-border-highlight: rgba(255, 255, 255, 0.95);
+  --glass-shadow: none;
+
+  --surface-inner-bg: rgba(120, 120, 128, 0.12);
+  --surface-inner-hover: rgba(120, 120, 128, 0.18);
+  --surface-inner-border: transparent;
+
+  --accent: #0B57D0;
+  --on-accent: #FFFFFF;
+  --accent-border: rgba(11, 87, 208, 0.45);
+  --tonal: rgba(214, 228, 255, 0.90);
+  --on-tonal: #062E6F;
+
+  --segmented-active-bg: var(--tonal);
+  --segmented-active-text: var(--on-tonal);
+  --segmented-active-border: var(--glass-border);
+  --segmented-active-shadow: none;
+
+  --ambient-canvas-opacity: 0.45;
+  --glass-saturate: 180%;
+  --scrim: rgba(0, 0, 0, 0.22);
+  --chart-grid: rgba(60, 60, 67, 0.12);
+
+  /* Systemfarben (Light Mode) */
+  --system-blue: #0B57D0;
+  --system-blue-tint: rgba(11, 87, 208, 0.13);
+  --system-blue-border: rgba(11, 87, 208, 0.45);
+
+  --system-cyan: #008A9E;
+  --system-cyan-tint: rgba(0, 138, 158, 0.13);
+  --system-cyan-border: rgba(0, 138, 158, 0.45);
+
+  --system-green: #1B7A3D;
+  --system-green-tint: rgba(27, 122, 61, 0.13);
+  --system-green-border: rgba(27, 122, 61, 0.45);
+
+  --system-orange: #B3400A;
+  --system-orange-tint: rgba(196, 80, 10, 0.13);
+  --system-orange-border: rgba(179, 64, 10, 0.45);
+
+  --system-yellow: #B25000;
+  --system-yellow-tint: rgba(255, 204, 0, 0.16);
+  --system-yellow-border: rgba(178, 80, 0, 0.45);
+
+  --system-red: #C5221F;
+  --system-red-tint: rgba(197, 34, 31, 0.12);
+  --system-red-border: rgba(197, 34, 31, 0.45);
+
+  --system-purple: #8944AB;
+  --system-purple-tint: rgba(175, 82, 222, 0.12);
+  --system-purple-border: rgba(137, 68, 171, 0.45);
+}
+
+/* ==========================================================================
+   1C. GERÄTE-UNABHÄNGIGE TYPOGRAFIE & RADIEN
+   ========================================================================== */
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+  --text-display: clamp(1.85rem, 1.4rem + 2vw, 2.6rem);
+  --text-h1:      clamp(1.375rem, 1.2rem + 0.9vw, 1.75rem);
+  --text-h2:      clamp(1.125rem, 1.0rem + 0.5vw, 1.375rem);
+  --text-body:    clamp(1rem, 0.95rem + 0.2vw, 1.0625rem); /* Min 16px gegen iOS Auto-Zoom */
+  --text-sub:     clamp(0.875rem, 0.85rem + 0.15vw, 0.9375rem);
+  --text-caption: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+
+  --radius-modal: 32px;
+  --radius-card: 26px;
+  --radius-control: 14px;
+  --radius-icon: 12px;
+  --radius-pill: 9999px;
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   2. GLOBAL RESET & BASE STYLES
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+  background-color: var(--bg-canvas);
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom)));
+  transition: background-color 0.35s var(--ease-spring), color 0.25s ease;
+}
+
+.numeric, table, code, input[type="number"], .value {
+  font-variant-numeric: tabular-nums;
+}
+
+button, a, label, .segmented-option, .row {
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. AMBIENT BACKGROUND (LICHT UNTER DEM GLAS, OHNE GPU-BLUR)
+   ========================================================================== */
+.ambient-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--ambient-bg);
+  opacity: var(--ambient-canvas-opacity, 1);
+  transition: background 0.35s ease, opacity 0.35s ease;
+}
+
+/* ==========================================================================
+   4. LIQUID GLASS SURFACES ("KEIN GLAS AUF GLAS"-REGEL)
+   ========================================================================== */
+.liquid-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(40px) saturate(var(--glass-saturate, 160%));
+  -webkit-backdrop-filter: blur(40px) saturate(var(--glass-saturate, 160%));
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-highlight);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-card);
+  transition: transform 0.25s var(--ease-spring), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Anti-Truncation für Flexbox- und Grid-Kinder innerhalb von Glas-Containern */
+.liquid-glass > *,
+.liquid-surface-inner > * {
+  min-width: 0;
+}
+
+.liquid-surface-inner {
+  background: var(--surface-inner-bg);
+  border: 1px solid var(--surface-inner-border);
+  border-radius: var(--radius-control);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.liquid-surface-inner:focus-within {
+  border-color: var(--accent-border);
+}
+
+/* ==========================================================================
+   5. GOOGLE MATERIAL SYMBOLS ROUNDED (APPLE HIG TUNING)
+   ========================================================================== */
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.25em;
+  line-height: 1;
+  vertical-align: -0.18em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: font-variation-settings 0.2s var(--ease-spring), color 0.2s ease, transform 0.2s var(--ease-spring);
+}
+
+.active .material-symbols-rounded,
+.material-symbols-rounded.is-active {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 200, 'opsz' 24;
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   6. LAYOUT: HEADER OHNE BOX, GRUPPIERTE LISTEN (KEINE FLOATING-NAV)
+   ========================================================================== */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: max(1.5rem, env(safe-area-inset-top)) 1rem 0;
+}
+
+/* Header: Großtitel direkt auf dem Canvas, kein Glas-Container */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0;
+  margin-bottom: 1.125rem;
+}
+
+.app-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: var(--text-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.icon-btn {
+  position: relative;
+  min-width: 44px;
+  min-height: 44px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: transform 0.2s var(--ease-spring), background 0.2s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+/* Zurück-Link der Fach-Apps: <a class="back-btn" href="../../index.html">, ohne Fläche */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  min-height: 44px;
+  padding: 0 0.75rem 0 0;
+  margin-bottom: 0.875rem;
+  margin-left: -0.375rem;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--accent);
+  font-size: var(--text-body);
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.back-btn:active {
+  transform: scale(0.96);
+}
+
+/* Knopf in einer Modal-Karte: innere Fläche ohne Blur, damit er auf dem Glas erkennbar bleibt */
+.modal-card .icon-btn {
+  background: var(--surface-inner-bg);
+}
+
+/* Suche: Pill auf dem Canvas, kein Glas */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 46px;
+  padding: 0 1rem;
+  margin-bottom: 1.625rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inner-bg);
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease;
+}
+
+.search:focus-within {
+  border-color: var(--accent-border);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.search input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Themen-Zeile: ab 6 Einträgen horizontal scrollende Pills statt Raster */
+.tab-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -1rem 1.375rem;
+  padding: 0 1rem;
+  scroll-snap-type: x proximity;
+}
+
+.tab-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-pill {
+  flex: none;
+  min-height: 44px;
+  padding: 0 1rem;
+  scroll-snap-align: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-pill .material-symbols-rounded {
+  display: none;
+  color: var(--system-green);
+}
+
+/* Erledigter Abschnitt: grüner Haken vor dem Namen */
+.tab-pill.is-done .material-symbols-rounded {
+  display: inline-flex;
+}
+
+.tab-pill.active,
+.tab-pill[aria-selected="true"] {
+  background: var(--tonal);
+  border-color: var(--glass-border);
+  color: var(--on-tonal);
+}
+
+/* Rubrik-Überschrift: normale Schreibweise, Zähler ohne Badge */
+.section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.section-count {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.hub-grid,
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 1.25rem;
+  align-items: start;
+}
+
+.hub-section {
+  min-width: 0;
+}
+
+/* Liste: Zeilen direkt auf dem Canvas, getrennt nur durch Haarlinien, keine Fläche */
+.group {
+  margin-bottom: 2.25rem;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: calc(100% + 1.5rem);
+  min-height: 64px;
+  margin-inline: -0.75rem;
+  padding: 0.6875rem 1rem;
+  border-radius: var(--radius-icon);
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s var(--ease-spring);
+}
+
+.row:active {
+  background: var(--surface-inner-bg);
+}
+
+.row + .row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(48px + 0.75rem);
+  right: 0.75rem;
+  height: 1px;
+  background: var(--border-separator);
+}
+
+/* Beim Antippen oder Überfahren: Haarlinien oben und unten ausblenden, damit die Rundung sauber steht */
+.row:active::before,
+.row:active + .row::before {
+  opacity: 0;
+}
+
+.row[hidden] {
+  display: none;
+}
+
+.row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  display: block;
+  font-size: var(--text-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.row-sub {
+  display: block;
+  margin-top: 1px;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.row-chevron {
+  color: var(--text-tertiary);
+}
+
+/* Listen-Icon: nur das Icon in der Rubrik-Farbe, ohne Fläche und ohne Rahmen */
+.row-icon {
+  width: 30px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.row-icon--blue   { color: var(--system-blue); }
+.row-icon--orange { color: var(--system-orange); }
+.row-icon--green  { color: var(--system-green); }
+.row-icon--cyan   { color: var(--system-cyan); }
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .hub-grid,
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-span-full {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ==========================================================================
+   7. UI COMPONENTS (CARDS, BADGES, SEGMENTED CONTROL, INPUTS, CHART)
+   ========================================================================== */
+/* Abschnitt auf dem Canvas: keine Fläche, kein Rahmen, Gliederung über Abstand */
+.glass-card {
+  padding: 0;
+  margin-bottom: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.card-header > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-title {
+  font-size: var(--text-sub);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.metric-value {
+  margin-top: 0.125rem;
+  font-size: var(--text-display);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.metric-unit {
+  font-family: var(--font-sans);
+  font-size: max(12px, 0.65em);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  margin-left: 0.22em;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pill--green {
+  background: var(--system-green-tint);
+  border: 1px solid var(--system-green-border);
+  color: var(--system-green);
+}
+
+.status-pill--blue {
+  background: var(--system-blue-tint);
+  border: 1px solid var(--system-blue-border);
+  color: var(--system-blue);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.settings-update-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  color: var(--system-orange);
+}
+
+/* Segmented Control: flach, konzentrische Radien (14px außen, 11px innen) */
+.segmented-control {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-control);
+  background: var(--surface-inner-bg);
+}
+
+.segmented-option {
+  min-height: 44px;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  font-weight: 500;
+  border-radius: calc(var(--radius-control) - 3px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.segmented-option.active,
+.segmented-option[aria-pressed="true"] {
+  background: var(--segmented-active-bg);
+  color: var(--segmented-active-text);
+  border-color: var(--segmented-active-border);
+  box-shadow: none;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.125rem;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 0.875rem;
+  min-height: 50px;
+}
+
+.glass-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.glass-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-unit-addon {
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding-left: 0.5rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  min-height: 50px;
+  width: 100%;
+  padding: 0 1.25rem;
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: none;
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.2s var(--ease-spring);
+}
+
+.btn-primary {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-secondary {
+  border: 1px solid var(--surface-inner-border);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.98);
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.chart-container {
+  width: 100%;
+  height: 120px;
+  position: relative;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart-grid-line {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--system-cyan);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-fill-top {
+  stop-color: var(--system-cyan);
+  stop-opacity: 0.20;
+}
+
+.chart-fill-bottom {
+  stop-color: var(--system-cyan);
+  stop-opacity: 0;
+}
+
+/* Info-Zeilen: Haarlinien statt gefüllter Einzelboxen */
+.info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.5rem 0.125rem;
+}
+
+.info-row + .info-row {
+  border-top: 1px solid var(--border-separator);
+}
+
+.info-row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.info-row-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-body);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   8. MODAL & TOAST (OVERLAY OHNE BLUR: KEIN GLAS AUF GLAS)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--scrim);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0s 0.42s;
+}
+
+.modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, visibility 0s;
+}
+
+/* Einstellungen und Rückfragen: mittige Glas-Karte, wächst aus der Mitte */
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  padding: 1.125rem;
+  border-radius: var(--radius-modal);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transform: scale(0.86);
+  opacity: 0;
+  transition: transform 0.42s var(--ease-spring), opacity 0.22s ease;
+}
+
+.modal-overlay.is-open .modal-card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-text {
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-left: 0.25rem;
+}
+
+.modal-title {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-actions--row {
+  flex-direction: row;
+}
+
+.toast-pill {
+  position: fixed;
+  left: 50%;
+  bottom: max(1.5rem, calc(16px + env(safe-area-inset-bottom)));
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-separator);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: var(--text-sub);
+  font-weight: 500;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s var(--ease-spring), opacity 0.25s ease;
+}
+
+.toast-pill.is-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.toast-pill .material-symbols-rounded {
+  color: var(--system-green);
+}
+
+/* iOS/Android Touch-Target- & Formular-Mindestanforderungen */
+button,
+[role="button"],
+input,
+select,
+textarea {
+  min-height: 44px;
+}
+
+button,
+[role="button"] {
+  min-width: 44px;
+}
+
+input,
+select,
+textarea {
+  font-size: var(--text-body);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Mobile: geringerer Blur-Radius für 60 FPS */
+@media (max-width: 767px) {
+  .liquid-glass {
+    backdrop-filter: blur(16px) saturate(var(--glass-saturate, 160%));
+    -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate, 160%));
+  }
+}
+
+/* ==========================================================================
+   9. ACCESSIBILITY
+   ========================================================================== */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .liquid-glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--bg-elevated);
+    border-width: 1.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   10. FACH-APP (EINZELNE RECHNER- ODER PROTOKOLLSEITE)
+   ========================================================================== */
+.app-shell--narrow {
+  max-width: 600px;
+}
+
+/* Kopfzeile der Fach-App: links "Übersicht", rechts Theme-Umschalter */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.app-topbar .back-btn {
+  margin-bottom: 0;
+}
+
+.metric-sub {
+  margin-top: 0.25rem;
+  min-height: 1.4em;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.status-pill--orange {
+  background: var(--system-orange-tint);
+  border: 1px solid var(--system-orange-border);
+  color: var(--system-orange);
+}
+
+.status-pill[hidden] {
+  display: none;
+}
+
+.btn-primary.is-done {
+  background: var(--system-green);
+  border-color: var(--system-green);
+  color: var(--bg-canvas);
+}
+
+.hint {
+  margin: 0 0.375rem;
+  color: var(--text-tertiary);
+  font-size: var(--text-caption);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+}
+
+/* ==========================================================================
+   11. ICON-SCHRIFT: KEIN ICON-NAME ALS TEXT BEIM LADEN
+   Das Kopf-Skript setzt .icons-pending auf <html> und entfernt die Klasse,
+   sobald Material Symbols Rounded geladen ist (Vorlage: blueprint.html).
+   ========================================================================== */
+html.icons-pending .material-symbols-rounded {
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   12. HAUPTWERT: GROSSE ZAHL DIREKT AUF DEM CANVAS STATT KACHELN
+   Ein Wert steht gross in .hero, alle weiteren als Zeilen (.info-row) darunter.
+   .hero hat keine Fläche: die Grösse der Zahl gibt ihr den Vorrang.
+   ========================================================================== */
+.hero {
+  color: var(--text-primary);
+  padding: 0;
+  margin-bottom: 1.5rem;
+  min-width: 0;
+}
+
+.hero-caption {
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.hero-value {
+  font-size: clamp(3rem, 2.5rem + 3vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.hero-value--compact {
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.hero .metric-unit {
+  font-size: 0.38em;
+}
+
+.hero-value--compact .metric-unit {
+  font-size: 0.55em;
+}
+
+.hero-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+
+.hero-note {
+  margin-top: 0.5rem;
+  font-size: var(--text-caption);
+}
+
+.hero-note[hidden] {
+  display: none;
+}
+
+.hero .status-pill {
+  margin-top: 0.25rem;
+}
+
+.progress-bar {
+  height: 6px;
+  margin-top: 0.5rem;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(127, 127, 127, 0.28);
+}
+
+.progress-bar > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: currentColor;
+  transition: width 0.4s var(--ease-spring);
+}
+
+.status-pill--neutral {
+  background: var(--surface-inner-bg);
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+}
+
+.status-pill--red {
+  background: var(--system-red-tint);
+  border: 1px solid var(--system-red-border);
+  color: var(--system-red);
+}
+
+/* ==========================================================================
+   13. KARTE MIT MENÜ: KLAPPT AN ORT AUF (.expander) UND AKKORDEON-LISTE (.acc)
+   ========================================================================== */
+.expander-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.expander-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.expander-title {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.expander-knob {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+}
+
+.expander-knob .material-symbols-rounded,
+.acc-chevron {
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.expander.is-open .expander-knob .material-symbols-rounded,
+.acc.is-open .acc-chevron {
+  transform: rotate(180deg);
+}
+
+.expander-body,
+.acc-body,
+.check-note {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-spring);
+}
+
+.expander-body > div,
+.acc-body > div,
+.check-note > div {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.expander.is-open .expander-body,
+.acc.is-open .acc-body,
+.check.has-defect .check-note {
+  grid-template-rows: 1fr;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(127, 127, 127, 0.25);
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.expander-body .menu-item:first-child {
+  margin-top: 0.875rem;
+}
+
+.acc + .acc {
+  border-top: 1px solid var(--border-separator);
+}
+
+.acc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 0.25rem;
+  border-radius: var(--radius-control);
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.acc-head:active {
+  background: var(--surface-inner-bg);
+}
+
+.acc-badge {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-icon);
+  background: var(--system-blue-tint);
+  color: var(--system-blue);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.acc-badge--orange {
+  background: var(--system-orange-tint);
+  color: var(--system-orange);
+  font-size: 0.8125rem;
+}
+
+.acc-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.acc-chevron {
+  color: var(--text-tertiary);
+}
+
+.acc-text {
+  padding: 0 0.25rem 0.75rem 3.625rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.acc-body .info-list {
+  margin-left: 3.625rem;
+  padding-right: 0.25rem;
+  border-top: 1px solid var(--border-separator);
+}
+
+.group > .info-list {
+  padding: 0 0.25rem;
+}
+
+/* ==========================================================================
+   14. FORMULAR UND PROTOKOLL (Vorlage: skills/fach-app/references/formular-vorlage.html)
+   ========================================================================== */
+.group > .field + .field,
+.group > .check + .check,
+.group > .meas-row + .meas-row,
+.group > .meas-row + .calc-row,
+.group > .calc-row + .meas-row,
+.group > .control + .control,
+.group > .defect + .defect,
+.group > .summary-row + * {
+  border-top: 1px solid var(--border-separator);
+}
+
+/* Textfeld: Beschriftung oben, Eingabe darunter, ohne eigenen Kasten */
+.field {
+  display: block;
+  padding: 0.625rem 0.25rem 0.375rem;
+}
+
+.field-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.field:focus-within .field-label {
+  color: var(--accent);
+}
+
+.field-required {
+  margin-left: 2px;
+  color: var(--system-orange);
+}
+
+.text-input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.text-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+textarea.text-input {
+  min-height: 88px;
+  padding: 0.5rem 0;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.field .segmented-control {
+  margin: 0.375rem 0;
+}
+
+/* Prüfpunkt: Text links, drei Zustände rechts (in Ordnung, Mangel, entfällt) */
+.check-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 0.5rem 0.25rem;
+}
+
+.check-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sub);
+}
+
+.tri {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-control);
+  background: var(--surface-inner-bg);
+}
+
+.tri button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.tri button[aria-pressed="true"][data-value="ok"] {
+  background: var(--system-green-tint);
+  border-color: var(--system-green-border);
+  color: var(--system-green);
+}
+
+.tri button[aria-pressed="true"][data-value="mangel"] {
+  background: var(--system-orange-tint);
+  border-color: var(--system-orange-border);
+  color: var(--system-orange);
+}
+
+.tri button[aria-pressed="true"][data-value="na"] {
+  background: var(--bg-elevated);
+  border-color: var(--border-separator);
+  color: var(--text-primary);
+}
+
+.note-input {
+  display: block;
+  width: calc(100% - 1.75rem);
+  min-height: 44px;
+  margin: 0 0.25rem 0.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--system-orange-border);
+  border-radius: var(--radius-control);
+  background: var(--system-orange-tint);
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.note-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.form-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.875rem;
+  margin: 0 0.375rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+/* Messwert: Beschriftung links, Zahl rechts, berechnete Zeile abgesetzt */
+.meas-row,
+.calc-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 60px;
+  padding: 0.5rem 0.25rem;
+}
+
+.calc-row {
+  min-height: 56px;
+  padding-inline: 0.75rem;
+  border-radius: var(--radius-control);
+  background: var(--surface-inner-bg);
+}
+
+.meas-label,
+.calc-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sub);
+}
+
+.calc-label {
+  font-weight: 600;
+}
+
+.meas-label small {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.calc-value {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.value-input {
+  width: 84px;
+  min-height: 44px;
+  padding: 0 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: var(--surface-inner-bg);
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.value-input:focus-visible,
+.note-input:focus-visible {
+  border-color: var(--accent);
+}
+
+.meas-row .input-unit-addon {
+  min-width: 3.2em;
+  padding-left: 0;
+}
+
+.defect {
+  padding: 0.75rem 0.25rem;
+  font-size: var(--text-sub);
+}
+
+.defect small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  padding: 0.875rem 0.25rem;
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.625rem;
+  margin-bottom: 0.625rem;
+}
+
+.btn-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-danger {
+  min-height: 50px;
+  width: 100%;
+  padding: 0 1.25rem;
+  border: 1px solid var(--system-red-border);
+  border-radius: var(--radius-control);
+  background: var(--system-red-tint);
+  color: var(--system-red);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.btn-danger:active {
+  transform: scale(0.98);
+}
+
+.btn-tonal {
+  flex: none;
+  min-height: 44px;
+  padding: 0 0.875rem 0 0.625rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inner-bg);
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.btn-tonal:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   15. REGLER UND SIMULATOR (Vorlage: skills/fach-app/references/simulator-vorlage.html)
+   Jeder Regler hat Zahlenfeld, Schieber und zwei 44-px-Knöpfe für Einzelschritte.
+   ========================================================================== */
+.control {
+  padding: 0.75rem 0.25rem;
+}
+
+.control-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.control-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.control-slide {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.stepper {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inner-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.stepper:active {
+  transform: scale(0.92);
+}
+
+input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-inner-bg);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-inner-bg);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -10px;
+  border: 3px solid var(--bg-elevated);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--bg-elevated);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Diagramm mit eigener Höhe und anfassbarem Punkt */
+.chart-container--auto {
+  height: auto;
+}
+
+.chart-svg--fit {
+  height: auto;
+  overflow: hidden;
+}
+
+.chart-svg text {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  fill: var(--text-secondary);
+}
+
+.chart-svg--drag {
+  touch-action: pan-y;
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chart-line--red {
+  stroke: var(--system-red);
+}
+
+/* Vorher/Nachher: gemerkte Kurve gestrichelt */
+.chart-ref {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+
+.chart-guide {
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+/* ==========================================================================
+   16. BEWEGUNG
+   Zoom zwischen Übersicht und Fach-App (seitenübergreifend, View Transitions API).
+   Überblenden innerhalb einer Seite: Helfer fadeThrough() in shared.js.
+   Rückmeldung beim Antippen: leichtes Nachgeben über transform, nie über Schatten.
+   ========================================================================== */
+@view-transition {
+  navigation: auto;
+}
+
+@keyframes ag-zoom-out {
+  to {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes ag-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+::view-transition-old(root) {
+  animation: 0.36s var(--ease-spring) both ag-zoom-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.36s var(--ease-spring) both ag-zoom-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.text-input:focus-visible,
+.glass-input:focus-visible,
+.value-input:focus-visible,
+.note-input:focus-visible,
+.search input:focus-visible {
+  outline: none;
+}
+
+.control-head .input-unit-addon {
+  min-width: 1.75em;
+  padding-left: 0.25rem;
+}
+
+/* Fussnote direkt unter einer Gruppe rückt an die Gruppe heran */
+.group + .hint {
+  margin-top: -1rem;
+  margin-bottom: 1.375rem;
+}
+
+/* ==========================================================================
+   18. ALTPROJEKTE: KACHELN DES FRÜHEREN STANDARDS FLACH STELLEN
+   Bis zur Migration tragen alte Seiten noch "liquid-glass" an Listen, Karten
+   und Kopf-Knöpfen. Diese Regeln nehmen dort Fläche, Rahmen und Blur weg.
+   Neue Seiten setzen "liquid-glass" nur noch an .modal-card.
+   ========================================================================== */
+.liquid-glass.group,
+.liquid-glass.glass-card,
+.liquid-glass.flow-card,
+.liquid-glass.chart-card,
+.icon-btn.liquid-glass,
+.back-btn.liquid-glass,
+.search.liquid-glass {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.search.liquid-glass {
+  background: var(--surface-inner-bg);
+}
+
+.liquid-glass.group,
+.liquid-glass.glass-card,
+.liquid-glass.flow-card,
+.liquid-glass.chart-card {
+  border-radius: 0;
+  border-width: 0;
+}
+
+/* ==========================================================================
+   19. AUSWAHL ALS DROPDOWN, ZAHLENFELDER MITTIG (Design-Stand 2026-11-18)
+   Mehr als 3 Optionen oder breiter als der Bildschirm: Dropdown (choice-dropdown.js).
+   Zahlenfelder: Wert mittig, Einheit rechts außen, Innenabstand links gleicht sie aus.
+   ========================================================================== */
+[hidden] {
+  display: none !important;
+}
+
+.choice-select {
+  position: relative;
+  margin-bottom: 1.375rem;
+}
+
+.choice-select--action {
+  margin-top: 0.875rem;
+}
+
+.choice-select-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 2.75rem 0 1rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.choice-select-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.choice-select .material-symbols-rounded {
+  position: absolute;
+  top: 50%;
+  right: 0.875rem;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper .glass-input {
+  text-align: center;
+  padding-inline: 3rem;
+}
+
+.input-wrapper .input-unit-addon {
+  position: absolute;
+  top: 50%;
+  right: 0.875rem;
+  transform: translateY(-50%);
+  padding-left: 0;
+  pointer-events: none;
+}
+
+/* Hover nur mit Maus. Auf Touch-Geräten bleibt :hover nach dem Tippen hängen, dort zählt nur :active. */
+@media (hover: hover) and (pointer: fine) {
+  .liquid-surface-inner:hover,
+  .icon-btn:hover,
+  .btn-secondary:hover {
+    background: var(--surface-inner-hover);
+  }
+
+  .row:hover {
+    background: var(--surface-inner-bg);
+  }
+
+  .row:hover::before,
+  .row:hover + .row::before {
+    opacity: 0;
+  }
+}

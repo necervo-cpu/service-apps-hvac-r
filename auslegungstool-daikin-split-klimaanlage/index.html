@@ -2,26 +2,38 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-        <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Daikin-Tool" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
-    <meta name="color-scheme" content="dark light" />
+    <title>Auslegungstool Daikin Split-Klimaanlage</title>
+
     <script>
       (function () {
+        var root = document.documentElement,
+          saved = null;
         try {
-          var saved = localStorage.getItem('ag-theme');
-          var sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-          document.documentElement.setAttribute('data-theme', saved || (sysLight ? 'light' : 'dark'));
+          saved = localStorage.getItem('ag-theme');
         } catch (e) {}
+        var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+        root.setAttribute(
+          'data-theme',
+          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
+        );
       })();
     </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      id="agFonts"
       href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
       rel="stylesheet"
       media="print"
@@ -33,557 +45,174 @@
         rel="stylesheet"
       />
     </noscript>
+    <script>
+      (function () {
+        var root = document.documentElement,
+          link = document.getElementById('agFonts');
+        if (!link || !document.fonts || !document.fonts.load) return;
+        var done = function () {
+          root.classList.remove('icons-pending');
+        };
+        root.classList.add('icons-pending');
+        setTimeout(done, 4000);
+        link.addEventListener('load', function () {
+          setTimeout(function () {
+            document.fonts.load('24px "Material Symbols Rounded"').then(done, done);
+          }, 0);
+        });
+        link.addEventListener('error', done);
+      })();
+    </script>
+
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="icon" type="image/png" href="icon-180.png" />
-    <title>Auslegungstool Daikin Split-Klimaanlage</title>
-    <link rel="preload" as="font" type="font/woff2" href="shared/lib/fonts/material-symbols-rounded.woff2" crossorigin />
     <script src="shared/lib/html2canvas.min.js" defer></script>
     <script src="shared/lib/jspdf.umd.min.js" defer></script>
-    <link rel="stylesheet" href="shared/base.css" />
-    <link rel="stylesheet" href="shared/kacheln.css" />
-    <link rel="stylesheet" href="shared/knoepfe.css" />
-    <link rel="stylesheet" href="shared/ios.css" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="shared/lib/fonts/material-symbols-rounded.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="shared/global.css" />
     <link rel="stylesheet" href="shared/pdf.css" />
     <script src="daten.js"></script>
     <script src="engine.js"></script>
     <script src="shared/pdf-bausteine.js"></script>
     <script src="shared/pdf.js"></script>
-    <script src="shared/settings.js"></script>
-    <script src="shared/ios.js"></script>
     <style>
-      :root {
-        --sh: none;
-        --tile: var(--surface-field);
-        --cream: var(--surface-field);
-        --selbg: var(--gold-soft);
-      }
-      * {
-        box-sizing: border-box;
-      }
+      /* ===== Rahmen: Kopf, Liste, untere Leiste ===== */
       html {
-        -webkit-tap-highlight-color: transparent;
-        -webkit-text-size-adjust: 100%;
         overscroll-behavior-y: none;
       }
-      html,
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--ink);
-        font:
-          16px/1.45 var(--font-sans),
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          Roboto,
-          sans-serif;
+      .brand-title {
+        font-size: 1.65rem;
+        hyphens: none;
       }
-      button,
-      [role='button'],
-      summary,
-      .oduline {
+      button.row,
+      .proto-open,
+      .back-btn,
+      .pick-row {
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
         touch-action: manipulation;
       }
-      button,
-      [role='button'],
-      summary,
-      .steps > * {
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
+      .back-btn {
+        color: var(--accent);
+        margin-bottom: 0.5rem;
       }
-      :focus-visible {
-        outline: 2px solid var(--ink);
-        outline-offset: 2px;
-      }
-      :root[data-theme='dark'] :focus-visible {
-        outline-color: var(--gold);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) :focus-visible {
-          outline-color: var(--gold);
-        }
-      }
-      header :focus-visible {
-        outline-color: var(--gold);
-      }
-      header {
-        position: relative;
-        top: 0;
-        z-index: 5;
-        background: transparent;
-        color: var(--text-primary);
-        border-bottom: none;
-        padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px
-          calc(16px + env(safe-area-inset-left));
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .logo {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        background: var(--gold);
-        color: #1a1a1a;
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        font-size: 18px;
-        flex: none;
-      }
-      header .tt {
-        flex: 1;
-        min-width: 0;
-        line-height: 1.2;
-        cursor: pointer;
-      }
-      header .tt h1 {
-        display: block;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        margin: 0 0 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      header .tt span {
-        display: block;
-        font-size: 13px;
-        color: var(--text-secondary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .ib {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        min-height: 44px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.14);
-        border: 0;
-        display: grid;
-        place-items: center;
-        color: #fff;
-        flex: none;
-        padding: 0;
-        cursor: pointer;
-      }
-      .ico {
-        width: 20px;
-        height: 20px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        flex: none;
-      }
-      .net {
-        font-size: 12px;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, 0.14);
-        white-space: nowrap;
-      }
-      .net:not(.off) {
-        display: none;
-      } /* online = Normalzustand, nur „offline“ anzeigen */
-      .net.off {
-        background: var(--bad);
-      }
-      /* Seitenübergang: seitlich verschobene Seite darf keinen waagerechten Bildlauf erzeugen */
-      .stage {
-        overflow-x: hidden;
-        overflow-x: clip;
-      }
-      main {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 6px calc(16px + env(safe-area-inset-right))
-          calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-      }
-      .btn {
-        appearance: none;
-        -webkit-appearance: none;
-        border: 1px solid var(--line);
-        background: var(--ctl);
-        color: var(--ink);
-        border-radius: 12px;
-        padding: 10px 16px;
-        font: inherit;
-        font-weight: 700;
-        min-height: 48px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
+      a.btn-secondary {
         text-decoration: none;
       }
-      .btn {
-        position: relative;
-        transition:
-          background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
-          transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+      .btn-secondary:disabled,
+      .btn-primary:disabled {
+        opacity: 0.4;
+        cursor: default;
       }
-      .btn:active:not(:disabled) {
-        transform: scale(0.992);
-        opacity: 0.88;
-        transition-duration: 75ms;
-      }
-      .ib {
-        transition:
-          background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
-          transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      .ib:active {
-        transform: scale(0.96);
-        background: rgba(255, 255, 255, 0.22);
-        transition-duration: 75ms;
-      }
-      .steps button {
-        transition:
-          background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-          opacity 140ms cubic-bezier(0.22, 1, 0.36, 1),
-          transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      .steps button:active:not(:disabled) {
-        transform: scale(0.99);
-        opacity: 0.88;
-        transition-duration: 75ms;
-      }
-      .btn.primary {
-        background: var(--gold);
-        border-color: var(--gold);
-        color: #1a1a1a;
-      }
-      .btn.primary:focus-visible {
-        outline-color: var(--ink);
-      }
-      .btn.danger {
-        color: var(--bad);
-      }
-      .btn.small {
-        min-height: 44px;
-        padding: 6px 12px;
-        font-size: 15px;
-      }
-      .btn:disabled {
-        opacity: 0.45;
-      }
-      .row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-      .between {
-        justify-content: space-between;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 16px;
-        margin: 12px 0;
-      }
-      h2 {
+      .net {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12.5px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        margin: 24px 2px 10px;
-      }
-      h2 .n {
-        background: var(--tile);
-        color: var(--gold-text);
-        border-radius: 99px;
-        padding: 1px 8px;
-        font-size: 12px;
-      }
-      label {
-        display: block;
-        font-size: 15px;
-        color: var(--ink);
-        margin: 0 0 6px;
+        gap: 0.375rem;
+        min-height: 20px;
+        margin-top: 0.25rem;
+        color: var(--system-orange);
+        font-size: var(--text-caption);
         font-weight: 600;
       }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        font: inherit;
-        font-size: 16px;
-        padding: 12px;
-        min-height: 48px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: var(--ctl);
-        color: var(--ink);
-        transition: border-color var(--t-fast);
-      }
-      input:focus-visible,
-      select:focus-visible,
-      textarea:focus-visible {
-        outline: 0;
-        border-color: var(--gold-dark);
-      }
-      textarea {
-        min-height: 90px;
-        resize: vertical;
-      }
-      .badge {
-        display: inline-block;
-        font-size: 13px;
-        font-weight: 700;
-        padding: 2px 9px;
-        border-radius: 99px;
-        background: var(--bdg);
-        color: var(--muted);
-      }
-      .badge.ok {
-        background: var(--okbg);
-        color: var(--ok);
-      }
-      .badge.bad {
-        background: var(--ebg);
-        color: var(--bad);
-      }
-      .badge.warn {
-        background: var(--wbg);
-        color: var(--warn);
-      }
-      .muted {
-        color: var(--muted);
-      }
-      .wrap {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 12px calc(16px + env(safe-area-inset-right)) 0
-          calc(16px + env(safe-area-inset-left));
-      }
-      .info {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        background: var(--hbg);
-        border: 1px solid var(--line);
-        border-left: 4px solid var(--gold);
-        border-radius: 12px;
-        padding: 8px 12px;
-        font-size: 12.5px;
-        line-height: 1.3;
-        color: var(--ink);
-      }
-      .info .material-symbols-rounded {
-        color: var(--gold-text);
-      }
-      .steps {
-        display: flex;
-        gap: 6px;
-        margin: 0 0 6px;
-      }
-      .steps > * {
-        flex: 1;
-        display: grid;
-        place-items: center;
-        text-align: center;
-        font: inherit;
-        font-size: 13px;
-        font-weight: 600;
-        padding: 9px 0;
-        min-height: 44px;
-        border-radius: 12px;
-        border: 1px solid var(--line);
-        color: var(--muted);
-        background: var(--card);
-      }
-      .steps .on {
-        background: var(--system-blue-tint);
-        color: var(--system-blue);
-        border-color: var(--system-blue-border);
-        font-weight: 700;
-      }
-      .card h3 {
-        margin: 0 0 10px;
-        font-size: 12px;
-        letter-spacing: 0.09em;
-        color: var(--muted);
-      }
-      .g2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        min-width: 0;
-      }
-      .g2 > * {
-        min-width: 0;
-      }
-      .fld {
-        margin: 0 0 10px;
-      }
-      .acc {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-height: 52px;
-        cursor: pointer;
-      }
-      .acc .n {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: var(--tile);
-        color: var(--gold-text);
-        font-weight: 700;
-        display: grid;
-        place-items: center;
+      .net .nd {
+        width: 6px;
+        height: 6px;
         flex: none;
-        font-size: 14px;
+        border-radius: 50%;
+        background: var(--system-orange);
       }
-      .acc .m {
+      .settings-update-dot[hidden] {
+        display: none;
+      }
+      .lead-note {
+        margin: 0 0 1.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .empty-note {
+        margin: 0 0 2.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .btn-wide {
+        margin-bottom: 1.75rem;
+      }
+      /* Auslegungs-Zeile: antippbarer Hauptteil, rechts Löschen ohne Fläche */
+      .proto-row {
+        padding-right: 0.25rem;
+      }
+      .proto-open {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 0.875rem;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0;
+      }
+      .proto-open .row-text {
+        overflow-wrap: anywhere;
+      }
+      .proto-act.is-danger {
+        color: var(--system-red);
+      }
+      /* Untere Leiste (Ändern / PDF erstellen / Teilen) */
+      .bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 6;
+        padding: 0.625rem max(1rem, env(safe-area-inset-right))
+          calc(0.75rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+        background: var(--bg-canvas);
+        border-top: 1px solid var(--border-separator);
+      }
+      .bar > div {
+        display: flex;
+        gap: 0.625rem;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+      .bar > div > * {
         flex: 1;
         min-width: 0;
       }
-      .acc .m b {
-        display: block;
-        font-size: 15px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .bar .btn-primary,
+      .bar .btn-secondary {
+        min-height: 52px;
+        padding: 0 0.75rem;
       }
-      .acc .m span {
-        display: block;
-        font-size: 12.5px;
-        color: var(--muted);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .bar .bar-side {
+        flex: 0.65;
       }
-      .acc .ico {
-        transition: transform var(--t-med) var(--out);
+      .bar .bar-main {
+        flex: 1.4;
       }
-      .roomcard.open .acc .ico {
-        transform: rotate(180deg);
-      }
-      .roomcard {
-        padding: 6px 14px;
-      }
-      .body-w {
-        display: grid;
-        grid-template-rows: 0fr;
-        visibility: hidden;
-        transition:
-          grid-template-rows var(--t-med) var(--out),
-          visibility 0s var(--t-med);
-      }
-      .roomcard.open > .body-w {
-        grid-template-rows: 1fr;
-        visibility: visible;
-        transition:
-          grid-template-rows var(--t-med) var(--out),
-          visibility 0s;
-      }
-      .body-w > .roombody {
-        overflow: hidden;
-        min-height: 0;
-      }
-      .body-in {
-        padding: 8px 0;
-        opacity: 0;
-        transform: translateY(-4px);
-        transition:
-          opacity var(--t-med) var(--out),
-          transform var(--t-med) var(--out);
-      }
-      .roomcard.open .body-in {
-        opacity: 1;
-        transform: none;
-      }
-      /* Wert wechselt: kurzes Aufleuchten */
-      .flash {
-        animation: flash 900ms var(--out);
-      }
-      .acc .m span.flash {
-        border-radius: 6px;
-      }
-      @keyframes flash {
-        from {
-          background-color: var(--flash);
-        }
-      }
-      /* Seitenwechsel Eingabe <-> Ergebnis */
-      .pg-out-fwd {
-        animation: pgoutf var(--t-exit) var(--in) forwards;
-      }
-      .pg-out-back {
-        animation: pgoutb var(--t-exit) var(--in) forwards;
-      }
-      .pg-in-fwd {
-        animation: pginf var(--t-med) var(--out) both;
-      }
-      .pg-in-back {
-        animation: pginb var(--t-med) var(--out) both;
-      }
-      @keyframes pgoutf {
-        to {
-          transform: translateX(-22%);
-          opacity: 0;
-        }
-      }
-      @keyframes pgoutb {
-        to {
-          transform: translateX(22%);
-          opacity: 0;
-        }
-      }
-      @keyframes pginf {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-      }
-      @keyframes pginb {
-        from {
-          transform: translateX(-100%);
-          opacity: 0;
-        }
-      }
-      /* Ergebnis erscheint gestaffelt (nur solange .entering am Container hängt) */
-      .entering .stag {
-        opacity: 0;
-        transform: translateY(12px);
-        animation: up var(--t-med) var(--out) forwards;
-        animation-delay: calc(var(--i) * 70ms + 120ms);
-      }
-      @keyframes up {
-        to {
-          opacity: 1;
-          transform: none;
-        }
+      body.hasbar #app {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
       /* PDF-Knopf mit Fortschritt */
-      .bar .btn.pdfb {
+      .pdfb {
+        position: relative;
         overflow: hidden;
       }
       .pdfb .fill {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.14);
+        background: var(--on-accent);
+        opacity: 0.22;
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 220ms linear;
@@ -594,15 +223,18 @@
       .pdfb .lr {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 0.375rem;
         position: relative;
+        white-space: nowrap;
         transition:
-          opacity var(--t-fast),
-          transform var(--t-fast) var(--out);
+          opacity 0.2s ease,
+          transform 0.2s var(--ease-spring);
       }
       .pdfb .l2,
       .pdfb .lr {
         position: absolute;
+        inset: 0;
+        justify-content: center;
         opacity: 0;
         transform: translateY(8px);
       }
@@ -622,323 +254,122 @@
         opacity: 1;
         transform: none;
       }
-      .bar .btn.pdfb.done {
-        background: var(--ok);
-        border-color: var(--ok);
-        color: #fff;
-      }
-      :root[data-theme='dark'] .bar .btn.pdfb.done {
-        color: #0f2a1a;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme='light']) .bar .btn.pdfb.done {
-          color: #0f2a1a;
-        }
-      }
       .pdfb.done .fill {
         opacity: 0;
       }
-      .bar {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 6;
-        background: var(--bg);
-        border-top: 1px solid var(--line);
-        padding: 10px calc(14px + env(safe-area-inset-right))
-          calc(12px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+      /* Einstellungen und Rückfrage: Inhalt der Modal-Karte */
+      .panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
-      .bar[hidden] {
+      .panel[hidden] {
         display: none;
       }
-      .bar > div {
-        max-width: 960px;
-        margin: 0 auto;
+      .field-box {
         display: flex;
-        gap: 10px;
-      }
-      .bar .btn {
-        flex: 1;
-        min-height: 52px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 15px;
-      }
-      .bar .btn.primary {
-        border-color: var(--gold-dark);
-      }
-      /* Wie shared/base.css: Scrollleiste immer reserviert (kein seitliches Springen); ab 700px kurze Knöpfe in der Leiste, Zurück/Ändern links, Rest rechts */
-      html {
-        scrollbar-gutter: stable;
-      }
-      @media (min-width: 700px) {
-        .bar > div {
-          justify-content: space-between;
-        }
-        .bar .btn {
-          flex: 0 0 auto !important;
-          min-width: 200px;
-          padding-left: 28px;
-          padding-right: 28px;
-        }
-        .bar .btn:nth-child(2):not(:last-child) {
-          margin-left: auto;
-        }
-      }
-      body.hasbar main {
-        padding-bottom: calc(120px + env(safe-area-inset-bottom));
-      }
-      .hero {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-top: 4px solid var(--ok);
-        border-radius: 18px;
-        padding: 16px;
-        margin: 12px 0;
-      }
-      .hero.warn {
-        border-top-color: var(--warn);
-      }
-      .hero.bad {
-        border-top-color: var(--bad);
-      }
-      .pill {
-        display: inline-flex;
         align-items: center;
-        gap: 6px;
-        font-weight: 700;
-        font-size: 13px;
-        padding: 4px 11px;
-        border-radius: 99px;
-        background: var(--okbg);
-        color: var(--ok);
-        margin: 0 4px 4px 0;
+        min-height: 50px;
+        padding: 0 0.875rem;
       }
-      .pill.g {
-        background: var(--gold);
-        color: #1a1a1a;
+      .field-box textarea.text-input {
+        min-height: 88px;
+        padding: 0.625rem 0;
+        resize: none;
       }
-      .pill.w {
-        background: var(--wbg);
-        color: var(--warn);
-      }
-      .pill.b {
-        background: var(--ebg);
-        color: var(--bad);
-      }
-      .big {
-        font-size: 28px;
-        font-weight: 700;
-        line-height: 1.1;
-        margin: 6px 0 2px;
-        overflow-wrap: anywhere;
-      }
-      .why {
-        font-size: 13.5px;
-        color: var(--muted);
-      }
-      .hero ul.why {
-        margin: 4px 0 0;
-        padding-left: 18px;
-      }
-      .kpis {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        margin-top: 12px;
-      }
-      .kpi {
-        background: var(--bg);
-        border-radius: 12px;
-        font-variant-numeric: tabular-nums;
-        padding: 9px 10px;
-        min-width: 0;
-      }
-      .kpi small {
-        display: block;
-        font-size: 12px;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-      }
-      .kpi b {
-        font-size: 16px;
-      }
-      .kpi i {
-        display: block;
-        font-style: normal;
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .rr {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2px 10px;
-        padding: 10px 0;
-        border-top: 1px solid var(--line);
-      }
-      .rr.first {
-        border-top: 0;
-      }
-      .rr b {
-        font-size: 14.5px;
-        overflow-wrap: anywhere;
-      }
-      .rr .l {
-        font-size: 12.5px;
-        color: var(--muted);
-      }
-      .rr .v {
+      .info-row-value.wrap {
+        white-space: normal;
         text-align: right;
-        font-size: 12.5px;
-        color: var(--muted);
+        font-family: var(--font-sans);
+        font-size: var(--text-sub);
+        overflow-wrap: anywhere;
       }
-      .rr .v b {
-        display: block;
-        font-size: 15px;
-        color: var(--ink);
+      .toast-pill .material-symbols-rounded {
+        color: var(--accent);
       }
-      .proj {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 12px 12px 14px;
-        cursor: pointer;
+
+      /* ===== Eingabe ===== */
+      .steps {
+        margin-bottom: 1.25rem;
+      }
+      .acc-body {
+        visibility: hidden;
         transition:
-          transform var(--t-fast) var(--out),
-          border-color var(--t-fast);
+          grid-template-rows 0.4s var(--ease-spring),
+          visibility 0s 0.4s;
       }
-      .proj:active {
-        transform: scale(0.985);
+      .acc.is-open .acc-body {
+        visibility: visible;
+        transition:
+          grid-template-rows 0.4s var(--ease-spring),
+          visibility 0s;
       }
-      .proj .pi {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        background: var(--tile);
-        color: var(--gold-text);
-        display: grid;
-        place-items: center;
-        flex: none;
-      }
-      .proj .pt {
-        flex: 1;
-        min-width: 0;
-      }
-      .proj .pt b {
+      .acc-name .row-title,
+      .acc-name .row-sub {
         display: block;
-        font-size: 15px;
-        overflow-wrap: anywhere;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-      .proj .pk {
+      .acc-inner {
+        padding: 0.25rem 0 0.75rem;
+      }
+      .acc-inner > .field + .field {
+        border-top: 1px solid var(--border-separator);
+      }
+      .acc-inner > .pick-line,
+      .acc-inner > .btn-danger {
+        margin-top: 0.75rem;
+      }
+      .group--form > .field + .field {
+        border-top: 1px solid var(--border-separator);
+      }
+      textarea.text-input {
+        resize: none;
+      }
+      .field-hint {
         display: block;
-        font-size: 14px;
-        overflow-wrap: anywhere;
+        margin-top: 0.25rem;
+        color: var(--text-tertiary);
+        font-size: var(--text-caption);
       }
-      .proj .pt small {
-        display: block;
-        font-size: 12.5px;
-        color: var(--muted);
-        margin-top: 2px;
+      .field .input-wrapper {
+        margin: 0.375rem 0 0.25rem;
       }
-      .ib.del {
-        background: transparent;
-        color: var(--muted);
-        border: 1px solid var(--line);
+      .field .glass-input {
+        font-size: 1rem;
       }
-      .ib.del:active {
-        background: var(--ebg);
-        color: var(--bad);
+      .field .field-box {
+        margin: 0.5rem 0 0.25rem;
       }
-      .card.empty {
-        text-align: center;
-        padding: 28px 16px;
+      .field .tab-strip {
+        margin-inline: 0;
+        padding-inline: 0;
+        margin-top: 0.375rem;
+        margin-bottom: 0.5rem;
       }
-      .card.empty .muted {
-        font-size: 14px;
-        margin-top: 2px;
+      .field .choice-select {
+        margin: 0.375rem 0 0.5rem;
       }
-      details.card > summary {
-        list-style: none;
+      .num-line {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        min-height: 44px;
-        font-weight: 600;
-        cursor: pointer;
+        gap: 0.625rem;
       }
-      details.card > summary::-webkit-details-marker {
-        display: none;
-      }
-      details.card > summary small {
-        color: var(--muted);
-        font-weight: 400;
-      }
-      details.card[open] > summary .ico {
-        transform: rotate(180deg);
-      }
-      .grow {
+      .num-line .input-wrapper {
         flex: 1;
-        min-width: 0;
       }
-      .warnbox {
-        background: var(--wbg);
-        border: 1px solid var(--wbd);
-        color: var(--wfg);
-        padding: 12px 14px;
-        border-radius: 12px;
-        margin: 12px 0;
+      .pick-line {
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
       }
-      .errbox {
-        background: var(--ebg);
-        border: 1px solid var(--ebd);
-        color: var(--efg);
-        padding: 12px 14px;
-        border-radius: 12px;
-        margin: 12px 0;
+      .pick-line b {
+        color: var(--text-primary);
       }
-      .okbox {
-        background: var(--okbg);
-        border: 1px solid var(--okbd);
-        color: var(--okfg);
-        padding: 12px 14px;
-        border-radius: 12px;
-        margin: 12px 0;
+      .pick-line .status-pill {
+        margin-top: 0.375rem;
       }
-      .warnbox ul,
-      .errbox ul {
-        margin: 4px 0 0;
-        padding-left: 20px;
-      }
-      .pagetitle {
-        font-size: 26px;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        margin: 6px 0 6px;
-        line-height: 1.15;
-        overflow-wrap: anywhere;
-      }
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 16px;
-      }
-      .grid3 {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px 16px;
-      }
-      @media (max-width: 700px) {
-        .grid2,
-        .grid3 {
-          grid-template-columns: 1fr;
-        }
-      }
-      .grid2 > *,
-      .grid3 > * {
-        min-width: 0;
-      }
-      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand. Bewusst ohne @supports, gilt überall. */
+      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
       input[type='date'] {
         -webkit-appearance: none;
         appearance: none;
@@ -946,8 +377,6 @@
         width: 100%;
         min-width: 0;
         max-width: 100%;
-        min-height: 50px;
-        height: 50px;
         text-align: left;
         margin: 0;
       }
@@ -960,126 +389,164 @@
         padding: 0;
         text-align: left;
       }
-      .fhint {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-      .roomhead {
+
+      /* ===== Ergebnis ===== */
+      .pill-row {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-top: 0.5rem;
       }
-      .roomhead b {
-        font-size: 18px;
+      .pill-row .status-pill {
+        margin-top: 0;
       }
-      .pick {
-        margin-top: 10px;
-        padding: 10px 12px;
-        background: var(--cream);
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        font-size: 15px;
+      .why {
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
+      .why-list {
+        margin: 0.5rem 0 0;
+        padding-left: 1.125rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
       }
-      td,
-      th {
-        border-bottom: 1px solid var(--line);
-        padding: 9px 6px;
-        text-align: left;
-        vertical-align: top;
+      .results-block {
+        margin-bottom: 1.5rem;
       }
-      th {
-        font-size: 13px;
-        color: var(--muted);
-        letter-spacing: 0.04em;
+      .results-block .info-row-label .row-sub {
+        margin-top: 0;
       }
-      .oduline {
+      .note-box {
+        margin: 0 0 1.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--system-red-border);
+        border-radius: var(--radius-control);
+        background: var(--system-red-tint);
+        color: var(--text-primary);
+        font-size: var(--text-sub);
+      }
+      .note-box strong {
+        color: var(--system-red);
+      }
+      .note-box--orange {
+        border-color: var(--system-orange-border);
+        background: var(--system-orange-tint);
+      }
+      .note-box--orange strong {
+        color: var(--system-orange);
+      }
+      .note-box ul {
+        margin: 0.25rem 0 0;
+        padding-left: 1.125rem;
+      }
+      .rr {
         display: flex;
-        gap: 10px;
         align-items: flex-start;
-        padding: 12px;
-        border: 2px solid var(--line);
-        border-radius: 12px;
-        margin: 8px 0;
-        cursor: pointer;
-        background: var(--ctl);
-        transition:
-          transform var(--t-fast) var(--out),
-          border-color var(--t-fast);
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 0.25rem;
       }
-      .oduline:active {
-        transform: scale(0.985);
+      .rr + .rr {
+        border-top: 1px solid var(--border-separator);
       }
-      .oduline.sel {
-        border-color: var(--gold-dark);
-        background: var(--selbg);
+      .rr-main {
+        flex: 1;
+        min-width: 0;
       }
-      .oduline .why {
-        font-size: 14px;
-        color: var(--bad);
-        margin-top: 4px;
+      .rr-main b {
+        display: block;
+        font-weight: 600;
+        overflow-wrap: anywhere;
       }
-      .oduline b {
-        font-size: 18px;
+      .rr-main .row-sub {
+        margin-top: 0;
       }
-      /* sehr schmale Handys (320 px) und große Schrift/Zoom */
-      @media (max-width: 360px) {
-        header {
-          gap: 8px;
-        }
-        .logo {
-          width: 34px;
-          height: 34px;
-          font-size: 16px;
-        }
-        header .tt h1 {
-          font-size: 16px;
-        }
-        .ib {
-          width: 44px;
-          height: 44px;
-          min-width: 44px;
-          min-height: 44px;
-        }
-        input,
-        select,
-        textarea {
-          padding: 12px 10px;
-        }
-        .bar > div {
-          gap: 8px;
-        }
-        .bar .btn {
-          padding: 10px 8px;
-          font-size: 14px;
-          gap: 4px;
-        }
-        .kpis {
-          gap: 6px;
-        }
-        .kpi {
-          padding: 9px 8px;
+      .rr-val {
+        flex: none;
+        text-align: right;
+      }
+      .rr-val b {
+        display: block;
+        font-size: 1.0625rem;
+        font-weight: 600;
+      }
+      .rr-val span {
+        color: var(--text-secondary);
+        font-size: var(--text-caption);
+      }
+      .info-row--stack {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.125rem;
+      }
+      .info-row--stack .info-row-value {
+        white-space: normal;
+        font-family: var(--font-sans);
+        font-size: var(--text-sub);
+        font-weight: 400;
+      }
+      .info-row--stack .info-row-value b {
+        font-weight: 600;
+      }
+      .pick-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        min-height: 64px;
+        padding: 0.5rem 0.25rem;
+        border-radius: var(--radius-icon);
+      }
+      .pick-row + .pick-row {
+        border-top: 1px solid var(--border-separator);
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+      .pick-row:active {
+        background: var(--surface-inner-bg);
+      }
+      .pick-row .row-text {
+        overflow-wrap: anywhere;
+      }
+      .pick-row .why-bad {
+        color: var(--system-red);
+      }
+      .pick-pills {
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.25rem;
+      }
+      .acc-head .section-count {
+        flex: none;
+      }
+      .empty-line {
+        margin: 0;
+        padding: 0.5rem 0.25rem 0.25rem;
+        color: var(--text-secondary);
+        font-size: var(--text-sub);
+      }
+      .flash {
+        animation: flash 900ms var(--ease-spring);
+      }
+      @keyframes flash {
+        from {
+          background-color: var(--surface-inner-bg);
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        *,
-        *:before,
-        *:after {
-          transition-duration: 0.001ms !important;
-          transition-delay: 0ms !important;
-          animation-duration: 0.001ms !important;
-          animation-delay: 0ms !important;
+        .flash {
+          animation: none;
         }
-        .entering .stag {
-          opacity: 1;
-          transform: none;
-        }
+      }
+      /* Bericht (PDF): Tabellen wie vor dem Wechsel auf global.css */
+      :where(.report) th,
+      :where(.report) td {
+        vertical-align: top;
+      }
+      .report table {
+        font-feature-settings: 'tnum' 1;
       }
       /* App-Schrift (shared/lib/fonts). PDF-CSS: shared/pdf.css, PDF-Schrift: Helvetica/Arial (Systemschrift) */
       @font-face {
@@ -1103,39 +570,153 @@
           U+A720-A7FF;
       }
     </style>
-    <link rel="stylesheet" href="shared/ios.css" />
   </head>
   <body>
-    <div class="ambient-canvas" aria-hidden="true">
-      <div class="ambient-blob ambient-blob--cyan"></div>
-      <div class="ambient-blob ambient-blob--purple"></div>
+    <div class="ambient-canvas" aria-hidden="true"></div>
+
+    <div class="app-shell" id="appShell">
+      <header class="app-header">
+        <div class="app-header-text">
+          <h1 class="brand-title">Daikin-Auslegung</h1>
+          <p class="brand-subtitle" id="hsub">Split / Multisplit R32</p>
+          <div id="net" class="net" hidden></div>
+        </div>
+        <button
+          type="button"
+          class="icon-btn"
+          id="themeToggleBtn"
+          aria-label="Darstellung wechseln"
+        ></button>
+        <button type="button" class="icon-btn" id="btnset" aria-label="Einstellungen">
+          <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+          <span class="status-dot settings-update-dot" id="app-update-dot" hidden></span>
+        </button>
+      </header>
+      <main id="app"></main>
     </div>
-    <header>
-      <div class="logo">D</div>
-      <div class="tt" id="ttl">
-        <h1>Daikin-Auslegung</h1>
-        <span id="hsub">Split / Multisplit R32</span>
-      </div>
-      <span class="net" id="net">online</span>
-      <button class="ib" id="themeToggleBtn" type="button">
-        <span class="material-symbols-rounded" id="themeico" aria-hidden="true">contrast</span>
-      </button>
-      <button class="ib" id="btnset" type="button" aria-label="Einstellungen">
-        <span class="material-symbols-rounded" aria-hidden="true">settings</span><span class="update-dot" id="app-update-dot" aria-hidden="true"></span>
-      </button>
-    </header>
-    <div class="wrap">
-      <div class="info">
-        <span class="material-symbols-rounded" aria-hidden="true">info</span>
-        <span>
-          <b>Kombinationshilfe zur ersten Prüfung.</b>
-          Endgültige Kalkulation vor Angebot prüfen.
-        </span>
-      </div>
-    </div>
-    <div class="stage"><main id="app"></main></div>
     <div class="bar" id="bar" hidden></div>
-    <div id="toast"></div>
+
+    <!-- Einstellungen und Rückfragen: mittige Karte, einzige Glasfläche der Seite -->
+    <div
+      class="modal-overlay"
+      id="modalHost"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="liquid-glass modal-card">
+        <div class="panel" id="panelSettings">
+          <div class="modal-head">
+            <h2 class="modal-title" id="settingsTitle">Einstellungen</h2>
+            <button class="icon-btn" id="modalCloseBtn" type="button" aria-label="Schließen">
+              <span class="material-symbols-rounded" aria-hidden="true">close</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Darstellung</div>
+            <div class="segmented-control" id="themeSegment" role="group" aria-label="Darstellung">
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="light"
+                aria-pressed="false"
+              >
+                Hell
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="dark"
+                aria-pressed="false"
+              >
+                Dunkel
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="system"
+                aria-pressed="false"
+              >
+                System
+              </button>
+            </div>
+            <p class="hint">Das PDF bleibt immer hell.</p>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Allgemein</div>
+            <label class="form-label" for="s_firma">Firmenname (für das PDF)</label>
+            <div class="liquid-surface-inner field-box">
+              <input class="text-input" id="s_firma" type="text" autocomplete="off" />
+            </div>
+            <label class="form-label" for="s_bear">
+              Bearbeiter (vorbelegt bei neuer Auslegung)
+            </label>
+            <div class="liquid-surface-inner field-box">
+              <input class="text-input" id="s_bear" type="text" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="saveset">
+              <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+              <span>Einstellungen speichern</span>
+            </button>
+          </div>
+
+          <div>
+            <div class="card-title">App-Info und Updates</div>
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-row-label">Datenstand</span>
+                <span class="info-row-value wrap" id="dataInfoLabel"></span>
+              </div>
+              <div class="info-row">
+                <span class="info-row-label">Installierte Version</span>
+                <span class="info-row-value numeric">
+                  <span class="status-pill status-pill--green" id="app-version-label"></span>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-row-label">Build-Datum</span>
+                <span class="info-row-value numeric" id="appBuildDateLabel"></span>
+              </div>
+              <div class="info-row" id="updateRow" hidden>
+                <span class="info-row-label">Neue Version</span>
+                <span class="info-row-value numeric" id="updateRemote"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" data-act="checkupdate">
+              <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+              <span>Nach Updates suchen</span>
+            </button>
+            <button type="button" class="btn-secondary" data-act="forcereload">
+              <span class="material-symbols-rounded" aria-hidden="true">cleaning_services</span>
+              <span>Cache leeren und neu laden</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel" id="panelConfirm" hidden>
+          <h2 class="modal-title" id="cfTitle"></h2>
+          <p class="modal-text" id="cfText"></p>
+          <div class="modal-actions modal-actions--row">
+            <button type="button" class="btn-secondary" id="cfCancel">Abbrechen</button>
+            <button type="button" class="btn-primary" id="cfOk">Bestätigen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-pill" id="toast" role="status" aria-live="polite">
+      <span class="material-symbols-rounded" aria-hidden="true">info</span>
+      <span id="toastText"></span>
+    </div>
+
     <script>
       'use strict';
       /* ====== Konfiguration ====== */
@@ -1177,12 +758,16 @@
         return m ? `${m[3]}.${m[2]}.${m[1]}` : s;
       };
       const today = () => new Date().toISOString().slice(0, 10);
-      function toast(t) {
-        const e = $('#toast');
-        e.textContent = t;
-        e.classList.add('show');
-        clearTimeout(toast.t);
-        toast.t = setTimeout(() => e.classList.remove('show'), 3800);
+      const app = $('#app');
+      const MSR = (n) => `<span class="material-symbols-rounded" aria-hidden="true">${n}</span>`;
+      let toastTimer;
+      function toast(msg) {
+        const t = $('#toast');
+        if (!t) return;
+        $('#toastText').textContent = msg;
+        t.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('is-visible'), 3800);
       }
       const E = window.Engine;
       const RM = () =>
@@ -1197,64 +782,204 @@
       /* ====== Zustand ====== */
       let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
       delete settings.sheetId;
-      try {
-        const g = localStorage.getItem('ag-theme');
-        if (g === 'light') settings.theme = 'hell';
-        else if (g === 'dark') settings.theme = 'dunkel';
-      } catch (e) {} // Darstellung gilt für alle Apps gemeinsam
-      function applyTheme() {
-        const sysLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-        const t = settings.theme === 'hell' ? 'light' : settings.theme === 'dunkel' ? 'dark' : (sysLight ? 'light' : 'dark');
-        try {
-          if (settings.theme === 'hell' || settings.theme === 'dunkel') localStorage.setItem('ag-theme', t);
-          else localStorage.removeItem('ag-theme');
-        } catch (e) {}
-        document.documentElement.setAttribute('data-theme', t);
-      }
-      applyTheme();
-      const TH = {
-        auto: ['Auto', 'contrast'],
-        hell: ['Hell', 'light_mode'],
-        dunkel: ['Dunkel', 'dark_mode'],
-      };
-            const APP_VERSION = '2.0.3';
-      const BUILD_DATE = '2026-11-15';
+      const APP_VERSION = '2.1.0';
+      const BUILD_DATE = '2026-11-17';
+
+      /* Zahlenfelder: beim Antippen alles markieren */
       document.addEventListener('focusin', (e) => {
         const el = e.target;
-        if (el && el.tagName === 'INPUT' && (el.type === 'number' || el.inputMode === 'decimal' || el.inputMode === 'numeric')) {
-          try { el.select(); } catch (err) {}
+        if (
+          el &&
+          el.tagName === 'INPUT' &&
+          (el.type === 'number' ||
+            el.inputMode === 'decimal' ||
+            el.inputMode === 'numeric' ||
+            el.classList.contains('glass-input'))
+        ) {
+          try {
+            el.select();
+          } catch (err) {}
         }
       });
+
+      /* ====== Rahmen: Modal-Karte, Darstellung, Update ====== */
+      /* Mittige Karte (Einstellungen und Rückfragen): Rest der Seite inaktiv, Escape schließt */
+      let modalFocus = null;
+      let modalPanel = null;
+      let confirmDone = null;
+      function modalOpen(panel) {
+        const host = $('#modalHost');
+        modalPanel = panel;
+        $('#panelSettings').hidden = panel !== 'settings';
+        $('#panelConfirm').hidden = panel !== 'confirm';
+        host.setAttribute('aria-labelledby', panel === 'settings' ? 'settingsTitle' : 'cfTitle');
+        $('#appShell').inert = true;
+        $('#bar').inert = true;
+        modalFocus = document.activeElement;
+        host.classList.add('is-open');
+        const first = host.querySelector(
+          `#${panel === 'settings' ? 'panelSettings' : 'panelConfirm'} button`,
+        );
+        if (first) first.focus();
+      }
+      function modalClose() {
+        if (!modalPanel) return;
+        const war = modalPanel;
+        modalPanel = null;
+        $('#modalHost').classList.remove('is-open');
+        $('#appShell').inert = false;
+        $('#bar').inert = false;
+        if (modalFocus && modalFocus.focus) modalFocus.focus();
+        if (war === 'confirm' && confirmDone) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          fertig(false);
+        }
+      }
+      /* Rückfrage (ersetzt den Browser-Dialog) */
       function confirmModal(title, message, confirmLabel = 'Bestätigen', danger = false) {
         return new Promise((resolve) => {
-          const back = document.createElement('div');
-          back.className = 'ag-modal-backdrop';
-          back.innerHTML = `<div class="ag-modal liquid-glass" role="dialog" aria-modal="true">
-            <h3>${esc(title)}</h3>
-            <p>${esc(message)}</p>
-            <div class="ag-modal-actions">
-              <button type="button" class="btn" data-cm="no">Abbrechen</button>
-              <button type="button" class="btn ${danger ? 'bad' : 'pri'}" data-cm="yes">${esc(confirmLabel)}</button>
-            </div>
-          </div>`;
-          const done = (v) => { back.remove(); resolve(v); };
-          back.addEventListener('click', (e) => {
-            if (e.target === back || e.target.closest('[data-cm="no"]')) done(false);
-            else if (e.target.closest('[data-cm="yes"]')) done(true);
-          });
-          document.body.appendChild(back);
+          $('#cfTitle').textContent = title;
+          $('#cfText').textContent = message;
+          const ok = $('#cfOk');
+          ok.textContent = confirmLabel;
+          ok.className = danger ? 'btn-danger' : 'btn-primary';
+          confirmDone = resolve;
+          modalOpen('confirm');
         });
       }
-      function themeBtn() {
-        const active = document.documentElement.getAttribute('data-theme') || 'dark',
-          k = active === 'light' ? 'hell' : 'dunkel',
-          b = $('#themeToggleBtn');
-        if (!b) return;
-        const ico = $('#themeico');
-        if (ico) ico.textContent = TH[k][1];
-        b.setAttribute('aria-label', 'Darstellung: ' + TH[k][0] + ' (tippen zum Wechseln)');
-        b.title = 'Darstellung: ' + TH[k][0];
+      function openSettings() {
+        $('#s_firma').value = settings.firma || '';
+        $('#s_bear').value = settings.bearbeiter || '';
+        $('#dataInfoLabel').textContent = dataInfo;
+        $('#app-version-label').textContent = 'v' + APP_VERSION;
+        $('#appBuildDateLabel').textContent = BUILD_DATE;
+        syncThemeUi();
+        modalOpen('settings');
       }
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#modalCloseBtn') || e.target === $('#modalHost')) {
+          modalClose();
+        } else if (e.target.closest('#cfCancel')) {
+          modalClose();
+        } else if (e.target.closest('#cfOk')) {
+          const fertig = confirmDone;
+          confirmDone = null;
+          modalPanel = null;
+          $('#modalHost').classList.remove('is-open');
+          $('#appShell').inert = false;
+          $('#bar').inert = false;
+          if (modalFocus && modalFocus.focus) modalFocus.focus();
+          if (fertig) fertig(true);
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') modalClose();
+      });
+
+      /* Darstellung: Segment in den Einstellungen kennt zusätzlich „System“, der Kopf-Knopf schaltet Hell und Dunkel */
+      const systemHell = window.matchMedia('(prefers-color-scheme: light)');
+      function gespeicherteDarstellung() {
+        try {
+          const v = localStorage.getItem('ag-theme');
+          return v === 'light' || v === 'dark' ? v : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      function syncThemeUi() {
+        const wahl = gespeicherteDarstellung() || 'system';
+        document
+          .querySelectorAll('[data-theme-choice]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === wahl)));
+        const btn = $('#themeToggleBtn');
+        if (btn) {
+          const dunkel = document.documentElement.getAttribute('data-theme') !== 'light';
+          btn.innerHTML = MSR(dunkel ? 'light_mode' : 'dark_mode');
+          btn.setAttribute(
+            'aria-label',
+            dunkel ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren',
+          );
+        }
+      }
+      function setzeDarstellung(wahl) {
+        try {
+          if (wahl === 'system') localStorage.removeItem('ag-theme');
+          else localStorage.setItem('ag-theme', wahl);
+        } catch (e) {}
+        document.documentElement.setAttribute(
+          'data-theme',
+          wahl === 'system' ? (systemHell.matches ? 'light' : 'dark') : wahl,
+        );
+        syncThemeUi();
+      }
+      document
+        .querySelectorAll('[data-theme-choice]')
+        .forEach((b) => b.addEventListener('click', () => setzeDarstellung(b.dataset.themeChoice)));
+      $('#themeToggleBtn').addEventListener('click', () => {
+        const hell = document.documentElement.getAttribute('data-theme') === 'light';
+        setzeDarstellung(hell ? 'dark' : 'light');
+      });
+      new MutationObserver(syncThemeUi).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+
+      /* Update-Prüfung über version.json. Offline: nur Meldung, Caches und localStorage bleiben erhalten. */
+      async function clearCachesAndReload() {
+        try {
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) await reg.update().catch(() => {});
+          }
+        } catch (e) {}
+        window.location.reload();
+      }
+      async function pruefeUpdate(manuell) {
+        const knopf = $('[data-act="checkupdate"]');
+        if (manuell && knopf) knopf.disabled = true;
+        try {
+          const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) throw new Error('version.json nicht erreichbar');
+          const data = await res.json();
+          const remote = String(data.version || '').trim();
+          const neu = !!remote && remote !== APP_VERSION;
+          $('#app-update-dot').hidden = !neu;
+          $('#updateRow').hidden = !neu;
+          $('#updateRemote').textContent = neu ? 'v' + remote : '';
+          $('#app-version-label').className =
+            'status-pill ' + (neu ? 'status-pill--orange' : 'status-pill--green');
+          if (manuell) {
+            if (neu) {
+              toast('Update auf v' + remote + ' wird geladen.');
+              setTimeout(clearCachesAndReload, 900);
+            } else {
+              toast('Aktuellste Version v' + APP_VERSION + ' ist installiert.');
+            }
+          }
+        } catch (e) {
+          if (manuell)
+            toast('Update-Prüfung nicht möglich. Internetverbindung prüfen und erneut versuchen.');
+        } finally {
+          if (knopf) knopf.disabled = false;
+        }
+      }
+      function updateNet() {
+        const el = $('#net');
+        const on = navigator.onLine;
+        el.hidden = on;
+        el.innerHTML = on ? '' : '<i class="nd"></i><span>Offline</span>';
+      }
+
+      /* Auswahl-Dropdowns und mittige Zahlenfelder (shared/choice-dropdown.js, Modul unten) */
+      function nachRender() {
+        if (window.agUiInit) window.agUiInit();
+      }
+
       let projects = LS.get(KEY.projects, []);
       let view = { name: 'list' };
       let DB = null,
@@ -1310,6 +1035,21 @@
       let openRooms = new Set(),
         uiOpen = {};
       const roomEmpty = (r) => !r.name && !r.flaeche && !r.bedarf && !r.modell && !r.rohr;
+      /* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
+      let fadenNr = 0;
+      function fadeThrough(change) {
+        if (RM() || !app.animate) {
+          change();
+          return;
+        }
+        const nr = ++fadenNr;
+        app.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: 'ease-out' });
+        setTimeout(() => {
+          if (nr !== fadenNr) return;
+          change();
+          app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+        }, 90);
+      }
       function go(name, extra) {
         view = Object.assign({ name }, extra);
         if (name === 'edit') {
@@ -1318,38 +1058,26 @@
           uiOpen = {};
         }
         prevKpi = null;
-        render();
-        window.scrollTo(0, 0);
+        fadeThrough(() => {
+          render();
+          window.scrollTo(0, 0);
+        });
       }
       const isRes = () => view.name === 'edit' && view.step === 'res';
       function setHeader() {
         const p = isRes() ? cur() : null;
-        const hs = $('#hsub'),
-          t = p
-            ? (p.nr || 'ohne Projektnummer') + (p.kunde ? ' · ' + p.kunde : '')
-            : 'Split / Multisplit R32';
-        if (hsubOut) {
-          hsubOut.cancel();
-          hsubOut = null;
-        }
-        const changed = hs.textContent !== t;
-        hs.textContent = t;
-        if (changed && !RM() && hs.animate)
-          hs.animate(
-            [
-              { opacity: 0, transform: 'translateY(6px)' },
-              { opacity: 0.75, transform: 'none' },
-            ],
-            { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
-          );
+        $('#hsub').textContent = p
+          ? (p.nr || 'ohne Projektnummer') + (p.kunde ? ', ' + p.kunde : '')
+          : 'Split / Multisplit R32';
       }
       function barHtml() {
         if (view.name !== 'edit') return '';
         const p = cur();
         if (!isRes())
-          return `<div><button class="btn" style="flex:.55" data-act="addroom"${p.rooms.length >= 5 ? ' disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">add</span>Raum</button><button class="btn primary" data-act="toresult">Ergebnis ansehen</button></div>`;
+          return `<div><button type="button" class="btn-secondary bar-side" data-act="addroom" aria-label="Raum hinzufügen"${p.rooms.length >= 5 ? ' disabled' : ''}>${MSR('add')}<span>Raum</span></button><button type="button" class="btn-primary bar-main" data-act="toresult">Ergebnis ansehen</button></div>`;
         const sel = EV ? selected() : null;
-        return `<div><button class="btn" data-act="toinput">Ändern</button><button class="btn primary pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1"><span class="material-symbols-rounded" aria-hidden="true">download</span>PDF erstellen</span><span class="lr">PDF wird erstellt …</span><span class="l2"><span class="material-symbols-rounded" aria-hidden="true">check</span>PDF fertig</span></button>${lastPdf && lastPdf.id === p.id && sel && sel.ok ? '<button class="btn" style="flex:.7" data-act="sharepdf">Teilen</button>' : ''}</div>`;
+        const fertig = lastPdf && lastPdf.id === p.id && sel && sel.ok;
+        return `<div><button type="button" class="btn-secondary bar-side" data-act="toinput">Ändern</button><button type="button" class="btn-primary bar-main pdfb${pdfBusy === p.id ? ' run' : ''}" data-act="makepdf"${sel && sel.ok ? '' : ' disabled'}><span class="fill"${pdfBusy === p.id ? ` style="transform:scaleX(${pdfProg})"` : ''}></span><span class="l1">${MSR('download')}PDF erstellen</span><span class="lr">PDF wird erstellt</span><span class="l2">${MSR('check')}PDF fertig</span></button>${fertig ? '<button type="button" class="btn-secondary bar-side" data-act="sharepdf">Teilen</button>' : ''}</div>`;
       }
       function setBar() {
         const b = $('#bar'),
@@ -1367,57 +1095,35 @@
           view = { name: 'list' };
         }
         setHeader();
-        $('#app').innerHTML =
-          view.name === 'list' ? vList() : view.name === 'edit' ? vEdit() : vSettings();
+        app.innerHTML = view.name === 'list' ? vList() : vEdit();
         if (view.name === 'edit') refreshResults();
         else setBar();
-        if (window.iosAfterRender) iosAfterRender(view.name + (view.step ? '-' + view.step : ''));
+        updateNet();
+        nachRender();
         window.scrollTo(0, y);
       }
+      const HINWEIS =
+        'Kombinationshilfe zur ersten Prüfung. Endgültige Kalkulation vor Angebot prüfen.';
       function vList() {
-        return `<div class="pagetitle">Auslegungen</div>
-  <p class="muted">Multisplit-Kombinationen (R32) prüfen – nur Kombinationen, die Daikin freigibt, werden als „freigegeben“ angezeigt.</p>
-  <div class="row"><button class="btn primary" data-act="new"><span class="material-symbols-rounded" aria-hidden="true">add</span>Neue Auslegung</button></div>
-  <h2>Gespeichert auf diesem Gerät <span class="n" aria-hidden="true">${projects.length}</span></h2>
+        return `<p class="lead-note">Multisplit-Kombinationen (R32) prüfen. Als „freigegeben“ erscheinen nur Kombinationen, die Daikin freigibt.</p>
+  <button type="button" class="btn-primary btn-wide" data-act="new">${MSR('add')}<span>Neue Auslegung</span></button>
+  <h2 class="section-title">Gespeichert auf diesem Gerät <span class="section-count">${projects.length}</span></h2>
   ${
     projects.length
-      ? projects
+      ? `<div class="group">${projects
           .map(
-            (
-              p,
-            ) => `<div class="card proj" data-act="open" data-id="${p.id}" role="button" tabindex="0">
-    <span class="pi"><span class="material-symbols-rounded" aria-hidden="true">description</span></span>
-    <span class="pt"><b>${esc(p.nr || 'ohne Projektnummer')}</b>${p.kunde ? `<span class="pk">${esc(p.kunde)}</span>` : ''}<small>${esc(fmtDate(p.datum))} · ${p.rooms.length} ${p.rooms.length === 1 ? 'Raum' : 'Räume'}</small></span>
-    <button class="ib del" type="button" data-act="del" data-id="${p.id}" aria-label="Auslegung ${esc(p.nr || 'ohne Projektnummer')} löschen"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button></div>`,
+            (p) => `<div class="row proto-row">
+    <button type="button" class="proto-open" data-act="open" data-id="${p.id}"><span class="row-icon row-icon--blue">${MSR('description')}</span><span class="row-text"><span class="row-title">${esc(p.nr || 'ohne Projektnummer')}</span>${p.kunde ? `<span class="row-sub">${esc(p.kunde)}</span>` : ''}<span class="row-sub">${esc(fmtDate(p.datum))}, ${p.rooms.length} ${p.rooms.length === 1 ? 'Raum' : 'Räume'}</span></span><span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span></button>
+    <button type="button" class="icon-btn proto-act is-danger" data-act="del" data-id="${p.id}" aria-label="Auslegung ${esc(p.nr || 'ohne Projektnummer')} löschen">${MSR('delete')}</button></div>`,
           )
-          .join('')
-      : '<div class="card empty"><b>Noch keine Auslegung</b><div class="muted">Mit „Neue Auslegung“ startest du die erste.</div></div>'
+          .join('')}</div>`
+      : '<p class="empty-note">Noch keine Auslegung. Mit „Neue Auslegung“ startest du die erste.</p>'
   }
-  <p class="muted" style="font-size:14px;margin-top:24px">Datenstand: ${esc(dataInfo)}</p>`;
-      }
-      function vSettings() {
-        return `<div class="pagetitle">Einstellungen</div>
-  <div class="card">
-    <div><label>Firmenname (für das PDF)</label><input id="s_firma" value="${esc(settings.firma)}"></div><br>
-    <div><label>Bearbeiter (vorbelegt bei neuer Auslegung)</label><input id="s_bear" value="${esc(settings.bearbeiter)}"></div>
-  </div>
-  <div class="card"><label>Darstellung</label><select id="s_theme">${[
-    ['auto', 'Automatisch (wie Gerät)'],
-    ['hell', 'Hell'],
-    ['dunkel', 'Dunkel'],
-  ]
-    .map((o) => opt(o[0], settings.theme || 'auto', o[1]))
-    .join('')}</select>
-    <div class="fhint">Das PDF bleibt immer hell.</div></div>
-  <p class="muted">Datenstand: ${esc(dataInfo)}</p>
-  ${settingsVersionHtml(APP_VERSION, BUILD_DATE)}
-  <div class="row"><button class="btn primary" data-act="saveset">Speichern</button><button class="btn" data-act="back">Zurück</button></div>`;
+  <p class="hint">${HINWEIS}</p>
+  <p class="hint">Datenstand: ${esc(dataInfo)}</p>`;
       }
 
-      function opt(v, sel, label) {
-        return `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(label == null ? v : label)}</option>`;
-      }
-      const CHEV = '<span class="material-symbols-rounded" aria-hidden="true">expand_more</span>';
+      /* ====== Eingabe ====== */
       function roomSummary(r) {
         let u = null;
         try {
@@ -1427,7 +1133,27 @@
         if (E.num(r.flaeche) != null) a.push(fmt(E.num(r.flaeche)) + ' m²');
         if (u) a.push(u.modell);
         if (E.num(r.rohr) != null) a.push(fmt(E.num(r.rohr)) + ' m Rohr');
-        return a.length ? a.join(' · ') : 'Raum bearbeiten';
+        return a.length ? a.join(', ') : 'Raum bearbeiten';
+      }
+      const CHEV = MSR('expand_more').replace(
+        'material-symbols-rounded',
+        'material-symbols-rounded acc-chevron',
+      );
+      /* Feldbausteine: Beschriftung oben, Eingabe darunter */
+      function fText(label, attr, value, ph, mode) {
+        return `<label class="field"><span class="field-label">${esc(label)}</span><input class="text-input" ${attr} value="${esc(value)}" placeholder="${esc(ph || '')}" autocomplete="off"${mode ? ` inputmode="${mode}"` : ''}></label>`;
+      }
+      function fNum(label, attr, value, ph, unit, hint, hintId) {
+        return `<label class="field"><span class="field-label">${esc(label)}</span><span class="input-wrapper liquid-surface-inner"><input class="glass-input" ${attr} inputmode="decimal" value="${esc(value)}" placeholder="${esc(ph || '')}" autocomplete="off"><span class="input-unit-addon">${esc(unit)}</span></span>${hint || hintId ? `<span class="field-hint"${hintId ? ` id="${hintId}"` : ''}>${esc(hint || '')}</span>` : ''}</label>`;
+      }
+      /* Auswahl: Pills, ab mehr als 3 Optionen macht initChoiceDropdowns() ein Dropdown daraus */
+      function fSel(label, f, opts, current) {
+        return `<div class="field" role="group" aria-label="${esc(label)}"><span class="field-label">${esc(label)}</span><div class="tab-strip" aria-label="${esc(label)}">${opts
+          .map(
+            (o) =>
+              `<button type="button" class="tab-pill" data-act="setf" data-f="${f}" data-v="${esc(o.v)}" aria-selected="${String(current) === String(o.v)}">${esc(o.l)}</button>`,
+          )
+          .join('')}</div></div>`;
       }
       function roomCard(r, i) {
         const typen = [...new Set(DB.ig.map((x) => x.typ))];
@@ -1437,45 +1163,55 @@
           .sort((a, b) => a.klasse - b.klasse);
         const p = cur(),
           open = openRooms.has(r.id);
-        const head = `<div class="acc" data-act="toggleroom" data-i="${i}" role="button" tabindex="0" aria-expanded="${open}"><div class="n">${i + 1}</div><div class="m"><b id="rt${i}">${esc(r.name || 'Raum ' + (i + 1))}</b><span id="sum${i}">${esc(roomSummary(r))}</span></div>${CHEV}</div>`;
-        return `<div class="card roomcard${open ? ' open' : ''}" data-room="${i}">${head}<div class="body-w"><div class="roombody"><div class="body-in">
-    <div class="grid3">
-      <div><label>Raumname</label><input data-f="name" value="${esc(r.name)}" placeholder="z. B. Wohnzimmer"></div>
-      <div><label>Raumtyp</label><select data-f="raumtyp">${DB.raumtypen.map((x) => opt(x.name, r.raumtyp)).join('')}</select></div>
-      <div><label>Lage / Zuschlag</label><select data-f="zuschlag">${DB.zuschlaege.map((x) => opt(x.name, r.zuschlag)).join('')}</select></div>
-      <div><label>Fläche (m²)</label><input data-f="flaeche" inputmode="decimal" value="${esc(r.flaeche)}" placeholder="z. B. 25"></div>
-      <div><label>Kühlbedarf (kW)</label><input data-f="bedarf" inputmode="decimal" value="${esc(r.bedarf)}" placeholder="automatisch"><div class="fhint" id="bh${i}"></div></div>
-      <div><label>Gerätetyp</label><select data-f="typ">${typen.map((x) => opt(x, r.typ)).join('')}</select></div>
-      <div><label>Serie</label><select data-f="serie"><option value="">beliebig</option>${serien.map((x) => opt(x, r.serie)).join('')}</select></div>
-      <div><label>Modell</label><select data-f="modell"><option value="">Automatisch (passend zum Bedarf)</option>${modelle.map((x) => opt(x.modell, r.modell, `${x.modell} · ${fmt(x.kw)} kW`)).join('')}</select></div>
-      <div></div>
-      <div><label>Rohrlänge zum Außengerät (m)</label><input data-f="rohr" inputmode="decimal" value="${esc(r.rohr)}" placeholder="einfache Länge"></div>
-      <div><label>Höhe Innengerät zum Außengerät (m)</label><div class="row" style="flex-wrap:nowrap"><input data-f="hoehe" inputmode="decimal" value="${esc(r.hoehe)}" placeholder="0 = gleiche Ebene"><button type="button" class="btn" data-act="sign" style="flex:none;min-width:64px" aria-label="Vorzeichen wechseln">+ / −</button></div><div class="fhint">+ = Innengerät höher, − = tiefer als Außengerät</div></div>
-    </div>
-    <div class="pick" id="pick${i}"></div>
-    ${p.rooms.length > 1 ? `<div style="margin-top:10px"><button class="btn small danger" data-act="delroom" data-i="${i}">Raum ${i + 1} entfernen</button></div>` : ''}
+        const head = `<button type="button" class="acc-head" data-act="toggleroom" data-i="${i}" aria-expanded="${open}"><span class="acc-badge">${i + 1}</span><span class="acc-name"><span class="row-title" id="rt${i}">${esc(r.name || 'Raum ' + (i + 1))}</span><span class="row-sub" id="sum${i}">${esc(roomSummary(r))}</span></span>${CHEV}</button>`;
+        return `<div class="acc${open ? ' is-open' : ''}" data-room="${i}">${head}<div class="acc-body"><div><div class="acc-inner">
+    ${fText('Raumname', 'data-f="name"', r.name, 'z. B. Wohnzimmer')}
+    ${fSel(
+      'Raumtyp',
+      'raumtyp',
+      DB.raumtypen.map((x) => ({ v: x.name, l: x.name })),
+      r.raumtyp,
+    )}
+    ${fSel(
+      'Lage / Zuschlag',
+      'zuschlag',
+      DB.zuschlaege.map((x) => ({ v: x.name, l: x.name })),
+      r.zuschlag,
+    )}
+    ${fNum('Fläche', 'data-f="flaeche"', r.flaeche, 'z. B. 25', 'm²')}
+    ${fNum('Kühlbedarf', 'data-f="bedarf"', r.bedarf, 'automatisch', 'kW', '', 'bh' + i)}
+    ${fSel(
+      'Gerätetyp',
+      'typ',
+      typen.map((x) => ({ v: x, l: x })),
+      r.typ,
+    )}
+    ${fSel('Serie', 'serie', [{ v: '', l: 'beliebig' }].concat(serien.map((x) => ({ v: x, l: x }))), r.serie)}
+    ${fSel('Modell', 'modell', [{ v: '', l: 'Automatisch (passend zum Bedarf)' }].concat(modelle.map((x) => ({ v: x.modell, l: `${x.modell}, ${fmt(x.kw)} kW` }))), r.modell)}
+    ${fNum('Rohrlänge zum Außengerät', 'data-f="rohr"', r.rohr, 'einfache Länge', 'm')}
+    <div class="field"><label class="field-label" for="hoehe${i}">Höhe Innengerät zum Außengerät</label><div class="num-line"><span class="input-wrapper liquid-surface-inner"><input class="glass-input" id="hoehe${i}" data-f="hoehe" inputmode="text" value="${esc(r.hoehe)}" placeholder="0 = gleiche Ebene" autocomplete="off"><span class="input-unit-addon">m</span></span><button type="button" class="btn-tonal" data-act="sign" aria-label="Vorzeichen wechseln">+ / −</button></div><span class="field-hint">+ = Innengerät höher, − = tiefer als Außengerät</span></div>
+    <div class="pick-line" id="pick${i}"></div>
+    ${p.rooms.length > 1 ? `<button type="button" class="btn-danger" data-act="delroom" data-i="${i}">Raum ${i + 1} entfernen</button>` : ''}
   </div></div></div></div>`;
       }
       function vEdit() {
         const p = cur();
-        const steps = `<div class="steps"><button type="button" class="${isRes() ? '' : 'on'}" data-act="toinput">1 Eingabe</button><button type="button" class="${isRes() && !(lastPdf && lastPdf.id === p.id) ? 'on' : ''}" data-act="toresult">2 Ergebnis</button><div class="${isRes() && lastPdf && lastPdf.id === p.id ? 'on' : ''}">3 PDF</div></div>`;
+        const steps = `<div class="segmented-control steps" role="group" aria-label="Schritt"><button type="button" class="segmented-option" data-act="toinput" aria-pressed="${!isRes()}">Eingabe</button><button type="button" class="segmented-option" data-act="toresult" aria-pressed="${isRes()}">Ergebnis</button></div>`;
         if (isRes()) return steps + `<div id="results"></div>`;
-        return (
-          steps +
-          `<div class="row between" style="margin:6px 0"><button class="btn small" data-act="back">‹ Übersicht</button></div>
-  <div class="card"><h3>Projekt</h3>
-    <div class="g2" style="margin-bottom:10px">
-      <div><label>Projektnummer</label><input data-p="nr" value="${esc(p.nr)}" placeholder="z. B. 2026-0123"></div>
-      <div><label>Datum</label><input type="date" data-p="datum" value="${esc(p.datum)}"></div>
-    </div>
-    <div class="grid2">
-      <div><label>Kunde / Objekt</label><input data-p="kunde" value="${esc(p.kunde)}"></div>
-      <div><label>Bearbeiter</label><input data-p="bearbeiter" value="${esc(p.bearbeiter)}"></div>
-    </div></div>
-  <h2>Räume &amp; Innengeräte</h2>
-  ${p.rooms.map(roomCard).join('')}
-  <div class="card"><label>Bemerkungen (kommen ins PDF)</label><textarea data-p="bemerkung">${esc(p.bemerkung)}</textarea></div>`
-        );
+        return `${steps}
+  <button type="button" class="back-btn" data-act="back">${MSR('chevron_left')}Übersicht</button>
+  <h2 class="section-title">Projekt</h2>
+  <div class="group group--form">
+    ${fText('Projektnummer', 'data-p="nr"', p.nr, 'z. B. 2026-0123')}
+    <label class="field"><span class="field-label">Datum</span><input class="text-input" type="date" data-p="datum" value="${esc(p.datum)}"></label>
+    ${fText('Kunde / Objekt', 'data-p="kunde"', p.kunde)}
+    ${fText('Bearbeiter', 'data-p="bearbeiter"', p.bearbeiter)}
+  </div>
+  <h2 class="section-title">Räume und Innengeräte <span class="section-count">${p.rooms.length}</span></h2>
+  <div class="group">${p.rooms.map(roomCard).join('')}</div>
+  <h2 class="section-title">Bemerkungen</h2>
+  <div class="group"><div class="field"><label class="field-label" for="bemerkung">Kommen ins PDF</label><div class="liquid-surface-inner field-box"><textarea class="text-input" id="bemerkung" data-p="bemerkung">${esc(p.bemerkung)}</textarea></div></div></div>
+  <p class="hint">${HINWEIS}</p>`;
       }
 
       /* ====== Ergebnis ====== */
@@ -1511,13 +1247,13 @@
                 ? 'Fläche eintragen oder Bedarf selbst angeben'
                 : E.num(r.bedarf) != null
                   ? 'manuell'
-                  : `berechnet aus Fläche · ${fmt(b)} kW`;
+                  : `berechnet aus Fläche, ${fmt(b)} kW`;
           const u = E.pickUnit(r, DB),
             pk = $('#pick' + i);
           if (pk)
             pk.innerHTML = u
-              ? `Gewählt: <b>${esc(u.modell)}</b> · Klasse ${u.klasse} · ${fmt(u.kwK != null ? u.kwK : u.kw)} kW kühlen${u.kwH != null ? ' / ' + fmt(u.kwH) + ' kW heizen' : ''} (Nenn)${b != null && (u.kwK != null ? u.kwK : u.kw) + 1e-9 < b ? ` <span class="badge warn">kleiner als Bedarf ${fmt(b)} kW</span>` : ''}`
-              : '<span class="muted">Noch kein Gerät – Fläche/Bedarf oder Modell wählen.</span>';
+              ? `Gewählt: <b>${esc(u.modell)}</b>, Klasse ${u.klasse}, ${fmt(u.kwK != null ? u.kwK : u.kw)} kW kühlen${u.kwH != null ? ' / ' + fmt(u.kwH) + ' kW heizen' : ''} (Nenn)${b != null && (u.kwK != null ? u.kwK : u.kw) + 1e-9 < b ? `<br><span class="status-pill status-pill--orange">kleiner als Bedarf ${fmt(b)} kW</span>` : ''}`
+              : 'Noch kein Gerät. Fläche oder Bedarf eintragen, oder ein Modell wählen.';
         });
       }
       function refreshResults() {
@@ -1525,13 +1261,6 @@
         if (!p) return;
         evaluate();
         refreshHints();
-        const st = document.querySelectorAll('.steps>*');
-        if (st.length === 3) {
-          const pd = !!(lastPdf && lastPdf.id === p.id);
-          st[0].classList.toggle('on', !isRes());
-          st[1].classList.toggle('on', isRes() && !pd);
-          st[2].classList.toggle('on', isRes() && pd);
-        }
         if (!isRes()) {
           setBar();
           return;
@@ -1540,71 +1269,80 @@
           box = $('#results');
         if (!box) return;
         box.innerHTML = resultHtml(sel);
-        const kr = box.querySelector('[data-kv="rohr"] b'),
-          kc = box.querySelector('[data-kv="r32"] b');
+        const kr = box.querySelector('[data-kv="rohr"] .v'),
+          kc = box.querySelector('[data-kv="r32"] .v');
         if (kr && kc) {
           if (prevKpi && prevKpi.id === p.id) {
-            if (prevKpi.rohr !== kr.textContent) flash(kr.parentElement);
-            if (prevKpi.r32 !== kc.textContent) flash(kc.parentElement);
+            if (prevKpi.rohr !== kr.textContent) flash(kr.closest('.info-row'));
+            if (prevKpi.r32 !== kc.textContent) flash(kc.closest('.info-row'));
           }
           prevKpi = { id: p.id, rohr: kr.textContent, r32: kc.textContent };
         }
         setBar();
+        nachRender();
       }
-      function odulineHtml(x, sel) {
-        return `<div class="oduline" data-act="pickodu" data-id="${esc(x.odu.id)}">
-      <div style="flex:1;min-width:0"><b>${esc(x.odu.id)}</b> <span class="muted">${fmt(x.odu.kuehlen_kw)} / ${fmt(x.odu.heizen_kw)} kW · max. ${x.odu.ig_max} Räume · bis ${fmt(x.odu.summe_max_kw)} kW Summe</span>
-      ${x.ok ? '' : `<div class="why" style="color:var(--bad)">${esc(x.errs[0])}${x.errs.length > 1 ? ` (+${x.errs.length - 1} weitere)` : ''}</div>`}</div>
-      <span style="text-align:right">${x.empfohlen ? '<span class="badge" style="background:var(--gold);color:#1a1a1a">Empfehlung</span><br>' : EV.alt && EV.alt.x.odu.id === x.odu.id ? '<span class="badge warn">Alternative</span><br>' : ''}<span class="badge ${x.ok ? 'ok' : 'bad'}">${x.ok ? 'freigegeben' : 'nicht freigegeben'}</span></span></div>`;
+      function pickRow(x) {
+        const o = x.odu;
+        const tags = [];
+        if (x.empfohlen) tags.push('<span class="status-pill status-pill--blue">Empfehlung</span>');
+        else if (EV.alt && EV.alt.x.odu.id === x.odu.id)
+          tags.push('<span class="status-pill status-pill--orange">Alternative</span>');
+        tags.push(
+          x.ok
+            ? '<span class="status-pill status-pill--green">freigegeben</span>'
+            : '<span class="status-pill status-pill--red">nicht freigegeben</span>',
+        );
+        return `<button type="button" class="pick-row" data-act="pickodu" data-id="${esc(o.id)}"><span class="row-text"><span class="row-title">${esc(o.id)}</span><span class="row-sub">${fmt(o.kuehlen_kw)} / ${fmt(o.heizen_kw)} kW, max. ${o.ig_max} Räume, bis ${fmt(o.summe_max_kw)} kW Summe</span>${x.ok ? '' : `<span class="row-sub why-bad">${esc(x.errs[0])}${x.errs.length > 1 ? ` (+${x.errs.length - 1} weitere)` : ''}</span>`}</span><span class="pick-pills">${tags.join('')}</span></button>`;
       }
-      function accHtml(key, title, list, sel, si) {
-        return `<details class="card stag" style="--i:${si}" data-k="${key}"${uiOpen[key] ? ' open' : ''}><summary><span>${title} <small>· ${list.length}</small></span>${CHEV}</summary>${list.length ? list.map((x) => odulineHtml(x, sel)).join('') : '<div class="muted" style="margin-top:6px">Keine.</div>'}</details>`;
+      function accHtml(key, title, count, inner) {
+        const open = !!uiOpen[key];
+        return `<div class="acc${open ? ' is-open' : ''}" data-k="${key}"><button type="button" class="acc-head" data-act="toggleacc" data-k="${key}" aria-expanded="${open}"><span class="acc-name"><span class="row-title">${title}</span></span>${count != null ? `<span class="section-count">${count}</span>` : ''}${CHEV}</button><div class="acc-body"><div><div class="acc-inner">${inner}</div></div></div></div>`;
+      }
+      function noteBox(kind, title, items) {
+        return `<div class="note-box${kind === 'orange' ? ' note-box--orange' : ''}"><strong>${title}</strong><ul>${items.map((e) => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
+      }
+      function infoRow(label, sub, value, kv) {
+        return `<div class="info-row"${kv ? ` data-kv="${kv}"` : ''}><span class="info-row-label"><span class="row-text"><span>${label}</span>${sub ? `<span class="row-sub">${sub}</span>` : ''}</span></span><span class="info-row-value numeric v">${value}</span></div>`;
       }
       function resultHtml(sel) {
         const p = cur();
         if (!sel && uiOpen.badl === undefined) uiOpen.badl = true; // ohne freigegebene Kombination: Gründe standardmäßig sichtbar
         let h = '';
         if (!sel) {
-          h += `<div class="hero bad stag" style="--i:0"><span class="pill b">Fehler</span><div class="big" style="font-size:22px">Keine freigegebene Kombination gefunden</div><div class="why">Gründe stehen unten bei „Nicht freigegeben“ – Außengerät antippen, um alle Details zu sehen.</div></div>`;
-          h += `<div class="muted" style="font-size:14px;margin:0 0 6px">PDF gibt es nur für eine freigegebene Kombination.</div>`;
+          h += `<div class="hero"><div class="hero-caption">Ergebnis</div><div class="hero-value hero-value--compact">Keine freigegebene Kombination gefunden</div><div class="pill-row"><span class="status-pill status-pill--red">${MSR('error')}Fehler</span></div><p class="hero-note why">Gründe stehen unten bei „Nicht freigegeben“. Außengerät antippen, um alle Details zu sehen.</p></div>`;
+          h += `<p class="hint">PDF gibt es nur für eine freigegebene Kombination.</p>`;
         } else {
-          const o = sel.odu,
-            cls = !sel.ok ? 'bad' : sel.warns.length ? 'warn' : 'ok';
-          h += `<div class="hero ${cls} stag" style="--i:0">
-      <span class="pill${sel.ok ? '' : ' b'}">${sel.ok ? '✓ Freigegeben' : 'Fehler'}</span>${sel.ok && sel.warns.length ? '<span class="pill w">Hinweis</span>' : ''}<span class="pill g">${sel.empfohlen ? 'Empfehlung' : 'Manuell gewählt'}</span>
-      <div class="big">${esc(o.id)}</div>
-      <div class="why">${fmt(o.kuehlen_kw)} kW kühlen / ${fmt(o.heizen_kw)} kW heizen</div>
-      ${sel.empfohlen ? `<ul class="why">${EV.why.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : `<div class="why" style="margin-top:4px">Manuell gewählt${EV.best ? ' – Empfehlung der App: ' + esc(EV.best.odu.id) : ''}. Anderes Gerät in der Liste unten antippen, um zu wechseln.</div>${EV.best ? `<div class="why" style="margin-top:4px">App-Empfehlung: <b>${esc(EV.best.odu.id)}</b> (${EV.why.map(esc).join('; ')})${EV.alt ? `; Alternative: <b>${esc(EV.alt.x.odu.id)}</b> – ${esc(EV.alt.why)}` : ''}.</div>` : ''}`}
-      ${sel.empfohlen && EV.alt ? `<div class="why" style="margin-top:6px"><b>Alternative: ${esc(EV.alt.x.odu.id)}</b> – ${esc(EV.alt.why)}.</div>` : ''}
-      <div class="kpis">
-        <div class="kpi"><small>Summe IG</small><b>${fmt(sel.sum)} kW</b><i>max. ${fmt(sel.sumMax)} kW</i></div>
-        <div class="kpi" data-kv="rohr"><small>Rohr</small><b>${sel.total != null ? fmt(sel.total) + ' m' : '—'}</b><i>max. ${fmt(o.rohr_gesamt_max_m)} m</i></div>
-        <div class="kpi" data-kv="r32"><small>R32</small><b>${sel.charge != null ? fmt(sel.charge, 2) + ' kg' : '—'}</b><i>${sel.extra != null && sel.extra > 0 ? '+ ' + fmt(sel.extra) + ' kg nachfüllen' : 'keine Nachfüllung'}</i></div>
-      </div>
-      ${sel.errs.length ? `<div class="errbox"><b>Nicht freigegeben:</b><ul>${sel.errs.map((e) => `<li>${esc(e)}</li>`).join('')}</ul></div>` : '<div class="why" style="margin-top:10px">Alle geprüften Daikin-Vorgaben sind eingehalten.</div>'}
-      ${
-        sel.warns.length
-          ? `<div class="warnbox"><b>Hinweise:</b><ul>${uniq(sel.warns)
-              .map((e) => `<li>${esc(e)}</li>`)
-              .join('')}</ul></div>`
-          : ''
-      }
-      ${EV.best ? '<div class="fhint">Die Empfehlung ist eine Bewertung dieser App (Deckung des Bedarfs, geringe Größe, wenig Kältemittel) – freigegeben sind alle als „freigegeben“ markierten Geräte.</div>' : ''}
-    </div>`;
+          const o = sel.odu;
+          h += `<div class="hero">
+      <div class="hero-caption">${sel.empfohlen ? 'Empfehlung' : 'Manuell gewählt'}</div>
+      <div class="hero-value">${esc(o.id)}</div>
+      <div class="pill-row"><span class="status-pill status-pill--${sel.ok ? 'green' : 'red'}">${MSR(sel.ok ? 'check_circle' : 'error')}${sel.ok ? 'Freigegeben' : 'Fehler'}</span>${sel.ok && sel.warns.length ? '<span class="status-pill status-pill--orange">Hinweis</span>' : ''}</div>
+      <p class="hero-note why">${fmt(o.kuehlen_kw)} kW kühlen / ${fmt(o.heizen_kw)} kW heizen</p>
+      ${sel.empfohlen ? `<ul class="why-list">${EV.why.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : `<p class="hero-note why">Manuell gewählt${EV.best ? ' – Empfehlung der App: ' + esc(EV.best.odu.id) : ''}. Anderes Gerät in der Liste unten antippen, um zu wechseln.</p>${EV.best ? `<p class="hero-note why">App-Empfehlung: <b>${esc(EV.best.odu.id)}</b> (${EV.why.map(esc).join('; ')})${EV.alt ? `; Alternative: <b>${esc(EV.alt.x.odu.id)}</b> – ${esc(EV.alt.why)}` : ''}.</p>` : ''}`}
+      ${sel.empfohlen && EV.alt ? `<p class="hero-note why"><b>Alternative: ${esc(EV.alt.x.odu.id)}</b> – ${esc(EV.alt.why)}.</p>` : ''}
+    </div>
+    <div class="info-list results-block">
+      ${infoRow('Summe Innengeräte', 'max. ' + fmt(sel.sumMax) + ' kW', fmt(sel.sum) + ' <span class="metric-unit">kW</span>')}
+      ${infoRow('Rohrlänge gesamt', 'max. ' + fmt(o.rohr_gesamt_max_m) + ' m', sel.total != null ? fmt(sel.total) + ' <span class="metric-unit">m</span>' : '—', 'rohr')}
+      ${infoRow('R32 gesamt', sel.extra != null && sel.extra > 0 ? fmt(sel.extra) + ' kg nachfüllen' : 'keine Nachfüllung', sel.charge != null ? fmt(sel.charge, 2) + ' <span class="metric-unit">kg</span>' : '—', 'r32')}
+    </div>
+      ${sel.errs.length ? noteBox('red', 'Nicht freigegeben:', sel.errs) : '<p class="why results-block">Alle geprüften Daikin-Vorgaben sind eingehalten.</p>'}
+      ${sel.warns.length ? noteBox('orange', 'Hinweise:', uniq(sel.warns)) : ''}
+      ${EV.best ? '<p class="hint results-block">Die Empfehlung ist eine Bewertung dieser App (Deckung des Bedarfs, geringe Größe, wenig Kältemittel). Freigegeben sind alle als „freigegeben“ markierten Geräte.</p>' : ''}`;
           if (!sel.ok)
-            h += `<div class="muted" style="font-size:14px;margin:0 0 6px">PDF gibt es nur für eine freigegebene Kombination.</div>`;
+            h += `<p class="hint">PDF gibt es nur für eine freigegebene Kombination.</p>`;
           if (lastPdf && lastPdf.id === p.id && sel.ok)
-            h += `<div class="card"><div class="row">${pdfBarHtml()}</div></div>`;
-          h += `<div class="card stag" style="padding:4px 14px;--i:1"><h3 style="margin:10px 0 0">Leistung je Raum</h3>${sel.rows
-            .map((r, k) => {
+            h += `<div class="btn-row">${pdfBarHtml()}</div>`;
+          h += `<h2 class="section-title">Leistung je Raum</h2><div class="group">${sel.rows
+            .map((r) => {
               const u = r.unit,
                 a = r.asg;
               const l1 = [
                 a
-                  ? `Anschluss ${esc(a.port.port)} · Ø${fmt(a.port.gas_mm)}${a.red ? ' (Red. ' + esc(a.red) + ')' : ''}`
+                  ? `Anschluss ${esc(a.port.port)}, Ø${fmt(a.port.gas_mm)}${a.red ? ' (Red. ' + esc(a.red) + ')' : ''}`
                   : 'Anschluss —',
-                r.laenge != null ? fmt(r.laenge) + ' m' : '— m',
-              ].join(' · ');
+                r.laenge != null ? 'Rohr ' + fmt(r.laenge) + ' m' : 'Rohr — m',
+              ].join(', ');
               const l2 = [
                 u
                   ? 'Einzel ' +
@@ -1618,50 +1356,42 @@
                 r.mh != null ? 'Multi heizen ' + fmt(r.mh, 2) + ' kW' : '',
               ]
                 .filter(Boolean)
-                .join(' · ');
-              return `<div class="rr${k === 0 ? ' first' : ''}"><div><b>${r.i + 1}${r.room.name ? ' · ' + esc(r.room.name) : ''} · ${u ? esc(u.modell) : '—'}</b><div class="l">${l1}</div><div class="l">${esc(l2)}</div></div><div class="v"><b>${r.mk != null ? fmt(r.mk, 2) + ' kW' : '—'}</b>Multi kühlen</div></div>`;
+                .join(', ');
+              return `<div class="rr"><div class="rr-main"><b>${esc(r.room.name || 'Raum ' + (r.i + 1))}, ${u ? esc(u.modell) : '—'}</b><span class="row-sub">${l1}</span><span class="row-sub">${esc(l2)}</span></div><div class="rr-val numeric"><b>${r.mk != null ? fmt(r.mk, 2) + ' kW' : '—'}</b><span>Multi kühlen</span></div></div>`;
             })
-            .join('')}
-      <div class="fhint" style="padding:2px 0 10px">${sel.multi ? `Multi = Leistung je Raum, wenn alle Innengeräte gleichzeitig laufen (Nennwert). Quelle: ${esc(sel.multi.quelle)}.${sel.multi.vorl ? ' <b>Werte dieser Kombination laut Daikin vorläufig.</b>' : ''}` : 'Keine Multi-Leistung für diese Kombination in der Daikin-Tabelle.'}</div></div>`;
-          h += `<details class="card stag" style="--i:2" data-k="tech"${uiOpen.tech ? ' open' : ''}><summary><span>Technische Daten ${esc(o.id)}</span>${CHEV}</summary>${detailHtml(sel)}</details>`;
+            .join('')}</div>
+      <p class="hint results-block">${sel.multi ? `Multi = Leistung je Raum, wenn alle Innengeräte gleichzeitig laufen (Nennwert). Quelle: ${esc(sel.multi.quelle)}.${sel.multi.vorl ? ' <b>Werte dieser Kombination laut Daikin vorläufig.</b>' : ''}` : 'Keine Multi-Leistung für diese Kombination in der Daikin-Tabelle.'}</p>`;
         }
         const others = EV.all.filter((x) => !sel || x.odu.id !== sel.odu.id);
-        h += accHtml(
-          'okl',
-          'Weitere freigegebene Geräte',
-          others.filter((x) => x.ok),
-          sel,
-          3,
-        );
-        h += accHtml(
-          'badl',
-          'Nicht freigegeben',
-          others.filter((x) => !x.ok),
-          sel,
-          4,
-        );
+        const okl = others.filter((x) => x.ok),
+          badl = others.filter((x) => !x.ok);
+        const liste = (l) =>
+          l.length ? l.map(pickRow).join('') : '<p class="empty-line">Keine.</p>';
+        h += `<div class="group">${sel ? accHtml('tech', 'Technische Daten ' + esc(sel.odu.id), null, detailHtml(sel)) : ''}${accHtml('okl', 'Weitere freigegebene Geräte', okl.length, liste(okl))}${accHtml('badl', 'Nicht freigegeben', badl.length, liste(badl))}</div>`;
         return h;
-      }
-      function uniq(a) {
-        return [...new Set(a)];
       }
       function detailHtml(x) {
         const o = x.odu;
-        return `<table style="margin-top:6px"><tbody>
-    <tr><td>Summe Innengeräte</td><td><b>${fmt(x.sum)} kW</b> (max. ${fmt(x.sumMax)} kW)</td></tr>
-    <tr><td>Rohrlänge gesamt</td><td><b>${x.total != null ? fmt(x.total) + ' m' : '—'}</b> (max. ${fmt(o.rohr_gesamt_max_m)} m, je Raum ${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m)</td></tr>
-    <tr><td>Zusätzliches Kältemittel</td><td><b>${x.extra != null ? fmt(x.extra) + ' kg' : '—'}</b> (ab ${fmt(o.nachfuell_ab_m)} m Flüssigkeitsleitung, ${fmt(o.nachfuell_kg_je_m * 1000, 0)} g/m)</td></tr>
-    <tr><td>Kältemittel gesamt (R32)</td><td><b>${x.charge != null ? fmt(x.charge, 2) + ' kg' : '—'}</b> (Werk ${fmt(o.werk_kg, 2)} kg${o.fuell_max_kg != null ? ', max. ' + fmt(o.fuell_max_kg) + ' kg' : ''})</td></tr>
-    <tr><td>Stromaufnahme (Außengerät)</td><td><b>${o.strom_a != null ? fmt(o.strom_a) + ' A' : '—'}</b> (1~ 50 Hz 220–240 V)</td></tr>
-    <tr><td>Absicherung (empf. Hauptschalter)</td><td><b>${o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : '—'}</b> · Netzleitung 3-adrig min. ${fmt(o.netzleitung_min_mm2)} mm² · Verbindungsleitung 4-adrig min. ${fmt(o.verbindungsleitung_min_mm2)} mm²</td></tr>
-    </tbody></table>`;
+        const z = (label, value) =>
+          `<div class="info-row info-row--stack"><span class="info-row-label">${label}</span><span class="info-row-value">${value}</span></div>`;
+        return `<div class="info-list">
+    ${z('Summe Innengeräte', `<b>${fmt(x.sum)} kW</b> (max. ${fmt(x.sumMax)} kW)`)}
+    ${z('Rohrlänge gesamt', `<b>${x.total != null ? fmt(x.total) + ' m' : '—'}</b> (max. ${fmt(o.rohr_gesamt_max_m)} m, je Raum ${fmt(o.rohr_raum_min_m)}–${fmt(o.rohr_raum_max_m)} m)`)}
+    ${z('Zusätzliches Kältemittel', `<b>${x.extra != null ? fmt(x.extra) + ' kg' : '—'}</b> (ab ${fmt(o.nachfuell_ab_m)} m Flüssigkeitsleitung, ${fmt(o.nachfuell_kg_je_m * 1000, 0)} g/m)`)}
+    ${z('Kältemittel gesamt (R32)', `<b>${x.charge != null ? fmt(x.charge, 2) + ' kg' : '—'}</b> (Werk ${fmt(o.werk_kg, 2)} kg${o.fuell_max_kg != null ? ', max. ' + fmt(o.fuell_max_kg) + ' kg' : ''})`)}
+    ${z('Stromaufnahme (Außengerät)', `<b>${o.strom_a != null ? fmt(o.strom_a) + ' A' : '—'}</b> (1~ 50 Hz 220–240 V)`)}
+    ${z('Absicherung (empf. Hauptschalter)', `<b>${o.hauptschalter_a != null ? o.hauptschalter_a + ' A' : '—'}</b>, Netzleitung 3-adrig min. ${fmt(o.netzleitung_min_mm2)} mm², Verbindungsleitung 4-adrig min. ${fmt(o.verbindungsleitung_min_mm2)} mm²`)}
+  </div>`;
       }
 
       /* ====== PDF ====== */
       /* pdfName, isStandalone, layoutReport, reportPdfBlob stehen in shared/pdf.js, die Bausteine in shared/pdf-bausteine.js, das CSS in shared/pdf.css */
       function pdfBarHtml() {
         if (!lastPdf || lastPdf.id !== view.id) return '';
-        return `<button class="btn primary" data-act="sharepdf">Teilen</button>${isStandalone() ? '' : `<a class="btn" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+        return `<button type="button" class="btn-primary" data-act="sharepdf">Teilen</button>${isStandalone() ? '' : `<a class="btn-secondary" href="${lastPdf.url}" download="${esc(lastPdf.file.name)}" target="_blank" rel="noopener">Öffnen</a>`}`;
+      }
+      function uniq(a) {
+        return [...new Set(a)];
       }
       function gasDia(r) {
         const u = r.unit,
@@ -1892,50 +1622,15 @@
         return { blocks, head, smallHead, foot, id, maxSeiten: 30 };
       }
 
-      /* Wechsel Eingabe <-> Ergebnis: alte Seite gleitet weg (schnell), neue gleitet herein; erst dann wird neu gezeichnet */
+      /* Wechsel Eingabe und Ergebnis: Überblenden, erst dann neu zeichnen */
       function swapStep(step) {
-        const to = step === 'res';
-        if (isRes() === to || RM() || navBusy) {
-          if (navBusy) return;
-          view.step = step;
-          prevKpi = null;
+        if (isRes() === (step === 'res')) return;
+        view.step = step;
+        prevKpi = null;
+        fadeThrough(() => {
           render();
           window.scrollTo(0, 0);
-          return;
-        }
-        navBusy = true;
-        const app = $('#app'),
-          dir = to ? 'fwd' : 'back',
-          hs = $('#hsub');
-        app.className = 'pg-out-' + dir;
-        if (hs.animate)
-          hsubOut = hs.animate(
-            [
-              { opacity: 0.75, transform: 'none' },
-              { opacity: 0, transform: 'translateY(-6px)' },
-            ],
-            { duration: 180, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' },
-          );
-        const vid = view.id;
-        setTimeout(() => {
-          if (view.name !== 'edit' || view.id !== vid) {
-            app.className = '';
-            navBusy = false;
-            return;
-          } // Ansicht wurde inzwischen gewechselt
-          view.step = step;
-          prevKpi = null;
-          render();
-          window.scrollTo(0, 0);
-          app.className = 'pg-in-' + dir + (to ? ' entering' : '');
-          setTimeout(
-            () => {
-              app.className = '';
-              navBusy = false;
-            },
-            to ? 800 : 300,
-          );
-        }, 180);
+        });
       }
       /* ====== Aktionen ====== */
       const Act = {
@@ -1950,7 +1645,15 @@
         },
         async del(d) {
           const p = projects.find((x) => x.id === d.id);
-          if (p && (await confirmModal('Auslegung löschen', 'Auslegung „' + (p.nr || 'ohne Projektnummer') + '“ löschen?', 'Löschen', true))) {
+          if (
+            p &&
+            (await confirmModal(
+              'Auslegung löschen',
+              'Auslegung „' + (p.nr || 'ohne Projektnummer') + '“ löschen?',
+              'Löschen',
+              true,
+            ))
+          ) {
             projects = projects.filter((x) => x.id !== d.id);
             saveProjects();
             render();
@@ -1965,16 +1668,41 @@
         toinput() {
           swapStep('in');
         },
-        /* Nur Klasse umschalten (kein Neuzeichnen): so läuft die Animation nur beim Antippen und Eingabefelder behalten den Fokus */
+        /* Nur Klasse umschalten (kein Neuzeichnen): Eingabefelder behalten den Fokus */
         toggleroom(d, el) {
           const r = cur().rooms[+d.i],
-            card = el.closest('.roomcard');
+            card = el.closest('.acc');
           if (!r || !card) return;
           const open = !openRooms.has(r.id);
           if (open) openRooms.add(r.id);
           else openRooms.delete(r.id);
-          card.classList.toggle('open', open);
+          card.classList.toggle('is-open', open);
           el.setAttribute('aria-expanded', open);
+        },
+        toggleacc(d, el) {
+          const card = el.closest('.acc');
+          if (!card) return;
+          const open = !card.classList.contains('is-open');
+          card.classList.toggle('is-open', open);
+          el.setAttribute('aria-expanded', open);
+          uiOpen[d.k] = open;
+        },
+        setf(d, el) {
+          const p = cur(),
+            card = el.closest('[data-room]');
+          if (!p || !card) return;
+          const r = p.rooms[+card.dataset.room],
+            f = d.f;
+          r[f] = d.v;
+          lastPdf = null;
+          if (f === 'typ') {
+            const s = [...new Set(DB.ig.filter((x) => x.typ === r.typ).map((x) => x.serie))];
+            r.serie = s.includes('Perfera') ? 'Perfera' : s[0] || '';
+            r.modell = '';
+          }
+          if (f === 'serie') r.modell = '';
+          saveProjects();
+          render();
         },
         addroom() {
           const p = cur();
@@ -2106,58 +1834,28 @@
             a.remove();
           }
         },
-        checkupdate() { checkAppUpdate(APP_VERSION); },
-        forcereload() { clearCachesAndReload(); },
+        checkupdate() {
+          pruefeUpdate(true);
+        },
+        forcereload() {
+          clearCachesAndReload();
+        },
         saveset() {
-          settings.theme = $('#s_theme').value;
-          applyTheme();
-          themeBtn();
           settings.firma = $('#s_firma').value.trim();
           settings.bearbeiter = $('#s_bear').value.trim();
           LS.set(KEY.settings, settings);
-          toast('Einstellungen gespeichert.');
-          go('list');
+          modalClose();
+          toast('Gespeichert.');
         },
       };
-      document.addEventListener('keydown', (e) => {
-        if (
-          (e.key === 'Enter' || e.key === ' ') &&
-          e.target.getAttribute &&
-          e.target.getAttribute('role') === 'button' &&
-          e.target.tagName !== 'BUTTON'
-        ) {
-          e.preventDefault();
-          e.target.click();
-        }
-      });
       document.addEventListener('click', (e) => {
         const el = e.target.closest('[data-act]');
         if (!el || !Act[el.dataset.act]) return;
         Act[el.dataset.act](el.dataset, el);
       });
-      $('#btnset').onclick = () => go('settings');
-      $('#themeToggleBtn').onclick = () => {
-        const curT = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-        const nxtT = curT === 'light' ? 'dark' : 'light';
-        try { localStorage.setItem('ag-theme', nxtT); } catch (err) {}
-        document.documentElement.setAttribute('data-theme', nxtT);
-        settings.theme = nxtT === 'light' ? 'hell' : 'dunkel';
-        LS.set(KEY.settings, settings);
-        themeBtn();
-        const s = $('#s_theme');
-        if (s) s.value = settings.theme;
-      };
-      $('#ttl').onclick = () => go('list');
-      document.addEventListener(
-        'toggle',
-        (e) => {
-          const k = e.target.dataset && e.target.dataset.k;
-          if (k) uiOpen[k] = e.target.open;
-        },
-        true,
-      );
+      $('#btnset').onclick = () => openSettings();
 
-      /* Eingaben: Texte/Zahlen aktualisieren nur das Ergebnis, Auswahlfelder zeichnen neu */
+      /* Eingaben: Texte und Zahlen aktualisieren nur das Ergebnis, Auswahlfelder zeichnen neu */
       document.addEventListener('input', (e) => {
         const t = e.target,
           p = view.name === 'edit' ? cur() : null;
@@ -2169,88 +1867,32 @@
           return;
         }
         const card = t.closest('[data-room]');
-        if (!card || !t.dataset.f || t.tagName === 'SELECT') return;
+        if (!card || !t.dataset.f) return;
         p.rooms[+card.dataset.room][t.dataset.f] = t.value;
         lastPdf = null;
         saveProjects();
         refreshResults();
       });
-      document.addEventListener('change', (e) => {
-        if (e.target.id === 's_theme') {
-          settings.theme = e.target.value;
-          LS.set(KEY.settings, settings);
-          applyTheme();
-          themeBtn();
-          return;
-        }
-        const t = e.target,
-          p = view.name === 'edit' ? cur() : null;
-        if (!p) return;
-        const card = t.closest('[data-room]');
-        if (!card || !t.dataset.f || t.tagName !== 'SELECT') return;
-        const r = p.rooms[+card.dataset.room],
-          f = t.dataset.f;
-        r[f] = t.value;
-        lastPdf = null;
-        if (f === 'typ') {
-          const s = [...new Set(DB.ig.filter((x) => x.typ === r.typ).map((x) => x.serie))];
-          r.serie = s.includes('Perfera') ? 'Perfera' : s[0] || '';
-          r.modell = '';
-        }
-        if (f === 'serie') r.modell = '';
-        saveProjects();
-        render();
-      });
-      window.addEventListener('online', () => {
-        $('#net').textContent = 'online';
-        $('#net').classList.remove('off');
-      });
-      window.addEventListener('offline', () => {
-        $('#net').textContent = 'offline';
-        $('#net').classList.add('off');
-      });
-      if (!navigator.onLine) {
-        $('#net').textContent = 'offline';
-        $('#net').classList.add('off');
-      }
+      window.addEventListener('online', updateNet);
+      window.addEventListener('offline', updateNet);
 
-      if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-      /* Wischen vom linken Rand zurück: Ergebnis -> Eingabe, Eingabe -> Liste (sonst null). Elternansicht wird nur lesend gerendert. */
-      if (window.iosSwipe)
-        iosSwipe.init({
-          back() {
-            if (view.name !== 'edit' || !cur()) return null;
-            if (isRes()) {
-              const keep = view.step;
-              let html;
-              try {
-                view.step = 'in';
-                html = vEdit();
-              } finally {
-                view.step = keep;
-              }
-              return {
-                html,
-                go() {
-                  view.step = 'in';
-                  prevKpi = null;
-                  render();
-                  window.scrollTo(0, 0);
-                },
-              };
-            }
-            return {
-              html: vList(),
-              go() {
-                go('list');
-              },
-            };
-          },
-        });
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http'))
+        navigator.serviceWorker.register('sw.js').catch(() => {});
       loadData();
-      themeBtn();
+      syncThemeUi();
       render();
-      if (typeof initUpdateBadge === "function") initUpdateBadge(APP_VERSION);
+      if (navigator.onLine) pruefeUpdate(false);
+    </script>
+    <script type="module">
+      import { initChoiceDropdowns, initUnitPadding } from './shared/choice-dropdown.js';
+      let bereit = false;
+      window.agUiInit = () => {
+        if (bereit) return;
+        bereit = true;
+        initChoiceDropdowns();
+        initUnitPadding();
+      };
+      window.agUiInit();
     </script>
   </body>
 </html>

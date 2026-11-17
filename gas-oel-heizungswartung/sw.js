@@ -1,4 +1,4 @@
-const CACHE = 'heizung-v203';
+const CACHE = 'heizung-v210';
 const ASSETS = [
   './',
   './index.html',
@@ -13,12 +13,9 @@ const ASSETS = [
   './shared/settings.js',
   './shared/wizard.js',
   './shared/theme.js',
-  './shared/base.css',
-  './shared/knoepfe.css',
-  './shared/kacheln.css',
+  './shared/global.css',
+  './shared/choice-dropdown.js',
   './shared/pdf.css',
-  './shared/ios.css',
-  './shared/ios.js',
   './shared/sw-vorlage.js',
   './shared/lib/jspdf.umd.min.js',
   './shared/lib/html2canvas.min.js',

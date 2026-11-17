@@ -1,5 +1,5 @@
 {
-  "version": "2.0.3",
-  "buildDate": "2026-11-15",
-  "changelog": "Dual-Theme Apple HIG + Liquid Glass + Material Symbols Rounded"
+  "version": "2.1.0",
+  "buildDate": "2026-11-17",
+  "changelog": "Umbau auf Design-Stand 2026-11-18: Minimal-Standard ohne Kacheln, Listen, Formular-Ansichten, Einstellungen als Karte"
 }

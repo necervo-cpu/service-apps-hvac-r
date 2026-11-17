@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
-  "buildDate": "2026-11-15",
-  "changelog": "Migration auf Design-Stand 2026-11-15 (Dual-Theme Apple HIG, Liquid Glass, Flat UI, gruppierte Listen, 44px Touch-Targets)"
+  "version": "2.2.0",
+  "buildDate": "2026-11-17",
+  "changelog": "Haupt-Übersicht auf Design-Stand 2026-11-18: Minimal-Standard, global.css"
 }
