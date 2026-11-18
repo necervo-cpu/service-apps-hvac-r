@@ -247,7 +247,7 @@ function mangelNote(f, v, offen) {
   if (!kind) {
     return '';
   }
-  return `<div class="check-note"><div><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" placeholder="${esc(kind.ph || '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></div></div>`;
+  return `<div class="check-note"><div><span class="field-box field-box--note"><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" placeholder="${esc(kind.ph || '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></span></div></div>`;
 }
 
 const OK3_WERT = ['ok', 'mangel', 'na'];
@@ -294,18 +294,18 @@ function fieldHtml(f, p) {
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="input-unit-addon">${esc(f.unit || '')}</span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }
     case 'calc':
       return `<div class="calc-row"><span class="calc-label">${esc(f.label)}<small class="field-hint" id="note-${f.id}">${f.note ? esc(f.note(v)) : 'wird berechnet'}</small></span><span class="calc-value numeric" id="calc-${f.id}">${esc(display(f, x) || '–')}</span></div>`;
     case 'date':
-      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}">${errHtml}</label>`;
+      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}"></span>${errHtml}</label>`;
     case 'longtext':
-      return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></label>`;
+      return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></span></label>`;
     default:
-      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off">${errHtml}</label>`;
+      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off"></span>${errHtml}</label>`;
   }
 }
 function finalHtml(p, felder) {

@@ -598,8 +598,8 @@ function wizardHtml(p, i) {
     <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '2.2.0';
-const BUILD_DATE = '2026-11-15';
+const APP_VERSION = '2.2.1';
+const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

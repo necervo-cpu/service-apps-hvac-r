@@ -254,9 +254,6 @@ textarea.text-input {
 .field .glass-input {
   font-size: 1rem;
 }
-.field .field-box {
-  margin: 0.5rem 0 0.25rem;
-}
 .field .tab-strip {
   margin-inline: 0;
   padding-inline: 0;
@@ -483,4 +480,7 @@ input[type='date']::-webkit-datetime-edit {
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
     U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
+}
+.num-row .field-box {
+  margin: 0;
 }

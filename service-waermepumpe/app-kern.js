@@ -496,8 +496,8 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.6';
-const BUILD_DATE = '2026-11-17';
+const APP_VERSION = '2.2.7';
+const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

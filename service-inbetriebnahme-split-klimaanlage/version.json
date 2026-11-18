@@ -1,5 +1,5 @@
 {
-  "version": "2.2.1",
+  "version": "2.2.2",
   "buildDate": "2026-11-18",
-  "changelog": "Zahlenfelder mittig; PDF ohne unveränderte Vorbelegung bei Innengeräten"
+  "changelog": "Eingabefelder und Datumsfelder in allen Apps im flachen Stil 3B.2, Datum mit heutigem Datum vorbelegt"
 }

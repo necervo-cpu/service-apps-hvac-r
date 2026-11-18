@@ -312,16 +312,6 @@
         flex-direction: column;
         gap: 0.375rem;
       }
-      .field-box {
-        display: flex;
-        align-items: center;
-        min-height: 50px;
-        padding: 0 0.875rem;
-      }
-      .field-box textarea.text-input {
-        min-height: 88px;
-        padding: 0.625rem 0;
-      }
       .toast-pill .material-symbols-rounded {
         color: var(--accent);
       }
@@ -353,9 +343,6 @@
         display: block;
         color: var(--text-tertiary);
         font-size: var(--text-caption);
-      }
-      .field .field-box {
-        margin: 0.5rem 0 0.25rem;
       }
       .field .tab-strip {
         margin-inline: 0;
@@ -443,196 +430,10 @@
       .altwert {
         margin-top: 0.25rem;
       }
-      /* ===== Eingabefelder 3B.2 flach (EINGABEFELDER.md) =====
-         Ruhezustand leer und gefüllt gleich: nur schwache Tönung, keine Kontur, keine Schatten.
-         Glow von unten und Linie mit vertikalem Verlauf nur bei Fokus (Anklicken, Ausfüllen). */
-      :root {
-        --radius: 12px;
-        --field-rgb: 255, 255, 255;
-        --bg-a: 0.05;
-        --bg-focus-a: 0.07;
-        --border-a: 0;
-        --border-focus-a: 0.3;
-        --glow-alpha: 0.15;
-        --glow-focus-h: 40px;
-        --line-start: 40%;
-        --line-a: 1;
-        --anim-ms: 150ms;
-        --accent-rgb: 168, 199, 250;
-      }
-      [data-theme='light'] {
-        --field-rgb: 0, 0, 0;
-        --bg-a: 0.035;
-        --bg-focus-a: 0.02;
-        --accent-rgb: 11, 87, 208;
-      }
-      .vwrap,
-      .field-box,
-      .search {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid rgba(var(--field-rgb), var(--border-a));
-        background: rgba(var(--field-rgb), var(--bg-a));
-        box-shadow: none;
-        transition: all var(--anim-ms) cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .vwrap,
-      .field-box {
-        border-radius: var(--radius);
-      }
-      /* Glow von unten, nur bei Fokus */
-      .vwrap::after,
-      .field-box::after,
-      .search::after {
-        content: '';
-        position: absolute;
-        inset: auto 0 0 0;
-        height: 0;
-        background: linear-gradient(to top, rgba(var(--accent-rgb), var(--glow-alpha)), transparent);
-        transition: height var(--anim-ms) ease;
-        pointer-events: none;
-      }
-      /* Linie mit vertikalem Verlauf, nur bei Fokus */
-      .vwrap::before,
-      .field-box::before,
-      .search::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        padding: 1px;
-        background: linear-gradient(
-          to bottom,
-          rgba(var(--accent-rgb), 0) var(--line-start),
-          rgba(var(--accent-rgb), var(--line-a))
-        );
-        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-        opacity: 0;
-        transition: opacity var(--anim-ms) ease;
-        pointer-events: none;
-      }
-      .vwrap:focus-within,
-      .field-box:focus-within,
-      .search:focus-within {
-        background: rgba(var(--field-rgb), var(--bg-focus-a));
-        border-color: rgba(var(--accent-rgb), var(--border-focus-a));
-      }
-      .vwrap:focus-within::before,
-      .field-box:focus-within::before,
-      .search:focus-within::before {
-        opacity: 1;
-      }
-      .vwrap:focus-within::after,
-      .field-box:focus-within::after,
-      .search:focus-within::after {
-        height: var(--glow-focus-h);
-      }
-      .meas-row:focus-within .meas-label {
-        color: var(--accent);
-      }
-      /* Messwertfeld mit fester Einheit: Wert rechtsbündig */
-      .vwrap {
-        display: flex;
-        flex: none;
-        align-items: center;
-        width: 180px;
-        max-width: 55%;
-      }
-      .vwrap .value-input {
-        position: relative;
-        z-index: 1;
-        flex: 1;
-        width: auto;
-        min-width: 0;
-        padding: 0 0.375rem 0 0.75rem;
-        border: 0;
-        background: transparent;
-        text-align: right;
-      }
-      .vwrap .input-unit-addon {
-        position: relative;
-        z-index: 1;
-        min-width: 0;
-        padding: 0 0.875rem 0 0;
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        white-space: nowrap;
-        text-align: right;
-      }
-      /* Eingabe im Feldkasten (Text, Datum, Textfeld, Menge, Mangelhinweis) */
-      .field-box > input,
-      .field-box > textarea {
-        position: relative;
-        z-index: 1;
-      }
-      .field-box .value-input {
-        width: 100%;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-      }
-      .field-box--menge {
-        flex: none;
-        width: 96px;
-        padding: 0 0.5rem;
-      }
-      .field-box--menge .value-input {
-        text-align: center;
-      }
-      /* Mangelhinweis: Status-Hinweis behält Tint und Rand in Orange */
-      .field-box--note,
-      .field-box--note:focus-within {
-        margin: 0 0.25rem 0.75rem;
-        padding: 0;
-        background: var(--system-orange-tint);
-        border-color: var(--system-orange-border);
-      }
-      .field-box--note .note-input {
-        width: 100%;
-        margin: 0;
-        padding: 0 0.875rem;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-      }
-      .has-error .vwrap,
-      .has-error .field-box {
-        border-color: var(--system-red-border);
-      }
       .notice-sub {
         margin: 0 0 0.5rem;
         padding-left: 1.25rem;
         list-style: disc;
-      }
-      /* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
-      input[type='date'] {
-        -webkit-appearance: none;
-        appearance: none;
-        display: flex;
-        align-items: center;
-        min-height: 44px;
-        line-height: 1.2;
-        width: 100%;
-        min-width: 0;
-        max-width: 100%;
-        text-align: left;
-        margin: 0;
-      }
-      input[type='date']::-webkit-date-and-time-value {
-        text-align: left;
-        min-width: 0;
-        margin: 0;
-      }
-      input[type='date']::-webkit-datetime-edit-fields-wrapper {
-        display: flex;
-        align-items: center;
-      }
-      input[type='date']::-webkit-datetime-edit {
-        padding: 0;
-        text-align: left;
       }
       /* Bericht-Vorschau (A4-Seiten) */
       .sheetwrap {
@@ -828,7 +629,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.1</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.2</span>
                 </span>
               </div>
               <div class="info-row">
