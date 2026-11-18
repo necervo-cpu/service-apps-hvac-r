@@ -238,6 +238,8 @@ function buildReport(p) {
     value: display(f, v[f.id]),
     eval: evalField(f, v),
     wide: !!f.wide,
+    calc: f.type === 'calc',
+    group: f.group || '',
     mangel:
       f.type === 'okfail' && v[f.id] === 'n.i.O.' ? String(v[f.id + 'M'] ?? '').trim() : '',
   });
@@ -277,7 +279,14 @@ function buildReport(p) {
       .flatMap((pg) =>
         pg.evap
           ? Array.from({ length: vaCount(v) }, (_, k) =>
-              section(pg, DEV_FIELDS[k + 1], devTitle(v, k + 1)),
+              Object.assign(section(pg, DEV_FIELDS[k + 1], devTitle(v, k + 1)), {
+                dev: {
+                  nr: k + 1,
+                  raum: devRoom(v, k + 1),
+                  modell: devModel(v, k + 1),
+                  sn: devSn(v, k + 1),
+                },
+              }),
             )
           : [section(pg)],
       ),
@@ -597,7 +606,7 @@ function wizardHtml(p, i) {
     <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '2.2.3';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

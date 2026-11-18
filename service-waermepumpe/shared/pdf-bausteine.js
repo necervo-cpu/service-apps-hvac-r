@@ -211,6 +211,81 @@ function pdfBausteine() {
         : ''
     }</div>`;
 
+  /* ===== Neues Papier-Design (Seitenklasse „neu“, siehe Skill pdf-export). Klassen mit Vorsatz n-, Aussehen in pdf.css (.report .page.neu) ===== */
+  const NCOL = { ok: '#1b7a3d', bad: '#b3400a', na: '#8a8a94' };
+  const nRes = (k) =>
+    `<span class="n-res ${k}">${icon(k, 13, NCOL[k])}${k === 'ok' ? 'i.O.' : k === 'bad' ? 'n.i.O.' : 'entf.'}</span>`;
+  // Wert mit Zahl: Schreibmaschinenschrift, Einheit klein und grau
+  const NUM = /^[−-]?\d[\d.,]*(\s*\/\s*[−-]?\d[\d.,]*)*(\s+[A-Za-z°µ%/²³₂]+(\s+[A-Za-z₂]+)?)?$/;
+  const nWert = (v) => {
+    const t = String(v ?? '').trim();
+    if (!t) return '—';
+    if (!NUM.test(t)) return nl(t);
+    const m = t.match(/^(.+?)\s+([A-Za-z°µ%/²³₂]+(?:\s+[A-Za-z₂]+)?)$/);
+    return `<span class="n-num">${esc(m ? m[1] : t)}${m ? ` <span class="n-unit">${esc(m[2])}</span>` : ''}</span>`;
+  };
+  const nKopf = ({ firma, nummern, titel }) => {
+    const f = lines(firma);
+    const ids = (nummern || []).filter((x) => x && x.wert);
+    return `<div class="n-firm"><div>${f.length ? `<b>${esc(f[0])}</b>${f.slice(1).map((t) => `<span>${esc(t)}</span>`).join('')}` : ''}</div>${ids.length ? `<div class="n-ids">${ids.map((x) => `<span>${esc(x.label)}</span><b>${esc(x.wert)}</b>`).join('')}</div>` : ''}</div>${titel ? `<h1 class="n-h1">${titel.map(esc).join('<br>')}</h1>` : ''}`;
+  };
+  const nKopfKlein = ({ firma, zeile, nummern }) => {
+    const f = lines(firma);
+    const ids = (nummern || []).filter((x) => x && x.wert);
+    return `<div class="n-firm"><div>${f.length ? `<b>${esc(f[0])}</b>` : ''}${zeile ? `<span>${esc(zeile)}</span>` : ''}</div>${ids.length ? `<div class="n-ids">${ids.map((x) => `<span>${esc(x.label)}</span><b>${esc(x.wert)}</b>`).join('')}</div>` : ''}</div>`;
+  };
+  /* Hauptwert ohne Fläche: label, wert, art ('ok'|'bad'|'warn'|''), pill (Text), sub (Text unter dem Hinweis), spalten [{label, wert}] */
+  const nHaupt = ({ label, wert, art, pill: pt, sub, spalten = [] }) => {
+    const sy = art === 'ok' ? 'ok' : art === 'bad' ? 'bad' : 'warn';
+    const col = (c, i) =>
+      `<div class="n-l" style="grid-column:${i + 2};grid-row:1">${esc(c.label)}</div><div class="n-m" style="grid-column:${i + 2};grid-row:2">${esc(c.wert || '—')}</div>`;
+    return `<div class="n-hero"><div class="n-l" style="grid-column:1;grid-row:1">${esc(label)}</div><div class="n-hv ${art || ''}" style="grid-column:1;grid-row:2">${esc(wert || '—')}</div><div class="n-p" style="grid-column:1;grid-row:3">${pt ? `<span class="n-pill ${sy}">${icon(sy === 'ok' ? 'ok' : 'bad', 11, NCOL[sy === 'ok' ? 'ok' : 'bad'])}${esc(pt)}</span>` : ''}${sub ? `<div class="n-sub">${nl(sub)}</div>` : ''}</div>${spalten.map(col).join('')}</div>`;
+  };
+  const nAbschnitt = (nr, titel, inhalt, ref) =>
+    `<div class="n-sec"><h2>${nr ? esc(nr) + ' ' : ''}${esc(titel)}${ref ? `<span class="n-cnt">${esc(ref)}</span>` : ''}</h2>${inhalt}</div>`;
+  const nSub = (t) => `<div class="n-subh">${esc(t)}</div>`;
+  /* Feldliste: rows [{label, value, calc, wide}] */
+  const nZeilen = (rows) =>
+    `<div class="n-rows">${rows.map((x) => `<div class="n-row${x.calc ? ' calc' : ''}"><span class="k">${esc(x.label)}</span><span class="v">${nWert(x.value)}</span></div>`).join('')}</div>`;
+  /* Prüfpunkte: items [{label, eval:'ok'|'bad'|'na'|'', value, mangel}], pre = Abschnittsnummer */
+  const nPruef = (items, pre, start = 0, kopf = true) => {
+    const kind = (x) => (x.eval === 'ok' || x.eval === 'bad' || x.eval === 'na' ? x.eval : x.value === 'Mangel' ? 'bad' : '');
+    return `${kopf ? '<div class="n-th n-c-chk"><span>Nr.</span><span>Prüfpunkt</span><span>Ergebnis</span></div>' : ''}<div class="n-rows">${items
+      .map((x, i) => {
+        const k = kind(x);
+        const nr = pre ? `${pre}.${start + i + 1}` : String(start + i + 1);
+        return `<div class="n-row n-c-chk"><span class="nr">${nr}</span><span>${esc(x.label)}${k === '' && x.value && x.value !== '—' ? ' – ' + esc(x.value) : ''}${x.mangel ? `<span class="n-defect"><b>Mangel ${nr}:</b> ${esc(x.mangel)}</span>` : ''}</span><span>${k ? nRes(k) : ''}</span></div>`;
+      })
+      .join('')}</div>`;
+  };
+  /* Matrix für mehrere Geräte: spalten [{titel, raum}], zeilen [{nr, label, zellen:[HTML], calc, sub}] ; n = Zahl der Geräte */
+  const nMatrix = (spalten, zeilen, { kopf = true } = {}) => {
+    const n = spalten.length,
+      cls = `n-c-mat n-m${n}`;
+    const head = kopf
+      ? `<div class="n-th ${cls}"><span></span><span></span>${spalten.map((c) => `<span>${esc(c.titel)}${c.raum ? `<span class="n-room">${esc(c.raum)}</span>` : ''}</span>`).join('')}</div>`
+      : '';
+    const body = zeilen
+      .map((z) =>
+        z.sub
+          ? nSub(z.sub)
+          : `<div class="n-row ${cls}${z.calc ? ' calc' : ''}">${z.nr ? `<span class="nr">${esc(z.nr)}</span><span>${esc(z.label)}</span>` : `<span class="n-wide">${esc(z.label)}</span>`}${z.zellen.map((c) => `<span>${c}</span>`).join('')}</div>`,
+      )
+      .join('');
+    return head + `<div class="n-rows">${body}</div>`;
+  };
+  /* Mängelliste: items [{nr, titel, text}] */
+  const nMaengel = (titel, items) =>
+    `<div class="n-blk">${nSub(titel)}<div class="n-rows">${items.map((x) => `<div class="n-mangel${x.nr ? '' : ' one'}">${x.nr ? `<span class="nr">${esc(x.nr)}</span>` : ''}<span>${x.titel ? `<b>${esc(x.titel)}:</b> ` : ''}${esc(x.text)}</span></div>`).join('')}</div></div>`;
+  /* Auffälligkeiten als Verweis: items [{nr, text}] */
+  const nAuff = (items) =>
+    `<div class="n-notice"><div class="n-nt">${icon('bad', 13, NCOL.bad)}Auffälligkeiten <span class="n-nn">(${items.length})</span></div><ul>${items.map((x) => `<li>${x.nr ? `<span class="n-ref">${esc(x.nr)}</span> ` : ''}${esc(x.text)}</li>`).join('')}</ul></div>`;
+  const nHinweis = (absaetze) => `<div class="n-legal">${absaetze.map((a) => `<p>${a.titel ? `<b>${esc(a.titel)}</b> ` : ''}${esc(a.text)}</p>`).join('')}</div>`;
+  const nUnterschrift = ({ bild, name, label }) =>
+    `<div class="n-sign"><div class="n-signbox">${img(bild)}</div><div class="n-signmeta"><span>${esc(label || 'Monteur / Prüfer')}</span><span class="n-num">${esc(name || '')}</span></div></div>`;
+  const nFuss = ({ text, stand }) => esc(text) + (stand ? ', ' + esc(stand) : '');
+
+
   return {
     esc,
     nl,
@@ -230,6 +305,7 @@ function pdfBausteine() {
     notiz,
     rechtstext,
     unterschrift,
+    nRes, nWert, nKopf, nKopfKlein, nHaupt, nAbschnitt, nSub, nZeilen, nPruef, nMatrix, nMaengel, nAuff, nHinweis, nUnterschrift, nFuss,
   };
 }
 /* ===== Ende Bausteine ===== */

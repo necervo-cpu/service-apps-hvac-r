@@ -22,7 +22,7 @@ function layoutReport(r, host) {
   };
   const newPage = () => {
     const pg = el(
-      `<section class="page"><div class="page-body">${pages.length ? b.smallHead : b.head}</div><div class="pfoot"><span>${b.foot}</span><span class="pno"></span></div></section>`,
+      `<section class="page${b.pageClass ? ' ' + b.pageClass : ''}"><div class="page-body">${pages.length ? b.smallHead : b.head}</div><div class="pfoot"><span>${b.foot}</span><span class="pno"></span></div></section>`,
     );
     host.appendChild(pg);
     pages.push(pg);
