@@ -164,6 +164,7 @@ function buildReport(p) {
     value: display(f, wert(f, v)),
     eval: evalField(f, v),
     wide: !!f.wide,
+    group: f.group || '',
   });
   const titleOf = (pg) => (typeof pg.pdfTitle === 'function' ? pg.pdfTitle(v) : pg.title);
   const aktive = (pg) => pg.fields.filter((f) => aktiv(f, v));
@@ -177,6 +178,7 @@ function buildReport(p) {
           label: f.label,
           value: display(f, wert(f, v)),
           eval: evalField(f, v),
+          group: f.group || '',
           mangel: wert(f, v) === 'n.i.O.' ? String(v[f.id + 'M'] ?? '').trim() : '',
         }));
       let rows = felder.filter((f) => f.type !== 'okfail' && !f.parent).map(rowOf);
@@ -480,7 +482,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.3';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

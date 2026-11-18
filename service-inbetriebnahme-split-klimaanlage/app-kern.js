@@ -148,6 +148,8 @@ function buildReport(p) {
     value: display(f, v[f.id]),
     eval: evalField(f, v),
     wide: !!f.wide,
+    calc: f.type === 'calc',
+    group: f.group || '',
     mangel:
       f.type === 'okfail' && v[f.id] === 'n.i.O.' ? String(v[f.id + 'M'] ?? '').trim() : '',
   });
@@ -172,6 +174,10 @@ function buildReport(p) {
             cells: r.ids.map((id) => ({
               value: display(FIELD[id], v[id]),
               eval: evalField(FIELD[id], v),
+              mangel:
+                FIELD[id].type === 'okfail' && v[id] === 'n.i.O.'
+                  ? String(v[id + 'M'] ?? '').trim()
+                  : '',
             })),
           }))
       : [];
@@ -492,7 +498,7 @@ function wizardHtml(p, i) {
 <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '2.2.4';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

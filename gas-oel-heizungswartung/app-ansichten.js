@@ -379,15 +379,14 @@ function finalHtml(p, felder) {
 /* @@quelle:reportParts */
       function reportParts(r) {
         const B = pdfBausteine();
-        const { esc, pill } = B;
+        const { esc } = B;
         const TYP_H1 = { gas: 'Gasheizung', oel: 'Ölheizung' };
         const KURZ = ['i.O.', 'Folgeauftrag nötig', 'n.i.O.'];
         const ARTEN = ['ok', 'warn', 'bad'];
         const PILLS = ['in Ordnung', 'Folgeauftrag', 'nicht in Ordnung'];
         const firma = r.firma || '';
         const kopfzeile = String(r.title || 'WARTUNGSPROTOKOLL').split(' • ')[0];
-        const kicker = kopfzeile;
-        const kickerKlein = kopfzeile.charAt(0) + kopfzeile.slice(1).toLowerCase();
+        const nice = (s) => s.charAt(0) + s.slice(1).toLowerCase();
         const h1 = TYP_H1[r.typ] || 'Gas-/Ölheizung';
         const header = r.header || [];
         const hv = (re) => {
@@ -427,133 +426,175 @@ function finalHtml(p, felder) {
           return `${p2(d)}.${p2(mo + 1)}.${y}`;
         })();
 
+        // Hauptwert: Gesamtbewertung (steht nur hier), daneben Datum und Techniker
         const stufe = ARTEN[r.bewertungStufe] ? r.bewertungStufe : -1;
         const art = stufe < 0 ? '' : ARTEN[stufe];
         const mangelText =
           r.bewertungMangel || (['i.O.', 'n.i.O.'].includes(r.bewertung) ? '' : r.bewertung || '');
         blocks.push({
-          html: B.kacheln(
-            [
-              {
-                art,
-                lab: 'Gesamtbewertung',
-                val: stufe < 0 ? '' : KURZ[stufe],
-                subHtml:
-                  stufe < 0
-                    ? ''
-                    : `${pill(art, PILLS[stufe], art === 'warn' ? 'clock' : undefined)}<div>${esc(mangelText)}</div>`,
-              },
-              { lab: 'Datum', val: tileDate },
-              { lab: 'Techniker', val: r.techniker },
+          html: B.nHaupt({
+            label: 'Gesamtbewertung',
+            wert: stufe < 0 ? '' : KURZ[stufe],
+            art,
+            pill: stufe < 0 ? '' : PILLS[stufe],
+            sub: stufe < 0 ? '' : mangelText,
+            spalten: [
+              { label: 'Datum', wert: tileDate },
+              { label: 'Techniker', wert: r.techniker },
             ],
-            { links: true },
-          ),
+          }),
         });
 
+        // Auftrags- und Anlagendaten (Protokoll-Nr., Kunden-Nr., Datum und Techniker stehen schon im Kopf bzw. Hauptwert)
         const kundenRe = /^(kunden-?(nr\.?|nummer)|kunde \/ objekt)/i;
         const kundenNr = (header.find((x) => kundenRe.test(x.label) && x.value) || {}).value;
-        const headerRows = header.filter((x) => !(kundenNr && kundenRe.test(x.label)));
+        const doppelt = (x) =>
+          (kundenNr && kundenRe.test(x.label)) ||
+          (r.id && /^(projekt|protokoll)(-?nr|nummer)/i.test(x.label) && x.value === r.id) ||
+          (r.techniker && /^(techniker|monteur)/i.test(x.label) && x.value === r.techniker) ||
+          (datum && /^datum/i.test(x.label) && x.value === datum);
+        const headerRows = header.filter((x) => !doppelt(x));
+        let no = 0;
         if (headerRows.length) {
-          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(headerRows)) });
+          const hg = [];
+          headerRows.forEach((x) => {
+            const g = x.group || '';
+            let e = hg.find((q) => q.g === g);
+            if (!e) {
+              e = { g, rows: [] };
+              hg.push(e);
+            }
+            e.rows.push(x);
+          });
+          const body = hg
+            .map((e) => (hg.length > 1 && e.g ? B.nSub(e.g) : '') + B.nZeilen(e.rows))
+            .join('');
+          blocks.push({ html: B.nAbschnitt(String(++no), 'Auftrags- und Anlagendaten', body) });
         }
 
-        const lastCheck = (r.sections || []).reduce(
-          (m, s, i) => ((s.checks || []).length ? i : m),
-          -1,
-        );
-        (r.sections || []).forEach((s, si) => {
+        // Abschnitte in App-Reihenfolge, Prüfpunkte mit Nummer, Auffälligkeiten als Index
+        const auff = [];
+        const evalOf = (x) => (['ok', 'bad', 'na'].includes(x.eval) ? x.eval : '');
+        (r.sections || []).forEach((s) => {
           const items = (s.checks || []).map((x) => ({
             label: x.label,
             mangel: x.mangel,
             value: x.value,
-            eval: ['ok', 'bad', 'na'].includes(x.eval) ? x.eval : '',
+            eval: evalOf(x),
+            group: x.group || '',
+            chk: true,
           }));
-          const rows = s.rows || [];
-          const ckHtml = B.checkliste(items, { nrPrefix: true, legende: si === lastCheck });
-          const flHtml = rows.length
-            ? (items.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(rows)
-            : '';
-          if (ckHtml) {
-            blocks.push({ split: true, html: B.abschnitt(s.title, ckHtml) });
-            if (flHtml) {
-              blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
+          const rows = (s.rows || []).map((x) => Object.assign({ chk: false }, x));
+          const nr = ++no;
+          const groups = [];
+          items.concat(rows).forEach((x) => {
+            const g = x.group || '';
+            let e = groups.find((q) => q.g === g);
+            if (!e) {
+              e = { g, rows: [], chk: [] };
+              groups.push(e);
             }
-          } else {
-            blocks.push({
-              html: B.abschnitt(s.title, flHtml || '<div class="none">Keine Angaben</div>'),
+            (x.chk ? e.chk : e.rows).push(x);
+          });
+          let body = '';
+          let count = 0;
+          let kopfZeigen = true;
+          groups.forEach((e) => {
+            e.chk.forEach((x, i) => {
+              if (x.eval === 'bad') {
+                auff.push({ nr: `${nr}.${count + i + 1}`, text: `${s.title} – ${x.label}: n.i.O.` });
+              }
             });
-          }
+            const kopf = groups.length > 1 && e.g ? B.nSub(e.g) : '';
+            const pruef = e.chk.length ? B.nPruef(e.chk, nr, count, kopfZeigen) : '';
+            const zeilen = e.rows.length ? B.nZeilen(e.rows) : '';
+            count += e.chk.length;
+            if (e.chk.length) {
+              kopfZeigen = false;
+            }
+            body += kopf + pruef + zeilen;
+          });
+          blocks.push({
+            html: B.nAbschnitt(String(nr), s.title, body || '<div class="n-subh">Keine Angaben</div>'),
+          });
         });
 
         const material = r.material || [];
         if (material.length) {
-          blocks.push(
-            B.tabelle({
-              titel: 'Verwendetes Material',
-              head: [{ t: 'Pos.', w: '10%' }, 'Bezeichnung', { t: 'Menge', w: '20%' }],
-              rows: material.map((m, i) => [
-                { t: String(i + 1) },
-                { t: m.teil, cls: 'lbl' },
-                { t: m.menge || '—' },
-              ]),
-            }),
-          );
+          blocks.push({
+            html: B.nAbschnitt(
+              String(++no),
+              'Verwendetes Material',
+              B.nZeilen(material.map((m) => ({ label: m.teil, value: m.menge || '' }))),
+              `${material.length}`,
+            ),
+          });
         }
 
+        // Auffälligkeiten: mit Nummer; weicht die Zahl von den Daten der App ab, gelten die Texte der App
         const defects = r.defects || [];
         if (defects.length) {
-          blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
+          const liste =
+            auff.length === defects.length
+              ? auff
+              : defects.map((d) => ({ nr: '', text: String(d).replace(/: Mangel$/, ': n.i.O.') }));
+          blocks.push({ html: B.nAuff(liste) });
         }
         const abschluss = [
           {
             label: 'Nächste Wartung',
-            value: [naechste, naechste ? 'jährliche Wartung' : ''].filter(Boolean).join(' · '),
+            value: [naechste, naechste ? 'jährliche Wartung' : ''].filter(Boolean).join(', '),
           },
           {
             label: 'Festgestellte Mängel / Noch auszuführende Arbeiten (Folgeauftrag)',
             value: r.remark,
-            wide: true,
           },
         ];
         if (r.absprachen) {
-          abschluss.push({ label: 'Absprachen & Abweichungen', value: r.absprachen, wide: true });
+          abschluss.push({ label: 'Absprachen & Abweichungen', value: r.absprachen });
         }
-        blocks.push({ html: B.abschnitt('Wartungsabschluss', B.kv(abschluss)) });
+        blocks.push({ html: B.nAbschnitt('', 'Wartungsabschluss', B.nZeilen(abschluss)) });
         if (r.hinweis) {
-          blocks.push({
-            html: B.rechtstext([{ titel: 'Hinweise für den Betreiber.', text: r.hinweis }]),
-          });
+          blocks.push({ html: B.nHinweis([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
         }
         const sig = r.sig || {};
+        const hatKunde =
+          (typeof sig.kunde === 'string' && /^data:image\//.test(sig.kunde)) || !!r.kundeName;
         blocks.push({
-          html: B.unterschrift({
-            tech: { bild: sig.tech, name: [r.techniker, stand].filter(Boolean).join(' · ') },
-            kunde: { bild: sig.kunde, name: r.kundeName },
-            labels: { tech: 'Techniker', kunde: 'Kunde / Betreiber' },
-          }),
+          html:
+            '<div class="n-signs">' +
+            B.nUnterschrift({
+              bild: sig.tech,
+              name: [r.techniker, stand].filter(Boolean).join(', '),
+              label: 'Techniker',
+            }) +
+            (hatKunde
+              ? B.nUnterschrift({ bild: sig.kunde, name: r.kundeName, label: 'Kunde / Betreiber' })
+              : '') +
+            '</div>',
         });
 
         const kunde = hv(/kunde|objekt/i);
         const anlage = hv(/^modell/i);
+        const titelZeilen = [nice(kopfzeile), h1];
         return {
           blocks,
-          head: B.kopf({
+          pageClass: 'neu',
+          head: B.nKopf({
             firma,
-            kicker,
-            titel: h1,
+            titel: titelZeilen,
             nummern: [
               { label: 'Protokoll-Nr.', wert: r.id },
               { label: 'Kunden-Nr.', wert: kundenNr },
+              { label: 'Datum', wert: tileDate },
             ],
           }),
-          smallHead: B.kopfKlein({
+          smallHead: B.nKopfKlein({
             firma,
-            zeile: [kunde, anlage].filter(Boolean).join(' · '),
-            titel: kickerKlein + ' ' + h1,
-            nrLabel: 'Protokoll-Nr.',
-            id: r.id,
+            zeile: [kunde, anlage].filter(Boolean).join(', '),
+            nummern: [{ label: 'Protokoll-Nr.', wert: r.id }],
           }),
-          foot: B.fuss({ text: kickerKlein + ' ' + h1, stand }),
+          foot: B.nFuss({ text: titelZeilen.join(' '), stand }),
           id: esc(r.id),
         };
       }

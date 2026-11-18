@@ -504,7 +504,7 @@ ${mangel}`;
    Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
       function reportParts(r) {
         const B = pdfBausteine(),
-          { esc, nl, up, icon, pill } = B;
+          { esc, nl, icon } = B;
         const deNum = (s) =>
           Number(
             String(s ?? '')
@@ -516,6 +516,15 @@ ${mangel}`;
           typeof s === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s)
             ? `<img src="${s}" alt="">`
             : '';
+        const imgS = (s) =>
+          img(s).replace(
+            '<img ',
+            '<img style="display:block;height:9mm;width:auto;max-width:55mm" ',
+          );
+        const NC = { ok: '#1b7a3d', bad: '#b3400a' };
+        // Pille im neuen Design: cls 'ok' = grün, 'warn'/'bad' = orange; sym = Symbol (ok, bad, clock)
+        const pillN = (cls, text, sym) =>
+          `<span class="n-pill ${cls}">${icon(sym || (cls === 'ok' ? 'ok' : 'bad'), 11, cls === 'ok' ? NC.ok : NC.bad)}${esc(text)}</span>`;
         const st = r.status || {},
           sh = r.short || {};
         const stand = r.stand
@@ -525,44 +534,54 @@ ${mangel}`;
               year: 'numeric',
             })
           : '';
+        const firma = r.firma || '';
         const blocks = [];
+        // Zeilen auf Blöcke verteilen: weight(x) in mm, max = Höhenbudget je Block
+        const chunks = (items, weight, max) => {
+          const out = [];
+          let cur = [],
+            sum = 0;
+          items.forEach((x) => {
+            const w = weight(x);
+            if (cur.length && sum + w > max) {
+              out.push(cur);
+              cur = [];
+              sum = 0;
+            }
+            cur.push(x);
+            sum += w;
+          });
+          if (cur.length) out.push(cur);
+          return out;
+        };
+        const plain = (rows) =>
+          `<div class="n-rows">${rows
+            .map(
+              (x) =>
+                `<div class="n-row"><span class="k">${esc(x.label)}</span><span class="v">${x.value ? nl(x.value) : '—'}</span></div>`,
+            )
+            .join('')}</div>`;
+        const keine =
+          '<div class="n-rows"><div class="n-row" style="grid-template-columns:1fr"><span class="k">Keine Einträge</span></div></div>';
 
-        // Status-Kacheln
+        // Hauptwert: nächste Dichtheitsprüfung groß, daneben letzte Prüfung und Prüfpflicht
         const due = dueState(st.nextIso);
         const lastOk = st.lastErg === 'erfüllt',
           lastBad = st.lastErg === 'nicht erfüllt';
+        const isDate = /^\d{2}\.\d{2}\.\d{4}$/.test(st.next || '');
+        const pflicht = [st.intv && 'Intervall ' + st.intv, [st.km, st.fm].filter(Boolean).join(', ')].filter(
+          Boolean,
+        );
+        const nextP = due
+          ? pillN(due.cls === 'ok' ? 'ok' : 'warn', due.text, 'clock')
+          : st.next
+            ? ''
+            : '<div class="n-sub" style="margin-top:0">noch keine Dichtheitsprüfung eingetragen</div>';
         blocks.push({
-          html: B.kacheln(
-            [
-              {
-                art: 'primary',
-                lab: 'Nächste Dichtheitsprüfung',
-                val: st.next,
-                subHtml: due
-                  ? pill(due.cls, due.text, due.cls === 'bad' ? 'bad' : 'clock')
-                  : st.next
-                    ? ''
-                    : 'noch keine Dichtheitsprüfung eingetragen',
-              },
-              {
-                lab: 'Letzte Dichtheitsprüfung',
-                val: st.lastDicht,
-                subHtml: lastOk
-                  ? pill('ok', 'Dichtheit erfüllt')
-                  : lastBad
-                    ? pill('bad', 'nicht erfüllt')
-                    : '',
-              },
-              {
-                lab: 'Prüfpflicht',
-                val: st.co2 ? st.co2 + ' t CO₂e' : '',
-                sub: [st.intv && 'Intervall ' + st.intv, [st.km, st.fm].filter(Boolean).join(', ')]
-                  .filter(Boolean)
-                  .join(' · '),
-              },
-            ],
-            { links: true },
-          ),
+          html: `<div class="n-hero" style="grid-template-columns:1.25fr 1fr 1fr">
+<div class="n-l" style="grid-column:1;grid-row:1">Nächste Dichtheitsprüfung</div><div class="n-hv ${due && due.cls === 'bad' ? 'bad' : ''}" style="grid-column:1;grid-row:2${isDate || !st.next ? '' : ';font-size:16pt'}">${esc(st.next || '—')}</div><div class="n-p" style="grid-column:1;grid-row:3">${nextP}</div>
+<div class="n-l" style="grid-column:2;grid-row:1">Letzte Dichtheitsprüfung</div><div class="n-m" style="grid-column:2;grid-row:2">${esc(st.lastDicht || '—')}</div><div class="n-p" style="grid-column:2;grid-row:3">${lastOk ? pillN('ok', 'Dichtheit erfüllt') : lastBad ? pillN('bad', 'nicht erfüllt') : ''}</div>
+<div class="n-l" style="grid-column:3;grid-row:1">Prüfpflicht</div><div class="n-m" style="grid-column:3;grid-row:2">${esc(st.co2 ? st.co2 + ' t CO₂e' : '—')}</div><div class="n-p n-l" style="grid-column:3;grid-row:3">${pflicht.map((t) => `<div>${esc(t)}</div>`).join('')}</div></div>`,
         });
 
         // Stammdaten-Abschnitte
@@ -576,20 +595,19 @@ ${mangel}`;
           if (s.kind === 'addr') {
             const group = [s];
             while (secs[i + 1] && secs[i + 1].kind === 'addr') group.push(secs[++i]);
-            const card = (a) => {
-              const lines = [
-                val(a, 'Firma') && `<b>${esc(val(a, 'Firma'))}</b>`,
-                esc(val(a, 'Name')),
-                esc(val(a, 'Straße')),
-                esc([val(a, 'PLZ'), val(a, 'Ort')].filter(Boolean).join(' ')),
-              ].filter(Boolean);
-              return `<div class="card"><h3>${up(a.title)}</h3><div class="addr">${lines.join('<br>') || '<span style="color:#9a9999">—</span>'}</div></div>`;
+            const col = (a) => {
+              const rows = [
+                ['Firma', val(a, 'Firma')],
+                ['Name', val(a, 'Name')],
+                ['Straße', val(a, 'Straße')],
+                ['Ort', [val(a, 'PLZ'), val(a, 'Ort')].filter(Boolean).join(' ')],
+              ]
+                .filter((x) => x[1])
+                .map((x) => ({ label: x[0], value: x[1] }));
+              return `<div style="min-width:0"><h2>${esc(a.title)}</h2>${plain(rows.length ? rows : [{ label: 'Angaben', value: '' }])}</div>`;
             };
             blocks.push({
-              html: B.abschnitt(
-                group.map((a) => a.title).join(' und '),
-                `<div class="cols2">${group.map(card).join('')}</div>`,
-              ),
+              html: `<div class="n-sec"><div style="display:grid;grid-template-columns:${group.map(() => '1fr').join(' ')};column-gap:10mm">${group.map(col).join('')}</div></div>`,
             });
           } else if (s.kind === 'check') {
             const groups = [
@@ -599,9 +617,15 @@ ${mangel}`;
             ];
             const groupOf = (l) =>
               l.startsWith('Indirekt ') ? 1 : l.startsWith('Direkt ') ? 2 : 0;
+            const crow = (k, text, ans) =>
+              `<div class="n-row" style="grid-template-columns:auto 1fr${ans != null ? ' auto' : ''};column-gap:2mm">${B.nResIcon(k)}<span style="min-width:0">${esc(text)}</span>${ans != null ? `<span class="k">${esc(ans)}</span>` : ''}</div>`;
             const items = groups.map(() => []);
-            const noIcon = () => icon('na', 12, '#9a9999');
+            const mangelRows = [];
             (s.checks || []).forEach((x) => {
+              if (/^Mängel festgestellt/.test(x.label)) {
+                mangelRows.push({ label: x.label, value: x.value || '—' });
+                return;
+              }
               const g = groupOf(x.label),
                 label = x.label.slice(groups[g][1].length);
               const k =
@@ -611,79 +635,144 @@ ${mangel}`;
                     : 'ok'
                   : x.value === 'Nein' && x.eval === 'ok'
                     ? 'ok'
-                    : 'no';
-              items[g].push(
-                `<div class="citem">${k === 'no' ? noIcon() : icon(k, 12)}<span class="t">${esc(label)}</span><span class="a">${esc(x.value || '—')}</span></div>`,
-              );
+                    : 'na';
+              items[g].push(crow(k, label, x.value || '—'));
             });
             const sign = [];
             (s.rows || []).forEach((x) => {
               if (x.label.startsWith('Direkt ')) {
-                if (x.value)
-                  items[2].push(
-                    `<div class="citem">${noIcon()}<span class="t">${esc(x.label.slice(7))}: ${esc(x.value)}</span></div>`,
-                  );
-              } else if (x.label !== 'Name Betreiber')
-                sign.push(`<span>${esc(x.label)} <b>${esc(x.value || '—')}</b></span>`);
+                if (x.value) items[2].push(crow('na', `${x.label.slice(7)}: ${x.value}`));
+              } else if (x.label !== 'Name Betreiber') sign.push({ label: x.label, value: x.value });
             });
-            // gezeichnete Unterschriften der Erstprüfung (eigene kompakte Darstellung .sigbox, Aussehen bleibt wie bisher)
             const sg = s.sign || {},
-              cap = (who, name) =>
-                `<div class="cap">${esc(who)}${name ? ' · ' + esc(name) : ''}</div>`;
+              signs = [];
             // Betreiber-Unterschrift wird in der App nicht mehr erfasst, aber bei älteren Einträgen weiter angezeigt
-            const sigBox =
-              img(sg.sk) || img(sg.betr)
-                ? `<div class="sigbox">
-        <div><div class="img">${img(sg.sk)}</div>${cap('Unterschrift Sachkundiger', val(s, 'Sachkundiger'))}</div>
-        ${img(sg.betr) ? `<div><div class="img">${img(sg.betr)}</div>${cap('Unterschrift Betreiber', val(s, 'Name Betreiber'))}</div>` : ''}</div>`
-                : '';
+            if (img(sg.sk))
+              signs.push(
+                B.nUnterschrift({
+                  bild: sg.sk,
+                  name: [val(s, 'Sachkundiger'), val(s, 'Zertifikatsnummer')]
+                    .filter(Boolean)
+                    .join(' · '),
+                  label: 'Unterschrift Sachkundiger',
+                }),
+              );
+            if (img(sg.betr))
+              signs.push(
+                B.nUnterschrift({
+                  bild: sg.betr,
+                  name: val(s, 'Name Betreiber'),
+                  label: 'Unterschrift Betreiber',
+                }),
+              );
+            const signHtml = !signs.length
+              ? ''
+              : signs.length === 1
+                ? signs[0]
+                : `<div class="n-signs" style="margin-top:4mm">${signs.join('')}</div>`;
+            const gcol = (g, k) =>
+              `<div style="min-width:0"><div class="n-subh" style="margin-top:0">${esc(g[0])}</div><div class="n-rows">${items[k].join('') || '<div class="n-row" style="grid-template-columns:1fr"><span class="k">—</span></div>'}</div></div>`;
+            const rowsAll = mangelRows.concat(sign);
             blocks.push({
-              html: B.abschnitt(
+              html: B.nAbschnitt(
+                '',
                 s.title,
-                `<div class="checks">${groups.map((g, k) => `<div class="cgroup"><h4>${up(g[0])}</h4>${items[k].join('') || '<div class="none">—</div>'}</div>`).join('')}</div>
-        ${sign.length ? `<div class="signoff">${sign.join('')}</div>` : ''}${sigBox}`,
+                `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:6mm">${groups.map(gcol).join('')}</div>${rowsAll.length ? `<div style="margin-top:3mm">${B.nZeilen(rowsAll)}</div>` : ''}${signHtml}`,
               ),
             });
           } else {
-            blocks.push({ html: B.abschnitt(s.title, B.kv(s.rows || [])) });
+            const rows = (s.rows || []).map((x) => ({
+              label: x.label,
+              value: x.value,
+              calc: /CO₂/.test(x.label),
+            }));
+            chunks(rows, () => 6.5, 150).forEach((part, k) =>
+              blocks.push({
+                html: B.nAbschnitt('', s.title + (k ? ' (Fortsetzung)' : ''), B.nZeilen(part)),
+              }),
+            );
           }
         }
 
-        // Tabellen der Einträge (umbrechbar, Kopf wird auf jeder Seite wiederholt)
+        // Tabellen der Einträge: Rasterzeilen, lange Tabellen auf mehrere Blöcke (Kopfzeile wiederholt, „(Fortsetzung)“)
         const es = (r.entries || [])
           .slice()
           .sort((a, b) => String(a._iso).localeCompare(String(b._iso)));
+        const MM = {
+          Datum: 23,
+          Dichtheitsanforderung: 31,
+          'Nächste Dichtheitsprüfung fällig': 23,
+          'Art der Arbeit': 28,
+          Kältemittel: 18,
+          'Kältemittel Zustand': 20,
+          'Kältemittel entsorgt (kg)': 17,
+          'Kältemittel aufgefüllt (kg)': 19,
+        };
+        const lineCount = (t, mm) =>
+          String(t || '')
+            .split('\n')
+            .reduce((a, p) => a + Math.max(1, Math.ceil(p.length / Math.max(4, Math.floor(mm / 1.7)))), 0);
+        const isNum = (x) => /^\d{2}\.\d{2}\.\d{4}$/.test(x);
         LISTS.forEach((l) => {
           const rows = es.filter((e) => l.need.some((k) => String(e[k] ?? '').trim() !== ''));
           if (!rows.length) {
-            blocks.push({
-              html: B.abschnitt(l.title, '<div class="none">Keine Einträge</div>', { ref: l.ref }),
-            });
+            blocks.push({ html: B.nAbschnitt('', l.title, keine, l.ref) });
             return;
           }
-          const cell = (e, c) => {
+          const hasCert = rows.some((e) => String(e['Zertifikatsnummer'] || '').trim());
+          const widths = l.cols.map((c) =>
+            c[0] === 'Sachkundiger' ? (l.leak ? 36 : 42) : MM[c[0]] || 0,
+          );
+          const nFree = widths.filter((w) => !w).length;
+          const free = 178 - widths.reduce((a, w) => a + w, 0) - (widths.length - 1) * 3;
+          const wEff = widths.map((w) => w || free / nFree);
+          const g = `grid-template-columns:${widths.map((w) => (w ? w + 'mm' : '1fr')).join(' ')}`;
+          const cell = (e, c, w) => {
             const o = c[2] || {},
-              x = e[c[0]] || '';
+              x = String(e[c[0]] || '');
+            if (c[0] === 'Sachkundiger') {
+              const z = String(e['Zertifikatsnummer'] || '').trim();
+              return {
+                html: `${x ? esc(x) : z ? '' : '—'}${z ? `<span class="k n-num" style="display:block">${esc(z)}</span>` : ''}`,
+                lines: (x || !z ? lineCount(x || '—', w) : 0) + (z ? 1 : 0),
+              };
+            }
             if (o.pill && x)
               return {
                 html:
-                  x === 'erfüllt' ? pill('ok', x) : x === 'nicht erfüllt' ? pill('bad', x) : esc(x),
+                  x === 'erfüllt'
+                    ? pillN('ok', x)
+                    : x === 'nicht erfüllt'
+                      ? pillN('bad', x)
+                      : esc(x),
+                lines: 1,
               };
             return {
-              html: `${x ? nl(x) : '—'}${o.sub && e[o.sub] ? `<span class="small">${esc(e[o.sub])}</span>` : ''}`,
-              cls: o.date ? 'date' : o.num ? 'num' : '',
+              html: !x ? '—' : o.date || o.num || isNum(x) ? `<span class="n-num">${esc(x)}</span>` : nl(x),
+              lines: lineCount(x || '—', w),
             };
           };
-          blocks.push(
-            B.tabelle({
-              titel: l.title,
-              ref: l.ref,
-              head: l.cols.map((c) => ({
-                t: c[1],
-                w: c[2] && c[2].w ? c[2].w + '%' : '',
-                num: c[2] && c[2].num,
-              })),
-              rows: rows.map((e) => l.cols.map((c) => cell(e, c))),
+          const built = rows.map((e) => {
+            const cs = l.cols.map((c, i) => cell(e, c, wEff[i]));
+            return {
+              h: Math.max(...cs.map((c) => c.lines)) * 3.9 + 2.6,
+              html: `<div class="n-row" style="${g}">${cs.map((c) => `<span style="min-width:0;overflow-wrap:break-word">${c.html}</span>`).join('')}</div>`,
+            };
+          });
+          const head = `<div class="n-th" style="${g}">${l.cols
+            .map((c) =>
+              esc(c[0] === 'Sachkundiger' && hasCert ? 'Sachkundiger / Zert.-Nr.' : c[1]),
+            )
+            .map((t) => `<span>${t}</span>`)
+            .join('')}</div>`;
+          chunks(built, (x) => x.h, 80).forEach((part, k) =>
+            blocks.push({
+              html: B.nAbschnitt(
+                '',
+                l.title + (k ? ' (Fortsetzung)' : ''),
+                `${head}<div class="n-rows">${part.map((x) => x.html).join('')}</div>`,
+                l.ref,
+              ),
             }),
           );
           if (l.leak) {
@@ -697,12 +786,12 @@ ${mangel}`;
             const ys = Object.keys(years).sort();
             if (ys.length)
               blocks.push({
-                html: `<div class="leak"><b>Leckrate je Jahr</b><span>(ChemKlimaschutzV § 3, aufgefüllte Menge ÷ Füllgewicht${fg > 0 ? ' ' + fmt(fg) + ' kg' : ''}):</span>${ys
+                html: `<div class="n-blk">${B.nSub('Leckrate je Jahr')}<div class="n-sub" style="margin:0 0 1mm">ChemKlimaschutzV § 3, aufgefüllte Menge ÷ Füllgewicht${fg > 0 ? ' ' + fmt(fg) + ' kg' : ''}</div><div class="n-rows">${ys
                   .map(
                     (y) =>
-                      `<span>${y}: ${fmt(years[y])} kg ${fg > 0 ? `<span class="pill warn">${String(Math.round((years[y] / fg) * 1000) / 10).replace('.', ',')} %</span>` : ''}</span>`,
+                      `<div class="n-row" style="grid-template-columns:19mm 1fr"><span class="n-num">${y}</span><span><span class="n-num">${fmt(years[y])}</span> <span class="n-unit">kg</span>${fg > 0 ? ` <span class="n-pill warn">${String(Math.round((years[y] / fg) * 1000) / 10).replace('.', ',')} %</span>` : ''}</span></div>`,
                   )
-                  .join('')}</div>`,
+                  .join('')}</div></div>`,
               });
           }
         });
@@ -710,67 +799,71 @@ ${mangel}`;
         // Unterschriften zu den Einträgen (nur unterschriebene Termine)
         const signed = es.filter((e) => e._sig && (img(e._sig.sk) || img(e._sig.betr)));
         const withBetr = signed.some((e) => img(e._sig.betr)); // Spalte „Betreiber“ nur, wenn ein älterer Eintrag eine Betreiber-Unterschrift hat
-        if (signed.length)
-          blocks.push(
-            B.tabelle({
-              titel: 'Unterschriften zu den Einträgen',
-              head: [{ t: 'Datum', w: '14%' }, 'Sachkundiger'].concat(
-                withBetr ? ['Betreiber'] : [],
-              ),
-              rows: signed.map((e) =>
-                [
-                  { t: e['Datum'] || '—', cls: 'date' },
-                  {
-                    html: `${img(e._sig.sk)}<span class="small">${esc(e['Sachkundiger'] || '')}</span>`,
-                    cls: 'sigc',
-                  },
-                ].concat(
-                  withBetr
-                    ? [
-                        {
-                          html: `${img(e._sig.betr)}<span class="small">${img(e._sig.betr) ? esc(e['Name Betreiber'] || '') : ''}</span>`,
-                          cls: 'sigc',
-                        },
-                      ]
-                    : [],
-                ),
+        if (signed.length) {
+          const gs = `grid-template-columns:23mm 1fr${withBetr ? ' 1fr' : ''}`;
+          const capt = (e, who) =>
+            `<span class="k" style="display:block">${esc(who || '')}</span>`;
+          const built = signed.map((e) => {
+            const z = String(e['Zertifikatsnummer'] || '').trim();
+            return {
+              h: 21,
+              html: `<div class="n-row" style="${gs}"><span><span class="n-num">${esc(e['Datum'] || '—')}</span></span><span style="min-width:0">${imgS(e._sig.sk)}${capt(e, e['Sachkundiger'])}${z ? `<span class="k n-num" style="display:block">${esc(z)}</span>` : ''}</span>${withBetr ? `<span style="min-width:0">${imgS(e._sig.betr)}${img(e._sig.betr) ? capt(e, e['Name Betreiber']) : ''}</span>` : ''}</div>`,
+            };
+          });
+          const head = `<div class="n-th" style="${gs}"><span>Datum</span><span>Sachkundiger / Zert.-Nr.</span>${withBetr ? '<span>Betreiber</span>' : ''}</div>`;
+          chunks(built, (x) => x.h, 100).forEach((part, k) =>
+            blocks.push({
+              html: B.nAbschnitt(
+                '',
+                'Unterschriften zu den Einträgen' + (k ? ' (Fortsetzung)' : ''),
+                `${head}<div class="n-rows">${part.map((x) => x.html).join('')}</div>`,
               ),
             }),
           );
+        }
 
         if (r.remark)
-          blocks.push({ html: B.notiz({ titel: 'Bemerkungen zur Anlage', text: r.remark }) });
-        if (r.hinweis && r.hinweis.length)
           blocks.push({
-            html: B.rechtstext(
-              r.hinweis.map((t) => {
-                const k = t.indexOf(': ');
-                return k > 0 && k < 80 ? { titel: t.slice(0, k) + '.', text: t.slice(k + 2) } : t;
-              }),
+            html: B.nAbschnitt(
+              '',
+              'Bemerkungen zur Anlage',
+              `<div class="n-rows"><div class="n-row" style="grid-template-columns:1fr"><span class="v">${nl(r.remark)}</span></div></div>`,
             ),
           });
+        // Hinweise und Unterschriftsfelder bleiben zusammen auf einer Seite
+        blocks.push({
+          html: `<div>${
+            r.hinweis && r.hinweis.length
+              ? B.nHinweis(
+                  r.hinweis.map((t) => {
+                    const k = t.indexOf(': ');
+                    return k > 0 && k < 80
+                      ? { titel: t.slice(0, k) + '.', text: t.slice(k + 2) }
+                      : { text: t };
+                  }),
+                )
+              : ''
+          }<div class="n-signs" style="margin-top:8mm">${B.nUnterschrift({ label: 'Unterschrift / Stempel Sachkundiger' })}${B.nUnterschrift({ label: 'Logbuch erhalten (Betreiber)' })}</div></div>`,
+        });
 
+        const nummern = [
+          { label: 'Logbuch-Nr.', wert: r.id },
+          { label: 'Stand', wert: stand },
+        ];
         return {
           blocks,
-          head: B.kopf({
-            firma: r.firma,
-            kicker: 'Anlagenlogbuch',
-            titel: r.title,
-            nrLabel: 'Logbuch-Nr.',
-            id: r.id,
-            datum: stand,
-            datumLabel: 'Stand',
-            untertitel: r.subtitle,
-            untertitelUnten: true,
+          pageClass: 'neu',
+          head:
+            B.nKopf({ firma, titel: [r.title], nummern }) +
+            (r.subtitle
+              ? `<div class="n-sub" style="margin-top:2mm">${esc(r.subtitle)}</div>`
+              : ''),
+          smallHead: B.nKopfKlein({
+            firma,
+            zeile: [sh.betreiber, sh.anlage].filter(Boolean).join(', '),
+            nummern: [{ label: 'Logbuch-Nr.', wert: r.id }],
           }),
-          smallHead: B.kopfKlein({
-            firma: r.firma,
-            zeile: [sh.betreiber, sh.anlage].filter(Boolean).join(' · '),
-            titel: r.title,
-            nrLabel: 'Logbuch-Nr.',
-            id: r.id,
-          }),
-          foot: B.fuss({ text: r.title, stand: stand ? 'Stand ' + stand : '' }),
+          foot: B.nFuss({ text: r.title, stand: stand ? 'Stand ' + stand : '' }),
           id: esc(r.id),
         };
       }

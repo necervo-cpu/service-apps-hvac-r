@@ -207,6 +207,7 @@ function buildReport(p) {
         value: display(f, v[f.id]),
         eval: evalField(f, v),
         wide: !!f.wide,
+        calc: f.type === 'calc',
         mangel:
           f.type === 'okfail' && v[f.id] === 'n.i.O.'
             ? String(v[f.id + 'M'] ?? '').trim()
@@ -495,7 +496,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.9';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

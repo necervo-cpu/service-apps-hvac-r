@@ -518,7 +518,7 @@ function nextSub(s) {
   return s.next && dueState(s.next) ? 'Nächste Prüfung ' + fmtDate(s.next) : '';
 }
 
-const APP_VERSION = '2.2.3';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

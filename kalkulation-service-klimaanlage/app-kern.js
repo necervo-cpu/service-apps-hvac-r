@@ -516,69 +516,104 @@ function buildCols(p) {
   return out;
 }
 
-const APP_VERSION = '2.2.4';
+const APP_VERSION = '2.3.0';
 const BUILD_DATE = '2026-11-18';
 
       /* @@quelle:reportParts */
-      /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Tabellen mit Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
+      /* Bericht im neuen Papier-Design (Seitenklasse „neu“): Hauptwert, Projektdaten, Kennwerte, Positionen als Zeilen, Preisaufstellung, Hinweis.
    Nimmt die Bericht-Datenstruktur von buildReport() unverändert entgegen (die App speichert sie auch im Sheet).
    Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
       function reportParts(r) {
         const B = pdfBausteine(),
           { esc, nl } = B;
         const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
-        // Tabelle aus buildReport: head, cls (Spalten, 'num' = rechts), widths, rows [{cells, cls:'sum'|'tot'}]
-        const tab = (titel, t, split) => {
-          const bl = B.tabelle({
-            titel,
-            head: t.head.map((h, i) => ({ t: h, w: t.widths[i], num: t.cls[i] === 'num' })),
-            rows: t.rows.map((row) => ({
-              cls: row.cls,
-              cells: row.cells.map((c, i) => ({ html: nl(c), cls: t.cls[i] })),
-            })),
-          });
-          bl.split = split; // Preis-Tabelle bleibt zusammen (kein Umbruch mitten in der Summe)
-          return bl;
+        const tiles = r.tiles || [];
+        const art = r.kicker === 'ANGEBOT' ? 'Angebot' : 'Kalkulation';
+        const id = r.id || '—';
+        let no = 0;
+        // Tabelle aus buildReport (head, cls, widths, rows [{cells, cls:'sum'|'tot'}]) als Zeilen mit eigener Spaltenaufteilung;
+        // lange Tabellen in Stücken zu 14 Zeilen, damit sie auf Folgeseiten weiterlaufen können
+        const tabBlocks = (titel, t, ref, zusammen) => {
+          const nr = String(++no);
+          if (!t || !t.rows || !t.rows.length)
+            return [{ html: B.nAbschnitt(nr, titel, '<div class="n-sub">Keine Positionen</div>') }];
+          const tpl = 'grid-template-columns:' + t.widths.map((w) => parseFloat(w) + 'fr').join(' ');
+          const al = (i) => (t.cls[i] === 'num' ? ' style="text-align:right"' : '');
+          const kopf = t.head
+            .map((h, i) => `<span${al(i)}>${h === titel ? '' : esc(h)}</span>`)
+            .join('');
+          const zeile = (row) => {
+            const sum = row.cls === 'sum' || row.cls === 'tot';
+            return `<div class="n-row${row.cls === 'tot' ? ' calc' : ''}" style="${tpl}${sum ? ';font-weight:600' : ''}">${row.cells
+              .map((c, i) => {
+                const inh = t.cls[i] === 'num' ? B.nWert(c) : nl(c);
+                return `<span${i === 0 && /^\d+$/.test(String(c)) ? ' class="nr"' : ''}${al(i)}>${inh}</span>`;
+              })
+              .join('')}</div>`;
+          };
+          const gr = zusammen ? t.rows.length : 14;
+          const out = [];
+          for (let a = 0; a < t.rows.length; a += gr) {
+            const teil = `<div class="n-th" style="${tpl}">${kopf}</div><div class="n-rows">${t.rows
+              .slice(a, a + gr)
+              .map(zeile)
+              .join('')}</div>`;
+            out.push({
+              html: B.nAbschnitt(a ? '' : nr, a ? titel + ' (Fortsetzung)' : titel, teil, a ? '' : ref),
+            });
+          }
+          return out;
         };
         const blocks = [];
-        blocks.push({
-          html: B.kacheln(
-            (r.tiles || []).map((t) => ({ art: t.cls, lab: t.lab, val: t.val, sub: t.sub })),
-          ),
-        });
-        blocks.push({ html: B.abschnitt('Projektdaten', B.kv(r.projekt || [])) });
-        const tsec = (title, t) =>
-          t && t.rows && t.rows.length
-            ? blocks.push(tab(title, t, true))
-            : blocks.push({ html: B.abschnitt(title, '<div class="none">Keine Positionen</div>') });
-        tsec('Leistungsumfang', r.leistung);
-        tsec('Material & Nebenleistungen', r.material);
-        blocks.push(tab(r.kicker === 'ANGEBOT' ? 'Preis' : 'Kostenaufstellung', r.kosten, false));
-        if (r.km && r.km.length)
-          blocks.push({ html: B.abschnitt('Kältemittel & F-Gase-Prüfung', B.kv(r.km)) });
-        if (r.remark) blocks.push({ html: B.notiz({ titel: 'Bemerkungen', text: r.remark }) });
-        if (r.hinweis)
-          blocks.push({ html: B.rechtstext([{ titel: 'Hinweis.', text: r.hinweis }]) });
-        const kick = r.kicker === 'ANGEBOT' ? 'Angebot' : 'Kalkulation';
-        const id = r.id || '—';
+        // Hauptwert: erste Kachel (Gesamtpreis), die beiden weiteren als Spalten daneben
+        if (tiles.length) {
+          const h = tiles[0];
+          blocks.push({
+            html: B.nHaupt({
+              label: h.lab,
+              wert: h.val,
+              sub: h.sub,
+              spalten: tiles.slice(1, 3).map((t) => ({ label: t.lab, wert: t.val })),
+            }),
+          });
+        }
+        // Zusatzzeilen der Kacheln (Untertexte) als Kennwerte
+        const kenn = tiles
+          .slice(1)
+          .filter((t) => t.sub)
+          .map((t) => ({ label: t.lab, value: t.sub }));
+        if (kenn.length) blocks.push({ html: B.nAbschnitt(String(++no), 'Kennwerte', B.nZeilen(kenn)) });
+        blocks.push({ html: B.nAbschnitt(String(++no), 'Projektdaten', B.nZeilen(r.projekt || [])) });
+        tabBlocks('Leistungsumfang', r.leistung, '', false).forEach((b) => blocks.push(b));
+        tabBlocks('Material & Nebenleistungen', r.material, '', false).forEach((b) => blocks.push(b));
+        tabBlocks(r.kicker === 'ANGEBOT' ? 'Preis' : 'Kostenaufstellung', r.kosten, '', true).forEach((b) =>
+          blocks.push(b),
+        );
+        if (r.km && r.km.length) {
+          const kz = r.km.map((x) => ({ label: x.label, value: x.value, calc: /CO₂/.test(x.label) }));
+          blocks.push({ html: B.nAbschnitt(String(++no), 'Kältemittel & F-Gase-Prüfung', B.nZeilen(kz)) });
+        }
+        if (r.remark)
+          blocks.push({ html: B.nAbschnitt('', 'Bemerkungen', B.nZeilen([{ label: 'Bemerkungen', value: r.remark }])) });
+        if (r.hinweis) blocks.push({ html: B.nHinweis([{ titel: 'Hinweis.', text: r.hinweis }]) });
+        const titelZeilen = [art, r.title].filter(Boolean);
         return {
           blocks,
-          head: B.kopf({
+          pageClass: 'neu',
+          head: B.nKopf({
             firma,
-            kicker: r.kicker,
-            titel: r.title,
-            nrLabel: 'Projekt-Nr.',
-            id,
-            datum: r.datum,
+            titel: titelZeilen,
+            nummern: [
+              { label: 'Projekt-Nr.', wert: id },
+              { label: 'Datum', wert: r.datum },
+            ],
           }),
-          smallHead: B.kopfKlein({
+          smallHead: B.nKopfKlein({
             firma,
             zeile: r.kunde || '',
-            titel: kick + ' ' + r.title,
-            nrLabel: 'Projekt-Nr.',
-            id,
+            nummern: [{ label: 'Projekt-Nr.', wert: id }],
           }),
-          foot: B.fuss({ text: kick + ' ' + r.title, stand: r.datum }),
+          foot: B.nFuss({ text: titelZeilen.join(' '), stand: r.datum }),
           id: esc(id),
         };
       }

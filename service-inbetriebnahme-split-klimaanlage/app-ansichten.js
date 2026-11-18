@@ -258,26 +258,34 @@ function finalHtml(p, felder) {
 
 // Der folgende Block steht wortgleich in google-apps-script/PdfDialog.html (node tools/pdfdialog-bauen.js)
 /* @@quelle:reportParts */
-      /* Ausdruck im Muther-Design: A4-Seiten mit Kacheln, Checklisten, Seitenumbruch („Fortsetzung“) und Fußzeile „Seite x von y“.
-   Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) unverändert entgegen.
+      /* Papier-Design (Seitenklasse „neu“): Hauptwert, Abschnitte in App-Reihenfolge, Prüfpunkte mit Nummer, Geräte-Matrix, Mängel und Auffälligkeiten als Nummern-Index.
+   Nimmt die Bericht-Datenstruktur von buildReport() (App) bzw. rowToReport_() (Apps Script) entgegen; fehlen die Zusatzfelder (calc, group, mangel in Tabellenzellen), rendert die Fassung ohne Zwischenüberschriften.
    Die HTML-Bausteine kommen aus shared/pdf-bausteine.js (pdfBausteine()), das CSS aus shared/pdf.css. */
       function reportParts(r) {
         const B = pdfBausteine(),
-          { esc, nl, up, pill } = B;
+          { esc } = B;
         const CHECKV = ['i.O.', 'Mangel', 'n.i.O.', 'entfällt'];
-        const isCheck = (x) => ['ok', 'bad', 'na'].includes(x.eval) || CHECKV.includes(x.value);
-        const evalOf = (x) =>
-          x.eval && x.eval !== 'none'
-            ? x.eval
-            : x.value === 'i.O.'
-              ? 'ok'
-              : x.value === 'Mangel' || x.value === 'n.i.O.'
-                ? 'bad'
-                : x.value === 'entfällt'
-                  ? 'na'
-                  : '';
+        // Alte gespeicherte Berichte enthalten noch „Mangel“ → bleibt „nicht in Ordnung“, wird aber als „n.i.O.“ angezeigt
+        const shown = (x) => (x === 'Mangel' ? 'n.i.O.' : x);
+        // Prüfpunkt: Zeile aus den Prüfpunkten der App, mit Ergebniswort oder Ja/Nein-Bewertung; Zahlenwerte bleiben Messwerte
+        const isCheck = (x, ausListe) =>
+          !!ausListe ||
+          CHECKV.includes(x.value) ||
+          (['Ja', 'Nein'].includes(x.value) && ['ok', 'bad'].includes(x.eval));
+        const evalOf = (x) => {
+          if (x.eval && x.eval !== 'none') {
+            return x.eval;
+          }
+          if (x.value === 'i.O.') {
+            return 'ok';
+          }
+          if (x.value === 'Mangel' || x.value === 'n.i.O.') {
+            return 'bad';
+          }
+          return x.value === 'entfällt' ? 'na' : '';
+        };
         const firma = r.firma || (typeof settings !== 'undefined' ? settings.firma : '') || '';
-        // „WARTUNGSPROTOKOLL • KÄLTETECHNISCHE ANLAGEN“ → Kopfzeile „WARTUNGSPROTOKOLL“, Titel „Kältetechnische Anlagen“
+        // „INBETRIEBNAHMEPROTOKOLL • SPLIT-KLIMA“ → „Inbetriebnahmeprotokoll“ und „Split-Klima“
         const tp = String(r.title || '').split(' • ');
         const nice = (s) =>
           s
@@ -294,11 +302,11 @@ function finalHtml(p, felder) {
         const kicker = tp.length > 1 ? tp[0] : '',
           h1 = nice(tp.length > 1 ? tp.slice(1).join(' • ') : tp[0]);
         const header = r.header || [];
-        // erstes Kopffeld, dessen Beschriftung passt (Nummern-Felder wie „Kundennummer“ ausgenommen)
+        // erstes Kopffeld, dessen Beschriftung passt (Nummern-Felder wie „Kunden-Nr.“ ausgenommen)
         const hv = (re) =>
           (header.find((x) => re.test(x.label) && !/nummer|nr\.?$/i.test(x.label) && x.value) || {})
             .value || '';
-        const datum = hv(/datum/i);
+        const datum = hv(/^datum/i);
         const stand =
           datum ||
           (r.completedAt
@@ -310,93 +318,220 @@ function finalHtml(p, felder) {
             : '');
         const blocks = [];
 
-        // Kacheln: Ergebnis · Datum · Monteur
         const res = String(r.success || ''),
           good = res === 'Ja' || res === 'i.O.',
           bad = !!res && !good;
-        const subs = String(r.subline || (r.betrieb ? 'Betriebszustand: ' + r.betrieb : ''))
+        const subs = String(r.subline || '')
           .split(' · ')
           .filter(Boolean);
         const next = subs.find((s) => /^Nächste Wartung:/.test(s)),
           other = subs.filter((s) => s !== next);
-        const defects = r.defects || [];
+        // Datum einheitlich TT.MM.JJJJ (Eingaben wie 31.8.2026 oder ISO)
+        const p2 = (x) => String(x).padStart(2, '0');
+        const dateOf = (x) => {
+          const q = String(x || '').trim(),
+            m = q.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/) || q.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if (!m) {
+            return q;
+          }
+          return m[1].length === 4
+            ? `${p2(m[3])}.${p2(m[2])}.${m[1]}`
+            : `${p2(m[1])}.${p2(m[2])}.${m[3]}`;
+        };
+        const tileDate = dateOf(stand);
+
+        // Hauptwert: Gesamtbewertung, daneben Datum und Monteur (steht nur hier, nicht noch einmal im Abschluss)
         blocks.push({
-          html: B.kacheln(
-            [
-              {
-                art: good ? 'ok' : bad ? 'bad' : '',
-                lab: r.resultLabel || 'Wartung erfolgreich',
-                val: res,
-                subHtml: `${good ? pill('ok', 'in Ordnung') : bad ? pill('bad', 'nicht in Ordnung') : ''}${r.successMangel ? `<div>${esc(r.successMangel)}</div>` : ''}${other.length ? `<div>${esc(other.join(' · '))}</div>` : ''}`,
-              },
-              { lab: 'Datum', val: datum || stand },
-              { lab: 'Monteur / Prüfer', val: r.techniker },
+          html: B.nHaupt({
+            label: r.resultLabel || 'Gesamtbewertung Inbetriebnahme',
+            wert: shown(res),
+            art: good ? 'ok' : bad ? 'bad' : '',
+            pill: good ? 'in Ordnung' : bad ? 'nicht in Ordnung' : '',
+            sub: [r.successMangel].concat(other).filter(Boolean).join('\n'),
+            spalten: [
+              { label: 'Datum', wert: tileDate },
+              { label: 'Monteur / Prüfer', wert: r.techniker },
             ],
-            { links: true },
-          ),
+          }),
         });
 
-        // Auftrags- und Anlagendaten (Kunden-Nr. steht schon im Kopf)
+        // Auftragsdaten (Protokoll-Nr., Kunden-Nr., Datum und Monteur stehen schon im Kopf und im Hauptwert)
         const kundenNr = (
           header.find((x) => /^kunden[ -]?(nr|nummer)/i.test(x.label) && x.value) || {}
         ).value;
-        const headerRows = header.filter(
-          (x) => !(kundenNr && /^kunden[ -]?(nr|nummer)/i.test(x.label)),
-        );
-        if (headerRows.length)
-          blocks.push({ html: B.abschnitt('Auftrags- & Anlagendaten', B.kv(headerRows)) });
+        const doppelt = (x) =>
+          (kundenNr && /^kunden[ -]?(nr|nummer)/i.test(x.label)) ||
+          (r.id && /^(projekt|protokoll)(-?nr|nummer)/i.test(x.label) && x.value === r.id) ||
+          (r.techniker && /^monteur/i.test(x.label) && x.value === r.techniker) ||
+          (datum && /^datum/i.test(x.label) && x.value === datum);
+        const headerRows = header.filter((x) => !doppelt(x));
+        let no = 0;
+        if (headerRows.length) {
+          blocks.push({
+            html: B.nAbschnitt(String(++no), 'Auftragsdaten', B.nZeilen(headerRows)),
+          });
+        }
 
-        // Abschnitte: Prüfpunkte als Checkliste, Messwerte als Feldliste, Tabellen umbrechbar
-        const lastCheck = (r.sections || []).reduce(
-          (m, s, i) => ((s.checks || []).concat(s.rows || []).some(isCheck) ? i : m),
-          -1,
-        );
-        (r.sections || []).forEach((s, si) => {
-          const all = (s.checks || []).concat(s.rows || []);
-          const ck = all.filter(isCheck),
-            fl = all.filter((x) => !isCheck(x));
-          const ckHtml = B.checkliste(
-            ck.map((x) => ({
-              label: x.label,
-              mangel: x.mangel,
-              value: x.value,
-              eval: evalOf(x),
-            })),
-            { nrPrefix: true, legende: si === lastCheck },
-          );
-          const flHtml = fl.length
-            ? (ck.length ? B.zwischenTitel('Messwerte & Angaben') : '') + B.kv(fl)
-            : '';
-          const body = ckHtml + flHtml;
-          if (s.table && s.table.body && s.table.body.length) {
-            const t = s.table;
-            blocks.push(
-              B.tabelle({
-                titel: s.title,
-                head: t.head.map((h, i) => (i ? h : { t: h, w: '26%' })),
-                rows: t.body.map((b) =>
-                  [{ t: b.label, cls: 'lbl' }].concat(
-                    b.cells.map((c) => ({
-                      t: c.value || '—',
-                      cls: 'ev ' + (c.eval && c.eval !== 'none' ? c.eval : ''),
-                    })),
-                  ),
+        // Auffälligkeiten mit Prüfpunkt-Nummer sammeln (Verweis auf die Prüfpunkte)
+        const auff = [];
+        const addAuff = (nr, titel, label, value, k) => {
+          if (k !== 'bad' && k !== 'warn') {
+            return;
+          }
+          auff.push({
+            nr,
+            text: `${titel} – ${label}: ${shown(value)}${k === 'warn' ? ' (außerhalb Soll)' : ''}`,
+          });
+        };
+        const item = (x) => ({
+          label:
+            CHECKV.includes(x.value) || !String(x.value ?? '').trim()
+              ? x.label
+              : `${x.label}: ${x.value}`,
+          value: shown(x.value),
+          eval: evalOf(x),
+          mangel: x.mangel,
+        });
+        const mono = (t) => (t ? `<span class="n-num">${esc(t)}</span>` : '—');
+        const kindOf = (c) => (['ok', 'bad', 'na'].includes(c.eval) ? c.eval : '');
+
+        (r.sections || []).forEach((s) => {
+          const nr = ++no;
+          // Titel: „Montage-, Umgebungs- & Kältetechnik-Prüfung (Checkliste)“ → Titel, Zusatz „Checkliste“
+          const tt = String(s.title || '').split(' • ').pop(),
+            tm = tt.match(/^(.*?)\s*\((.*)\)$/),
+            titel = tm ? tm[1] : tt;
+          const tbl = s.table && s.table.body && s.table.body.length ? s.table : null;
+          const ck = [],
+            fl = [];
+          (s.checks || []).forEach((x) => ck.push(x));
+          (s.rows || []).forEach((x) => (isCheck(x) ? ck : fl).push(x));
+          const ckSet = new Set(ck);
+          const maengel = [];
+          let count = 0,
+            tabHtml = '',
+            tabZuerst = false;
+
+          // Tabelle (eine Zeile je Gerät): Prüfpunkt-Tabellen als Matrix (Prüfpunkte als Zeilen, Geräte als Spalten), sonst Geräteliste
+          if (tbl) {
+            const labels = tbl.head.slice(1),
+              cell = (b, i) => b.cells[i] || {};
+            const istChk = tbl.body.some((b) => b.cells.some((c) => kindOf(c)));
+            if (istChk && tbl.body.length <= 5) {
+              const n = tbl.body.length;
+              const spalten = tbl.body.map((b) => ({
+                titel: n > 3 ? b.label.replace(/^Innengerät/, 'Gerät') : b.label,
+                raum: '',
+              }));
+              const zeilen = labels.map((l, i) => ({
+                nr: `${nr}.${i + 1}`,
+                label: l,
+                zellen: tbl.body.map((b) => {
+                  const c = cell(b, i),
+                    k = kindOf(c);
+                  if (k === 'bad') {
+                    addAuff(`${nr}.${i + 1}`, b.label, l, c.value, k);
+                    if (c.mangel) {
+                      maengel.push({ nr: `${nr}.${i + 1}`, titel: b.label, text: c.mangel });
+                    }
+                  }
+                  return k ? B.nRes(k) : c.value ? B.nWert(c.value) : '';
+                }),
+              }));
+              count = labels.length;
+              tabHtml = B.nMatrix(spalten, zeilen);
+              tabZuerst = true;
+            } else {
+              // Feste Spalten für Modell, Seriennummer und Herstellung, der Rest teilt sich den Platz
+              const fixW = [];
+              for (const l of labels) {
+                const w = /^Modell/.test(l)
+                  ? '30mm'
+                  : /^Seriennummer/.test(l)
+                    ? '34mm'
+                    : /^Herstellung/.test(l)
+                      ? '22mm'
+                      : '';
+                if (!w) {
+                  break;
+                }
+                fixW.push(w);
+              }
+              const kopf = [{ t: '' }, { t: tbl.head[0] }].concat(labels.map((l) => ({ t: l })));
+              const zeilen = tbl.body.map((b) =>
+                ['', esc(b.label)].concat(
+                  labels.map((l, i) => {
+                    const c = cell(b, i),
+                      k = kindOf(c);
+                    addAuff('', b.label, l, c.value, k || c.eval);
+                    if (k) {
+                      return B.nRes(k);
+                    }
+                    return /^(Modell|Seriennummer)/.test(l) ? mono(c.value) : B.nWert(c.value);
+                  }),
                 ),
-              }),
-            );
-            if (body) blocks.push({ html: `<div class="sec-more">${body}</div>` });
-          } else if (ckHtml) {
-            blocks.push({ split: true, html: B.abschnitt(s.title, ckHtml) });
-            if (flHtml) blocks.push({ html: `<div class="sec-more">${flHtml}</div>` });
+              );
+              tabHtml = B.nListe(kopf, zeilen, fixW.join(' '));
+            }
+          }
+
+          // Zeilen und Prüfpunkte je Gruppe
+          const groups = [];
+          // Reihenfolge der Gruppen: bei Seiten mit „Prüfpunkte“ zuerst die Prüfpunkte, sonst zuerst die Messwerte
+          const reihe = ck.some((x) => x.group === 'Prüfpunkte') ? ck.concat(fl) : fl.concat(ck);
+          reihe.forEach((x) => {
+            const g = x.group || '';
+            let e = groups.find((q) => q.g === g);
+            if (!e) {
+              e = { g, rows: [], chk: [] };
+              groups.push(e);
+            }
+            (ckSet.has(x) ? e.chk : e.rows).push(x);
+          });
+          let rest = '',
+            kopfZeigen = true;
+          groups.forEach((e) => {
+            const items = e.chk.map(item);
+            items.forEach((x, i) => addAuff(`${nr}.${count + i + 1}`, titel, x.label, x.value, x.eval));
+            e.rows.forEach((x) => addAuff('', titel, x.label, x.value, evalOf(x)));
+            const kopf =
+              (groups.length > 1 || tabZuerst) && e.g && e.g !== 'Prüfpunkte' ? B.nSub(e.g) : '';
+            const zeilen = e.rows.length ? B.nZeilen(e.rows) : '';
+            const pruef = items.length ? B.nPruef(items, nr, count, kopfZeigen) : '';
+            count += items.length;
+            if (items.length) {
+              kopfZeigen = false;
+            }
+            rest += kopf + pruef + zeilen;
+          });
+          let body;
+          if (tabZuerst) {
+            body = (rest ? B.nSub('Innengeräte') : '') + tabHtml + rest;
           } else {
-            blocks.push({
-              html: B.abschnitt(s.title, body || '<div class="none">Keine Angaben</div>'),
-            });
+            body = rest + (tabHtml && rest ? B.nSub('Je Gerät') : '') + tabHtml;
+          }
+          blocks.push({
+            html: B.nAbschnitt(
+              String(nr),
+              titel,
+              body || '<div class="n-sub">Keine Angaben</div>',
+              tm ? tm[2] : '',
+            ),
+          });
+          if (maengel.length) {
+            blocks.push({ html: B.nMaengel('Mangel / Maßnahme und Bemerkung', maengel) });
           }
         });
 
-        if (defects.length)
-          blocks.push({ html: B.notiz({ titel: 'Auffälligkeiten', liste: defects, art: 'def' }) });
+        // Auffälligkeiten: mit Nummer; weicht die Zahl von den Daten der App ab, gelten die Texte der App
+        const defects = r.defects || [];
+        if (defects.length) {
+          const liste =
+            auff.length === defects.length
+              ? auff
+              : defects.map((d) => ({ nr: '', text: String(d).replace(/: Mangel/, ': n.i.O.') }));
+          blocks.push({ html: B.nAuff(liste) });
+        }
         const abschluss = [];
         if (next) {
           abschluss.push({
@@ -404,44 +539,46 @@ function finalHtml(p, felder) {
             value: next.replace(/^Nächste Wartung:\s*/, ''),
           });
         }
-        abschluss.push({
-          label: r.remarkLabel || 'Bemerkungen / Mängel',
-          value: r.remark,
-          wide: true,
-        });
-        blocks.push({ html: B.abschnitt('Abschluss', B.kv(abschluss)) });
-        if (r.hinweis)
-          blocks.push({ html: B.rechtstext([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
+        abschluss.push({ label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark });
+        blocks.push({ html: B.nAbschnitt('', 'Abschluss der Inbetriebnahme', B.nZeilen(abschluss)) });
+        if (r.hinweis) {
+          blocks.push({ html: B.nHinweis([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
+        }
         const sig = r.sig || {};
+        const hatKunde = typeof sig.kunde === 'string' && /^data:image\//.test(sig.kunde);
         blocks.push({
-          html: B.unterschrift({
-            tech: { bild: sig.tech, name: [r.techniker, stand].filter(Boolean).join(' · ') },
-            kunde: { bild: sig.kunde, name: r.kundeName },
-            labels: { tech: 'Monteur / Prüfer', kunde: 'Kunde / Betreiber' },
-          }),
+          html:
+            '<div class="n-signs">' +
+            B.nUnterschrift({
+              bild: sig.tech,
+              name: [r.techniker, stand].filter(Boolean).join(', '),
+              label: 'Monteur / Prüfer',
+            }) +
+            (hatKunde
+              ? B.nUnterschrift({ bild: sig.kunde, name: r.kundeName, label: 'Kunde / Betreiber' })
+              : '') +
+            '</div>',
         });
 
-        const kunde = hv(/kunde|betreiber/i),
-          anlage = hv(/anlage|modell/i);
+        const titelZeilen = [kicker ? nice(kicker) : '', h1].filter(Boolean);
         return {
           blocks,
-          head: B.kopf({
+          pageClass: 'neu',
+          head: B.nKopf({
             firma,
-            kicker,
-            titel: h1,
+            titel: titelZeilen,
             nummern: [
-              { label: 'Projekt-Nr.', wert: r.id },
+              { label: 'Protokoll-Nr.', wert: r.id },
               { label: 'Kunden-Nr.', wert: kundenNr },
+              { label: 'Datum', wert: tileDate },
             ],
           }),
-          smallHead: B.kopfKlein({
+          smallHead: B.nKopfKlein({
             firma,
-            zeile: [kunde, anlage].filter(Boolean).join(' · '),
-            titel: kicker ? nice(kicker) : h1,
-            nrLabel: 'Projekt-Nr.',
-            id: r.id,
+            zeile: r.kundeName || '',
+            nummern: [{ label: 'Protokoll-Nr.', wert: r.id }],
           }),
-          foot: B.fuss({ text: (kicker ? nice(kicker) + ' ' : '') + h1, stand }),
+          foot: B.nFuss({ text: titelZeilen.join(' '), stand }),
           id: esc(r.id),
         };
       }
