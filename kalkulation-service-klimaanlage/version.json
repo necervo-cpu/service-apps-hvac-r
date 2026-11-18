@@ -1,5 +1,5 @@
 {
-  "version": "2.2.2",
+  "version": "2.2.3",
   "buildDate": "2026-11-18",
-  "changelog": "Eingabefelder und Datumsfelder in allen Apps im flachen Stil 3B.2, Datum mit heutigem Datum vorbelegt"
+  "changelog": "Kalender-Icon im Datumsfeld rechtsbündig"
 }

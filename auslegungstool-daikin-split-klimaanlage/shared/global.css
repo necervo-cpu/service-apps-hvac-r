@@ -2212,3 +2212,19 @@ input[type='date']::-webkit-datetime-edit {
   padding: 0;
   text-align: left;
 }
+
+/* Kalender-Icon im Datumsfeld immer am rechten Rand */
+input[type='date'] {
+  position: relative;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+}
