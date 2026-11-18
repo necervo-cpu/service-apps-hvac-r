@@ -1030,3 +1030,50 @@
   font-feature-settings: normal;
   letter-spacing: 0;
 }
+
+/* Geräteliste ab 6 Innengeräten */
+.report .page.neu .n-lth {
+  align-items: end;
+  column-gap: 0.5mm;
+}
+.report .page.neu .n-lth > span,
+.report .page.neu .n-lrow > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report .page.neu .n-lth .c,
+.report .page.neu .n-lrow .c {
+  text-align: center;
+}
+.report .page.neu .n-lth .n-u {
+  display: block;
+  font-weight: 400;
+  color: var(--n-ink3);
+}
+.report .page.neu .n-lrow {
+  display: grid;
+  column-gap: 0.5mm;
+  align-items: center;
+  padding: 0.9mm 0;
+  border-top: 1px solid var(--n-line);
+}
+.report .page.neu .n-rows > .n-lrow:first-child {
+  border-top: 0;
+}
+.report .page.neu .n-raum {
+  overflow-wrap: break-word;
+}
+.report .page.neu .n-lrow .n-res svg {
+  margin-right: 0;
+}
+.report .page.neu .n-keys {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8mm;
+}
+.report .page.neu .n-k1 {
+  display: grid;
+  grid-template-columns: 8mm 1fr;
+  padding: 0.7mm 0;
+  border-top: 1px solid var(--n-line);
+}

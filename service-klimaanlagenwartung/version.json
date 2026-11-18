@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
+  "version": "2.3.1",
   "buildDate": "2026-11-18",
-  "changelog": "PDF-Bericht im neuen Papier-Design: Hauptwert, Verdampfer als Matrix, nummerierte Mängel und Auffälligkeiten"
+  "changelog": "PDF-Bericht: ab 6 Innengeräten Geräteliste statt Matrix (bis 15 Geräte)"
 }

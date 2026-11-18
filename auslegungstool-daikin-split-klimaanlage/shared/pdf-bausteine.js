@@ -215,6 +215,7 @@ function pdfBausteine() {
   const NCOL = { ok: '#1b7a3d', bad: '#b3400a', na: '#8a8a94' };
   const nRes = (k) =>
     `<span class="n-res ${k}">${icon(k, 13, NCOL[k])}${k === 'ok' ? 'i.O.' : k === 'bad' ? 'n.i.O.' : 'entf.'}</span>`;
+  const nResIcon = (k) => `<span class="n-res ${k}">${icon(k, 13, NCOL[k])}</span>`;
   // Wert mit Zahl: Schreibmaschinenschrift, Einheit klein und grau
   const NUM = /^[−-]?\d[\d.,]*(\s*\/\s*[−-]?\d[\d.,]*)*(\s+[A-Za-z°µ%/²³₂]+(\s+[A-Za-z₂]+)?)?$/;
   const nWert = (v) => {
@@ -274,6 +275,22 @@ function pdfBausteine() {
       .join('');
     return head + `<div class="n-rows">${body}</div>`;
   };
+  /* Geräteliste ab 6 Geräten (Gerät = Zeile): kopf [{t, u, c}], zeilen [[nr, raum, …Zellen als HTML]], fix = Breiten der festen Spalten nach Raum (z. B. '20mm 17mm') */
+  const nListe = (kopf, zeilen, fix = '') => {
+    const n = kopf.length - 2 - (fix ? fix.split(' ').length : 0);
+    const tpl = `grid-template-columns:6mm 30mm ${fix ? fix + ' ' : ''}repeat(${n},1fr)`;
+    const th = kopf
+      .map((c) => `<span${c.c ? ' class="c"' : ''}>${esc(c.t || '')}${c.u ? `<span class="n-u">${esc(c.u)}</span>` : ''}</span>`)
+      .join('');
+    const rows = zeilen
+      .map((z) => `<div class="n-lrow" style="${tpl}">${z.map((c, i) => `<span class="${i === 0 ? 'nr' : i === 1 ? 'n-raum' : ''}${kopf[i] && kopf[i].c ? ' c' : ''}">${c}</span>`).join('')}</div>`)
+      .join('');
+    return `<div class="n-th n-lth" style="${tpl}">${th}</div><div class="n-rows">${rows}</div>`;
+  };
+  /* Prüfpunkt-Verzeichnis zu den Nummern-Spalten: items [{nr, label}] in zwei Spalten */
+  const nSchluessel = (items) =>
+    `<div class="n-keys">${items.map((x) => `<div class="n-k1"><span class="nr">${esc(x.nr)}</span><span>${esc(x.label)}</span></div>`).join('')}</div>`;
+
   /* Mängelliste: items [{nr, titel, text}] */
   const nMaengel = (titel, items) =>
     `<div class="n-blk">${nSub(titel)}<div class="n-rows">${items.map((x) => `<div class="n-mangel${x.nr ? '' : ' one'}">${x.nr ? `<span class="nr">${esc(x.nr)}</span>` : ''}<span>${x.titel ? `<b>${esc(x.titel)}:</b> ` : ''}${esc(x.text)}</span></div>`).join('')}</div></div>`;
@@ -305,7 +322,7 @@ function pdfBausteine() {
     notiz,
     rechtstext,
     unterschrift,
-    nRes, nWert, nKopf, nKopfKlein, nHaupt, nAbschnitt, nSub, nZeilen, nPruef, nMatrix, nMaengel, nAuff, nHinweis, nUnterschrift, nFuss,
+    nRes, nResIcon, nWert, nKopf, nKopfKlein, nHaupt, nAbschnitt, nSub, nZeilen, nPruef, nMatrix, nListe, nSchluessel, nMaengel, nAuff, nHinweis, nUnterschrift, nFuss,
   };
 }
 /* ===== Ende Bausteine ===== */

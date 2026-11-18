@@ -536,7 +536,8 @@ function finalHtml(p, felder) {
             if (cl.length) {
               zeilenA.push({ sub: 'Prüfpunkte' });
             }
-            const maengel = [];
+            const maengel = [],
+              ev = [];
             cl.forEach((label, i) => {
               zeilenA.push({
                 nr: `${nr}.${i + 1}`,
@@ -544,6 +545,7 @@ function finalHtml(p, felder) {
                 zellen: parts.map((pt) => {
                   const x = find(pt, 'ck', label);
                   const k = x ? evalOf(x) : '';
+                  (ev[i] = ev[i] || [])[parts.indexOf(pt)] = k;
                   if (x && k === 'bad') {
                     const name = spalten[parts.indexOf(pt)];
                     auff.push({
@@ -584,15 +586,62 @@ function finalHtml(p, felder) {
                   }),
                 ),
             );
-            blocks.push({
-              html: B.nAbschnitt(
-                String(nr),
-                'Verdampfer',
-                B.nMatrix(spalten, zeilenA),
-                n > 1 ? `${n} Innengeräte` : '',
-              ),
-            });
-            if (zeilenB.length) {
+            if (n > 5) {
+              // Ab 6 Innengeräten: Gerät = Zeile, Prüfpunkte = Spalten (Nummern, Verzeichnis darüber); Messwerte als zweite Liste
+              const raum = (g) => esc(g.dev.raum || '');
+              const mkopf = [{ t: '' }, { t: 'Raum' }];
+              const hasMs = grp.some((g) => g.dev.modell || g.dev.sn);
+              if (hasMs) {
+                mkopf.push({ t: 'Modell' }, { t: 'S/N' });
+              }
+              cl.forEach((l, i) => mkopf.push({ t: `${nr}.${i + 1}`, c: 1 }));
+              const crow = grp.map((g, di) => {
+                const z = [String(g.dev.nr), raum(g)];
+                if (hasMs) {
+                  z.push(mono(g.dev.modell), mono(g.dev.sn));
+                }
+                cl.forEach((l, i) => z.push(ev[i][di] ? B.nResIcon(ev[i][di]) : ''));
+                return z;
+              });
+              blocks.push({
+                html: B.nAbschnitt(
+                  String(nr),
+                  'Verdampfer',
+                  (cl.length ? B.nSub('Prüfpunkte') + B.nSchluessel(cl.map((l, i) => ({ nr: `${nr}.${i + 1}`, label: l }))) + B.nSub('Ergebnis je Gerät') : '') +
+                    B.nListe(mkopf, crow, hasMs ? '20mm 17mm' : ''),
+                  `${n} Innengeräte`,
+                ),
+              });
+              // Spalten ohne Wert entfallen, lange Namen werden für die Spaltenköpfe gekürzt
+              const mlv = ml.filter((l) => parts.some((pt) => String((find(pt, 'fl', l) || {}).value ?? '').trim()));
+              const kurz = (l) =>
+                l
+                  .replace(/ am Verdampferaustritt/, '')
+                  .replace(/ Ein- \/ Austritt/, '')
+                  .replace('Lufteintrittstemperatur', 'Lufteintritt')
+                  .replace('Luftaustrittstemperatur', 'Luftaustritt')
+                  .replace('Verdampfungstemperatur', 'Verdampfung Temp.')
+                  .replace('Verdampfungsdruck', 'Verdampfung Druck');
+              if (mlv.length) {
+                const mk = [{ t: '' }, { t: 'Raum' }].concat(mlv.map((l) => ({ t: kurz(l) })));
+                const mrow = grp.map((g, di) => {
+                  const z = [String(g.dev.nr), raum(g)];
+                  mlv.forEach((l) => z.push(B.nWert((find(parts[di], 'fl', l) || {}).value)));
+                  return z;
+                });
+                blocks.push({ html: B.nAbschnitt(String(nr), 'Verdampfer', B.nListe(mk, mrow), 'Messwerte') });
+              }
+            } else {
+              blocks.push({
+                html: B.nAbschnitt(
+                  String(nr),
+                  'Verdampfer',
+                  B.nMatrix(spalten, zeilenA),
+                  n > 1 ? `${n} Innengeräte` : '',
+                ),
+              });
+            }
+            if (n <= 5 && zeilenB.length) {
               blocks.push({
                 html: B.nAbschnitt(
                   String(nr),
