@@ -390,26 +390,6 @@ textarea.text-input {
     background-color: var(--surface-inner-bg);
   }
 }
-/* iPhone/iPad: Datumsfeld hat sonst eine feste Mindestbreite und ragt über den Rand */
-input[type='date'] {
-  -webkit-appearance: none;
-  appearance: none;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  text-align: left;
-  margin: 0;
-}
-input[type='date']::-webkit-date-and-time-value {
-  text-align: left;
-  min-width: 0;
-  margin: 0;
-}
-input[type='date']::-webkit-datetime-edit {
-  padding: 0;
-  text-align: left;
-}
 /* Bericht-Vorschau (A4-Seiten) */
 .sheetwrap {
   padding: 1rem 0 1px;

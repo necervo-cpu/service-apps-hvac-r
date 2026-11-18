@@ -516,7 +516,7 @@ function buildCols(p) {
   return out;
 }
 
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.3.1';
 const BUILD_DATE = '2026-11-18';
 
       /* @@quelle:reportParts */
