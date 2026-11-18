@@ -126,7 +126,7 @@ const CHEV = MSR('expand_more').replace(
 );
 /* Feldbausteine: Beschriftung oben, Eingabe darunter */
 function fText(label, attr, value, ph, mode) {
-  return `<label class="field"><span class="field-label">${esc(label)}</span><span class="field-box"><input class="text-input" ${attr} value="${esc(value)}" placeholder="${esc(ph || '')}" autocomplete="off"${mode ? ` inputmode="${mode}"` : ''}></span></label>`;
+  return `<label class="field"><span class="field-label">${esc(label)}</span><span class="field-box"><input class="text-input" ${attr} value="${esc(value)}" autocomplete="off"${mode ? ` inputmode="${mode}"` : ''}></span></label>`;
 }
 /* Zahlenfeld mit „−“ und „+“ (.stepper); step = Schritt, min = untere Grenze (null = auch negativ) */
 function stepBtn(dir, label) {
@@ -135,7 +135,7 @@ function stepBtn(dir, label) {
 function fNum(label, attr, value, ph, unit, hint, hintId, step, min) {
   const st = step || 1;
   const mn = min === undefined ? 0 : min;
-  return `<div class="field"><span class="field-label">${esc(label)}</span><span class="control-slide num-row" data-step="${st}" data-min="${mn === null ? '' : mn}">${stepBtn(-1, label)}<span class="field-box input-wrapper"><input class="glass-input" ${attr} inputmode="decimal" value="${esc(value)}" placeholder="${esc(ph || '')}" aria-label="${esc(label)}" autocomplete="off"><span class="input-unit-addon">${esc(unit)}</span></span>${stepBtn(1, label)}</span>${hint || hintId ? `<span class="field-hint"${hintId ? ` id="${hintId}"` : ''}>${esc(hint || '')}</span>` : ''}</div>`;
+  return `<div class="field"><span class="field-label">${esc(label)}</span><span class="control-slide num-row" data-step="${st}" data-min="${mn === null ? '' : mn}">${stepBtn(-1, label)}<span class="field-box input-wrapper"><input class="glass-input" ${attr} inputmode="decimal" value="${esc(value)}" aria-label="${esc(label)}" autocomplete="off"><span class="input-unit-addon">${esc(unit)}</span></span>${stepBtn(1, label)}</span>${hint || hintId ? `<span class="field-hint"${hintId ? ` id="${hintId}"` : ''}>${esc(hint || '')}</span>` : ''}</div>`;
 }
 /* Auswahl: Pills, ab mehr als 3 Optionen macht initChoiceDropdowns() ein Dropdown daraus */
 function fSel(label, f, opts, current) {
@@ -180,7 +180,7 @@ r.typ,
     ${fSel('Serie', 'serie', [{ v: '', l: 'beliebig' }].concat(serien.map((x) => ({ v: x, l: x }))), r.serie)}
     ${fSel('Modell', 'modell', [{ v: '', l: 'Automatisch (passend zum Bedarf)' }].concat(modelle.map((x) => ({ v: x.modell, l: `${x.modell}, ${fmt(x.kw)} kW` }))), r.modell)}
     ${fNum('Rohrlänge zum Außengerät', 'data-f="rohr"', r.rohr, 'einfache Länge', 'm', '', '', 1)}
-    <div class="field"><label class="field-label" for="hoehe${i}">Höhe Innengerät zum Außengerät</label><div class="control-slide num-row" data-step="1" data-min="">${stepBtn(-1, 'Höhe')}<span class="field-box input-wrapper"><input class="glass-input" id="hoehe${i}" data-f="hoehe" inputmode="text" value="${esc(r.hoehe)}" placeholder="0 = gleiche Ebene" autocomplete="off"><span class="input-unit-addon">m</span></span>${stepBtn(1, 'Höhe')}</div><button type="button" class="btn-tonal sign-btn" data-act="sign" aria-label="Vorzeichen wechseln">+ / −</button><span class="field-hint">+ = Innengerät höher, − = tiefer als Außengerät</span></div>
+    <div class="field"><label class="field-label" for="hoehe${i}">Höhe Innengerät zum Außengerät</label><div class="control-slide num-row" data-step="1" data-min="">${stepBtn(-1, 'Höhe')}<span class="field-box input-wrapper"><input class="glass-input" id="hoehe${i}" data-f="hoehe" inputmode="text" value="${esc(r.hoehe)}" autocomplete="off"><span class="input-unit-addon">m</span></span>${stepBtn(1, 'Höhe')}</div><button type="button" class="btn-tonal sign-btn" data-act="sign" aria-label="Vorzeichen wechseln">+ / −</button><span class="field-hint">+ = Innengerät höher, − = tiefer als Außengerät</span></div>
     <div class="pick-line" id="pick${i}"></div>
     ${p.rooms.length > 1 ? `<button type="button" class="btn-danger" data-act="delroom" data-i="${i}">Raum ${i + 1} entfernen</button>` : ''}
   </div></div></div></div>`;

@@ -168,7 +168,7 @@ ${p && !p.synced ? '<p class="lead-note">' + chip('orange', 'nicht in der Datenb
 ${zaehler ? `<div class="count-pills">${zaehler}</div>` : ''}
 <label class="search">
   <span class="material-symbols-rounded" aria-hidden="true">search</span>
-  <input id="dbsearch" type="search" placeholder="Logbuch-Nr., Betreiber, Ort, Anlage" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
+  <input id="dbsearch" type="search" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
 </label>
 <div id="dblist">${dbList()}</div>`;
   },
@@ -269,21 +269,21 @@ function fieldHtml(f, c) {
     case 'number': {
       const neg = f.min != null && f.min < 0;
       return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}${hint}</label>
-    <div class="field-box input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
+    <div class="field-box input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
     }
     case 'auto': {
       const datum = f.input === 'date';
       const modus = f.unit || f.id === 'gwp' ? 'decimal' : 'text';
       return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}</label>
-    <div class="field-box input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" ${datum ? 'type="date"' : `inputmode="${modus}" autocomplete="off"`} value="${esc(x)}" placeholder="${esc(f.ph || '')}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>
+    <div class="field-box input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" ${datum ? 'type="date"' : `inputmode="${modus}" autocomplete="off"`} value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>
     <small class="field-hint${v['_m_' + f.id] ? ' is-manual' : ''}" id="note-${f.id}">${esc(autoNote(f, c))}</small>${errHtml}</div>`;
     }
     case 'date':
       return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}"></span>${errHtml}</label>`;
     case 'longtext':
-      return `<label class="field"><span class="field-label">${esc(f.label)}${hint}</span><span class="field-box"><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></span></label>`;
+      return `<label class="field"><span class="field-label">${esc(f.label)}${hint}</span><span class="field-box"><textarea class="text-input" id="in-${f.id}" data-f="${f.id}">${esc(x)}</textarea></span></label>`;
     default:
-      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off"></span>${errHtml}</label>`;
+      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" autocomplete="off"></span>${errHtml}</label>`;
   }
 }
 function autoNote(f, c) {

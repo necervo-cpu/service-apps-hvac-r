@@ -8,7 +8,6 @@ const SETTINGS_FIELDS = [
     id: 's_tech',
     key: 'techniker',
     label: 'Monteur (Vorbelegung)',
-    placeholder: 'C.Geuther',
   },
 ];
 let settings = Object.assign(
@@ -496,7 +495,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.2.8';
+const APP_VERSION = '2.2.9';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -574,7 +573,7 @@ function openSettings() {
     (f) => `
       <div class="form-group">
         <label class="form-label" for="${f.id}">${esc(f.label)}</label>
-        <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}" autocomplete="off"></div>
+        <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" autocomplete="off"></div>
       </div>`,
   ).join('');
   syncThemeUi();

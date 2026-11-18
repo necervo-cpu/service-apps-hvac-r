@@ -13,13 +13,11 @@ const SETTINGS_FIELDS = [
     id: 's_tech',
     key: 'techniker',
     label: 'Sachkundiger (Vorbelegung)',
-    placeholder: 'C.Geuther',
   },
   {
     id: 's_zert',
     key: 'zert',
     label: 'Zertifikatsnummer des Sachkundigen (Vorbelegung)',
-    placeholder: 'Nummer des Sachkunde-Zertifikats',
   },
 ];
 let books = LS.get('alb.books', []);
@@ -520,7 +518,7 @@ function nextSub(s) {
   return s.next && dueState(s.next) ? 'Nächste Prüfung ' + fmtDate(s.next) : '';
 }
 
-const APP_VERSION = '2.2.2';
+const APP_VERSION = '2.2.3';
 const BUILD_DATE = '2026-11-18';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
@@ -598,7 +596,7 @@ function openSettings() {
     (f) => `
       <div class="form-group">
         <label class="form-label" for="${f.id}">${esc(f.label)}</label>
-        <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" placeholder="${esc(f.placeholder)}" autocomplete="off"></div>
+        <div class="liquid-surface-inner field-box"><input class="text-input" id="${f.id}" type="text" value="${esc(settings[f.key])}" autocomplete="off"></div>
       </div>`,
   ).join('');
   syncThemeUi();

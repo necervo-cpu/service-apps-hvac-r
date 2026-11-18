@@ -200,7 +200,7 @@ ${p && !p.synced ? '<p class="lead-note"><span class="status-pill status-pill--o
 <p class="lead-note">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)}, ${dbCache.list.length} Einträge. Zum Öffnen einer Kalkulation wird Internet benötigt.` : 'Noch nicht geladen. „Aus Datenbank laden“ ruft die Kalkulationsliste ab.'}</p>
 <label class="search">
   <span class="material-symbols-rounded" aria-hidden="true">search</span>
-  <input id="dbsearch" type="search" placeholder="Projekt-Nr., Kunde, Standort, Datum" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
+  <input id="dbsearch" type="search" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
 </label>
 <div id="dblist">${dbList()}</div>`;
   },
@@ -253,7 +253,7 @@ function settingsBody() {
   const feld = (id, label, wert, ph, extra) => `
     <div class="form-group">
       <label class="form-label" for="${id}">${esc(label)}</label>
-      <div class="field-box"><input class="text-input" id="${id}" type="text" value="${esc(wert)}" placeholder="${esc(ph || '')}" ${extra || ''} autocomplete="off"></div>
+      <div class="field-box"><input class="text-input" id="${id}" type="text" value="${esc(wert)}" ${extra || ''} autocomplete="off"></div>
     </div>`;
   return `
 <div class="form-group">
@@ -274,7 +274,7 @@ function settingsBody() {
 <div class="form-group">
   <div class="card-title">Allgemein</div>
   <label class="form-label" for="s_firma">Firmenkopf im PDF (mehrzeilig möglich)</label>
-  <div class="field-box"><textarea class="text-input" id="s_firma" rows="3" placeholder="Firmenname, Straße, PLZ Ort, Telefon">${esc(settings.firma)}</textarea></div>
+  <div class="field-box"><textarea class="text-input" id="s_firma" rows="3">${esc(settings.firma)}</textarea></div>
   ${feld('s_tech', 'Erstellt von (Vorbelegung)', settings.techniker, 'C. Geuther')}
 </div>
 
@@ -435,7 +435,7 @@ function dbList() {
 /* ---------- Eingabefelder ---------- */
 function textField(p, id, label, ph, hint) {
   return `<label class="field"><span class="field-label">${esc(label)}${hint ? `<small class="field-hint">${esc(hint)}</small>` : ''}</span>
-    <span class="field-box"><input class="text-input" id="in-${id}" data-f="${id}" value="${esc(p.values[id] ?? '')}" placeholder="${esc(ph || '')}" autocomplete="off"></span></label>`;
+    <span class="field-box"><input class="text-input" id="in-${id}" data-f="${id}" value="${esc(p.values[id] ?? '')}" autocomplete="off"></span></label>`;
 }
 function stepField(p, id, label, unit, opt) {
   opt = opt || {};
@@ -450,7 +450,7 @@ function stepField(p, id, label, unit, opt) {
     opt.noStep
       ? ''
       : `<button type="button" class="stepper" data-act="step" data-f="${id}" data-dir="${richtung}" data-step="${schritt}" data-base="${esc(opt.ph ?? '0')}" aria-label="${esc(label)} ${text}"><span class="material-symbols-rounded" aria-hidden="true">${symbol}</span></button>`;
-  return `<div class="meas-wrap num-field"><label class="meas-label" for="in-${id}">${esc(label)}${opt.hint ? `<small>${esc(opt.hint)}</small>` : ''}</label><div class="control-slide num-row">${knopf(-1, 'remove', 'verringern')}<span class="vwrap"><input class="value-input numeric" id="in-${id}" data-f="${id}" inputmode="decimal" autocomplete="off" value="${esc(p.values[id] ?? '')}" placeholder="${esc(opt.ph ?? '0')}"><span class="input-unit-addon">${esc(unit || '')}</span></span>${knopf(1, 'add', 'erhöhen')}</div>${autoTxt}</div>`;
+  return `<div class="meas-wrap num-field"><label class="meas-label" for="in-${id}">${esc(label)}${opt.hint ? `<small>${esc(opt.hint)}</small>` : ''}</label><div class="control-slide num-row">${knopf(-1, 'remove', 'verringern')}<span class="vwrap"><input class="value-input numeric" id="in-${id}" data-f="${id}" inputmode="decimal" autocomplete="off" value="${esc(p.values[id] ?? '')}"><span class="input-unit-addon">${esc(unit || '')}</span></span>${knopf(1, 'add', 'erhöhen')}</div>${autoTxt}</div>`;
 }
 function autoLine(p, id, hint) {
   return p.manual && p.manual[id]
@@ -506,7 +506,7 @@ ${stepField(p, 'anzHelfer', 'Anzahl Helfer / Azubis', 'Pers.', { hint: `Stundens
       custom = km && !list.includes(km);
     return `<div class="group group--form">
 <div class="field"><span class="field-label">Kältemittel</span>
-  <div class="field-box"><input class="text-input" id="in-km" data-f="km" data-other="1" aria-label="Anderes Kältemittel" placeholder="oder anderes Kältemittel eintippen …" value="${custom ? esc(km) : ''}" autocomplete="off"></div>
+  <div class="field-box"><input class="text-input" id="in-km" data-f="km" data-other="1" aria-label="Anderes Kältemittel" value="${custom ? esc(km) : ''}" autocomplete="off"></div>
   <div class="tab-strip" role="group" aria-label="Kältemittel">${list.map((o) => `<button type="button" class="tab-pill" data-act="set" data-f="km" data-v="${esc(o)}" aria-selected="${km === o}">${esc(o)}</button>`).join('')}</div></div>
 ${stepField(p, 'gwp', 'GWP-Wert', '', { hint: 'Treibhauspotenzial', autoHint: 'aus der Kältemittel-Liste', ph: '', noStep: true })}
 ${stepField(p, 'menge', 'Füllmenge je Kältekreis', 'kg', { hint: 'Typenschild Außengerät / Anlagenbuch' })}
@@ -543,7 +543,7 @@ ${stepField(p, 'sonderPreis', 'Betrag', '€ netto')}
     <div class="group"><div class="info-list" id="result">${resultHtml(p, calc(p))}</div></div>
     <div class="group group--form">
 ${segField(p, 'pauschal', 'Pauschalangebot für den Kunden', 'Ja = PDF als „Angebot“ ohne Arbeitszeiten und Einzelpreise. Nein = interne Kalkulation.')}
-<label class="field"><span class="field-label">Bemerkungen (erscheinen im PDF)</span><span class="field-box"><textarea class="text-input" id="in-bem" data-f="bem" placeholder="Hinweise zum Zugang, Termin, Ausführung">${esc(p.values.bem || '')}</textarea></span></label>
+<label class="field"><span class="field-label">Bemerkungen (erscheinen im PDF)</span><span class="field-box"><textarea class="text-input" id="in-bem" data-f="bem">${esc(p.values.bem || '')}</textarea></span></label>
     </div>
     <div class="notice"><span><b>Wichtig:</b> Die Kalkulation ist eine Orientierungshilfe und kann Berechnungs- oder Eingabefehler enthalten. Vor Weitergabe oder Angebotslegung auf Plausibilität, Richtigkeit und Vollständigkeit prüfen.</span></div>`;
   },

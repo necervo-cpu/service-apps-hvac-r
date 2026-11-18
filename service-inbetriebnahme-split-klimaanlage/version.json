@@ -1,5 +1,5 @@
 {
-  "version": "2.2.3",
+  "version": "2.2.4",
   "buildDate": "2026-11-18",
-  "changelog": "Kalender-Icon im Datumsfeld rechtsbündig"
+  "changelog": "Icons Bearbeiten/Löschen vereinheitlicht, Platzhaltertexte entfernt"
 }

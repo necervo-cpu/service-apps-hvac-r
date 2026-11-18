@@ -184,6 +184,16 @@
       .proto-act.is-danger {
         color: var(--system-red);
       }
+      /* Aktions-Icons in Listenzeilen: 25px, Tippfläche 48×48 (EINGABEFELDER.md) */
+      .proto-act,
+      .matrow .icon-btn {
+        width: 48px;
+        height: 48px;
+      }
+      .proto-act .material-symbols-rounded,
+      .matrow .icon-btn .material-symbols-rounded {
+        font-size: 25px;
+      }
       .proto-pills {
         display: flex;
         flex-wrap: wrap;
@@ -573,7 +583,6 @@
                 class="text-input"
                 id="s_url"
                 type="text"
-                placeholder="https://script.google.com/macros/s/…/exec"
                 autocapitalize="off"
                 autocorrect="off"
                 autocomplete="off"
@@ -600,7 +609,6 @@
                 class="text-input"
                 id="s_firma"
                 rows="3"
-                placeholder="Firmenname, Straße, PLZ Ort, Telefon"
               ></textarea>
             </div>
             <div id="settingsFields"></div>
@@ -642,7 +650,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.2</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v2.2.3</span>
                 </span>
               </div>
               <div class="info-row">

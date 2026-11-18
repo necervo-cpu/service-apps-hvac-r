@@ -110,6 +110,16 @@ body.in-wizard .net:not(.off) {
 .proto-act.is-danger {
   color: var(--system-red);
 }
+/* Aktions-Icons in Listenzeilen: 25px, Tippfläche 48×48 (EINGABEFELDER.md) */
+.proto-act,
+.matrow .icon-btn {
+  width: 48px;
+  height: 48px;
+}
+.proto-act .material-symbols-rounded,
+.matrow .icon-btn .material-symbols-rounded {
+  font-size: 25px;
+}
 .proto-pills {
   display: flex;
   flex-wrap: wrap;

@@ -84,7 +84,7 @@ ${p && !p.synced ? '<p class="lead-note"><span class="status-pill status-pill--o
 <p class="lead-note">${dbCache.at ? `Stand ${fmtDateTime(dbCache.at)}, ${dbCache.list.length} Einträge. Zum Öffnen eines Protokolls wird Internet benötigt.` : 'Noch nicht geladen. „Aus Datenbank laden“ ruft die Protokollliste ab.'}</p>
 <label class="search">
   <span class="material-symbols-rounded" aria-hidden="true">search</span>
-  <input id="dbsearch" type="search" placeholder="Projekt-Nr., Kunden-Nr., Anlage, Monteur, Datum" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
+  <input id="dbsearch" type="search" aria-label="Datenbank durchsuchen" autocomplete="off" value="${esc(view.q || '')}">
 </label>
 <div id="dblist">${dbList()}</div>`;
   },
@@ -199,7 +199,7 @@ function mangelNote(f, v, offen) {
   if (!kind) {
     return '';
   }
-  return `<div class="check-note"><div><span class="field-box field-box--note"><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" placeholder="${esc(kind.ph || '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></span></div></div>`;
+  return `<div class="check-note"><div><span class="field-box field-box--note"><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></span></div></div>`;
 }
 
 function fieldHtml(f, p) {
@@ -249,7 +249,7 @@ function fieldHtml(f, p) {
         ? `<div class="tab-strip" role="group" aria-label="${esc(f.label)}"${schnell}>${optionen(f.opts, 'pill')}</div>`
         : `<div class="segmented-control" role="group" aria-label="${esc(f.label)}"${schnell}>${optionen(f.opts, 'seg')}</div>`;
       const eingabe = f.other
-        ? `<div class="field-box"><input class="text-input" id="in-${f.id}-o" aria-label="${esc(f.label)}" data-f="${f.id}" data-other="1" placeholder="Wert eintragen" value="${esc(x)}" autocomplete="off"></div>`
+        ? `<div class="field-box"><input class="text-input" id="in-${f.id}-o" aria-label="${esc(f.label)}" data-f="${f.id}" data-other="1" value="${esc(x)}" autocomplete="off"></div>`
         : '';
       return `<div class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span>${eingabe}${auswahl}</div>`;
     }
@@ -260,7 +260,7 @@ function fieldHtml(f, p) {
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}" placeholder="${esc(f.ph || '')}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }
@@ -269,9 +269,9 @@ function fieldHtml(f, p) {
     case 'date':
       return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" type="date" data-f="${f.id}" value="${esc(x)}"></span>${errHtml}</label>`;
     case 'longtext':
-      return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><textarea class="text-input" id="in-${f.id}" data-f="${f.id}" placeholder="${esc(f.ph || '')}">${esc(x)}</textarea></span></label>`;
+      return `<label class="field"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><textarea class="text-input" id="in-${f.id}" data-f="${f.id}">${esc(x)}</textarea></span></label>`;
     default:
-      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" placeholder="${esc(f.ph || '')}" autocomplete="off"></span>${errHtml}</label>`;
+      return `<label class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span><span class="field-box"><input class="text-input" id="in-${f.id}" data-f="${f.id}" value="${esc(x)}" autocomplete="off"></span>${errHtml}</label>`;
   }
 }
 
