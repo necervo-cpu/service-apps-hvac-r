@@ -68,6 +68,13 @@ const TEMPLATE = {
           ph: 'KD-98101',
         },
         {
+          id: 'zust',
+          col: 'Zuständigkeit',
+          label: 'Zuständigkeit der Anlage',
+          type: 'text',
+          ph: 'Klimaanlage Büro',
+        },
+        {
           id: 'datum',
           col: 'Datum',
           label: 'Datum',

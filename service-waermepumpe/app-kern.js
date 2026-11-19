@@ -200,7 +200,11 @@ function buildReport(p) {
   const rowsOf = (pg) =>
     pg.fields
       .filter(
-        (f) => !f.parent && !(f.wide && !v[f.id]) && !(f.show && !f.show(v) && !v[f.id]),
+        (f) =>
+          !f.parent &&
+          !(f.wide && !v[f.id]) &&
+          !(f.show && !f.show(v) && !v[f.id]) &&
+          !(f.opt && !String(v[f.id] ?? '').trim()),
       )
       .map((f) => ({
         label: f.pdf || f.label,
@@ -496,8 +500,8 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '2.3.0';
-const BUILD_DATE = '2026-11-18';
+const APP_VERSION = '2.4.0';
+const BUILD_DATE = '2026-11-19';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

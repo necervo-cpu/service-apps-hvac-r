@@ -1,5 +1,5 @@
 {
-  "version": "2.3.1",
-  "buildDate": "2026-11-18",
-  "changelog": "PDF-Bericht: ab 6 Innengeräten Geräteliste statt Matrix (bis 15 Geräte)"
+  "version": "2.4.0",
+  "buildDate": "2026-11-19",
+  "changelog": "PDF ohne Gesamtbewertung, neues Feld Zuständigkeit der Anlage, VDMA-Prüfpunkte ergänzt"
 }

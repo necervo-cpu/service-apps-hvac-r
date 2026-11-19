@@ -384,14 +384,12 @@ function finalHtml(p, felder) {
           return { date: `${p2(d)}.${p2(mo0 + 1)}.${y}`, sub: 'jährliche Wartung' };
         })();
 
-        // Hauptwert: Gesamtbewertung (einmal), daneben Datum und Monteur
+        // Hauptwert: nächste Wartung (die Gesamtbewertung steht nicht im Bericht), daneben Datum und Monteur
         blocks.push({
           html: B.nHaupt({
-            label: r.resultLabel || 'Wartung erfolgreich',
-            wert: shown(res),
-            art: good ? 'ok' : bad ? 'bad' : '',
-            pill: good ? 'in Ordnung' : bad ? 'nicht in Ordnung' : '',
-            sub: [r.successMangel].concat(subs).filter(Boolean).join('\n'),
+            label: 'Nächste Wartung',
+            wert: nextDue.date,
+            sub: [nextDue.sub].concat(subs).filter(Boolean).join('\n'),
             spalten: [
               { label: 'Datum', wert: tileDate },
               { label: 'Monteur / Prüfer', wert: r.techniker },
@@ -496,10 +494,6 @@ function finalHtml(p, felder) {
           blocks.push({ html: B.nAuff(liste) });
         }
         const abschluss = [
-          {
-            label: 'Nächste Wartung',
-            value: [nextDue.date, nextDue.sub].filter(Boolean).join(', '),
-          },
           { label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark },
         ];
         blocks.push({ html: B.nAbschnitt('', 'Wartungsabschluss', B.nZeilen(abschluss)) });
@@ -525,7 +519,7 @@ function finalHtml(p, felder) {
         const kunde =
             (header.find((x) => /^kunden[ -]?nr/i.test(x.label) && x.value) || {}).value ||
             hv(/kunde|betreiber/i),
-          anlage = hv(/anlage|modell/i);
+          anlage = hv(/^(?!zuständigkeit)(.*anlage|.*modell)/i);
         const titelZeilen = [kicker ? nice(kicker) : '', h1].filter(Boolean);
         return {
           blocks,

@@ -450,14 +450,12 @@ function finalHtml(p, felder) {
           };
         })();
 
-        // Hauptwert: Gesamtergebnis, daneben Datum und Monteur
+        // Hauptwert: nächste Wartung (die Gesamtbewertung steht nicht im Bericht), daneben Datum und Monteur
         blocks.push({
           html: B.nHaupt({
-            label: r.resultLabel || 'Wartung erfolgreich',
-            wert: shown(res),
-            art: good ? 'ok' : bad ? 'bad' : '',
-            pill: good ? 'in Ordnung' : bad ? 'nicht in Ordnung' : '',
-            sub: [r.successMangel].concat(other).filter(Boolean).join('\n'),
+            label: 'Nächste Wartung',
+            wert: nextDue.date,
+            sub: [nextDue.sub].concat(other).filter(Boolean).join('\n'),
             spalten: [
               { label: 'Datum', wert: tileDate },
               { label: 'Monteur / Prüfer', wert: r.techniker },
@@ -495,6 +493,63 @@ function finalHtml(p, felder) {
             ck: all.filter(isCheck),
             fl: all.filter((x) => !isCheck(x) && !(measEmpty && meas.has(x))),
           };
+        };
+
+        // Titel einer Seite: „Wärmetauscher • Verflüssiger (Luft / Kältemittel)“ → Titel „Verflüssiger“, Zusatz „Luft / Kältemittel“
+        const teilOf = (s) => {
+          const tt = String(s.title || '').split(' • ').pop(),
+            tm = tt.match(/^(.*?)\s*\((.*)\)$/);
+          return { titel: tm ? tm[1] : tt, zusatz: tm ? tm[2] : '' };
+        };
+        // Inhalt einer Seite: Zeilen und Prüfpunkte je Gruppe; Nummern ab start + 1, Auffälligkeiten mit Seitentitel
+        const teilBody = (s, nr, start, titel) => {
+          const { ck, fl } = split(s);
+          const groups = [];
+          // Reihenfolge der Gruppen: bei Seiten mit „Prüfpunkte“ zuerst die Prüfpunkte, sonst zuerst die Messwerte
+          const reihe = ck.some((x) => x.group === 'Prüfpunkte') ? ck.concat(fl) : fl.concat(ck);
+          reihe.forEach((x) => {
+            const g = x.group || '';
+            let e = groups.find((q) => q.g === g);
+            if (!e) {
+              e = { g, rows: [], chk: [] };
+              groups.push(e);
+            }
+            (isCheck(x) ? e.chk : e.rows).push(x);
+          });
+          let body = '';
+          if (s.table && s.table.body && s.table.body.length) {
+            const t = s.table;
+            body += B.nMatrix(
+              t.head.slice(1).map((h) => ({ titel: h })),
+              t.body.map((b) => ({
+                label: b.label,
+                zellen: b.cells.map((c) => {
+                  const k = c.eval && c.eval !== 'none' ? c.eval : '';
+                  return k === 'ok' || k === 'bad' || k === 'na' ? B.nRes(k) : B.nWert(c.value);
+                }),
+              })),
+            );
+          }
+          let count = start,
+            kopfZeigen = true;
+          groups.forEach((e) => {
+            const items = checkItems(e.chk, nr);
+            items.forEach((x, i) => {
+              if (x.eval === 'bad') {
+                auff.push({ nr: `${nr}.${count + i + 1}`, text: `${titel} – ${x.label}: n.i.O.` });
+              }
+            });
+            const kopf = groups.length > 1 && e.g && e.g !== 'Prüfpunkte' ? B.nSub(e.g) : '';
+            const zeilen = e.rows.length ? B.nZeilen(e.rows) : '';
+            const pruef = items.length ? B.nPruef(items, nr, count, kopfZeigen) : '';
+            count += items.length;
+            if (items.length) {
+              kopfZeigen = false;
+            }
+            // Prüfpunkte zuerst, wenn die Gruppe ohne Namen ist oder „Prüfpunkte“ heißt, sonst erst die Messwerte
+            body += kopf + (!e.g || e.g === 'Prüfpunkte' ? pruef + zeilen : zeilen + pruef);
+          });
+          return { body, count };
         };
 
         const secs = r.sections || [];
@@ -657,62 +712,28 @@ function finalHtml(p, felder) {
             continue;
           }
           // Normale Seite: Zeilen und Prüfpunkte je Gruppe (Titel: „Wärmetauscher • Verflüssiger (Luft / Kältemittel)“ → „Verflüssiger“, Zusatz „Luft / Kältemittel“)
-          const nr = ++no,
-            { ck, fl } = split(s);
-          const tt = String(s.title || '').split(' • ').pop(),
-            tm = tt.match(/^(.*?)\s*\((.*)\)$/),
-            titel = tm ? tm[1] : tt;
-          const groups = [];
-          // Reihenfolge der Gruppen: bei Seiten mit „Prüfpunkte“ zuerst die Prüfpunkte, sonst zuerst die Messwerte
-          const reihe = ck.some((x) => x.group === 'Prüfpunkte') ? ck.concat(fl) : fl.concat(ck);
-          reihe.forEach((x) => {
-            const g = x.group || '';
-            let e = groups.find((q) => q.g === g);
-            if (!e) {
-              e = { g, rows: [], chk: [] };
-              groups.push(e);
-            }
-            (isCheck(x) ? e.chk : e.rows).push(x);
-          });
-          let body = '';
-          if (s.table && s.table.body && s.table.body.length) {
-            const t = s.table;
-            body += B.nMatrix(
-              t.head.slice(1).map((h) => ({ titel: h })),
-              t.body.map((b) => ({
-                label: b.label,
-                zellen: b.cells.map((c) => {
-                  const k = c.eval && c.eval !== 'none' ? c.eval : '';
-                  return k === 'ok' || k === 'bad' || k === 'na' ? B.nRes(k) : B.nWert(c.value);
-                }),
-              })),
-            );
+          const nr = ++no;
+          const teil = teilOf(s);
+          // Verdichter und Verflüssiger stehen gemeinsam unter „Außeneinheit“, Nummern laufen durch (2.1 … 2.n)
+          const folge = secs[si + 1] && !secs[si + 1].dev ? teilOf(secs[si + 1]) : null;
+          if (teil.titel === 'Verdichter' && folge && folge.titel === 'Verflüssiger') {
+            si++;
+            const t1 = teilBody(s, nr, 0, teil.titel);
+            const t2 = teilBody(secs[si], nr, t1.count, folge.titel);
+            const kopfT = (t) => `<div class="n-teil">${esc(t.titel)}${t.zusatz ? `<span class="n-cnt">${esc(t.zusatz)}</span>` : ''}</div>`;
+            const leer = '<div class="n-sub">Keine Angaben</div>';
+            // zwei Blöcke, damit der Verflüssiger allein auf die Folgeseite rutschen kann
+            blocks.push({ html: B.nAbschnitt(String(nr), 'Außeneinheit', kopfT(teil) + (t1.body || leer)) });
+            blocks.push({ html: `<div class="n-sec n-sec--teil">${kopfT(folge) + (t2.body || leer)}</div>` });
+            continue;
           }
-          let count = 0,
-            kopfZeigen = true;
-          groups.forEach((e) => {
-            const items = checkItems(e.chk, nr);
-            items.forEach((x, i) => {
-              if (x.eval === 'bad') {
-                auff.push({ nr: `${nr}.${count + i + 1}`, text: `${titel} – ${x.label}: n.i.O.` });
-              }
-            });
-            const kopf = groups.length > 1 && e.g && e.g !== 'Prüfpunkte' ? B.nSub(e.g) : '';
-            const zeilen = e.rows.length ? B.nZeilen(e.rows) : '';
-            const pruef = items.length ? B.nPruef(items, nr, count, kopfZeigen) : '';
-            count += items.length;
-            if (items.length) {
-              kopfZeigen = false;
-            }
-            // Prüfpunkte zuerst, wenn die Gruppe ohne Namen ist oder „Prüfpunkte“ heißt, sonst erst die Messwerte
-            body += kopf + (!e.g || e.g === 'Prüfpunkte' ? pruef + zeilen : zeilen + pruef);
-          });
+          const tb = teilBody(s, nr, 0, teil.titel);
           blocks.push({
             html: B.nAbschnitt(
               String(nr),
-              titel,
-              body || '<div class="n-sub">Keine Angaben</div>',
-              tm ? tm[2] : '',
+              teil.titel,
+              tb.body || '<div class="n-sub">Keine Angaben</div>',
+              teil.zusatz,
             ),
           });
         }
@@ -726,13 +747,8 @@ function finalHtml(p, felder) {
               : defects.map((d) => ({ nr: '', text: String(d).replace(/: Mangel$/, ': n.i.O.') }));
           blocks.push({ html: B.nAuff(liste) });
         }
-        const abschluss = [
-          {
-            label: 'Nächste Wartung',
-            value: [nextDue.date, nextDue.sub].filter(Boolean).join(', '),
-          },
-          { label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark },
-        ];
+        // Nächste Wartung steht im Hauptwert
+        const abschluss = [{ label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark }];
         blocks.push({ html: B.nAbschnitt('', 'Wartungsabschluss', B.nZeilen(abschluss)) });
         if (r.hinweis) {
           blocks.push({ html: B.nHinweis([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
@@ -756,7 +772,7 @@ function finalHtml(p, felder) {
         const kunde =
             (header.find((x) => /^kunden nr/i.test(x.label) && x.value) || {}).value ||
             hv(/kunde|betreiber/i),
-          anlage = hv(/anlage|modell/i);
+          anlage = hv(/^(?!zuständigkeit)(.*anlage|.*modell)/i);
         const titelZeilen = [kicker ? nice(kicker) : '', h1].filter(Boolean);
         return {
           blocks,

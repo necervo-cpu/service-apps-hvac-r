@@ -103,6 +103,13 @@ const TEMPLATE = {
       short: 'Anlage',
       fields: [
         {
+          id: 'zust',
+          col: 'Zuständigkeit',
+          label: 'Zuständigkeit der Anlage',
+          type: 'text',
+          ph: 'Heizung und Warmwasser Wohnhaus',
+        },
+        {
           id: 'agModell',
           col: 'Außeneinheit Modell',
           label: 'Außeneinheit Modell',
@@ -441,6 +448,14 @@ const TEMPLATE = {
           'Reinigung heizungsseitiger Filter (AG)',
           'Schmutzfänger / Sieb (v. a. Monoblock)',
         ),
+        ok(
+          'agAbtau',
+          'Außeneinheit Abtauung',
+          'Abtauung auf Funktion geprüft',
+          'Abtauung und Tauwasserablaufheizung auf Funktion prüfen',
+          'Abtauzyklus beobachten oder im Servicemenü auslösen; Sole-WP: „entfällt“',
+          false,
+        ),
       ],
     },
     {
@@ -504,6 +519,22 @@ const TEMPLATE = {
           'Opferanode prüfen',
           'Opferanode im Trinkwasserspeicher prüfen',
           'Fremdstromanode / Magnesiumanode',
+          false,
+        ),
+        ok(
+          'sichGr',
+          'Sicherheitsgruppe Trinkwasser',
+          'Sicherheitsgruppe Trinkwasser',
+          'Sicherheitsgruppe auf Funktion prüfen (Trinkwasser)',
+          'Sicherheitsventil anlüften, Rückflussverhinderer prüfen',
+          false,
+        ),
+        ok(
+          'druckMind',
+          'Druckminderer Trinkwasser',
+          'Druckminderer Trinkwasser',
+          'Druckminderer auf Funktion prüfen (Trinkwasser)',
+          'Hinterdruck ablesen, ggf. nachstellen; kein Druckminderer: „entfällt“',
           false,
         ),
         ok(
@@ -697,6 +728,91 @@ const TEMPLATE = {
           max: 32,
           hint: '0 A bei 1-phasiger Versorgung',
         },
+        {
+          id: 'kkP0',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Verdampfungsdruck Überdruck (bar)',
+          label: 'Verdampfungsdruck (Überdruck)',
+          type: 'number',
+          unit: 'bar',
+          min: -1,
+          max: 60,
+          ph: '7,5',
+          hint: 'Optional, nur mit Serviceanschluss oder Anzeige im Servicemenü',
+        },
+        {
+          id: 'kkT0',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Verdampfungstemperatur (°C)',
+          label: 'Verdampfungstemperatur',
+          type: 'number',
+          unit: '°C',
+          min: -40,
+          max: 30,
+          ph: '-5',
+        },
+        {
+          id: 'kkTs',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Sauggastemperatur (°C)',
+          label: 'Sauggastemperatur',
+          type: 'number',
+          unit: '°C',
+          min: -40,
+          max: 40,
+          ph: '2',
+        },
+        {
+          id: 'kkUeh',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Überhitzung (K)',
+          label: 'Überhitzung',
+          type: 'calc',
+          unit: 'K',
+          calc: (v) => (isN(v.kkTs) && isN(v.kkT0) ? round(num(v.kkTs) - num(v.kkT0), 1) : ''),
+        },
+        {
+          id: 'kkPc',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Verflüssigungsdruck Überdruck (bar)',
+          label: 'Verflüssigungsdruck (Überdruck)',
+          type: 'number',
+          unit: 'bar',
+          min: 0,
+          max: 60,
+          ph: '24',
+        },
+        {
+          id: 'kkTc',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Verflüssigungstemperatur (°C)',
+          label: 'Verflüssigungstemperatur',
+          type: 'number',
+          unit: '°C',
+          min: 0,
+          max: 80,
+          ph: '40',
+        },
+        {
+          id: 'kkTf',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Flüssigkeitstemperatur (°C)',
+          label: 'Flüssigkeitstemperatur',
+          type: 'number',
+          unit: '°C',
+          min: -10,
+          max: 80,
+          ph: '35',
+        },
+        {
+          id: 'kkUk',
+          opt: true, // optional: bleibt leer ohne Zeile im PDF
+          col: 'Kältekreis Unterkühlung (K)',
+          label: 'Unterkühlung',
+          type: 'calc',
+          unit: 'K',
+          calc: (v) => (isN(v.kkTc) && isN(v.kkTf) ? round(num(v.kkTc) - num(v.kkTf), 1) : ''),
+        },
       ],
     },
     {
@@ -764,6 +880,7 @@ const TEMPLATE = {
 {
   const G = {
     'Anlagendaten (Außen- & Inneneinheit)': [
+      ['Anlage', ['zust']],
       ['Außeneinheit', ['agModell', 'agSn', 'agDat']],
       ['Inneneinheit', ['igModell', 'igSn', 'igDat']],
       ['Weiteres', ['zusInfo']],
@@ -782,11 +899,13 @@ const TEMPLATE = {
       ['Gehäuse & Elektrik', ['agReinig', 'agElek', 'agFuehl']],
       ['Ablauf & Lüfter', ['agKond', 'agVent']],
       ['Platine & Filter', ['agPlat', 'agFilt']],
+      ['Abtauung', ['agAbtau']],
     ],
     'Wartungscheckliste Inneneinheit & Hydraulik': [
       ['Inneneinheit', ['igReinig', 'igElek', 'igFuehl']],
       ['Hydraulik & Sicherheit', ['hydDicht', 'sicher', 'igFilt']],
-      ['Speicher & Funktion', ['speicher', 'anode', 'ueberstr', 'aktor']],
+      ['Speicher & Funktion', ['speicher', 'ueberstr', 'aktor']],
+      ['Trinkwasser', ['anode', 'sichGr', 'druckMind']],
     ],
     'Hydraulik, Systemdrücke & Heizwasser (VDI 2035)': [
       ['Systemdrücke', ['druck', 'mag', 'entl']],
@@ -796,6 +915,7 @@ const TEMPLATE = {
       ['Luftseite', ['tEin', 'tAus', 'dT']],
       ['Heizwasser', ['tVl', 'tRl', 'dTw']],
       ['Stromaufnahme', ['i1', 'i2', 'i3']],
+      ['Kältekreis (optional)', ['kkP0', 'kkT0', 'kkTs', 'kkUeh', 'kkPc', 'kkTc', 'kkTf', 'kkUk']],
     ],
     'Wartungsabschluss & Abnahme': [
       ['Zustand', ['betrieb', 'erfolg', 'erfolgM']],

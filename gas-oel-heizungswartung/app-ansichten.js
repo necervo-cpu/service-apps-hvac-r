@@ -381,9 +381,6 @@ function finalHtml(p, felder) {
         const B = pdfBausteine();
         const { esc } = B;
         const TYP_H1 = { gas: 'Gasheizung', oel: 'Ölheizung' };
-        const KURZ = ['i.O.', 'Folgeauftrag nötig', 'n.i.O.'];
-        const ARTEN = ['ok', 'warn', 'bad'];
-        const PILLS = ['in Ordnung', 'Folgeauftrag', 'nicht in Ordnung'];
         const firma = r.firma || '';
         const kopfzeile = String(r.title || 'WARTUNGSPROTOKOLL').split(' • ')[0];
         const nice = (s) => s.charAt(0) + s.slice(1).toLowerCase();
@@ -426,18 +423,12 @@ function finalHtml(p, felder) {
           return `${p2(d)}.${p2(mo + 1)}.${y}`;
         })();
 
-        // Hauptwert: Gesamtbewertung (steht nur hier), daneben Datum und Techniker
-        const stufe = ARTEN[r.bewertungStufe] ? r.bewertungStufe : -1;
-        const art = stufe < 0 ? '' : ARTEN[stufe];
-        const mangelText =
-          r.bewertungMangel || (['i.O.', 'n.i.O.'].includes(r.bewertung) ? '' : r.bewertung || '');
+        // Hauptwert: nächste Wartung (die Gesamtbewertung steht nicht im Bericht), daneben Datum und Techniker
         blocks.push({
           html: B.nHaupt({
-            label: 'Gesamtbewertung',
-            wert: stufe < 0 ? '' : KURZ[stufe],
-            art,
-            pill: stufe < 0 ? '' : PILLS[stufe],
-            sub: stufe < 0 ? '' : mangelText,
+            label: 'Nächste Wartung',
+            wert: naechste,
+            sub: naechste ? 'jährliche Wartung' : '',
             spalten: [
               { label: 'Datum', wert: tileDate },
               { label: 'Techniker', wert: r.techniker },
@@ -541,10 +532,6 @@ function finalHtml(p, felder) {
           blocks.push({ html: B.nAuff(liste) });
         }
         const abschluss = [
-          {
-            label: 'Nächste Wartung',
-            value: [naechste, naechste ? 'jährliche Wartung' : ''].filter(Boolean).join(', '),
-          },
           {
             label: 'Festgestellte Mängel / Noch auszuführende Arbeiten (Folgeauftrag)',
             value: r.remark,

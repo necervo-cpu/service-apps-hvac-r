@@ -812,6 +812,18 @@
   font-weight: 600;
   color: var(--n-ink2);
 }
+/* Teil eines Abschnitts (z. B. Verdichter und Verflüssiger unter „Außeneinheit“) */
+.report .page.neu .n-teil {
+  margin: 5mm 0 1.5mm;
+  font-size: 11pt;
+  font-weight: 600;
+}
+.report .page.neu h2 + .n-teil {
+  margin-top: 1mm;
+}
+.report .page.neu .n-sec.n-sec--teil {
+  margin-top: 0;
+}
 .report .page.neu .n-th {
   display: grid;
   column-gap: 3mm;

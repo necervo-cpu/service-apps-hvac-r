@@ -153,6 +153,14 @@ const STAMM = {
           ph: 'Split-Klimaanlage, VRF-System, Kühlzelle',
         },
         {
+          id: 'zust',
+          col: 'Zuständigkeit',
+          label: 'Zuständigkeit der Anlage',
+          type: 'text',
+          group: 'Anlagenaufnahme',
+          ph: 'Klimaanlage Büro',
+        },
+        {
           id: 'sn',
           col: 'Seriennummer',
           label: 'Seriennummer',

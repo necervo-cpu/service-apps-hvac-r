@@ -340,17 +340,15 @@ function finalHtml(p, felder) {
         };
         const tileDate = dateOf(stand);
 
-        // Hauptwert: Gesamtbewertung, daneben Datum und Monteur (steht nur hier, nicht noch einmal im Abschluss)
+        // Hauptwert: Datum der Inbetriebnahme (die Gesamtbewertung steht nicht im Bericht), daneben Monteur und nächste Wartung
         blocks.push({
           html: B.nHaupt({
-            label: r.resultLabel || 'Gesamtbewertung Inbetriebnahme',
-            wert: shown(res),
-            art: good ? 'ok' : bad ? 'bad' : '',
-            pill: good ? 'in Ordnung' : bad ? 'nicht in Ordnung' : '',
-            sub: [r.successMangel].concat(other).filter(Boolean).join('\n'),
+            label: 'Inbetriebnahme',
+            wert: tileDate,
+            sub: other.join('\n'),
             spalten: [
-              { label: 'Datum', wert: tileDate },
               { label: 'Monteur / Prüfer', wert: r.techniker },
+              { label: 'Nächste Wartung', wert: next ? dateOf(next.replace(/^Nächste Wartung:\s*/, '')) : '' },
             ],
           }),
         });
@@ -532,13 +530,8 @@ function finalHtml(p, felder) {
               : defects.map((d) => ({ nr: '', text: String(d).replace(/: Mangel/, ': n.i.O.') }));
           blocks.push({ html: B.nAuff(liste) });
         }
+        // Nächste Wartung steht im Hauptwert
         const abschluss = [];
-        if (next) {
-          abschluss.push({
-            label: 'Nächste Wartung',
-            value: next.replace(/^Nächste Wartung:\s*/, ''),
-          });
-        }
         abschluss.push({ label: r.remarkLabel || 'Bemerkungen / Mängel', value: r.remark });
         blocks.push({ html: B.nAbschnitt('', 'Abschluss der Inbetriebnahme', B.nZeilen(abschluss)) });
         if (r.hinweis) {

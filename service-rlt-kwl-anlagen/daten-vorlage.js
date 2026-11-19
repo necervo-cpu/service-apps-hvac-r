@@ -141,6 +141,13 @@ const TEMPLATE = {
           ph: 'Lüftungsanlage RLT-01 Büro',
         },
         {
+          id: 'zust',
+          col: 'Zuständigkeit',
+          label: 'Zuständigkeit der Anlage',
+          type: 'text',
+          ph: 'Lüftung Büro 1. OG',
+        },
+        {
           id: 'herst',
           col: 'Hersteller',
           label: 'Hersteller',
@@ -207,6 +214,20 @@ const TEMPLATE = {
           'Schaufelverstelleinrichtung',
           'Schaufelverstelleinrichtung',
           '',
+        ),
+        ok(
+          'lfeMot',
+          'LFE: Elektromotor',
+          'Elektromotor: Zustand, Befestigung & Anschluss',
+          'Elektromotor',
+          'Verschmutzung, Lagergeräusch, Klemmkasten',
+        ),
+        ok(
+          'lfeRiem',
+          'LFE: Keilriementrieb',
+          'Keilriemen: Spannung & Verschleiß',
+          'Keilriemen: Spannung & Verschleiß',
+          'Direktantrieb oder EC-Ventilator: „entfällt“ wählen',
         ),
         ok(
           'lfeLagG',
@@ -504,6 +525,41 @@ const TEMPLATE = {
           'Kammern: Wärmedämmung',
           '',
         ),
+        ok(
+          'kanal',
+          'Luftverteilung: Luftkanäle',
+          'Luftkanäle: zugängliche Abschnitte geprüft',
+          'Luftkanäle',
+          'Verschmutzung, Beschädigung, flexible Verbindungen dicht',
+        ),
+        ok(
+          'durchl',
+          'Luftverteilung: Luftdurchlässe',
+          'Luftdurchlässe: Zustand & Reinigung',
+          'Luftdurchlässe',
+          '',
+        ),
+        ok(
+          'schall',
+          'Luftverteilung: Schalldämpfer',
+          'Schalldämpfer: Zustand & Verschmutzung',
+          'Schalldämpfer',
+          'Nicht vorhanden: „entfällt“ wählen',
+        ),
+        ok(
+          'vsr',
+          'Luftverteilung: Volumenstromregler',
+          'Volumenstromregler auf Funktion geprüft',
+          'Volumenstromregler',
+          'Nicht vorhanden: „entfällt“ wählen',
+        ),
+        ok(
+          'bsk',
+          'Luftverteilung: Brandschutzklappen',
+          'Brandschutzklappen: Zustand & Auslösung geprüft',
+          'Brandschutzklappen',
+          'Nach Herstellervorgabe; nicht vorhanden: „entfällt“ wählen',
+        ),
       ],
     },
     {
@@ -724,11 +780,11 @@ const TEMPLATE = {
 {
   const G = {
     Anlagendaten: [
-      ['Anlage', ['anlage', 'herst', 'modell', 'sn', 'baujahr']],
+      ['Anlage', ['anlage', 'zust', 'herst', 'modell', 'sn', 'baujahr']],
       ['Typ & Wartung', ['typ', 'wart']],
     ],
     Luftfördereinrichtung: [
-      ['Laufrad & Antrieb', ['lfeVer', 'lfeRein', 'lfeLauf', 'lfeSchau']],
+      ['Laufrad & Antrieb', ['lfeVer', 'lfeRein', 'lfeLauf', 'lfeSchau', 'lfeMot', 'lfeRiem']],
       ['Lager', ['lfeLagG', 'lfeLagS']],
       [
         'Anschluss & Sicherheit',
@@ -742,6 +798,7 @@ const TEMPLATE = {
     'Gehäuse, Klappen & Kammern': [
       ['Außen & Mechanik', ['wsg', 'jal', 'msr']],
       ['Kammern', ['kamZ', 'tuer', 'daemm']],
+      ['Luftverteilung', ['kanal', 'durchl', 'schall', 'vsr', 'bsk']],
     ],
     'Wartungsabschluss & Abnahme': [
       ['Ergebnis', ['unterl', 'ftest', 'erfolg', 'erfolgM']],

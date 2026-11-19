@@ -516,8 +516,8 @@ function buildCols(p) {
   return out;
 }
 
-const APP_VERSION = '2.3.1';
-const BUILD_DATE = '2026-11-18';
+const APP_VERSION = '2.3.2';
+const BUILD_DATE = '2026-11-19';
 
       /* @@quelle:reportParts */
       /* Bericht im neuen Papier-Design (Seitenklasse „neu“): Hauptwert, Projektdaten, Kennwerte, Positionen als Zeilen, Preisaufstellung, Hinweis.

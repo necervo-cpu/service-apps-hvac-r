@@ -99,6 +99,13 @@ const TEMPLATE = {
           ph: '10234',
         },
         {
+          id: 'zust',
+          col: 'Zuständigkeit',
+          label: 'Zuständigkeit der Anlage',
+          type: 'text',
+          ph: 'Heizung Wohnhaus',
+        },
+        {
           id: 'datum',
           col: 'Datum',
           label: 'Datum',
@@ -203,6 +210,12 @@ const TEMPLATE = {
           'gas',
         ),
         ...pruefpunkt(
+          'gHahn',
+          'Gasabsperrhahn auf Funktion und Dichtheit geprüft',
+          'Handabsperrung vor dem Gerät',
+          'gas',
+        ),
+        ...pruefpunkt(
           'gDruck',
           'Gasanschluss-, Fließ- und Düsendruck gemessen',
           'Werte unter „Messwerte“ eintragen',
@@ -215,6 +228,24 @@ const TEMPLATE = {
           'gas',
         ),
         ...pruefpunkt('gElek', 'Zünd- und Ionisationselektrode geprüft', '', 'gas'),
+        ...pruefpunkt(
+          'gGebl',
+          'Gebläse und Laufrad geprüft, gereinigt',
+          '',
+          'gas',
+        ),
+        ...pruefpunkt(
+          'gLuft',
+          'Luftdruckwächter / Luftmangelsicherung auf Funktion geprüft',
+          '',
+          'gas',
+        ),
+        ...pruefpunkt(
+          'gGasW',
+          'Gasdruckwächter / Gasmangelsicherung auf Funktion geprüft',
+          'Nicht vorhanden: „entfällt“ wählen',
+          'gas',
+        ),
         ...pruefpunkt(
           'gSiphon',
           'Kondensatsiphon / -ablauf gereinigt, freier Durchfluss',
@@ -291,6 +322,16 @@ const TEMPLATE = {
           'ggf. Kondensatwanne',
           'oel',
         ),
+        ...pruefpunkt(
+          'kDaemm',
+          'Wärmedämmung Kessel auf Beschädigung und Vollständigkeit geprüft',
+          'Sichtprüfung',
+        ),
+        ...pruefpunkt(
+          'kNeutra',
+          'Neutralisationseinrichtung geprüft',
+          'Granulat und pH-Wert; keine Neutralisation: „entfällt“ wählen',
+        ),
       ],
     },
     {
@@ -307,6 +348,11 @@ const TEMPLATE = {
           'hSv',
           'Sicherheitsventil (SV) und Sicherheitstemperaturbegrenzer (STB): Funktion geprüft',
           '',
+        ),
+        ...pruefpunkt(
+          'hWms',
+          'Wassermangelsicherung / Druckbegrenzer (min/max) auf Funktion geprüft',
+          'Nicht vorhanden: „entfällt“ wählen',
         ),
         ...pruefpunkt(
           'hDruck',
@@ -327,6 +373,16 @@ const TEMPLATE = {
           'hRegel',
           'Fehlerspeicher ausgelesen, Regelung geprüft',
           'Heizkurve, Zeiten, Außenfühler',
+        ),
+        ...pruefpunkt(
+          'tAnode',
+          'Schutzanode Trinkwasserspeicher geprüft',
+          'Magnesium- oder Fremdstromanode; kein Speicher: „entfällt“ wählen',
+        ),
+        ...pruefpunkt(
+          'tSich',
+          'Sicherheitsgruppe Trinkwasser auf Funktion geprüft',
+          'Sicherheitsventil anlüften; kein Speicher: „entfällt“ wählen',
         ),
       ],
     },
@@ -423,22 +479,25 @@ const TEMPLATE = {
 {
   const G = {
     'Kopf & Gerät': [
-      ['Auftrag', ['projekt', 'typ', 'kunde', 'datum', 'techniker']],
+      ['Auftrag', ['projekt', 'typ', 'kunde', 'zust', 'datum', 'techniker']],
       ['Gerät', ['hersteller', 'modell', 'sn', 'baujahr', 'kw']],
       ['Betrieb', ['stunden', 'starts', 'bauart', 'brenner']],
     ],
     'Checkliste Brenner': [
-      ['Gasweg & Druck', ['gDicht', 'gDruck']],
-      ['Brenner & Wärmetauscher', ['gRein', 'gElek']],
+      ['Gasweg & Druck', ['gDicht', 'gHahn', 'gDruck']],
+      ['Brenner & Wärmetauscher', ['gRein', 'gElek', 'gGebl']],
+      ['Sicherheitseinrichtungen', ['gLuft', 'gGasW']],
       ['Kondensat & Abgas', ['gSiphon', 'gAbgas']],
       ['Ölversorgung', ['oVers', 'oFilter', 'oPumpe']],
       ['Öldüse', ['oDuese', 'duesG', 'duesW', 'duesM']],
       ['Brennraum & Brenner', ['oStau', 'oRaum']],
+      ['Kessel & Kondensat', ['kDaemm', 'kNeutra']],
     ],
     'Hydraulik & Sicherheit': [
-      ['Ausdehnung & Sicherheit', ['hMag', 'hSv']],
+      ['Ausdehnung & Sicherheit', ['hMag', 'hSv', 'hWms']],
       ['Heizwasser', ['hDruck', 'lf', 'ph']],
       ['Pumpen & Regelung', ['hPumpen', 'hRegel']],
+      ['Trinkwasserspeicher', ['tAnode', 'tSich']],
     ],
     Messwerte: [
       ['Abgas & Verbrennung', ['abgasT', 'luftT', 'o2', 'co2', 'co', 'verlust', 'zug']],
