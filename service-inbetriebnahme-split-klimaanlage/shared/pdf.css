@@ -718,8 +718,8 @@
   text-align: right;
 }
 .report .page.neu .n-h1 {
-  margin: 6mm 0 0;
-  font-size: 22pt;
+  margin: 4mm 0 0;
+  font-size: 15pt;
   line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -730,7 +730,7 @@
   grid-template-rows: auto auto auto;
   column-gap: 6mm;
   row-gap: 1mm;
-  margin-top: 6mm;
+  margin-top: 4mm;
   padding-bottom: 5mm;
   border-bottom: 1px solid var(--n-line);
 }
@@ -740,7 +740,7 @@
 .report .page.neu .n-hv {
   align-self: end;
   white-space: nowrap;
-  font-size: 26pt;
+  font-size: 16pt;
   line-height: 1.05;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -754,7 +754,7 @@
 .report .page.neu .n-m {
   align-self: end;
   font-weight: 600;
-  font-size: 11pt;
+  font-size: 10pt;
   white-space: nowrap;
 }
 .report .page.neu .n-p {

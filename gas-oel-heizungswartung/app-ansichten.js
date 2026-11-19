@@ -545,8 +545,6 @@ function finalHtml(p, felder) {
           blocks.push({ html: B.nHinweis([{ titel: 'Betreiberhinweis.', text: r.hinweis }]) });
         }
         const sig = r.sig || {};
-        const hatKunde =
-          (typeof sig.kunde === 'string' && /^data:image\//.test(sig.kunde)) || !!r.kundeName;
         blocks.push({
           html:
             '<div class="n-signs">' +
@@ -555,9 +553,6 @@ function finalHtml(p, felder) {
               name: [r.techniker, stand].filter(Boolean).join(', '),
               label: 'Techniker',
             }) +
-            (hatKunde
-              ? B.nUnterschrift({ bild: sig.kunde, name: r.kundeName, label: 'Kunde / Betreiber' })
-              : '') +
             '</div>',
         });
 

@@ -477,13 +477,6 @@ const TEMPLATE = {
           'Verdichtungsdruck',
           '',
         ),
-        temp(
-          'vdTd',
-          'Verdichter Verdichtungsendtemperatur (°C)',
-          'Verdichtungsendtemperatur am Druckstutzen',
-          'Verdichtungsendtemperatur',
-          '',
-        ),
       ],
     },
     {
