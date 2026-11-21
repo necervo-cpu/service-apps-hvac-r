@@ -1,0 +1,1 @@
+function i(r){const t=r.material;return Array.isArray(t)?t.filter(e=>e&&typeof e=="object"&&String(e.teil??"").trim()!=="").map(e=>({teil:String(e.teil).trim(),menge:String(e.menge??"").trim()})):[]}function n(r){return i(r).map(t=>t.menge?`${t.teil} ×${t.menge}`:t.teil).join("; ")}export{i as a,n as m};

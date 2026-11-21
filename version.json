@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
-  "buildDate": "2026-11-17",
-  "changelog": "Design-Stand 2026-11-21: Zoom gesperrt, Update-Karte oben in der Übersicht"
+  "version": "3.5.0",
+  "buildTime": "2026-11-21T14:23:00.000Z",
+  "changelog": "Etappe 5: Daikin Multisplit-Auslegung (dk.*) migriert mit einheitlichem neu-PDF-Layout. Alle 9 HVAC-R Fachmodule vollständig als React/TypeScript PWA umgesetzt."
 }
