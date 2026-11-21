@@ -1,5 +1,5 @@
 {
-  "version": "3.5.0",
-  "buildTime": "2026-11-21T14:23:00.000Z",
-  "changelog": "Etappe 5: Daikin Multisplit-Auslegung (dk.*) migriert mit einheitlichem neu-PDF-Layout. Alle 9 HVAC-R Fachmodule vollständig als React/TypeScript PWA umgesetzt."
+  "version": "3.5.1",
+  "buildTime": "2026-11-21T14:50:00.000Z",
+  "changelog": "Icon-Font & iOS-Safe-Area Fix: Vollständiges Paket material-symbols eingebunden (>5 MB Font-Glyphen), manuelle @font-face entfernt, apple durch phone_iphone ersetzt, Safe-Area-Top-Padding einheitlich in allen Modul-Headern wirksam gemacht."
 }
