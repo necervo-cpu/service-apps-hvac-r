@@ -1,5 +1,5 @@
 {
-  "version": "3.5.2",
-  "buildTime": "2026-11-21T16:20:00.000Z",
-  "changelog": "A4-PDF Revert & Skalierungs-Wrapper, Auto-ScrollToTop bei Step/View-Wechsel, iOS-Datumsfeld-Überlaufschutz."
+  "version": "3.5.3",
+  "buildTime": "2026-11-21T17:00:00.000Z",
+  "changelog": "Kundennummer- & Projektnummer-Standard, Mangel-Automatik, Vollbild-Settings & UI-Feinschliff."
 }
