@@ -1,5 +1,5 @@
 {
-  "version": "3.5.5",
-  "buildTime": "2026-11-21T18:15:00.000Z",
-  "changelog": "Startseite ohne Verlauf & Präfixe, modale Einstellungskarte mit Scroll-Lock, Firmendaten & Google Apps Script Sync."
+  "version": "3.5.6",
+  "buildTime": "2026-11-21T19:40:00.000Z",
+  "changelog": "Direkte Apps-Script-URL- & Token-Eingabe in jeder Sheets-fähigen App mit isolierter Speicherung."
 }
