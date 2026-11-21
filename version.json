@@ -1,5 +1,5 @@
 {
-  "version": "3.5.1",
-  "buildTime": "2026-11-21T14:50:00.000Z",
-  "changelog": "Icon-Font & iOS-Safe-Area Fix: Vollständiges Paket material-symbols eingebunden (>5 MB Font-Glyphen), manuelle @font-face entfernt, apple durch phone_iphone ersetzt, Safe-Area-Top-Padding einheitlich in allen Modul-Headern wirksam gemacht."
+  "version": "3.5.2",
+  "buildTime": "2026-11-21T16:20:00.000Z",
+  "changelog": "A4-PDF Revert & Skalierungs-Wrapper, Auto-ScrollToTop bei Step/View-Wechsel, iOS-Datumsfeld-Überlaufschutz."
 }
