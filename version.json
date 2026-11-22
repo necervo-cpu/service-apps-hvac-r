@@ -1,5 +1,5 @@
 {
-  "version": "3.5.7",
-  "buildTime": "2026-11-21T20:25:00.000Z",
-  "changelog": "Saubere Lösch-Funktion mit Sicherheits-Bestätigungsdialog für alle Listen, Datenbank- und Verlaufsansichten."
+  "version": "3.5.9",
+  "buildTime": "2026-11-22T08:28:00.000Z",
+  "changelog": "Interne Präfix-Kennungen aus allen App-Headern entfernt; reine Eintrags-Zähler mit Einzahl-/Mehrzahl-Grammatik."
 }
