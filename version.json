@@ -1,5 +1,5 @@
 {
-  "version": "3.5.14",
-  "buildTime": "2026-11-22T10:19:00.000Z",
-  "changelog": "Laden aus der Datenbank repariert, Verbindung strikt pro App getrennt, Firmendaten überschreiben keine URL mehr, PDF-Firmenkopf ohne Musterdaten, Kalkulation füllt Sheet-Spalten, gelöschte Einträge verlassen die Warteschlange."
+  "version": "3.5.15",
+  "buildTime": "2026-11-22T10:33:00.000Z",
+  "changelog": "Sync-Status wird dauerhaft gespeichert, Sammel-Sync überträgt mit PDF, kein doppelter PDF-Upload, strenge ok-Prüfung, Datenbank-Liste ohne Duplikate, Hinweise als Toast statt Browser-Popup."
 }
