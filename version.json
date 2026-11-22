@@ -1,5 +1,5 @@
 {
-  "version": "3.5.11",
-  "buildTime": "2026-11-22T09:18:00.000Z",
-  "changelog": "Kontrast-Optimierung: Solide, blickdichte Navigationsleiste und Buttons in der PDF-Vorschau und im Wizard-Footer gegen Durchscheinen weißer Seiten/Signaturen."
+  "version": "3.5.12",
+  "buildTime": "2026-11-22T09:48:00.000Z",
+  "changelog": "PDF- & Export-Workflow: Ausschließliche Google-Apps-Script-/Drive-Ablage, keine lokalen Fantasie-PDFs offline, persistente Warteschlange & automatischer Nachhol-Sync bei Reconnect."
 }
