@@ -1,5 +1,5 @@
 {
-  "version": "3.5.9",
-  "buildTime": "2026-11-22T08:28:00.000Z",
-  "changelog": "Interne Präfix-Kennungen aus allen App-Headern entfernt; reine Eintrags-Zähler mit Einzahl-/Mehrzahl-Grammatik."
+  "version": "3.5.11",
+  "buildTime": "2026-11-22T09:18:00.000Z",
+  "changelog": "Kontrast-Optimierung: Solide, blickdichte Navigationsleiste und Buttons in der PDF-Vorschau und im Wizard-Footer gegen Durchscheinen weißer Seiten/Signaturen."
 }
