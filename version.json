@@ -1,5 +1,5 @@
 {
-  "version": "3.5.13",
-  "buildTime": "2026-11-22T10:05:00.000Z",
-  "changelog": "Google-Sheets- & PDF-Sync exakt an Config.gs angepasst: Reiner Base64-String (%PDF) für pdfBlob_(), savepdf mit app:<id>, strikte ok===true Validierung und PDF-Aktionen in der Datenbank-Ansicht."
+  "version": "3.5.14",
+  "buildTime": "2026-11-22T10:19:00.000Z",
+  "changelog": "Laden aus der Datenbank repariert, Verbindung strikt pro App getrennt, Firmendaten überschreiben keine URL mehr, PDF-Firmenkopf ohne Musterdaten, Kalkulation füllt Sheet-Spalten, gelöschte Einträge verlassen die Warteschlange."
 }
