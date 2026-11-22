@@ -1,5 +1,5 @@
 {
-  "version": "3.5.12",
-  "buildTime": "2026-11-22T09:48:00.000Z",
-  "changelog": "PDF- & Export-Workflow: Ausschließliche Google-Apps-Script-/Drive-Ablage, keine lokalen Fantasie-PDFs offline, persistente Warteschlange & automatischer Nachhol-Sync bei Reconnect."
+  "version": "3.5.13",
+  "buildTime": "2026-11-22T10:05:00.000Z",
+  "changelog": "Google-Sheets- & PDF-Sync exakt an Config.gs angepasst: Reiner Base64-String (%PDF) für pdfBlob_(), savepdf mit app:<id>, strikte ok===true Validierung und PDF-Aktionen in der Datenbank-Ansicht."
 }
