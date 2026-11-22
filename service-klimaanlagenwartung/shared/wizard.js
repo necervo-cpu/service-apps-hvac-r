@@ -1,27 +1,15 @@
 /* shared/wizard.js – Formular-Rahmen (Kopf-Unterzeile, Schrittanzeige, untere Leiste, Seitenwechsel, Berichtsanzeige)
    Inhalt: setHeader(animate), barRender(h), showReport().
-   Benötigt aus der App (globale Namen, erst zur Laufzeit gelesen): app, render, view, navBusy, enterT, hsubAnim,
+   Benötigt aus der App (globale Namen, erst zur Laufzeit gelesen): app, render, view, navBusy,
    hsubText(), wizSnapshot() (liefert eine Funktion, die true ist, solange noch dieselbe Formular-Ansicht offen ist),
-   reportForView(); aus core.js: $, esc, RM; aus pdf.js: reportFontsReady, layoutReport.
+   reportForView(); aus core.js: $, esc; aus pdf.js: reportFontsReady, layoutReport.
    Laden: nach core.js und pdf.js (klassisches Skript, kein Modul). */
 
-function setHeader(animate) {
+function setHeader() {
   const hs = $('#hsub'),
     t = hsubText();
-  if (hsubAnim) {
-    hsubAnim.cancel();
-    hsubAnim = null;
-  }
-  const changed = hs.textContent !== t;
   hs.textContent = t;
-  if (animate && changed && !RM() && hs.animate)
-    hsubAnim = hs.animate(
-      [
-        { opacity: 0, transform: 'translateY(6px)' },
-        { opacity: 0.75, transform: 'none' },
-      ],
-      { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
-    );
+  hs.title = t;
 }
 /* Feste Leiste unten */
 function barRender(h) {

@@ -119,11 +119,6 @@ window.addEventListener('resize', () => {
   lastW = window.innerWidth;
 });
 
-/* Zoomen sperren: iOS ignoriert user-scalable=no, deshalb Pinch-Gesten abfangen */
-['gesturestart', 'gesturechange', 'gestureend'].forEach((name) => {
-  document.addEventListener(name, (e) => e.preventDefault(), { passive: false });
-});
-
 /* ---------- Start ---------- */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});

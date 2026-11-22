@@ -3,10 +3,6 @@
  * Baut auf shared/global.css (tokens, base, components, forms) auf.
  */
 
-html {
-  overscroll-behavior-y: none;
-}
-
 .search-clear {
   min-width: 44px;
   min-height: 44px;

@@ -211,7 +211,7 @@ function wahlMarkieren(f, p) {
   if (notiz) {
     notiz.tabIndex = offen ? 0 : -1;
     if (offen && !notiz.value) {
-      setTimeout(() => notiz.focus(), 250);
+      notiz.focus();
     }
   }
   const alleOk = $('#allokBtn');
@@ -362,7 +362,7 @@ const Actions = {
       $('#pageerr').textContent = 'Bitte die markierten Felder prüfen.';
       toast('Bitte die markierten Felder prüfen.');
       const first = document.querySelector('.has-error');
-      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (first) first.scrollIntoView({ block: 'center' });
       return;
     }
     wechsleSeite(() => {
@@ -476,7 +476,6 @@ const Actions = {
       const blob = await reportPdfBlob(reportForView(), PDF_OPTS);
       clearInterval(pdfTick);
       setP(1);
-      await new Promise((res) => setTimeout(res, RM() ? 0 : 240));
       if (lastPdf) URL.revokeObjectURL(lastPdf.url);
       lastPdf = {
         key,

@@ -15,8 +15,21 @@
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   }
 
+  function syncThemeColor(theme) {
+    var color = theme === 'light' ? '#F8FAFC' : '#000000';
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < metas.length; i++) {
+      if (metas[i].getAttribute('content') !== color) {
+        metas[i].setAttribute('content', color);
+      }
+    }
+  }
+
   function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
+    if (document.documentElement.getAttribute('data-theme') !== theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    syncThemeColor(theme);
     var iconName = theme === 'dark' ? 'light_mode' : 'dark_mode';
     var label = theme === 'dark' ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren';
     b.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">' + iconName + '</span>';
@@ -25,6 +38,16 @@
   }
 
   applyTheme(resolveTheme());
+
+  if (window.MutationObserver) {
+    new MutationObserver(function () {
+      var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      syncThemeColor(cur);
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+  }
 
   b.addEventListener('click', function () {
     var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';

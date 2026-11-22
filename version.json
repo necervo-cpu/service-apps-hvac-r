@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
+  "version": "3.0.1",
   "buildDate": "2026-11-22",
-  "changelog": "Major-Umbau auf ui-ux-pro-max (Industrial / Field-Utility), neue Startseite fuer alle 9 Service-Apps"
+  "changelog": "EGM-Feinschliff: mobile-native, remove-animations, dynamische theme-color"
 }

@@ -15,7 +15,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  overscroll-behavior-y: none;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior: none;
   touch-action: manipulation;
   background-color: var(--color-background);
 }
@@ -27,15 +29,16 @@ body {
   font-size: var(--text-body);
   line-height: 1.5;
   min-height: 100dvh;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: clip;
   overflow-wrap: break-word;
   hyphens: auto;
+  overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom)));
-  transition: background-color var(--t-fast), color var(--t-fast);
+  padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom, 0px)));
 }
 
 .numeric,
@@ -51,8 +54,14 @@ a,
 label,
 [role='button'],
 .segmented-option,
-.row {
+.row,
+.tab-pill,
+.stepper,
+.jump-link,
+.proto-open {
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 button,
@@ -109,7 +118,6 @@ textarea {
   align-items: center;
   justify-content: center;
   flex: none;
-  transition: font-variation-settings var(--t-fast), color var(--t-fast), transform var(--t-fast);
 }
 
 .active .material-symbols-rounded,
@@ -145,7 +153,6 @@ html.icons-pending .material-symbols-rounded {
   background: var(--color-surface-input);
   border: 1.5px solid var(--color-border-control);
   border-radius: var(--radius-control);
-  transition: background-color var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
 .liquid-surface-inner:focus-within {
@@ -172,12 +179,8 @@ html.icons-pending .material-symbols-rounded {
 }
 
 /* ==========================================================================
-   SEITENÜBERGÄNGE & BARRIEREFREIHEIT
+   BARRIEREFREIHEIT
    ========================================================================== */
-@view-transition {
-  navigation: auto;
-}
-
 @media (prefers-contrast: more) {
   .group,
   .vwrap,
@@ -198,11 +201,5 @@ html.icons-pending .material-symbols-rounded {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
   }
 }

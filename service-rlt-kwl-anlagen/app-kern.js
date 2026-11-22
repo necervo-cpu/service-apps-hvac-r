@@ -224,49 +224,13 @@ function buildCols(p) {
 /* ---------- Navigation ---------- */
 let view = { name: 'home' };
 let navBusy = false;
-let enterT = null;
 let pdfBusy = null;
 let pdfProg = 0;
 let pdfTick = null;
-let hsubAnim = null;
-/* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
-let fadenNr = 0;
-function fadeThrough(change) {
-  if (RM() || !app.animate) {
-    change();
-    return;
-  }
-  const nr = ++fadenNr;
-  /* Laufende Animationen beenden, sonst bleibt eine alte Ausblendung (fill: forwards) stehen */
-  app.getAnimations().forEach((a) => a.cancel());
-  /* Aus: bleibt bis zum Tausch auf 0 (fill: forwards), damit die alte Seite nicht kurz wieder aufblitzt */
-  const aus = app.animate([{ opacity: 1 }, { opacity: 0 }], {
-    duration: 90,
-    easing: 'ease-out',
-    fill: 'forwards',
-  });
-  aus.finished
-    .then(() => {
-      if (nr !== fadenNr) {
-        return;
-      }
-      change();
-      aus.cancel();
-      app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-    })
-    .catch(() => {});
-}
 function go(name, params) {
   view = Object.assign({ name }, params || {});
-  if (name === 'wizard') {
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  fadeThrough(() => {
-    render();
-    window.scrollTo(0, 0);
-  });
+  render();
+  window.scrollTo(0, 0);
 }
 function cur() {
   return protocols.find((p) => p.id === view.id);
@@ -448,7 +412,7 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const BUILD_DATE = '2026-11-22';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

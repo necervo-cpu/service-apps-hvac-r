@@ -1,6 +1,6 @@
 // Service Worker für die Startseite (Root).
 // Handhabt ausschließlich Dateien auf Root-Ebene und ./shared/* – alle 9 Unter-App-Ordner werden direkt durchgereicht.
-const CACHE = 'startseite-v300';
+const CACHE = 'startseite-v301';
 const ASSETS = [
   './',
   './index.html',

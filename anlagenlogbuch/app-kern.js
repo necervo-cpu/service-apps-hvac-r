@@ -232,72 +232,21 @@ function summaryCols(p) {
 
 /* ---------- Navigation ---------- */
 let view = { name: 'home' };
-let enterNext = false;
-let enterT = null;
 let navBusy = false;
 let pdfBusy = null;
 let pdfProg = 0;
 let pdfTick = null;
-let hsubAnim = null;
-/* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
-let fadenNr = 0;
-function fadeThrough(change) {
-  if (RM() || !app.animate) {
-    change();
-    return;
-  }
-  const nr = ++fadenNr;
-  /* Laufende Animationen beenden, sonst bleibt eine alte Ausblendung (fill: forwards) stehen */
-  app.getAnimations().forEach((a) => a.cancel());
-  /* Aus: bleibt bis zum Tausch auf 0 (fill: forwards), damit die alte Seite nicht kurz wieder aufblitzt */
-  const aus = app.animate([{ opacity: 1 }, { opacity: 0 }], {
-    duration: 90,
-    easing: 'ease-out',
-    fill: 'forwards',
-  });
-  aus.finished
-    .then(() => {
-      if (nr !== fadenNr) {
-        return;
-      }
-      change();
-      aus.cancel();
-      app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-    })
-    .catch(() => {});
-}
 function go(name, params) {
   const was = view.name;
   view = Object.assign({ name }, params || {});
   if (name === 'wizard' && was !== 'wizard') {
     calcSeen = {};
   }
-  enterNext = name === 'wizard';
-  if (name === 'wizard') {
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  fadeThrough(() => {
-    render();
-    window.scrollTo(0, 0);
-  });
+  render();
+  window.scrollTo(0, 0);
 }
 function render() {
-  const enter = enterNext;
-  enterNext = false;
   app.innerHTML = (Views[view.name] || Views.home)();
-  if (!navBusy) {
-    app.className = enter && !RM() ? 'entering' : '';
-    clearTimeout(enterT);
-    if (enter) {
-      enterT = setTimeout(() => {
-        if (!navBusy) {
-          app.classList.remove('entering');
-        }
-      }, 900);
-    }
-  }
   setHeader(true);
   if (view.name === 'report') {
     showReport();
@@ -518,7 +467,7 @@ function nextSub(s) {
   return s.next && dueState(s.next) ? 'Nächste Prüfung ' + fmtDate(s.next) : '';
 }
 
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const BUILD_DATE = '2026-11-22';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

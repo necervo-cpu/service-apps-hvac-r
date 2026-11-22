@@ -3,10 +3,6 @@
  * Baut auf shared/global.css (tokens, base, components, forms) auf.
  */
 
-html {
-  overscroll-behavior-y: none;
-}
-
 .brand-title {
   font-size: 1.65rem;
   hyphens: none;
@@ -109,8 +105,8 @@ a.btn-secondary {
   right: 0;
   bottom: 0;
   z-index: 6;
-  padding: 10px max(1rem, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
-    max(1rem, env(safe-area-inset-left));
+  padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
   background: var(--color-card);
   border-top: 1px solid var(--color-separator);
 }
@@ -142,7 +138,7 @@ a.btn-secondary {
 }
 
 body.hasbar #app {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 /* PDF-Knopf mit Fortschritt */
@@ -170,9 +166,6 @@ body.hasbar #app {
   gap: 6px;
   position: relative;
   white-space: nowrap;
-  transition:
-    opacity var(--t-fast),
-    transform var(--t-fast);
 }
 
 .pdfb .l2,
@@ -181,18 +174,15 @@ body.hasbar #app {
   inset: 0;
   justify-content: center;
   opacity: 0;
-  transform: translateY(8px);
 }
 
 .pdfb.run .l1,
 .pdfb.done .l1 {
   opacity: 0;
-  transform: translateY(-8px);
 }
 
 .pdfb.run .lr {
   opacity: 1;
-  transform: none;
 }
 
 .pdfb.done .lr {
@@ -201,7 +191,6 @@ body.hasbar #app {
 
 .pdfb.done .l2 {
   opacity: 1;
-  transform: none;
 }
 
 .pdfb.done .fill {
@@ -238,16 +227,10 @@ body.hasbar #app {
 
 .acc-body {
   visibility: hidden;
-  transition:
-    grid-template-rows 200ms ease,
-    visibility 0s 200ms;
 }
 
 .acc.is-open .acc-body {
   visibility: visible;
-  transition:
-    grid-template-rows 200ms ease,
-    visibility 0s;
 }
 
 .acc-name .row-title,
@@ -494,22 +477,6 @@ textarea.text-input {
   padding: var(--space-sm) 4px var(--space-xs);
   color: var(--color-muted-foreground);
   font-size: var(--text-sub);
-}
-
-.flash {
-  animation: flash 900ms ease-out;
-}
-
-@keyframes flash {
-  from {
-    background-color: var(--status-info-bg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .flash {
-    animation: none;
-  }
 }
 
 /* Bericht (PDF): Tabellen wie vor dem Wechsel auf global.css */

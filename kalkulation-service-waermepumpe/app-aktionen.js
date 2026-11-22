@@ -279,7 +279,6 @@ const Actions = {
       const blob = await reportPdfBlob(r);
       clearInterval(pdfTick);
       setP(1);
-      await new Promise((res) => setTimeout(res, RM() ? 0 : 240));
       if (lastPdf) URL.revokeObjectURL(lastPdf.url);
       lastPdf = {
         key,

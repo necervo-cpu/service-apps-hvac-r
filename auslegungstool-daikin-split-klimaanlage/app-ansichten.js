@@ -4,33 +4,6 @@
 let openRooms = new Set(),
   uiOpen = {};
 const roomEmpty = (r) => !r.name && !r.flaeche && !r.bedarf && !r.modell && !r.rohr;
-/* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
-let fadenNr = 0;
-function fadeThrough(change) {
-  if (RM() || !app.animate) {
-    change();
-    return;
-  }
-  const nr = ++fadenNr;
-  /* Laufende Animationen beenden, sonst bleibt eine alte Ausblendung (fill: forwards) stehen */
-  app.getAnimations().forEach((a) => a.cancel());
-  /* Aus: bleibt bis zum Tausch auf 0 (fill: forwards), damit die alte Seite nicht kurz wieder aufblitzt */
-  const aus = app.animate([{ opacity: 1 }, { opacity: 0 }], {
-    duration: 90,
-    easing: 'ease-out',
-    fill: 'forwards',
-  });
-  aus.finished
-    .then(() => {
-      if (nr !== fadenNr) {
-        return;
-      }
-      change();
-      aus.cancel();
-      app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-    })
-    .catch(() => {});
-}
 function go(name, extra) {
   view = Object.assign({ name }, extra);
   if (name === 'edit') {
@@ -39,17 +12,18 @@ function go(name, extra) {
     uiOpen = {};
   }
   prevKpi = null;
-  fadeThrough(() => {
-    render();
-    window.scrollTo(0, 0);
-  });
+  render();
+  window.scrollTo(0, 0);
 }
 const isRes = () => view.name === 'edit' && view.step === 'res';
 function setHeader() {
   const p = isRes() ? cur() : null;
-  $('#hsub').textContent = p
+  const hs = $('#hsub');
+  const t = p
     ? (p.nr || 'ohne Projektnummer') + (p.kunde ? ', ' + p.kunde : '')
     : 'Split / Multisplit R32';
+  hs.textContent = t;
+  hs.title = t;
 }
 function barHtml() {
   if (view.name !== 'edit') return '';

@@ -33,7 +33,7 @@ const E = window.Engine;
 /* ====== Zustand ====== */
 let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
 delete settings.sheetId;
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const BUILD_DATE = '2026-11-22';
 
 /* Zahlenfelder: beim Antippen alles markieren */
@@ -143,9 +143,13 @@ function syncThemeUi() {
   document
     .querySelectorAll('[data-theme-choice]')
     .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === wahl)));
+  const dunkel = document.documentElement.getAttribute('data-theme') !== 'light';
+  const farbe = dunkel ? '#000000' : '#F8FAFC';
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+    if (m.getAttribute('content') !== farbe) m.setAttribute('content', farbe);
+  });
   const btn = $('#themeToggleBtn');
   if (btn) {
-    const dunkel = document.documentElement.getAttribute('data-theme') !== 'light';
     btn.innerHTML = MSR(dunkel ? 'light_mode' : 'dark_mode');
     btn.setAttribute(
       'aria-label',

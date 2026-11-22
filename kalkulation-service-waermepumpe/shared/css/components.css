@@ -9,9 +9,12 @@
 .app-shell {
   position: relative;
   z-index: 1;
+  width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  padding: max(1rem, env(safe-area-inset-top)) var(--space-md) 0;
+  overflow-x: clip;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px)) max(var(--space-md), env(safe-area-inset-right, 0px)) 0
+    max(var(--space-md), env(safe-area-inset-left, 0px));
 }
 
 .app-shell--narrow {
@@ -31,8 +34,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-sm);
-  padding: 0.25rem 0 0;
-  margin-bottom: var(--space-lg);
+  padding: 0;
+  margin-bottom: 12px;
 }
 
 .app-header-text {
@@ -51,6 +54,11 @@
   margin-top: var(--space-xs);
   color: var(--color-muted-foreground);
   font-size: var(--text-sub);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .header-actions {
@@ -72,7 +80,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--t-fast), transform var(--t-fast);
+  transition: transform var(--t-press);
 }
 
 .icon-btn:active {
@@ -101,14 +109,14 @@ header .icon-btn .material-symbols-rounded,
   gap: var(--space-xs);
   min-height: 44px;
   padding: 0 var(--space-sm) 0 0;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-primary);
   font-size: var(--text-body);
   font-weight: 600;
   text-decoration: none;
-  transition: transform var(--t-fast);
+  transition: transform var(--t-press);
 }
 
 .app-topbar .back-btn {
@@ -133,7 +141,6 @@ header .icon-btn .material-symbols-rounded,
   background: var(--color-surface-input);
   border: 1.5px solid var(--color-border-control);
   color: var(--color-muted-foreground);
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
 .search:focus-within {
@@ -208,11 +215,15 @@ header .icon-btn .material-symbols-rounded,
   padding: 0.6875rem 0;
   color: inherit;
   text-decoration: none;
-  transition: background-color var(--t-fast);
 }
 
-.row:active {
+.row:active,
+.proto-open:active {
   background: var(--color-muted);
+}
+
+.jump-link:active {
+  opacity: 0.78;
 }
 
 .row[hidden] {
@@ -315,13 +326,17 @@ header .icon-btn .material-symbols-rounded,
 .hero {
   color: var(--color-foreground);
   padding: 0;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
   min-width: 0;
 }
 
 .hero-caption {
   color: var(--color-muted-foreground);
   font-size: var(--text-sub);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hero-value {
@@ -375,7 +390,6 @@ header .icon-btn .material-symbols-rounded,
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--color-primary);
-  transition: width 220ms ease;
 }
 
 .status-pill {
@@ -461,7 +475,7 @@ header .icon-btn .material-symbols-rounded,
   justify-content: center;
   gap: var(--space-sm);
   border: 1.5px solid transparent;
-  transition: background-color var(--t-fast), opacity var(--t-fast), transform var(--t-fast);
+  transition: transform var(--t-press);
 }
 
 .btn-primary,
@@ -538,9 +552,10 @@ header .icon-btn .material-symbols-rounded,
 
 .info-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-sm);
+  gap: 4px var(--space-sm);
   min-height: 48px;
   padding: 6px 0;
 }
@@ -551,18 +566,26 @@ header .icon-btn .material-symbols-rounded,
 
 .info-row-label {
   display: flex;
+  flex: 1 0 min(140px, 100%);
   align-items: center;
   gap: var(--space-sm);
   min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: none;
   color: var(--color-muted-foreground);
   font-size: var(--text-sub);
 }
 
 .info-row-value {
+  flex: 0 1 auto;
+  max-width: 100%;
+  margin-left: auto;
+  text-align: right;
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: var(--text-body);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .hint {
@@ -628,11 +651,6 @@ header .icon-btn .material-symbols-rounded,
   color: var(--color-foreground);
 }
 
-.expander-knob .material-symbols-rounded,
-.acc-chevron {
-  transition: transform var(--t-fast);
-}
-
 .expander.is-open .expander-knob .material-symbols-rounded,
 .acc.is-open .acc-chevron {
   transform: rotate(180deg);
@@ -642,7 +660,7 @@ header .icon-btn .material-symbols-rounded,
 .acc-body {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 200ms ease;
+  visibility: hidden;
 }
 
 .expander-body > div,
@@ -654,6 +672,7 @@ header .icon-btn .material-symbols-rounded,
 .expander.is-open .expander-body,
 .acc.is-open .acc-body {
   grid-template-rows: 1fr;
+  visibility: visible;
 }
 
 .menu-item {
@@ -815,7 +834,10 @@ header .icon-btn .material-symbols-rounded,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-md);
+  padding: max(var(--space-md), env(safe-area-inset-top, 0px))
+    max(var(--space-md), env(safe-area-inset-right, 0px))
+    max(var(--space-md), env(safe-area-inset-bottom, 0px))
+    max(var(--space-md), env(safe-area-inset-left, 0px));
   background: var(--color-scrim);
   opacity: 0;
   visibility: hidden;
@@ -835,6 +857,7 @@ header .icon-btn .material-symbols-rounded,
   max-width: 460px;
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--space-lg);
   border-radius: var(--radius-modal);
   background: var(--color-card);
@@ -881,7 +904,7 @@ header .icon-btn .material-symbols-rounded,
 .toast-pill {
   position: fixed;
   left: 50%;
-  bottom: max(1.25rem, calc(16px + env(safe-area-inset-bottom)));
+  bottom: max(1.25rem, calc(16px + env(safe-area-inset-bottom, 0px)));
   z-index: 1100;
   display: inline-flex;
   align-items: center;
@@ -904,6 +927,10 @@ header .icon-btn .material-symbols-rounded,
 .toast-pill.is-visible {
   transform: translate(-50%, 0);
   opacity: 1;
+}
+
+body.hasbar .toast-pill {
+  bottom: max(5.75rem, calc(84px + env(safe-area-inset-bottom, 0px)));
 }
 
 .toast-pill .material-symbols-rounded {
@@ -937,8 +964,8 @@ header .icon-btn .material-symbols-rounded,
    ========================================================================== */
 @media (min-width: 768px) {
   .app-shell {
-    padding-left: var(--space-lg);
-    padding-right: var(--space-lg);
+    padding-left: max(var(--space-lg), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-lg), env(safe-area-inset-right, 0px));
   }
 
   .group {

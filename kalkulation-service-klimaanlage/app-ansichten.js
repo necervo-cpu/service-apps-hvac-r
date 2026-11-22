@@ -6,48 +6,13 @@ let view = { name: 'home' };
 let pdfBusy = null,
   pdfProg = 0,
   pdfTick = null,
-  hsubAnim = null,
   lastPk = '';
-/* Überblenden beim Wechsel der Ansicht: alte Fläche 90 ms aus, neue 220 ms ein */
-let fadenNr = 0;
-function fadeThrough(change) {
-  if (RM() || !app.animate) {
-    change();
-    return;
-  }
-  const nr = ++fadenNr;
-  /* Laufende Animationen beenden, sonst bleibt eine alte Ausblendung (fill: forwards) stehen */
-  app.getAnimations().forEach((a) => a.cancel());
-  /* Aus: bleibt bis zum Tausch auf 0 (fill: forwards), damit die alte Seite nicht kurz wieder aufblitzt */
-  const aus = app.animate([{ opacity: 1 }, { opacity: 0 }], {
-    duration: 90,
-    easing: 'ease-out',
-    fill: 'forwards',
-  });
-  aus.finished
-    .then(() => {
-      if (nr !== fadenNr) {
-        return;
-      }
-      change();
-      aus.cancel();
-      app.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-    })
-    .catch(() => {});
-}
 function go(name, params) {
   const was = view.name;
   view = Object.assign({ name }, params || {});
   if (name === 'wizard' && was !== 'wizard') calcSeen = {};
-  if (name === 'wizard') {
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  fadeThrough(() => {
-    render();
-    window.scrollTo(0, 0);
-  });
+  render();
+  window.scrollTo(0, 0);
 }
 function cur() {
   return calcs.find((p) => p.id === view.id);

@@ -155,7 +155,6 @@ const Act = {
     try {
       const blob = await reportPdfBlob(buildReport(p, x), { onProgress: setP });
       setP(1);
-      await new Promise((res) => setTimeout(res, RM() ? 0 : 240));
       if (!projects.includes(p) || snap() !== s0) {
         toast('Daten geändert – PDF bitte neu erstellen');
         return;

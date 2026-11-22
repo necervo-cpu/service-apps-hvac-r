@@ -171,23 +171,7 @@ function wizardHtml(p, i) {
 <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-function playFx(el, cls) {
-  if (!el) {
-    return;
-  }
-  el.classList.add(cls);
-  el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
-}
 function materialFeedback(teil, fx) {
-  const input = app.querySelector(`.matrow input[data-i="${fx.i}"]`);
-  const zeile = input ? input.closest('.matrow') : null;
-  if (!RM()) {
-    if (fx.art === 'neu') {
-      playFx(zeile, 'fx-in');
-    } else {
-      playFx(input, 'fx-pulse');
-    }
-  }
   toast(fx.art === 'plus' ? `${teil} hinzugefügt (×${fx.menge})` : `${teil} hinzugefügt`);
 }
 function materialHtml(p) {

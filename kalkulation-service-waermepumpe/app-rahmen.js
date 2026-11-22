@@ -189,23 +189,11 @@ function hsubText() {
     }[view.name] || 'Kalkulationen'
   );
 }
-function setHeader(animate) {
+function setHeader() {
   const hs = $('#hsub'),
     t = hsubText();
-  if (hsubAnim) {
-    hsubAnim.cancel();
-    hsubAnim = null;
-  }
-  const changed = hs.textContent !== t;
   hs.textContent = t;
-  if (animate && changed && !RM() && hs.animate)
-    hsubAnim = hs.animate(
-      [
-        { opacity: 0, transform: 'translateY(6px)' },
-        { opacity: 0.75, transform: 'none' },
-      ],
-      { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
-    );
+  hs.title = t;
 }
 /* Kopf der Formular-Ansicht: Zurück, Gesamtpreis (.hero), Schritte (.tab-strip) */
 function setSteps() {

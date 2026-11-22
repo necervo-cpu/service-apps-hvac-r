@@ -11,9 +11,14 @@
   gap: var(--space-sm);
   overflow-x: auto;
   scrollbar-width: none;
-  margin: 0 calc(var(--space-md) * -1) var(--space-lg);
+  margin: 0 calc(var(--space-md) * -1) var(--space-md);
   padding: 2px var(--space-md);
   scroll-snap-type: x proximity;
+}
+
+#stepwrap .tab-strip {
+  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
 .tab-strip::-webkit-scrollbar {
@@ -34,7 +39,11 @@
   color: var(--color-muted-foreground);
   font-size: var(--text-sub);
   font-weight: 600;
-  transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  transition: transform var(--t-press);
+}
+
+.tab-pill:active {
+  transform: scale(0.97);
 }
 
 .tab-pill .material-symbols-rounded {
@@ -83,7 +92,11 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background-color var(--t-fast), color var(--t-fast);
+  transition: transform var(--t-press);
+}
+
+.segmented-option:active {
+  transform: scale(0.97);
 }
 
 .segmented-option.active,
@@ -104,11 +117,19 @@
 .form-label,
 .field-label {
   display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-sm);
+  gap: 2px var(--space-sm);
   color: var(--color-muted-foreground);
   font-size: var(--text-caption);
   font-weight: 600;
+  hyphens: none;
+}
+
+.field-label .field-hint {
+  font-weight: 400;
+  max-width: 100%;
 }
 
 .field {
@@ -139,7 +160,6 @@
   border: 1.5px solid var(--color-border-control);
   border-radius: var(--radius-control);
   background: var(--color-surface-input);
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
 .field-box:focus-within,
@@ -318,6 +338,11 @@ textarea.text-input {
   border-radius: calc(var(--radius-control) - 3px);
   background: transparent;
   color: var(--color-muted-foreground);
+  transition: transform var(--t-press);
+}
+
+.tri button:active {
+  transform: scale(0.97);
 }
 
 .tri button[aria-pressed='true'][data-value='ok'] {
@@ -342,13 +367,11 @@ textarea.text-input {
   display: grid;
   grid-template-rows: 0fr;
   visibility: hidden;
-  transition: grid-template-rows 180ms ease, visibility 0s 180ms;
 }
 
 .check.has-defect .check-note {
   grid-template-rows: 1fr;
   visibility: visible;
-  transition: grid-template-rows 180ms ease, visibility 0s;
 }
 
 .check-note > div {
@@ -557,7 +580,7 @@ textarea.text-input {
   border-radius: var(--radius-control);
   background: var(--color-muted);
   color: var(--color-primary);
-  transition: background-color var(--t-fast), transform var(--t-fast);
+  transition: transform var(--t-press);
 }
 
 .stepper:active {

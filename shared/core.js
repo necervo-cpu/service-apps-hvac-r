@@ -71,11 +71,6 @@ document.addEventListener('focusin', (e) => {
     });
   }
 });
-/* Bewegung reduzieren (Systemeinstellung) und kurzes Aufleuchten eines geänderten Werts */
+/* Bewegung reduzieren (Systemeinstellung) */
 const RM = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-function flash(el) {
-  if (!el || RM()) return;
-  el.classList.remove('flash');
-  void el.offsetWidth;
-  el.classList.add('flash');
-}
+function flash() {}

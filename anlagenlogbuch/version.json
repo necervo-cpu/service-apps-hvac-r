@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
+  "version": "3.0.1",
   "buildDate": "2026-11-22",
-  "changelog": "Major-Umbau auf ui-ux-pro-max (Industrial / Field-Utility), Dark/Light-Mode, modulare CSS-Architektur"
+  "changelog": "EGM-Feinschliff: mobile-native, remove-animations, break-ui Layout-Fixes und DESIGN.md-Regeln"
 }

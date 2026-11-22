@@ -1,4 +1,4 @@
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const BUILD_DATE = '2026-11-22';
 
 function normText(s) {
@@ -78,6 +78,8 @@ function syncThemeSegment() {
   document
     .querySelectorAll('[data-theme-choice]')
     .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === choice)));
+  const color = document.documentElement.getAttribute('data-theme') === 'light' ? '#F8FAFC' : '#000000';
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', color));
 }
 
 function setThemeChoice(choice) {
