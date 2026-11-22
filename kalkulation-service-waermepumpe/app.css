@@ -531,6 +531,7 @@ textarea.text-input {
 .num-row .vwrap {
   flex: 1;
   width: auto;
+  min-width: 0;
   max-width: none;
 }
 

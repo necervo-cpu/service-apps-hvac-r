@@ -133,6 +133,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
   min-height: 48px;
   padding: 0 12px;
   border: 1.5px solid var(--color-border-control);
