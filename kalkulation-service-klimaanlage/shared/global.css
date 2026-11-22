@@ -1,0 +1,9 @@
+/**
+ * Modul: Gemeinsames Stylesheet (shared/global.css)
+ * Design-System: ui-ux-pro-max (Industrial / Field-Utility), siehe DESIGN.md & MASTER.md.
+ * Modularisiert in vier Teilmodule unter shared/css/ (je deutlich < 1.000 Zeilen).
+ */
+@import url('./css/tokens.css');
+@import url('./css/base.css');
+@import url('./css/components.css');
+@import url('./css/forms.css');

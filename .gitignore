@@ -10,3 +10,4 @@ desktop.ini
 Zugangsdaten*
 *.bak
 preview*.html
+!tokens.css

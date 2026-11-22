@@ -1,0 +1,192 @@
+/**
+ * Modul: Design-Tokens (shared/css/tokens.css)
+ * Quelle: design-system/service-apps-hvac-r/MASTER.md + DESIGN.md (Industrial / Field-Utility)
+ * Alle konkreten Farbwerte stehen ausschließlich hier; Komponenten nutzen nur var(--...).
+ */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-display: clamp(1.75rem, 1.35rem + 1.8vw, 2.35rem);
+  --text-h1: clamp(1.375rem, 1.2rem + 0.8vw, 1.65rem);
+  --text-h2: clamp(1.125rem, 1.05rem + 0.4vw, 1.35rem);
+  --text-body: 1rem;
+  --text-sub: 0.9375rem;
+  --text-caption: 0.8125rem;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-modal: 18px;
+  --radius-icon: 10px;
+  --radius-pill: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 14px 32px rgba(15, 23, 42, 0.22);
+
+  --t-fast: 150ms ease;
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   1A. LIGHT MODE (STANDARD & [data-theme="light"])
+   ========================================================================== */
+:root,
+[data-theme='light'] {
+  --color-background: #f0f9ff;
+  --color-foreground: #0c4a6e;
+  --color-card: #ffffff;
+  --color-card-foreground: #0c4a6e;
+  --color-primary: #0369a1;
+  --color-on-primary: #ffffff;
+  --color-secondary: #38bdf8;
+  --color-on-secondary: #0f172a;
+  --color-accent: #16a34a;
+  --color-on-accent: #000000;
+  --color-muted: #e7eff5;
+  --color-muted-foreground: #475569;
+  --color-surface-hover: #dceaf5;
+  --color-surface-input: #ffffff;
+  --color-border: #e0f2fe;
+  --color-border-control: #64748b;
+  --color-separator: #cbd5e1;
+  --color-destructive: #dc2626;
+  --color-on-destructive: #ffffff;
+  --color-destructive-text: #dc2626;
+  --color-ring: #0369a1;
+  --color-focus-halo: rgba(3, 105, 161, 0.22);
+  --color-scrim: rgba(12, 74, 110, 0.48);
+  --color-progress-track: #cbd5e1;
+  --chart-grid: rgba(12, 74, 110, 0.14);
+
+  --status-ok-bg: #dcfce7;
+  --status-ok-border: #15803d;
+  --status-ok-fg: #14532d;
+  --status-warn-bg: #fef3c7;
+  --status-warn-border: #b45309;
+  --status-warn-fg: #78350f;
+  --status-danger-bg: #fee2e2;
+  --status-danger-border: #dc2626;
+  --status-danger-fg: #991b1b;
+  --status-info-bg: #e0f2fe;
+  --status-info-border: #0369a1;
+  --status-info-fg: #0c4a6e;
+  --status-neutral-bg: #e7eff5;
+  --status-neutral-border: #64748b;
+  --status-neutral-fg: #334155;
+}
+
+/* ==========================================================================
+   1B. DARK MODE ([data-theme="dark"])
+   ========================================================================== */
+[data-theme='dark'] {
+  --color-background: #0b1117;
+  --color-foreground: #f1f5f9;
+  --color-card: #131c26;
+  --color-card-foreground: #f1f5f9;
+  --color-primary: #38bdf8;
+  --color-on-primary: #082f49;
+  --color-secondary: #7dd3fc;
+  --color-on-secondary: #082f49;
+  --color-accent: #22c55e;
+  --color-on-accent: #052e16;
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+  --color-surface-hover: #253449;
+  --color-surface-input: #0f1722;
+  --color-border: #263547;
+  --color-border-control: #64748b;
+  --color-separator: #263547;
+  --color-destructive: #dc2626;
+  --color-on-destructive: #ffffff;
+  --color-destructive-text: #fca5a5;
+  --color-ring: #38bdf8;
+  --color-focus-halo: rgba(56, 189, 248, 0.28);
+  --color-scrim: rgba(2, 6, 12, 0.74);
+  --color-progress-track: #263547;
+  --chart-grid: rgba(148, 163, 184, 0.16);
+
+  --status-ok-bg: rgba(34, 197, 94, 0.16);
+  --status-ok-border: rgba(74, 222, 128, 0.55);
+  --status-ok-fg: #86efac;
+  --status-warn-bg: rgba(245, 158, 11, 0.16);
+  --status-warn-border: rgba(251, 191, 36, 0.55);
+  --status-warn-fg: #fde68a;
+  --status-danger-bg: rgba(239, 68, 68, 0.16);
+  --status-danger-border: rgba(248, 113, 113, 0.55);
+  --status-danger-fg: #fca5a5;
+  --status-info-bg: rgba(56, 189, 248, 0.16);
+  --status-info-border: rgba(56, 189, 248, 0.55);
+  --status-info-fg: #7dd3fc;
+  --status-neutral-bg: #1e293b;
+  --status-neutral-border: #475569;
+  --status-neutral-fg: #cbd5e1;
+}
+
+/* ==========================================================================
+   1C. KOMPATIBILITÄTS-ALIASE FÜR BESTEHENDE APPS (BIS ETAPPE 3 & 4)
+   ========================================================================== */
+:root {
+  --bg-canvas: var(--color-background);
+  --bg-elevated: var(--color-card);
+  --text-primary: var(--color-foreground);
+  --text-secondary: var(--color-muted-foreground);
+  --text-tertiary: var(--color-muted-foreground);
+  --border-separator: var(--color-separator);
+
+  --glass-bg: var(--color-card);
+  --glass-border: var(--color-separator);
+  --glass-border-highlight: var(--color-separator);
+  --glass-shadow: var(--shadow-lg);
+
+  --surface-inner-bg: var(--color-muted);
+  --surface-inner-hover: var(--color-surface-hover);
+  --surface-inner-border: var(--color-border-control);
+
+  --accent: var(--color-primary);
+  --on-accent: var(--color-on-primary);
+  --accent-border: var(--color-primary);
+  --tonal: var(--status-info-bg);
+  --on-tonal: var(--status-info-fg);
+
+  --segmented-active-bg: var(--color-primary);
+  --segmented-active-text: var(--color-on-primary);
+  --segmented-active-border: var(--color-primary);
+  --segmented-active-shadow: none;
+
+  --scrim: var(--color-scrim);
+
+  --system-blue: var(--status-info-fg);
+  --system-blue-tint: var(--status-info-bg);
+  --system-blue-border: var(--status-info-border);
+
+  --system-cyan: var(--color-secondary);
+  --system-cyan-tint: var(--status-info-bg);
+  --system-cyan-border: var(--status-info-border);
+
+  --system-green: var(--status-ok-fg);
+  --system-green-tint: var(--status-ok-bg);
+  --system-green-border: var(--status-ok-border);
+
+  --system-orange: var(--status-warn-fg);
+  --system-orange-tint: var(--status-warn-bg);
+  --system-orange-border: var(--status-warn-border);
+
+  --system-yellow: var(--status-warn-fg);
+  --system-yellow-tint: var(--status-warn-bg);
+  --system-yellow-border: var(--status-warn-border);
+
+  --system-red: var(--status-danger-fg);
+  --system-red-tint: var(--status-danger-bg);
+  --system-red-border: var(--status-danger-border);
+
+  --system-purple: var(--color-primary);
+  --system-purple-tint: var(--status-info-bg);
+  --system-purple-border: var(--status-info-border);
+}

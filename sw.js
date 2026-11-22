@@ -1,1 +1,88 @@
-if(!self.define){let s,e={};const i=(i,l)=>(i=new URL(i+".js",l).href,e[i]||new Promise(e=>{if("document"in self){const s=document.createElement("script");s.src=i,s.onload=e,document.head.appendChild(s)}else s=i,importScripts(i),e()}).then(()=>{let s=e[i];if(!s)throw new Error(`Module ${i} didn’t register its module`);return s}));self.define=(l,n)=>{const r=s||("document"in self?document.currentScript.src:"")||location.href;if(e[r])return;let u={};const o=s=>i(s,r),a={module:{uri:r},exports:u,require:o};e[r]=Promise.all(l.map(s=>a[s]||o(s))).then(s=>(n(...s),u))}}define(["./workbox-abeb32eb"],function(s){"use strict";self.skipWaiting(),s.clientsClaim(),s.precacheAndRoute([{url:"version.json",revision:"cc27544a3a131db8688aa090ce4acec8"},{url:"registerSW.js",revision:"402b66900e731ca748771b6fc5e7a068"},{url:"index.html",revision:"0530f9806517dc2f3bc3e9e2ac995f27"},{url:"favicon.svg",revision:"6fbc86cb565a18e4d28db0c8a623707a"},{url:"assets/waermepumpe-wartung-C7t3B8Ar.js",revision:null},{url:"assets/sync-CUi11oFy.js",revision:null},{url:"assets/storage-BhOpLo6K.js",revision:null},{url:"assets/split-klima-ibn-CgDBc17G.js",revision:null},{url:"assets/rlt-kwl-Ckd1vKbf.js",revision:null},{url:"assets/renderOffscreen-B2uwqm4w.js",revision:null},{url:"assets/purify.es-BwoZCkIS.js",revision:null},{url:"assets/material-symbols-rounded-Dax-K5AH.woff2",revision:null},{url:"assets/klima-wartung-DPXWwT2K.js",revision:null},{url:"assets/kalkulation-waermepumpe-CQbr0e4M.js",revision:null},{url:"assets/kalkulation-klima-UeapeKXq.js",revision:null},{url:"assets/index.es-Dn4UxXzN.js",revision:null},{url:"assets/index-EYUBMvxo.js",revision:null},{url:"assets/index-BxE65i9T.css",revision:null},{url:"assets/heizung-wartung-BPda7frX.js",revision:null},{url:"assets/fGaseEngine-D4vtkeWT.js",revision:null},{url:"assets/exportQueue-CD98qWJa.js",revision:null},{url:"assets/daikin-auslegung-Cof2TgK_.js",revision:null},{url:"assets/anlagenlogbuch-Dw0bolbM.js",revision:null},{url:"assets/SignaturePad-CVCrz0g-.js",revision:null},{url:"assets/ProtocolApp-DXIPCDi4.js",revision:null},{url:"assets/KalkulationApp-BNx3iaB3.js",revision:null},{url:"assets/A4PreviewWrapper-nhRpq_gP.js",revision:null},{url:"favicon.svg",revision:"6fbc86cb565a18e4d28db0c8a623707a"},{url:"manifest.webmanifest",revision:"75209f0cffd3c8380dcfbf203fc1201d"}],{}),s.cleanupOutdatedCaches(),s.registerRoute(new s.NavigationRoute(s.createHandlerBoundToURL("index.html"))),s.registerRoute(({url:s})=>s.pathname.endsWith("version.json"),new s.NetworkOnly,"GET")});
+// Service Worker für die Startseite (Root).
+// Handhabt ausschließlich Dateien auf Root-Ebene und ./shared/* – alle 9 Unter-App-Ordner werden direkt durchgereicht.
+const CACHE = 'startseite-v300';
+const ASSETS = [
+  './',
+  './index.html',
+  './app.css',
+  './app.js',
+  './manifest.json',
+  './shared/core.js',
+  './shared/theme.js',
+  './shared/global.css',
+  './shared/css/tokens.css',
+  './shared/css/base.css',
+  './shared/css/components.css',
+  './shared/css/forms.css',
+  './shared/lib/fonts/material-symbols-rounded.woff2',
+];
+
+const ROOT_FILES = new Set([
+  '',
+  'index.html',
+  'app.css',
+  'app.js',
+  'manifest.json',
+]);
+
+async function cacheDeferred() {
+  const rest = ASSETS.slice(6);
+  if (!rest.length) return;
+  const cache = await caches.open(CACHE);
+  for (const asset of rest) {
+    try {
+      const hit = await cache.match(asset);
+      if (!hit) await cache.add(asset);
+    } catch (_) {}
+  }
+}
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.slice(0, 6))));
+  self.skipWaiting();
+});
+
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((k) => (k !== CACHE && k.startsWith('startseite-')) || k.startsWith('workbox-'))
+          .map((k) => caches.delete(k)),
+      ),
+    ),
+  );
+  self.clients.claim();
+  e.waitUntil(cacheDeferred());
+});
+
+self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+
+  const scopePath = new URL('./', self.registration.scope).pathname;
+  if (!url.pathname.startsWith(scopePath)) return;
+  const rel = url.pathname.slice(scopePath.length);
+  if (!ROOT_FILES.has(rel) && !rel.startsWith('shared/')) return;
+
+  e.respondWith(
+    caches.open(CACHE).then(async (cache) => {
+      const cached = await cache.match(e.request, { ignoreSearch: true });
+      const network = fetch(e.request)
+        .then((res) => {
+          if (res.ok) cache.put(e.request, res.clone());
+          return res;
+        })
+        .catch(() => null);
+      if (cached) {
+        e.waitUntil(network);
+        return cached;
+      }
+      return (await network) || (await cache.match('./index.html')) || Response.error();
+    }),
+  );
+});

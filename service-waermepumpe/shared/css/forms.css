@@ -1,0 +1,667 @@
+/**
+ * Modul: Formulare, Protokolle & Regler (shared/css/forms.css)
+ * Industrial / Field-Utility Bedienelemente. Ausschließlich CSS-Variablen (keine Hex-Werte).
+ */
+
+/* ==========================================================================
+   1. ABSCHNITTS-TABS & SEGMENTED CONTROL
+   ========================================================================== */
+.tab-strip {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 calc(var(--space-md) * -1) var(--space-lg);
+  padding: 2px var(--space-md);
+  scroll-snap-type: x proximity;
+}
+
+.tab-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-pill {
+  flex: none;
+  scroll-snap-align: start;
+  min-height: 44px;
+  padding: 0 var(--space-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-separator);
+  background: var(--color-card);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sub);
+  font-weight: 600;
+  transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.tab-pill .material-symbols-rounded {
+  display: none;
+  color: var(--status-ok-fg);
+}
+
+.tab-pill.is-done .material-symbols-rounded {
+  display: inline-flex;
+}
+
+.tab-pill.active,
+.tab-pill[aria-selected='true'] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.tab-pill.active .material-symbols-rounded,
+.tab-pill[aria-selected='true'] .material-symbols-rounded {
+  color: var(--color-on-primary);
+}
+
+.segmented-control {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-control);
+  background: var(--color-muted);
+  border: 1px solid var(--color-separator);
+}
+
+.segmented-option {
+  min-height: 44px;
+  min-width: 0;
+  padding: 0 var(--space-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sub);
+  font-weight: 600;
+  border-radius: calc(var(--radius-control) - 4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.segmented-option.active,
+.segmented-option[aria-pressed='true'] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* ==========================================================================
+   2. EINGABEFELDER & DROPDOWNS
+   ========================================================================== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.form-label,
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-caption);
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+}
+
+.field:focus-within .field-label {
+  color: var(--color-primary);
+}
+
+.field-required {
+  margin-left: 2px;
+  color: var(--status-warn-fg);
+}
+
+.field-box,
+.input-wrapper,
+.vwrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1.5px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface-input);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.field-box:focus-within,
+.input-wrapper:focus-within,
+.vwrap:focus-within {
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px var(--color-focus-halo);
+}
+
+.has-error .vwrap,
+.has-error .field-box,
+.has-error .input-wrapper {
+  border-color: var(--color-destructive);
+}
+
+.text-input,
+.glass-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-foreground);
+  font-size: var(--text-body);
+}
+
+.glass-input {
+  font-family: var(--font-mono);
+}
+
+.text-input::placeholder,
+.glass-input::placeholder {
+  color: var(--color-muted-foreground);
+}
+
+textarea.text-input {
+  min-height: 88px;
+  padding: 10px 0;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.field-box textarea.text-input {
+  min-height: 88px;
+  padding: 10px 0;
+}
+
+.field .field-box,
+.field > .choice-select,
+.field .segmented-control {
+  margin-top: 2px;
+}
+
+.field-box--menge {
+  flex: none;
+  width: 96px;
+  padding: 0 var(--space-sm);
+}
+
+.field-box--menge .value-input {
+  text-align: center;
+}
+
+.field-box--note,
+.field-box--note:focus-within {
+  margin: 0 0 12px;
+  padding: 0;
+  background: var(--status-warn-bg);
+  border-color: var(--status-warn-border);
+}
+
+.field-box--note .note-input {
+  width: 100%;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+}
+
+.input-wrapper .glass-input {
+  text-align: center;
+  padding-inline: 3rem;
+}
+
+.input-wrapper .input-unit-addon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.input-unit-addon {
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+  padding-left: var(--space-sm);
+}
+
+.choice-select {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+.choice-select--action {
+  margin-top: var(--space-sm);
+}
+
+.choice-select-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 44px 0 12px;
+  border: 1.5px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface-input);
+  color: var(--color-foreground);
+  font-size: var(--text-body);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.choice-select .material-symbols-rounded {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--color-muted-foreground);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   3. PRÜFPUNKTE (TRI-STATE), MESSWERTE & ZUSAMMENFASSUNG
+   ========================================================================== */
+.group--form > .calc-row + :not(.calc-row) {
+  margin-top: 12px;
+}
+
+.check-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 64px;
+  padding: var(--space-sm) 0;
+}
+
+.check-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sub);
+  font-weight: 500;
+}
+
+.tri {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-control);
+  background: var(--color-muted);
+  border: 1px solid var(--color-separator);
+}
+
+.tri button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid transparent;
+  border-radius: calc(var(--radius-control) - 3px);
+  background: transparent;
+  color: var(--color-muted-foreground);
+}
+
+.tri button[aria-pressed='true'][data-value='ok'] {
+  background: var(--status-ok-bg);
+  border-color: var(--status-ok-border);
+  color: var(--status-ok-fg);
+}
+
+.tri button[aria-pressed='true'][data-value='mangel'] {
+  background: var(--status-warn-bg);
+  border-color: var(--status-warn-border);
+  color: var(--status-warn-fg);
+}
+
+.tri button[aria-pressed='true'][data-value='na'] {
+  background: var(--status-neutral-bg);
+  border-color: var(--status-neutral-border);
+  color: var(--status-neutral-fg);
+}
+
+.check-note {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 180ms ease, visibility 0s 180ms;
+}
+
+.check.has-defect .check-note {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 180ms ease, visibility 0s;
+}
+
+.check-note > div {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.note-input {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  margin: 0 0 12px;
+  padding: 0 12px;
+  border: 1.5px solid var(--status-warn-border);
+  border-radius: var(--radius-control);
+  background: var(--status-warn-bg);
+  outline: none;
+  color: var(--status-warn-fg);
+  font-size: var(--text-body);
+}
+
+.note-input::placeholder {
+  color: var(--color-muted-foreground);
+}
+
+.form-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0 0.25rem var(--space-md);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-caption);
+}
+
+.meas-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  min-height: 60px;
+  padding: var(--space-sm) 0;
+}
+
+.calc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 56px;
+  margin: var(--space-sm) 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--color-muted);
+  border-top: 0;
+}
+
+.meas-label,
+.calc-label {
+  flex: 1 1 0;
+  min-width: 110px;
+  font-size: var(--text-sub);
+  font-weight: 600;
+}
+
+.meas-label small {
+  display: block;
+  font-weight: 400;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-caption);
+}
+
+.meas-hint,
+.meas-error {
+  flex: 1 0 100%;
+  font-size: var(--text-caption);
+}
+
+.meas-hint {
+  color: var(--color-muted-foreground);
+}
+
+.meas-error {
+  color: var(--color-destructive-text);
+  font-weight: 600;
+}
+
+.meas-row:focus-within .meas-label {
+  color: var(--color-primary);
+}
+
+.calc-value {
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vwrap {
+  flex: none;
+  width: 180px;
+  max-width: 56%;
+  min-height: 46px;
+  padding: 0 10px;
+}
+
+.value-input {
+  width: 84px;
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  border: 1.5px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface-input);
+  outline: none;
+  color: var(--color-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 600;
+  text-align: center;
+}
+
+.vwrap .value-input,
+.field-box .value-input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  padding: 0 6px 0 0;
+  border: 0;
+  background: transparent;
+}
+
+.vwrap .value-input {
+  text-align: right;
+}
+
+.vwrap .input-unit-addon {
+  padding-left: 0;
+}
+
+.meas-row > .input-unit-addon {
+  min-width: 3.2em;
+  padding-left: 0;
+}
+
+.defect {
+  padding: 12px 0;
+  font-size: var(--text-sub);
+}
+
+.defect small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-caption);
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 14px 0;
+}
+
+/* ==========================================================================
+   4. REGLER, STEPPER & DATUMSFELDER
+   ========================================================================== */
+.control {
+  padding: 12px 0;
+}
+
+.control-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.control-label {
+  flex: 1;
+  min-width: 140px;
+  font-size: var(--text-sub);
+  font-weight: 600;
+}
+
+.control-head .input-unit-addon {
+  min-width: 1.75em;
+  padding-left: var(--space-xs);
+}
+
+.control-slide {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.stepper {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-muted);
+  color: var(--color-primary);
+  transition: background-color var(--t-fast), transform var(--t-fast);
+}
+
+.stepper:active {
+  background: var(--color-surface-hover);
+  transform: scale(0.94);
+}
+
+input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--color-primary);
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-progress-track);
+}
+
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-progress-track);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -10px;
+  border: 3px solid var(--color-card);
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--color-card);
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.field-box .text-input:focus-visible,
+.field-box .value-input:focus-visible,
+.vwrap .value-input:focus-visible,
+.input-wrapper .glass-input:focus-visible,
+.search input:focus-visible,
+.field-box--note .note-input:focus-visible {
+  outline: none;
+}
+
+.value-input:focus-visible,
+.note-input:focus-visible {
+  border-color: var(--color-ring);
+}
+
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  line-height: 1.2;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  margin: 0;
+}
+
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+  margin: 0;
+}
+
+input[type='date']::-webkit-datetime-edit-fields-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+input[type='date']::-webkit-datetime-edit {
+  padding: 0;
+  text-align: left;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tab-pill:not(.active):not([aria-selected='true']):hover,
+  .stepper:hover {
+    background: var(--color-surface-hover);
+  }
+}

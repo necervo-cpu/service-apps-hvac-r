@@ -1,0 +1,1091 @@
+/* shared/pdf.css – Bericht-CSS für alle Service-Apps (A4-Seiten, 220 mm breit gerendert)
+   Wird von der App per <link> geladen und von tools/pdfdialog-bauen.js in PdfDialog.html eingesetzt.
+   Gehört zu shared/pdf-bausteine.js (Klassennamen). Nur .report-Regeln; App-spezifisches bleibt in der App. */
+.report {
+  --gold: #dccc4b;
+  --gold-soft: #faf6dc;
+  --ink: #1a1a1a;
+  --ink-2: #3a3a3a;
+  --ink-3: #706f6f;
+  --line: #dcd9cf;
+  --line-soft: #eceae3;
+  --zebra: #faf9f5;
+  --head-bg: #f4f3ef;
+  --fill: #f8f7f4;
+  --hair: #eceae3;
+  --accent-text: #8b7a1b;
+  --na: #8a8989;
+  --r-card: 12px;
+  --r-tile: 10px;
+  --r-small: 6px;
+  --ok: #1e7a46;
+  --ok-bg: #e6f4ec;
+  --bad: #b42318;
+  --bad-bg: #fdecea;
+  --warn: #8a5a00;
+  --warn-bg: #fdf3d6;
+  color: var(--ink);
+  font-family: Helvetica, Arial, sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.report * {
+  box-sizing: border-box;
+}
+.report .page {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto 16px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(20, 20, 20, 0.15);
+  padding: 12mm 15mm 12mm 18mm;
+  border-top: 4px solid var(--gold);
+  display: flex;
+  flex-direction: column;
+  font-size: 8.3pt;
+  line-height: 1.4;
+  text-align: left;
+}
+.report.flat .page {
+  box-shadow: none;
+  margin: 0;
+}
+.report .page-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.report .pfoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  border-top: 1px solid var(--hair);
+  padding-top: 2.5mm;
+  margin-top: 4mm;
+  font-size: 6.5pt;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.report .head {
+  display: block;
+}
+.report .head-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8mm;
+  padding-bottom: 3.5mm;
+  border-bottom: 1px solid var(--line);
+}
+.report .firm b {
+  display: block;
+  font-size: 9.5pt;
+  font-weight: 700;
+  color: var(--ink);
+}
+.report .firm span {
+  display: block;
+  font-size: 7.5pt;
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+.report .ids {
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.6mm 4mm;
+  font-size: 7.5pt;
+  color: var(--ink-3);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.report .ids b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.report .titelblock {
+  margin-top: 4mm;
+}
+.report .titelblock .kicker {
+  font-size: 7pt;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+.report .titelblock h1 {
+  margin: 0.5mm 0 0;
+  font-size: 20pt;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.report .law {
+  font-size: 8.5pt;
+  color: var(--ink-3);
+  margin-top: 1.2mm;
+  line-height: 1.35;
+}
+.report .head.small .head-top {
+  padding-bottom: 2.5mm;
+}
+.report .status {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  gap: 2.5mm;
+  margin: 5mm 0 1mm;
+}
+.report .tile {
+  background: var(--fill);
+  border-radius: var(--r-tile);
+  padding: 2.5mm 3.5mm;
+  text-align: center;
+}
+.report .tile .lab {
+  font-size: 6.5pt;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.report .tile .val {
+  font-size: 12pt;
+  font-weight: 700;
+  margin-top: 0.8mm;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.report .tile .sub {
+  font-size: 7.6pt;
+  color: var(--ink-2);
+  margin-top: 1mm;
+}
+.report .status.links .tile {
+  text-align: left;
+}
+.report .tile.primary {
+  background: var(--gold-soft);
+  border-left: 1.2mm solid var(--gold);
+}
+.report .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2mm;
+  font-weight: 600;
+  font-size: 7.6pt;
+  padding: 0.5mm 2mm;
+  border-radius: 10mm;
+  white-space: nowrap;
+}
+.report .pill svg {
+  width: 2.8mm;
+  height: 2.8mm;
+  flex-shrink: 0;
+}
+.report .tile .pill {
+  margin-left: 0;
+  display: inline-block;
+}
+.report .tile .pill svg {
+  display: inline-block;
+  vertical-align: -0.6mm;
+  margin-right: 1.2mm;
+}
+.report .pill.ok {
+  color: var(--ok);
+  background: var(--ok-bg);
+}
+.report .pill.bad {
+  color: var(--bad);
+  background: var(--bad-bg);
+}
+.report .pill.warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+.report .sec {
+  margin-top: 4.5mm;
+}
+.report .sec h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 2.5mm;
+  margin: 0 0 2mm;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-transform: none;
+}
+.report .sec h2 .no {
+  color: var(--accent-text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.report .sec h2 .ref {
+  margin-left: auto;
+  font-size: 7pt;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--head-bg);
+  border-radius: 1mm;
+  padding: 0.3mm 1.6mm;
+}
+.report .cols2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4mm;
+}
+.report .card {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-card);
+  padding: 2.5mm 3mm;
+  background: var(--zebra);
+}
+.report .card h3 {
+  margin: 0 0 1.5mm;
+  font-size: 7pt;
+  letter-spacing: 0.09em;
+  color: var(--ink-3);
+}
+.report .addr {
+  font-size: 8.8pt;
+  line-height: 1.45;
+}
+.report .addr b {
+  font-weight: 600;
+}
+.report .box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  background: #fff;
+}
+.report table.kv td {
+  vertical-align: middle;
+}
+.report table.kv td.k,
+.report .box td.k {
+  color: var(--ink-3);
+}
+.report table.kv td.v {
+  font-weight: 500;
+}
+.report table.kv td.v.empty {
+  color: var(--na);
+  font-weight: 400;
+}
+.report table.kv td.v.warn {
+  color: var(--warn);
+  font-weight: 700;
+}
+.report .checks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm;
+}
+.report .cgroup h4 {
+  margin: 0 0 1mm;
+  font-size: 7pt;
+  letter-spacing: 0.07em;
+  color: var(--ink-2);
+}
+.report .citem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6mm;
+  padding: 0.9mm 0;
+  border-bottom: 1px dotted var(--line);
+}
+.report .citem svg {
+  width: 3.2mm;
+  height: 3.2mm;
+  flex-shrink: 0;
+  margin-top: 0.3mm;
+}
+.report .citem .t {
+  flex: 1;
+}
+.report .citem .a {
+  font-size: 7.4pt;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-align: right;
+}
+.report .signoff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 6mm;
+  margin-top: 2.5mm;
+  font-size: 7.8pt;
+  color: var(--ink-2);
+}
+.report .signoff b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.report th {
+  font-size: 6.8pt;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  text-align: left;
+  font-weight: 600;
+  background: var(--head-bg);
+  padding: 1.6mm 2mm;
+  border-bottom: 1.5px solid var(--gold);
+}
+.report td {
+  padding: 1.4mm 2mm;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+  font-size: 8.3pt;
+  overflow-wrap: anywhere;
+}
+.report tbody tr:nth-child(even) td {
+  background: var(--zebra);
+}
+.report .box table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.report .box th {
+  font-size: 6.5pt;
+  padding: 1.4mm 2.6mm;
+  border-bottom: 1px solid var(--line);
+}
+.report .box td {
+  padding: 0.9mm 2.6mm;
+  border-bottom: 1px solid var(--hair);
+  font-variant-numeric: tabular-nums;
+}
+.report .box td + td,
+.report .box th + th {
+  border-left: 1px solid var(--hair);
+}
+.report .box tbody tr:last-child td {
+  border-bottom: 0;
+}
+.report .box tbody tr:nth-child(even) td {
+  background: transparent;
+}
+.report .box tr.tot td {
+  background: var(--gold-soft);
+}
+.report .box td.lbl {
+  background: var(--fill);
+}
+.report td.num,
+.report th.num {
+  text-align: right;
+}
+.report td.date {
+  white-space: nowrap;
+  font-weight: 600;
+}
+.report td .small {
+  display: block;
+  font-size: 7pt;
+  color: var(--ink-3);
+}
+.report .none {
+  font-size: 7.8pt;
+  color: var(--ink-3);
+  font-style: italic;
+  padding: 0.5mm 0;
+}
+.report .leak {
+  margin-top: 1.8mm;
+  font-size: 7.8pt;
+  color: var(--ink-2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1mm 2mm;
+}
+.report .leak b {
+  color: var(--ink);
+}
+.report .note {
+  border: 1px solid var(--line);
+  border-left: 1mm solid var(--gold);
+  border-radius: var(--r-small, 6px);
+  padding: 2.5mm 3mm;
+  margin-top: 4.5mm;
+  font-size: 8.4pt;
+}
+.report .note b {
+  display: block;
+  font-size: 7pt;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  margin-bottom: 0.8mm;
+}
+.report .legal {
+  margin-top: 4mm;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.4mm;
+  font-size: 6.9pt;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+.report .legal p {
+  margin: 0;
+}
+.report .legal b {
+  color: var(--ink);
+}
+.report .sign {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 6mm;
+  margin-top: 4mm;
+}
+.report .sign > div {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 2.5mm 3.5mm 3mm;
+}
+.report .sign b {
+  font-size: 6.5pt;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.report .sign .space {
+  display: block;
+  height: 30mm;
+  border-bottom: 1px solid var(--na);
+}
+.report .sign .cap {
+  padding-top: 1.2mm;
+  font-size: 7pt;
+  color: var(--ink-2);
+}
+.report .tile.ok {
+  background: var(--ok-bg);
+  border-left: 1.2mm solid var(--ok);
+}
+.report .tile.ok .val {
+  color: var(--ok);
+}
+.report .tile.bad {
+  background: var(--bad-bg);
+  border-left: 1.2mm solid var(--bad);
+}
+.report .tile.bad .val {
+  color: var(--bad);
+}
+.report .tile .sub div {
+  margin-top: 1mm;
+}
+.report .sub-h {
+  font-size: 7pt;
+  letter-spacing: 0.07em;
+  color: var(--ink-2);
+  font-weight: 700;
+  margin: 2.5mm 0 0.5mm;
+}
+.report .ci {
+  display: flex;
+  align-items: center;
+  gap: 1.8mm;
+  padding: 1mm 0.8mm;
+  border-bottom: 1px dotted var(--line);
+}
+.report .ci svg {
+  flex-shrink: 0;
+}
+.report .ci .t {
+  flex: 1;
+}
+.report .ci .m {
+  display: block;
+  margin-top: 0.4mm;
+  font-size: 7.4pt;
+  font-weight: 600;
+  color: var(--bad);
+}
+.report .ci .a {
+  font-size: 7.4pt;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.report .ci.ok .a {
+  color: var(--ok);
+}
+.report .ci.bad .a {
+  color: var(--bad);
+}
+.report .ci.na .a {
+  color: var(--na);
+}
+.report .ci.bad {
+  background: var(--bad-bg);
+}
+.report .sec-more {
+  margin-top: 2mm;
+}
+.report td.lbl {
+  background: var(--fill);
+  font-weight: 600;
+}
+.report td.ev.ok {
+  color: var(--ok);
+  font-weight: 700;
+}
+.report td.ev.bad {
+  color: var(--bad);
+  font-weight: 700;
+}
+.report td.ev.warn {
+  color: var(--warn);
+  font-weight: 700;
+}
+.report td.ev.na {
+  color: var(--na);
+}
+.report .note.def {
+  border-left-color: var(--bad);
+  background: #fffafa;
+}
+.report .note ul {
+  margin: 0;
+  padding-left: 4mm;
+}
+.report .sign .space {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 1mm;
+}
+.report .sign .space img {
+  max-height: 26mm;
+  max-width: 100%;
+}
+/* Bausteine, die mehrere Apps brauchen */
+.report .tile.warn {
+  border-left: 1.2mm solid #c98a00;
+  background: var(--warn-bg);
+}
+.report .tile.warn .val {
+  color: var(--warn);
+}
+.report tr.sum td {
+  font-weight: 600;
+}
+.report tr.tot td {
+  font-weight: 700;
+  font-size: 10pt;
+  background: var(--gold-soft);
+  border-top: 1.5px solid var(--gold);
+  border-bottom: 1.5px solid var(--gold);
+}
+.report .sign.kompakt {
+  margin-top: 3mm;
+  gap: 6mm;
+}
+.report .sign.kompakt .space {
+  height: 17mm;
+}
+.report .sign.kompakt .space img {
+  max-height: 16mm;
+}
+.report .note.warn {
+  border-left-color: #c98a00;
+  background: var(--warn-bg);
+}
+
+/* Checkliste */
+.report table.chk th.c,
+.report table.chk td.c {
+  width: 13mm;
+  text-align: center;
+  vertical-align: middle;
+}
+.report table.chk th.nr,
+.report table.chk td.nr {
+  width: 11mm;
+  color: var(--ink-3);
+}
+.report table.chk td {
+  vertical-align: middle;
+}
+.report table.chk td.c svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+.report table.chk tr.mangel td,
+.report table.chk tr.hinweis td {
+  font-size: 7.5pt;
+  border-top: 0;
+  border-left: 0;
+}
+.report table.chk tr.mangel td {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.report table.chk tr.hinweis td {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.report table.chk tr.mangel td:first-child {
+  border-left: 3px solid var(--bad);
+}
+.report table.chk tr.hinweis td:first-child {
+  border-left: 3px solid var(--warn);
+}
+.report .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 4mm;
+  margin-top: 1.6mm;
+  font-size: 7pt;
+  color: var(--ink-2);
+}
+.report .legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2mm;
+}
+
+/* ===== Neues Papier-Design (Seitenklasse „neu“, Bausteine n… in pdf-bausteine.js, Regeln im Skill pdf-export) ===== */
+.report .page.neu {
+  --n-ink: #111114;
+  --n-ink2: #5a5a66;
+  --n-ink3: #8a8a94;
+  --n-line: rgba(60, 60, 67, 0.16);
+  --n-inner: rgba(120, 120, 128, 0.12);
+  --n-ok: #1b7a3d;
+  --n-ok-tint: rgba(27, 122, 61, 0.12);
+  --n-ok-border: rgba(27, 122, 61, 0.45);
+  --n-warn: #b3400a;
+  --n-warn-tint: rgba(179, 64, 10, 0.12);
+  --n-warn-border: rgba(179, 64, 10, 0.45);
+  --n-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  padding: 14mm 16mm 12mm;
+  border-top: 0;
+  font-family: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9pt;
+  line-height: 1.4;
+  color: var(--n-ink);
+}
+.report .page.neu .pfoot {
+  border-top: 1px solid var(--n-line);
+  font-size: 9pt;
+  color: var(--n-ink2);
+  margin-top: 4mm;
+  padding-top: 2.5mm;
+}
+.report .page.neu .page-body {
+  padding-top: 0;
+}
+.report .page.neu .n-firm {
+  display: flex;
+  justify-content: space-between;
+  gap: 8mm;
+  padding-bottom: 3mm;
+  border-bottom: 1px solid var(--n-line);
+  color: var(--n-ink2);
+}
+.report .page.neu .n-firm b {
+  display: block;
+  color: var(--n-ink);
+  font-size: 10pt;
+  font-weight: 600;
+}
+.report .page.neu .n-firm span {
+  display: block;
+}
+.report .page.neu .n-ids {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 6mm;
+  row-gap: 0.4mm;
+  align-items: baseline;
+}
+.report .page.neu .n-ids span {
+  text-align: left;
+}
+.report .page.neu .n-ids b {
+  font-family: var(--n-mono);
+  font-weight: 600;
+  font-size: 9pt;
+  text-align: right;
+}
+.report .page.neu .n-h1 {
+  margin: 6mm 0 0;
+  font-size: 22pt;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.report .page.neu .n-hero {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: 6mm;
+  row-gap: 1mm;
+  margin-top: 6mm;
+  padding-bottom: 5mm;
+  border-bottom: 1px solid var(--n-line);
+}
+.report .page.neu .n-l {
+  color: var(--n-ink2);
+}
+.report .page.neu .n-hv {
+  align-self: end;
+  white-space: nowrap;
+  font-size: 26pt;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.report .page.neu .n-hv.bad {
+  color: var(--n-warn);
+}
+.report .page.neu .n-hv.ok {
+  color: var(--n-ok);
+}
+.report .page.neu .n-m {
+  align-self: end;
+  font-weight: 600;
+  font-size: 11pt;
+  white-space: nowrap;
+}
+.report .page.neu .n-p {
+  align-self: start;
+}
+.report .page.neu .n-sub {
+  margin-top: 1.5mm;
+  color: var(--n-ink2);
+}
+.report .page.neu .n-pill {
+  display: inline-block;
+  padding: 0.6mm 3mm;
+  border-radius: 10mm;
+  border: 1px solid;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.report .page.neu .n-pill svg {
+  display: inline-block;
+  vertical-align: -0.5mm;
+  margin-right: 1.2mm;
+}
+.report .page.neu .n-pill.ok {
+  color: var(--n-ok);
+  background: var(--n-ok-tint);
+  border-color: var(--n-ok-border);
+}
+.report .page.neu .n-pill.warn,
+.report .page.neu .n-pill.bad {
+  color: var(--n-warn);
+  background: var(--n-warn-tint);
+  border-color: var(--n-warn-border);
+}
+.report .page.neu .n-sec {
+  margin-top: 6mm;
+}
+.report .page.neu .n-sec:first-child {
+  margin-top: 0;
+}
+.report .page.neu .n-sec h2 {
+  margin: 0 0 2mm;
+  font-size: 12pt;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--n-ink);
+}
+.report .page.neu .n-cnt {
+  margin-left: 2mm;
+  font-size: 9pt;
+  font-weight: 500;
+  color: var(--n-ink3);
+}
+.report .page.neu .n-subh {
+  margin: 4mm 0 1mm;
+  font-weight: 600;
+  color: var(--n-ink2);
+}
+/* Teil eines Abschnitts (z. B. Verdichter und Verflüssiger unter „Außeneinheit“) */
+.report .page.neu .n-teil {
+  margin: 5mm 0 1.5mm;
+  font-size: 11pt;
+  font-weight: 600;
+}
+.report .page.neu h2 + .n-teil {
+  margin-top: 1mm;
+}
+.report .page.neu .n-sec.n-sec--teil {
+  margin-top: 0;
+}
+.report .page.neu .n-th {
+  display: grid;
+  column-gap: 3mm;
+  padding-bottom: 1.4mm;
+  font-weight: 600;
+  color: var(--n-ink2);
+}
+.report .page.neu .n-row {
+  display: grid;
+  column-gap: 3mm;
+  align-items: start;
+  padding: 1.1mm 0;
+  border-top: 1px solid var(--n-line);
+}
+.report .page.neu .n-rows > .n-row:first-child,
+.report .page.neu .n-rows > .n-mangel:first-child {
+  border-top: 0;
+}
+.report .page.neu .n-row:not(.n-c-chk):not(.n-c-mat) {
+  grid-template-columns: 40% 1fr;
+}
+.report .page.neu .n-row .k {
+  color: var(--n-ink2);
+}
+.report .page.neu .n-row .v {
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+.report .page.neu .n-row.calc {
+  background: var(--n-inner);
+  border-radius: 2mm;
+  border-top: 0;
+  margin: 0.6mm -3mm;
+  padding: 1.1mm 3mm;
+}
+.report .page.neu .n-row.calc .k {
+  color: var(--n-ink);
+  font-weight: 500;
+}
+.report .page.neu .n-row.calc .v {
+  font-weight: 600;
+}
+.report .page.neu .n-num {
+  font-family: var(--n-mono);
+  font-variant-numeric: tabular-nums;
+}
+.report .page.neu .n-unit {
+  font-family: 'Inter', -apple-system, Arial, sans-serif;
+  font-size: 9pt;
+  font-weight: 500;
+  color: var(--n-ink2);
+}
+.report .page.neu .nr {
+  font-family: var(--n-mono);
+  color: var(--n-ink3);
+}
+.report .page.neu .n-c-chk {
+  grid-template-columns: 9mm 1fr 22mm;
+}
+.report .page.neu .n-c-mat {
+  grid-template-columns: 9mm 1fr repeat(var(--n-cols, 3), var(--n-w, 29mm));
+}
+.report .page.neu .n-m3 {
+  --n-cols: 3;
+  --n-w: 29mm;
+}
+.report .page.neu .n-m4 {
+  --n-cols: 4;
+  --n-w: 24mm;
+}
+.report .page.neu .n-m5 {
+  --n-cols: 5;
+  --n-w: 20mm;
+}
+.report .page.neu .n-m2 {
+  --n-cols: 2;
+  --n-w: 34mm;
+}
+.report .page.neu .n-m1 {
+  --n-cols: 1;
+  --n-w: 40mm;
+}
+.report .page.neu .n-wide {
+  grid-column: 1 / 3;
+}
+.report .page.neu .n-room {
+  display: block;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+  color: var(--n-ink3);
+}
+.report .page.neu .n-res {
+  display: inline-block;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.report .page.neu .n-res svg {
+  display: inline-block;
+  vertical-align: -0.8mm;
+  margin-right: 1mm;
+}
+.report .page.neu .n-res.ok {
+  color: var(--n-ok);
+}
+.report .page.neu .n-res.bad {
+  color: var(--n-warn);
+}
+.report .page.neu .n-res.na {
+  color: var(--n-ink3);
+  font-weight: 500;
+}
+.report .page.neu .n-defect {
+  display: block;
+  margin-top: 0.6mm;
+  color: var(--n-warn);
+  font-weight: 500;
+}
+.report .page.neu .n-defect b {
+  font-weight: 600;
+}
+.report .page.neu .n-mangel {
+  display: grid;
+  grid-template-columns: 9mm 1fr;
+  column-gap: 3mm;
+  padding: 1.1mm 0;
+  border-top: 1px solid var(--n-line);
+}
+.report .page.neu .n-mangel b {
+  font-weight: 600;
+  color: var(--n-warn);
+}
+.report .page.neu .n-notice {
+  margin-top: 6mm;
+  padding: 3.5mm 4.5mm;
+  border: 1px solid var(--n-warn-border);
+  border-radius: 3.5mm;
+  background: var(--n-warn-tint);
+}
+.report .page.neu .n-nt {
+  color: var(--n-warn);
+  font-weight: 600;
+  font-size: 10pt;
+}
+.report .page.neu .n-nt svg {
+  display: inline-block;
+  vertical-align: -0.9mm;
+  margin-right: 1.5mm;
+}
+.report .page.neu .n-nn {
+  font-weight: 500;
+}
+.report .page.neu .n-notice ul {
+  margin: 2mm 0 0;
+  padding-left: 5mm;
+  list-style: disc;
+}
+.report .page.neu .n-notice li {
+  margin: 0.8mm 0;
+}
+.report .page.neu .n-ref {
+  font-family: var(--n-mono);
+  font-weight: 600;
+}
+.report .page.neu .n-legal {
+  margin-top: 6mm;
+}
+.report .page.neu .n-legal p {
+  margin: 0 0 1.5mm;
+  color: var(--n-ink2);
+}
+.report .page.neu .n-legal b {
+  color: var(--n-ink);
+  font-weight: 600;
+}
+.report .page.neu .n-sign {
+  margin-top: 4mm;
+  max-width: 110mm;
+}
+.report .page.neu .n-signbox {
+  height: 16mm;
+  border-bottom: 1px solid var(--n-ink);
+}
+.report .page.neu .n-signbox img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+.report .page.neu .n-signmeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 6mm;
+  margin-top: 1.2mm;
+  color: var(--n-ink2);
+}
+.report .page.neu .n-signs {
+  display: flex;
+  gap: 10mm;
+}
+.report .page.neu .n-signs .n-sign {
+  flex: 1;
+  max-width: none;
+}
+.report .page.neu .n-blk {
+  margin-top: 0;
+}
+.report .page.neu .n-mangel.one {
+  grid-template-columns: 1fr;
+}
+.report .page.neu .n-rows + .n-th {
+  margin-top: 3mm;
+}
+.report .page.neu .pfoot,
+.report .page.neu .pfoot span {
+  font-variant-numeric: normal;
+  font-feature-settings: normal;
+  letter-spacing: 0;
+}
+
+/* Geräteliste ab 6 Innengeräten */
+.report .page.neu .n-lth {
+  align-items: end;
+  column-gap: 0.5mm;
+}
+.report .page.neu .n-lth > span,
+.report .page.neu .n-lrow > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report .page.neu .n-lth .c,
+.report .page.neu .n-lrow .c {
+  text-align: center;
+}
+.report .page.neu .n-lth .n-u {
+  display: block;
+  font-weight: 400;
+  color: var(--n-ink3);
+}
+.report .page.neu .n-lrow {
+  display: grid;
+  column-gap: 0.5mm;
+  align-items: center;
+  padding: 0.9mm 0;
+  border-top: 1px solid var(--n-line);
+}
+.report .page.neu .n-rows > .n-lrow:first-child {
+  border-top: 0;
+}
+.report .page.neu .n-raum {
+  overflow-wrap: break-word;
+}
+.report .page.neu .n-lrow .n-res svg {
+  margin-right: 0;
+}
+.report .page.neu .n-keys {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8mm;
+}
+.report .page.neu .n-k1 {
+  display: grid;
+  grid-template-columns: 8mm 1fr;
+  padding: 0.7mm 0;
+  border-top: 1px solid var(--n-line);
+}

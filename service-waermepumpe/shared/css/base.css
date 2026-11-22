@@ -1,0 +1,208 @@
+/**
+ * Modul: Basis-Styles & Barrierefreiheit (shared/css/base.css)
+ * Reset, Typografie-Basis, Touch-Targets, Icons und Legacy-Flächen-Neutralisierung.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+  touch-action: manipulation;
+  background-color: var(--color-background);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom)));
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.numeric,
+table,
+code,
+input[type='number'],
+.value {
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+a,
+label,
+[role='button'],
+.segmented-option,
+.row {
+  user-select: none;
+}
+
+button,
+a,
+[role='button'],
+input,
+select,
+textarea {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+button,
+[role='button'],
+input,
+select,
+textarea {
+  min-height: 44px;
+}
+
+button,
+[role='button'] {
+  min-width: 44px;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-size: var(--text-body);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   GOOGLE MATERIAL SYMBOLS ROUNDED
+   ========================================================================== */
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.25em;
+  line-height: 1;
+  vertical-align: -0.18em;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: font-variation-settings var(--t-fast), color var(--t-fast), transform var(--t-fast);
+}
+
+.active .material-symbols-rounded,
+.material-symbols-rounded.is-active,
+[aria-pressed='true'] .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+html.icons-pending .material-symbols-rounded {
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   ALT-FLÄCHEN NEUTRALISIEREN (KEIN BLUR, KEIN GLAS-BALLAST)
+   ========================================================================== */
+.ambient-canvas {
+  display: none;
+}
+
+.liquid-glass {
+  background: var(--color-card);
+  border: 1px solid var(--color-separator);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-card);
+}
+
+.liquid-glass > *,
+.liquid-surface-inner > * {
+  min-width: 0;
+}
+
+.liquid-surface-inner {
+  background: var(--color-surface-input);
+  border: 1.5px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  transition: background-color var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.liquid-surface-inner:focus-within {
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px var(--color-focus-halo);
+}
+
+.liquid-glass.group,
+.liquid-glass.glass-card,
+.liquid-glass.flow-card,
+.liquid-glass.chart-card,
+.icon-btn.liquid-glass,
+.back-btn.liquid-glass {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  border-width: 0;
+}
+
+.search.liquid-glass {
+  background: var(--color-surface-input);
+  border: 1.5px solid var(--color-border-control);
+}
+
+/* ==========================================================================
+   SEITENÜBERGÄNGE & BARRIEREFREIHEIT
+   ========================================================================== */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-contrast: more) {
+  .group,
+  .vwrap,
+  .field-box,
+  .choice-select-input,
+  .text-input,
+  .modal-card,
+  .liquid-surface-inner {
+    border-width: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

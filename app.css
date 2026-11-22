@@ -1,0 +1,91 @@
+/**
+ * App-spezifische Styles: Startseite HVAC-R Suite (startseite/app.css)
+ * Baut auf shared/global.css (tokens, base, components, forms) auf.
+ */
+
+html {
+  overscroll-behavior-y: none;
+}
+
+.search-clear {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--color-muted-foreground);
+}
+
+.search-clear[hidden] {
+  display: none;
+}
+
+.row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.row-head .status-pill {
+  padding: 2px 8px;
+}
+
+.row-text {
+  overflow-wrap: anywhere;
+}
+
+.settings-update-dot[hidden] {
+  display: none;
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+  padding: 12px var(--space-md);
+  border: 1px solid var(--status-info-border);
+  border-radius: var(--radius-control);
+  background: var(--status-info-bg);
+  color: var(--status-info-fg);
+  font-size: var(--text-sub);
+}
+
+.notice[hidden] {
+  display: none;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sub);
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+.empty-state .material-symbols-rounded {
+  font-size: 36px;
+  color: var(--color-muted-foreground);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}

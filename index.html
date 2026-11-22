@@ -1,46 +1,409 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
     <meta name="color-scheme" content="dark light" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="HVAC-R" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <meta name="apple-mobile-web-app-title" content="Service Apps" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F0F9FF" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1117" />
     <title>Service Apps HVAC-R</title>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 
-    <!-- Verbindlicher Theme-Init: kein FOWC (Flash of Wrong Colors) -->
     <script>
       (function () {
-        var root = document.documentElement;
-        var saved = null;
+        var root = document.documentElement,
+          saved = null;
         try {
           saved = localStorage.getItem('ag-theme');
         } catch (e) {}
         var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-        var theme = saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark';
-        root.setAttribute('data-theme', theme);
+        root.setAttribute(
+          'data-theme',
+          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
+        );
       })();
     </script>
 
-    <!-- Google Fonts Online & Fallbacks -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       id="agFonts"
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
     />
-    <script type="module" crossorigin src="./assets/index-EYUBMvxo.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BxE65i9T.css">
-  <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
-  <body class="bg-canvas text-[var(--text-primary)] antialiased select-none">
-    <div id="root"></div>
-    <div id="portal-root"></div>
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0..200&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <script>
+      (function () {
+        var root = document.documentElement,
+          link = document.getElementById('agFonts');
+        if (!link || !document.fonts || !document.fonts.load) return;
+        var done = function () {
+          root.classList.remove('icons-pending');
+        };
+        root.classList.add('icons-pending');
+        setTimeout(done, 4000);
+        link.addEventListener('load', function () {
+          setTimeout(function () {
+            document.fonts.load('24px "Material Symbols Rounded"').then(done, done);
+          }, 0);
+        });
+        link.addEventListener('error', done);
+      })();
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="service-klimaanlagenwartung/icon-180.png" />
+    <link rel="icon" type="image/png" href="service-klimaanlagenwartung/icon-180.png" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="shared/lib/fonts/material-symbols-rounded.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="shared/global.css" />
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <header class="app-header">
+        <div class="app-header-text">
+          <h1 class="brand-title">Service Apps</h1>
+          <p class="brand-subtitle">HVAC-R Suite – Protokolle, Kalkulation &amp; Auslegung</p>
+        </div>
+        <div class="header-actions">
+          <button
+            type="button"
+            class="icon-btn"
+            id="themeToggleBtn"
+            aria-label="Darstellung wechseln"
+          ></button>
+          <button type="button" class="icon-btn" id="btnset" aria-label="Einstellungen">
+            <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+            <span class="status-dot settings-update-dot" id="app-update-dot" hidden></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="notice notice--update" id="updateBanner" hidden>
+        <div class="notice-text">
+          <strong id="updateBannerText">Neue Version verfügbar</strong>
+          <span>Nach dem Laden startet die aktualisierte Startseite.</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="btnBannerReload">
+            <span class="material-symbols-rounded" aria-hidden="true">system_update_alt</span>
+            <span>Jetzt aktualisieren</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="search">
+        <span class="material-symbols-rounded" aria-hidden="true">search</span>
+        <input id="q" type="search" aria-label="App suchen" autocomplete="off" />
+        <button type="button" class="icon-btn search-clear" id="qClear" aria-label="Suche leeren" hidden>
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      </div>
+
+      <main id="app">
+        <div class="hub-grid">
+          <section class="hub-section" id="secService" aria-labelledby="titleService">
+            <h2 class="section-title" id="titleService">
+              <span>Service &amp; Protokolle</span>
+              <span class="section-count" id="countService">6</span>
+            </h2>
+            <div class="group">
+              <a
+                class="row"
+                href="anlagenlogbuch/"
+                data-search="anlagenlogbuch f-gase f gase dichtheit dichtheitskontrolle betreiber protokoll eu 517 2024 573 logbuch"
+              >
+                <span class="row-icon row-icon--orange">
+                  <span class="material-symbols-rounded" aria-hidden="true">menu_book</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-head">
+                    <span class="row-title">Anlagenlogbuch</span>
+                    <span class="status-pill status-pill--orange">F-Gase</span>
+                  </span>
+                  <span class="row-sub">
+                    F-Gase-Logbuch, Dichtheitskontrollen &amp; Betreiber-Protokolle (EU 2024/573)
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="service-waermepumpe/"
+                data-search="wärmepumpe wp wartung sole wasser luft kaeltekreis protokoll service"
+              >
+                <span class="row-icon row-icon--blue">
+                  <span class="material-symbols-rounded" aria-hidden="true">heat_pump</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Wärmepumpen-Wartung</span>
+                  <span class="row-sub">
+                    Wartungsprotokoll Sole-, Wasser- &amp; Luft-Wasser-Wärmepumpen
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="gas-oel-heizungswartung/"
+                data-search="gas oel öl heizung heizungswartung din en 12828 4755 abgas brenner sicherheitsorgane"
+              >
+                <span class="row-icon row-icon--blue">
+                  <span class="material-symbols-rounded" aria-hidden="true">
+                    local_fire_department
+                  </span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Gas-/Öl-Heizungswartung</span>
+                  <span class="row-sub">
+                    Prüfprotokoll DIN EN 12828 / DIN 4755 inkl. Abgasanalyse
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="service-klimaanlagenwartung/"
+                data-search="klima kälte kaelte wartung vdma 24186 inspektion drucklagen überhitzung unterkühlung"
+              >
+                <span class="row-icon row-icon--blue">
+                  <span class="material-symbols-rounded" aria-hidden="true">ac_unit</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Klima-/Kälte-Wartung</span>
+                  <span class="row-sub">
+                    Inspektion &amp; Wartung nach VDMA 24186-3 inkl. Drucklagen
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="service-rlt-kwl-anlagen/"
+                data-search="rlt kwl lüftung lueftung hygiene vdi 6022 wohnraumlüftung wartung"
+              >
+                <span class="row-icon row-icon--blue">
+                  <span class="material-symbols-rounded" aria-hidden="true">air</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">RLT- &amp; KWL-Wartung</span>
+                  <span class="row-sub">Hygieneinspektion &amp; Wartung nach VDI 6022</span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="service-inbetriebnahme-split-klimaanlage/"
+                data-search="split klima inbetriebnahme ibn druckprobe vakuum kältemittel messwerte"
+              >
+                <span class="row-icon row-icon--blue">
+                  <span class="material-symbols-rounded" aria-hidden="true">build_circle</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Split-Klima Inbetriebnahme</span>
+                  <span class="row-sub">
+                    Druckprobe, Vakuumierung, Kältemittelfüllung &amp; Messwerte
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+            </div>
+          </section>
+
+          <section class="hub-section" id="secKalk" aria-labelledby="titleKalk">
+            <h2 class="section-title" id="titleKalk">
+              <span>Kalkulation &amp; Auslegung</span>
+              <span class="section-count" id="countKalk">3</span>
+            </h2>
+            <div class="group">
+              <a
+                class="row"
+                href="kalkulation-service-klimaanlage/"
+                data-search="kalkulation klima split multisplit angebot wartungskalkulation"
+              >
+                <span class="row-icon row-icon--green">
+                  <span class="material-symbols-rounded" aria-hidden="true">calculate</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Kalkulation Klima</span>
+                  <span class="row-sub">Wartungskalkulation Split- &amp; Multisplit-Klimaanlagen</span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="kalkulation-service-waermepumpe/"
+                data-search="kalkulation wärmepumpe wp r290 angebot wartungskalkulation"
+              >
+                <span class="row-icon row-icon--green">
+                  <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Kalkulation Wärmepumpe</span>
+                  <span class="row-sub">
+                    Wartungskalkulation Wärmepumpen inkl. R290-Prüfung
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+
+              <a
+                class="row"
+                href="auslegungstool-daikin-split-klimaanlage/"
+                data-search="daikin multisplit split auslegung kombination r32 en 378"
+              >
+                <span class="row-icon row-icon--green">
+                  <span class="material-symbols-rounded" aria-hidden="true">device_hub</span>
+                </span>
+                <span class="row-text">
+                  <span class="row-title">Daikin Multisplit-Auslegung</span>
+                  <span class="row-sub">
+                    Auslegung &amp; Kombinationsprüfung R32 nach EN 378
+                  </span>
+                </span>
+                <span class="material-symbols-rounded row-chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </a>
+            </div>
+          </section>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <span class="material-symbols-rounded" aria-hidden="true">search_off</span>
+          <p>Keine passende App gefunden.</p>
+        </div>
+      </main>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="modalHost"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="modal-card">
+        <div class="panel" id="panelSettings">
+          <div class="modal-head">
+            <h2 class="modal-title" id="settingsTitle">Einstellungen</h2>
+            <button class="icon-btn" id="modalCloseBtn" type="button" aria-label="Schließen">
+              <span class="material-symbols-rounded" aria-hidden="true">close</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <div class="card-title">Darstellung</div>
+            <div class="segmented-control" id="themeSegment" role="group" aria-label="Darstellung">
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="light"
+                aria-pressed="false"
+              >
+                Hell
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="dark"
+                aria-pressed="false"
+              >
+                Dunkel
+              </button>
+              <button
+                type="button"
+                class="segmented-option"
+                data-theme-choice="system"
+                aria-pressed="false"
+              >
+                System
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="card-title">App-Info und Updates</div>
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-row-label">Installierte Version</span>
+                <span class="info-row-value numeric">
+                  <span class="status-pill status-pill--green" id="app-version-label">v3.0.0</span>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-row-label">Build-Datum</span>
+                <span class="info-row-value numeric" id="appBuildDateLabel">2026-11-22</span>
+              </div>
+              <div class="info-row" id="updateRow" hidden>
+                <span class="info-row-label">Neue Version</span>
+                <span class="info-row-value numeric" id="updateRemote"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" id="btnCheckUpdate">
+              <span class="material-symbols-rounded" aria-hidden="true">sync</span>
+              <span>Nach Updates suchen</span>
+            </button>
+            <button type="button" class="btn-secondary" id="btnForceReload">
+              <span class="material-symbols-rounded" aria-hidden="true">cleaning_services</span>
+              <span>Cache leeren und neu laden</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-pill" id="toast" role="status" aria-live="polite">
+      <span class="material-symbols-rounded" aria-hidden="true">info</span>
+      <span id="toastText"></span>
+    </div>
+
+    <script src="shared/core.js" defer></script>
+    <script src="shared/theme.js" defer></script>
+    <script src="app.js" defer></script>
   </body>
 </html>
