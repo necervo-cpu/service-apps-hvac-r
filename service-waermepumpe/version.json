@@ -1,5 +1,5 @@
 {
-  "version": "3.0.4",
+  "version": "3.0.5",
   "buildDate": "2026-11-23",
-  "changelog": "Einstellungs-Dialog kompakter und im sichtbaren Bereich, Prüfpunkte mit Beschriftung, ±-Umschalter"
+  "changelog": "Abstand am Knopf Material hinzufügen angepasst"
 }

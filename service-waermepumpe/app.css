@@ -422,8 +422,9 @@ canvas.sig {
 .matadd {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-md);
   padding-top: 12px;
+  padding-bottom: var(--space-md);
 }
 
 /* Bericht-Vorschau (A4-Seiten) */
