@@ -253,6 +253,7 @@ function mangelNote(f, v, offen) {
 const OK3_WERT = ['ok', 'mangel', 'na'];
 const OK3_ICON = ['check', 'priority_high', 'remove'];
 const OK3_TITEL = ['In Ordnung', 'Mangel', 'Entfällt'];
+const OK3_LABEL = ['i.O.', 'Mangel', 'entfällt'];
 function fieldHtml(f, p) {
   const v = p.values;
   const x = v[f.id] ?? '';
@@ -266,7 +267,7 @@ function fieldHtml(f, p) {
       const offen = x === 'n.i.O.';
       const tri = OK3.map(
         (o, k) =>
-          `<button type="button" data-act="set" data-f="${f.id}" data-v="${esc(o)}" data-value="${OK3_WERT[k]}" aria-pressed="${x === o}" aria-label="${OK3_TITEL[k]}"><span class="material-symbols-rounded" aria-hidden="true">${OK3_ICON[k]}</span></button>`,
+          `<button type="button" data-act="set" data-f="${f.id}" data-v="${esc(o)}" data-value="${OK3_WERT[k]}" aria-pressed="${x === o}" aria-label="${OK3_TITEL[k]}"><span class="material-symbols-rounded" aria-hidden="true">${OK3_ICON[k]}</span><span class="tri-label">${OK3_LABEL[k]}</span></button>`,
       ).join('');
       return `<div class="check${offen ? ' has-defect' : ''}" data-item="${f.id}">
     <div class="check-main"><span class="check-label">${esc(f.label)}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}</span><div class="tri" role="group" aria-label="Bewertung: ${esc(f.label)}">${tri}</div></div>

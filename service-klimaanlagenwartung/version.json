@@ -1,5 +1,5 @@
 {
-  "version": "3.0.3",
+  "version": "3.0.4",
   "buildDate": "2026-11-23",
-  "changelog": "Pilot Design-Guideline 1: neue Tokens (OLED-Kontrast, Reduced Motion), semantische Status-Pills, Messwertzeile ab 375 px"
+  "changelog": "Prüfpunkte als Variante A (Frage oben, 3er-Leiste mit Text), Safe-Area oben auf iOS"
 }
