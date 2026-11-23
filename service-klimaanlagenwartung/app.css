@@ -195,20 +195,46 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-/* Kopfbereich: bleibt beim Scrollen oben stehen, im selben Smoked-Glas-Effekt wie die Aktionsleiste.
-   Der Abstand oben kommt von der Safe-Area: sticky sitzt direkt unter der Statusleiste, sonst doppelter Abstand im Ruhezustand. */
+/* Kopfbereich: bleibt beim Scrollen oben stehen und reicht bis zur oberen Bildschirmkante (Smoked Glass).
+   Das Safe-Area-Padding oben hält die Schrift auf der bisherigen Höhe. */
 .app-header {
   position: sticky;
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
   z-index: 40;
   margin-inline: calc(var(--space-md) * -1);
   margin-bottom: 0;
-  padding: 8px var(--space-md);
-  background: color-mix(in srgb, var(--color-card) 72%, transparent);
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Glas ohne harte Kante: weicher Blur-Verlauf, der nach unten ausläuft */
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -22px 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
+    transparent 100%
+  );
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-foreground) 8%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
+}
+
+/* Theme- und Einstellungs-Icon als runde Glas-Kreise */
+.app-header .icon-btn {
+  background: color-mix(in srgb, var(--color-card) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
+}
+
+.app-header .icon-btn:active {
+  background: var(--color-muted);
 }
 
 @media (min-width: 768px) {
@@ -238,9 +264,16 @@ body::-webkit-scrollbar {
 /* Bei erhöhtem Kontrast ohne Glas: volle Flächen */
 @media (prefers-contrast: more) {
   .bar,
-  .toast-pill,
-  .app-header {
+  .toast-pill {
     background: var(--color-card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .app-header::before {
+    background: var(--color-background);
+    -webkit-mask-image: none;
+    mask-image: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -270,17 +303,10 @@ body:has(.bar:not([hidden])) {
   hyphens: none;
 }
 
-/* iOS (black-translucent): Inhalt, der beim Scrollen unter die Statusleiste rutscht, wird abgedeckt */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top, 0px);
-  background: var(--color-background);
-  z-index: 50;
-  pointer-events: none;
+/* Die frühere deckende Abdeckung der Statusleiste (body::before) entfällt: der Kopfbereich reicht bis zur oberen Kante
+   und übernimmt das mit seinem Glas-Effekt. */
+.app-shell {
+  padding-top: 0;
 }
 
 /* Prüfpunkt-Layout (Variante A) und Mangel-Fokus liegen zentral in shared/css/forms.css */

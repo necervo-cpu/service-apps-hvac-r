@@ -1,5 +1,5 @@
 {
-  "version": "3.0.15",
+  "version": "3.0.17",
   "buildDate": "2026-11-23",
-  "changelog": "Kopfbereich bleibt beim Scrollen oben stehen (Smoked-Glas-Effekt)"
+  "changelog": "Kopf randlos mit weichem Glas-Verlauf bis zur oberen Kante, Icon-Buttons als Glas-Kreise"
 }
