@@ -1,5 +1,5 @@
 {
-  "version": "3.0.18",
+  "version": "3.0.19",
   "buildDate": "2026-11-23",
-  "changelog": "Untere Aktionsleiste mit weichem Glas-Auslauf ohne harte Kante"
+  "changelog": "Kopf ohne Maske, um Zittern beim Scrollen der Übersicht zu beheben"
 }

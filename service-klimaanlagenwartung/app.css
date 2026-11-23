@@ -237,8 +237,6 @@ body::-webkit-scrollbar {
   );
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
 }
 
 /* Theme- und Einstellungs-Icon als runde Glas-Kreise */
