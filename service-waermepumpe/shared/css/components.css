@@ -150,6 +150,7 @@ header .icon-btn .material-symbols-rounded,
 
 .search input {
   flex: 1;
+  font-size: var(--text-body);
   min-width: 0;
   min-height: 44px;
   background: transparent;
@@ -176,6 +177,7 @@ header .icon-btn .material-symbols-rounded,
 .section-count {
   color: var(--color-muted-foreground);
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-caption);
   font-weight: 500;
 }
@@ -261,12 +263,10 @@ header .icon-btn .material-symbols-rounded,
   place-items: center;
 }
 
-.row-icon--blue,
 .row-icon--info { color: var(--color-primary); }
-.row-icon--orange,
 .row-icon--warn { color: var(--status-warn-fg); }
-.row-icon--green,
 .row-icon--ok { color: var(--status-ok-fg); }
+
 .row-icon--cyan { color: var(--color-secondary); }
 .row-icon--heizung { color: var(--cat-heizung); } /* Kategorie-Farben: nur App-Icon, nie Status */
 .row-icon--wp { color: var(--cat-wp); }
@@ -274,6 +274,11 @@ header .icon-btn .material-symbols-rounded,
 .row-icon--lueftung { color: var(--cat-lueftung); }
 .row-icon--elektro { color: var(--cat-elektro); }
 .row-icon--allgemein { color: var(--cat-allgemein); }
+
+/* legacy-compat */
+.row-icon--blue { color: var(--color-primary); }
+.row-icon--orange { color: var(--status-warn-fg); }
+.row-icon--green { color: var(--status-ok-fg); }
 
 /* ==========================================================================
    3. KARTEN, HAUPTWERT (.hero), FORTSCHRITT & STATUS-PILLS
@@ -353,6 +358,8 @@ header .icon-btn .material-symbols-rounded,
 }
 
 .hero-value--compact {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-h1);
   letter-spacing: -0.02em;
 }
@@ -410,28 +417,24 @@ header .icon-btn .material-symbols-rounded,
   white-space: nowrap;
 }
 
-.status-pill--green,
 .status-pill--ok {
   background: var(--status-ok-bg);
   border-color: var(--status-ok-border);
   color: var(--status-ok-fg);
 }
 
-.status-pill--blue,
 .status-pill--info {
   background: var(--status-info-bg);
   border-color: var(--status-info-border);
   color: var(--status-info-fg);
 }
 
-.status-pill--orange,
 .status-pill--warn {
   background: var(--status-warn-bg);
   border-color: var(--status-warn-border);
   color: var(--status-warn-fg);
 }
 
-.status-pill--red,
 .status-pill--danger {
   background: var(--status-danger-bg);
   border-color: var(--status-danger-border);
@@ -442,6 +445,31 @@ header .icon-btn .material-symbols-rounded,
   background: var(--status-neutral-bg);
   border-color: var(--status-neutral-border);
   color: var(--status-neutral-fg);
+}
+
+/* legacy-compat */
+.status-pill--green {
+  background: var(--status-ok-bg);
+  border-color: var(--status-ok-border);
+  color: var(--status-ok-fg);
+}
+
+.status-pill--blue {
+  background: var(--status-info-bg);
+  border-color: var(--status-info-border);
+  color: var(--status-info-fg);
+}
+
+.status-pill--orange {
+  background: var(--status-warn-bg);
+  border-color: var(--status-warn-border);
+  color: var(--status-warn-fg);
+}
+
+.status-pill--red {
+  background: var(--status-danger-bg);
+  border-color: var(--status-danger-border);
+  color: var(--status-danger-fg);
 }
 
 .status-dot {
