@@ -146,14 +146,22 @@ a.btn-secondary {
   padding: 2px 9px;
 }
 
-/* Aktionsleiste (Zurück / Weiter / Abschließen / PDF): im Dokumentfluss am Ende der Ansicht,
-   nicht fixiert. So verdeckt sie keine Felder und wird von der iOS-Tastatur nicht verschoben. */
+/* Aktionsleiste (Zurück / Weiter / Abschließen / PDF): unten fixiert.
+   Bei geöffneter Tastatur (Feld hat Fokus) ausgeblendet, damit sie nicht über das Eingabefeld springt. */
 .bar {
-  margin-top: var(--space-lg);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
   padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
     max(1rem, env(safe-area-inset-left, 0px));
   background: var(--color-card);
   border-top: 1px solid var(--color-separator);
+}
+
+body:has(input:focus, textarea:focus, select:focus) .bar {
+  display: none;
 }
 
 .bar > div {
@@ -173,7 +181,29 @@ a.btn-secondary {
   min-height: 52px;
 }
 
-/* Die Aktionsleiste ist nicht mehr fixiert, deshalb kein Abstand unten am Hauptcontainer mehr nötig. */
+/* Platz unten, damit die fixierte Aktionsleiste keine Inhalte verdeckt (Klasse hasbar wie beim Toast). */
+body:has(.bar:not([hidden])) {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Einstellungs-/Dialog-Modal: Abstand zu Statusleiste und Home-Indikator, kompakter, scrollbar */
+.modal-overlay {
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+.modal-card {
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
+  overflow-y: auto;
+  padding: var(--space-md);
+  gap: var(--space-sm);
+}
+
+.modal-card .btn-primary,
+.modal-card .btn-secondary,
+.btn-primary,
+.btn-secondary {
+  hyphens: none;
+}
 
 /* iOS (black-translucent): Inhalt, der beim Scrollen unter die Statusleiste rutscht, wird abgedeckt */
 body::before {
