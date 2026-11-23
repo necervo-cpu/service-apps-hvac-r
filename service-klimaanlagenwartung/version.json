@@ -1,5 +1,5 @@
 {
-  "version": "3.0.6",
+  "version": "3.0.7",
   "buildDate": "2026-11-23",
-  "changelog": "Abgeschnittenen Fokus-Ring am Mangel-Feld behoben, Variante A zentral"
+  "changelog": "Aktionsleiste im Dokumentfluss statt fixiert: keine Überlagerung durch die iOS-Tastatur"
 }

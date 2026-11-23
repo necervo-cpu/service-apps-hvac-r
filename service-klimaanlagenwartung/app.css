@@ -146,13 +146,10 @@ a.btn-secondary {
   padding: 2px 9px;
 }
 
-/* Untere Leiste (Zurück / Weiter / Abschließen / PDF) */
+/* Aktionsleiste (Zurück / Weiter / Abschließen / PDF): im Dokumentfluss am Ende der Ansicht,
+   nicht fixiert. So verdeckt sie keine Felder und wird von der iOS-Tastatur nicht verschoben. */
 .bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
+  margin-top: var(--space-lg);
   padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
     max(1rem, env(safe-area-inset-left, 0px));
   background: var(--color-card);
@@ -176,9 +173,7 @@ a.btn-secondary {
   min-height: 52px;
 }
 
-body.hasbar #app {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-}
+/* Die Aktionsleiste ist nicht mehr fixiert, deshalb kein Abstand unten am Hauptcontainer mehr nötig. */
 
 /* iOS (black-translucent): Inhalt, der beim Scrollen unter die Statusleiste rutscht, wird abgedeckt */
 body::before {
