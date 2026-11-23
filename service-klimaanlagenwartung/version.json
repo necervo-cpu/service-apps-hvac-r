@@ -1,5 +1,5 @@
 {
-  "version": "3.0.17",
+  "version": "3.0.18",
   "buildDate": "2026-11-23",
-  "changelog": "Kopf randlos mit weichem Glas-Verlauf bis zur oberen Kante, Icon-Buttons als Glas-Kreise"
+  "changelog": "Untere Aktionsleiste mit weichem Glas-Auslauf ohne harte Kante"
 }

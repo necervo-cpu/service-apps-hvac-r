@@ -156,11 +156,25 @@ a.btn-secondary {
   z-index: 40;
   padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
     max(1rem, env(safe-area-inset-left, 0px));
-  background: color-mix(in srgb, var(--color-card) 72%, transparent);
+}
+
+/* Glas ohne harte Kante: der Schleier läuft nach oben weich aus */
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: -22px 0 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
+    transparent 100%
+  );
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-foreground) 8%, transparent);
+  -webkit-mask-image: linear-gradient(to top, black 68%, transparent 100%);
+  mask-image: linear-gradient(to top, black 68%, transparent 100%);
 }
 
 body:has(input:focus, textarea:focus, select:focus) .bar {
@@ -268,6 +282,15 @@ body::-webkit-scrollbar {
     background: var(--color-card);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  .bar {
+    background: var(--color-card);
+    border-top: 1px solid var(--color-separator);
+  }
+
+  .bar::before {
+    display: none;
   }
 
   .app-header::before {
