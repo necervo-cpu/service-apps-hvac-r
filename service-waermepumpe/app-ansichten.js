@@ -140,6 +140,7 @@ function protoCard(p) {
 const OK3_WERT = ['ok', 'mangel', 'na'];
 const OK3_ICON = ['check', 'priority_high', 'remove'];
 const OK3_TITEL = ['In Ordnung', 'Mangel', 'Entfällt'];
+const OK3_LABEL = ['i.O.', 'Mangel', 'entfällt'];
 
 function wizardHtml(p, i) {
   const pg = TEMPLATE.pages[i];
@@ -265,7 +266,7 @@ function fieldHtml(f, p) {
       const offen = x === 'n.i.O.';
       const tri = OK3.map(
         (o, k) =>
-          `<button type="button" data-act="set" data-f="${f.id}" data-v="${esc(o)}" data-value="${OK3_WERT[k]}" aria-pressed="${x === o}" aria-label="${OK3_TITEL[k]}"><span class="material-symbols-rounded" aria-hidden="true">${OK3_ICON[k]}</span></button>`,
+          `<button type="button" data-act="set" data-f="${f.id}" data-v="${esc(o)}" data-value="${OK3_WERT[k]}" aria-pressed="${x === o}" aria-label="${OK3_TITEL[k]}"><span class="material-symbols-rounded" aria-hidden="true">${OK3_ICON[k]}</span><span class="tri-label">${OK3_LABEL[k]}</span></button>`,
       ).join('');
       return `<div class="check${offen ? ' has-defect' : ''}" data-item="${f.id}">
     <div class="check-main"><span class="check-label">${esc(f.label)}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}</span><div class="tri" role="group" aria-label="Bewertung: ${esc(f.label)}">${tri}</div></div>
@@ -304,14 +305,14 @@ function fieldHtml(f, p) {
       return `<div class="field${fehler}"><span class="field-label">${esc(f.label)}${req}${hint}</span>${auswahl}${status}${errHtml}</div>`;
     }
     case 'number': {
-      const modus = f.min != null && f.min < 0 ? 'text' : 'decimal';
+      const negativ = f.min != null && f.min < 0; // Felder mit negativen Werten bekommen den ±-Umschalter
       const soll = sollText(f);
       const notizen = [f.hint, soll]
         .filter(Boolean)
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap">${negativ ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="value-input numeric" type="text" id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }

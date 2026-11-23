@@ -21,6 +21,21 @@ document.addEventListener('keydown', (e) => {
     Actions.matfree();
   }
 });
+/* ±-Umschalter: führendes Minus setzen oder entfernen; Input-Event löst Speichern und Berechnung aus */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-sign]');
+  if (!b) {
+    return;
+  }
+  e.preventDefault();
+  const el = document.getElementById('in-' + b.dataset.sign);
+  const wert = el ? el.value.trim() : '';
+  if (!el || wert === '') {
+    return; // leeres Feld: nichts vorzeichnen
+  }
+  el.value = wert.startsWith('-') ? wert.slice(1) : '-' + wert;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+});
 /* Zahlenfelder: beim Antippen ganzen Wert markieren, damit er sich direkt überschreiben lässt */
 const markiereWert = (e) => {
   const el = e.target;
