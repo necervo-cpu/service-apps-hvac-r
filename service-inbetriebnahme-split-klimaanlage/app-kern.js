@@ -447,7 +447,7 @@ function wizardHtml(p, i) {
 <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '3.0.2';
+const APP_VERSION = '3.0.3';
 const BUILD_DATE = '2026-11-23';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */

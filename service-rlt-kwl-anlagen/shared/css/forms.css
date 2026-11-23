@@ -374,9 +374,13 @@ textarea.text-input {
   visibility: visible;
 }
 
+/* overflow: hidden ist für das Aufklappen nötig. Der Innenabstand mit gleich großem negativem Rand
+   gibt dem Fokus-Schatten (3 px) Platz, ohne das Layout zu verschieben. */
 .check-note > div {
   overflow: hidden;
   min-height: 0;
+  padding: 4px;
+  margin: -4px;
 }
 
 .note-input {
@@ -465,6 +469,7 @@ textarea.text-input {
 
 .calc-value {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1.0625rem;
   font-weight: 700;
   white-space: nowrap;
@@ -480,6 +485,7 @@ textarea.text-input {
 
 .value-input {
   width: 84px;
+  font-variant-numeric: tabular-nums;
   min-height: 44px;
   padding: 0 var(--space-sm);
   border: 1.5px solid var(--color-border-control);
@@ -644,6 +650,7 @@ input[type='range']::-moz-range-thumb {
 input[type='date'] {
   -webkit-appearance: none;
   appearance: none;
+  font-size: var(--text-body);
   position: relative;
   display: flex;
   align-items: center;
@@ -681,6 +688,119 @@ input[type='date']::-webkit-calendar-picker-indicator {
   margin: 0;
   padding: 0;
   transform: translateY(-50%);
+}
+
+input[type='time'],
+input[type='datetime-local'] {
+  font-size: var(--text-body);
+}
+
+/* ==========================================================================
+   5. MESSWERTZEILE 375 PX (Design-Guideline-1). Nur für Zeilen mit .meas-meta;
+      Alt-Apps ohne .meas-meta behalten die Regeln oben unverändert.
+   ========================================================================== */
+.meas-row:has(> .meas-meta) {
+  align-items: flex-start;
+}
+
+.meas-row > .meas-meta {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 110px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+@media (min-width: 481px) {
+  .meas-row > .meas-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px var(--space-sm);
+  }
+}
+
+.meas-row > .meas-meta > .meas-label {
+  flex: none;
+  min-width: 0;
+}
+
+.meas-row:has(> .meas-meta) > .vwrap {
+  flex: 0 0 min(180px, 54%);
+  width: auto;
+  max-width: none;
+  height: 46px;
+  min-height: 46px;
+}
+
+/* ==========================================================================
+   6. PRÜFPUNKTE, VARIANTE A: Frage über volle Breite, 3er-Antwortleiste darunter.
+      Gilt für alle Wartungs-Apps (gleiche Klassen: .check, .tri, .note-input).
+      Mit Icon und Text (.tri-label) oder nur mit Icons.
+   ========================================================================== */
+.check .check-main {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+  min-height: 0;
+  padding: var(--space-sm) 0;
+}
+
+.check .check-label {
+  display: block;
+  width: 100%;
+  font-size: var(--text-sub);
+  line-height: 1.35;
+  hyphens: none;
+  overflow-wrap: break-word;
+}
+
+.check .tri {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+}
+
+.check .tri button {
+  width: 100%;
+  height: auto;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: var(--text-sub);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.check .tri .material-symbols-rounded {
+  font-size: 20px;
+}
+
+.check .tri-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mangel-Eingabe: Warnfarbe statt grünem Fokus-Ring. Tokens aus tokens.css (Hell und OLED-Dunkel). */
+.check .field-box--note:focus-within {
+  border-color: var(--status-warn-border);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
+}
+
+/* Der Fokus-Ring liegt nur auf dem Wrapper (.field-box--note). Das Eingabefeld selbst bleibt ohne Schatten. */
+.check .note-input:focus,
+.check .note-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  caret-color: var(--status-warn-border);
 }
 
 @media (hover: hover) and (pointer: fine) {
