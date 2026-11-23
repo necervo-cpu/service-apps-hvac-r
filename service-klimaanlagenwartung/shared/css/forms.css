@@ -374,9 +374,13 @@ textarea.text-input {
   visibility: visible;
 }
 
+/* overflow: hidden ist für das Aufklappen nötig. Der Innenabstand mit gleich großem negativem Rand
+   gibt dem Fokus-Schatten (3 px) Platz, ohne das Layout zu verschieben. */
 .check-note > div {
   overflow: hidden;
   min-height: 0;
+  padding: 4px;
+  margin: -4px;
 }
 
 .note-input {
@@ -791,11 +795,11 @@ input[type='datetime-local'] {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
 }
 
+/* Der Fokus-Ring liegt nur auf dem Wrapper (.field-box--note). Das Eingabefeld selbst bleibt ohne Schatten. */
 .check .note-input:focus,
 .check .note-input:focus-visible {
   outline: none;
-  border-color: var(--status-warn-border);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
+  box-shadow: none;
   caret-color: var(--status-warn-border);
 }
 

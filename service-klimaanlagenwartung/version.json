@@ -1,5 +1,5 @@
 {
-  "version": "3.0.5",
+  "version": "3.0.6",
   "buildDate": "2026-11-23",
-  "changelog": "Prüfpunkte Variante A zentral in shared/css, Mangel-Fokus in Warnfarbe, Safe-Area oben auf iOS"
+  "changelog": "Abgeschnittenen Fokus-Ring am Mangel-Feld behoben, Variante A zentral"
 }
