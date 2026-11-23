@@ -1,5 +1,5 @@
 {
-  "version": "3.0.9",
+  "version": "3.0.11",
   "buildDate": "2026-11-23",
-  "changelog": "Aktionsleiste fixiert, Schritt-Leiste bündig zur Karte, Seiten-Scrollbar ausgeblendet, Einstellungs-Dialog kompakter"
+  "changelog": "Zahlenfelder mit inputmode decimal, ±-Umschalter für negative Messwerte"
 }

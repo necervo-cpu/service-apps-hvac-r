@@ -284,6 +284,31 @@ body::before {
   opacity: 0;
 }
 
+/* ±-Umschalter für Messwerte mit möglichem Minus (Temperaturen, Drücke): iOS-Ziffernblock hat keine Minustaste */
+.sign-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-left: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-muted);
+  color: var(--color-primary);
+  touch-action: manipulation;
+}
+
+.sign-btn .material-symbols-rounded {
+  font-size: 22px;
+}
+
+.sign-btn:active {
+  background: var(--color-surface-hover);
+  transform: scale(0.94);
+}
+
 .panel {
   display: flex;
   flex-direction: column;
@@ -309,9 +334,9 @@ body::before {
   margin-top: 14px;
   margin-bottom: var(--space-md);
   margin-inline: 0;
-  padding-inline: 0 var(--space-md);
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
-  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+  padding-inline: 20px;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
 }
 
 .allok-btn {
