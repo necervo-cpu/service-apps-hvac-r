@@ -284,29 +284,36 @@ body::before {
   opacity: 0;
 }
 
-/* ±-Umschalter für Messwerte mit möglichem Minus (Temperaturen, Drücke): iOS-Ziffernblock hat keine Minustaste */
+/* ±-Umschalter für Messwerte mit möglichem Minus (Temperaturen, Drücke): iOS-Ziffernblock hat keine Minustaste.
+   Textzeichen ±, keine Material-Ligatur. Links im Feld, Feld schneidet ihn sauber ab. */
+.vwrap:has(.sign-btn) {
+  padding-left: 0;
+  overflow: hidden;
+}
+
 .sign-btn {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  margin-left: -6px;
+  flex: 0 0 34px;
+  align-self: stretch;
+  width: 34px;
+  min-height: 44px;
+  margin: 0 8px 0 0;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--color-separator);
+  background: transparent;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: var(--color-muted);
-  color: var(--color-primary);
   touch-action: manipulation;
 }
 
-.sign-btn .material-symbols-rounded {
-  font-size: 22px;
-}
-
 .sign-btn:active {
-  background: var(--color-surface-hover);
-  transform: scale(0.94);
+  background: var(--color-muted);
 }
 
 .panel {
@@ -328,15 +335,11 @@ body::before {
   margin-bottom: var(--space-xs);
 }
 
-/* Schritt-Leiste: bündig mit der Formular-Karte (kein Negativ-Rand bis zum Viewport-Rand),
-   rechts weich ausgeblendet, damit kein angeschnittener Tab unter dem Rand liegt. */
+/* Schritt-Leiste: bündig mit der Formular-Karte darunter */
 #stepwrap .tab-strip {
   margin-top: 14px;
   margin-bottom: var(--space-md);
   margin-inline: 0;
-  padding-inline: 20px;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
-  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
 }
 
 .allok-btn {

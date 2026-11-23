@@ -1,5 +1,5 @@
 {
-  "version": "3.0.11",
+  "version": "3.0.12",
   "buildDate": "2026-11-23",
-  "changelog": "Zahlenfelder mit inputmode decimal, ±-Umschalter für negative Messwerte"
+  "changelog": "±-Button als Text in den Messwert-Feldern, Tab-Leiste ohne Verlauf"
 }
