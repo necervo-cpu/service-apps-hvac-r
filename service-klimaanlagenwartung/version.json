@@ -1,5 +1,5 @@
 {
-  "version": "3.0.2",
+  "version": "3.0.3",
   "buildDate": "2026-11-23",
-  "changelog": "Kategorie-Farben je Gewerk an den App-Icons (Design-Guideline-1)"
+  "changelog": "Pilot Design-Guideline 1: neue Tokens (OLED-Kontrast, Reduced Motion), semantische Status-Pills, Messwertzeile ab 375 px"
 }

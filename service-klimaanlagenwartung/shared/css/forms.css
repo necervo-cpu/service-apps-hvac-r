@@ -465,6 +465,7 @@ textarea.text-input {
 
 .calc-value {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1.0625rem;
   font-weight: 700;
   white-space: nowrap;
@@ -480,6 +481,7 @@ textarea.text-input {
 
 .value-input {
   width: 84px;
+  font-variant-numeric: tabular-nums;
   min-height: 44px;
   padding: 0 var(--space-sm);
   border: 1.5px solid var(--color-border-control);
@@ -644,6 +646,7 @@ input[type='range']::-moz-range-thumb {
 input[type='date'] {
   -webkit-appearance: none;
   appearance: none;
+  font-size: var(--text-body);
   position: relative;
   display: flex;
   align-items: center;
@@ -681,6 +684,50 @@ input[type='date']::-webkit-calendar-picker-indicator {
   margin: 0;
   padding: 0;
   transform: translateY(-50%);
+}
+
+input[type='time'],
+input[type='datetime-local'] {
+  font-size: var(--text-body);
+}
+
+/* ==========================================================================
+   5. MESSWERTZEILE 375 PX (Design-Guideline-1). Nur für Zeilen mit .meas-meta;
+      Alt-Apps ohne .meas-meta behalten die Regeln oben unverändert.
+   ========================================================================== */
+.meas-row:has(> .meas-meta) {
+  align-items: flex-start;
+}
+
+.meas-row > .meas-meta {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 110px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+@media (min-width: 481px) {
+  .meas-row > .meas-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px var(--space-sm);
+  }
+}
+
+.meas-row > .meas-meta > .meas-label {
+  flex: none;
+  min-width: 0;
+}
+
+.meas-row:has(> .meas-meta) > .vwrap {
+  flex: 0 0 min(180px, 54%);
+  width: auto;
+  max-width: none;
+  height: 46px;
+  min-height: 46px;
 }
 
 @media (hover: hover) and (pointer: fine) {

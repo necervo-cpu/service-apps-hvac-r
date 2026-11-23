@@ -63,7 +63,7 @@
   --color-ring: #334155;
   --color-focus-halo: rgba(51, 65, 85, 0.2);
   --color-scrim: rgba(15, 23, 42, 0.52);
-  --color-progress-track: #e6e8ea;
+  --color-progress-track: var(--color-separator);
   --chart-grid: rgba(15, 23, 42, 0.12);
 
   --status-ok-bg: #ecfdf5;
@@ -110,15 +110,15 @@
   --color-surface-hover: #262626;
   --color-surface-input: #181818;
   --color-border: #262626;
-  --color-border-control: #525252;
+  --color-border-control: #737373;
   --color-separator: #262626;
   --color-destructive: #ef4444;
-  --color-on-destructive: #ffffff;
+  --color-on-destructive: #000000;
   --color-destructive-text: #fca5a5;
   --color-ring: #10b981;
   --color-focus-halo: rgba(16, 185, 129, 0.28);
   --color-scrim: rgba(0, 0, 0, 0.78);
-  --color-progress-track: #262626;
+  --color-progress-track: var(--color-separator);
   --chart-grid: rgba(255, 255, 255, 0.14);
 
   --status-ok-bg: rgba(16, 185, 129, 0.16);
@@ -205,4 +205,16 @@
   --system-purple: var(--color-primary);
   --system-purple-tint: var(--status-info-bg);
   --system-purple-border: var(--status-info-border);
+}
+
+/* ==========================================================================
+   1D. REDUCED MOTION (Design-Guideline-1: alle Übergänge aus)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  [data-theme='light'],
+  [data-theme='dark'] {
+    --t-press: 0ms;
+    --t-fast: 0ms;
+  }
 }
