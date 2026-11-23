@@ -28,7 +28,7 @@ ${
 <h2 class="section-title">Neue Wartung</h2>
 <div class="group">
   <button type="button" class="row" data-act="new">
-    <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">thermostat</span></span>
+    <span class="row-icon row-icon--wp"><span class="material-symbols-rounded" aria-hidden="true">thermostat</span></span>
     <span class="row-text"><span class="row-title">Wärmepumpe</span><span class="row-sub">Protokoll angelehnt an die VDMA starten</span></span>
     ${chev}
   </button>

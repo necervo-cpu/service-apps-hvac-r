@@ -30,7 +30,7 @@ ${
 <h2 class="section-title">Neues Logbuch</h2>
 <div class="group">
   <button type="button" class="row" data-act="newbook">
-    <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span></span>
+    <span class="row-icon row-icon--klima"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span></span>
     <span class="row-text"><span class="row-title">Neues Logbuch</span><span class="row-sub">Logbuch für eine neue Anlage anlegen</span></span>
     ${CHEV}
   </button>

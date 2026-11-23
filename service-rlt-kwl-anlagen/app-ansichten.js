@@ -28,7 +28,7 @@ ${
 <h2 class="section-title">Neue Wartung</h2>
 <div class="group">
   <button type="button" class="row" data-act="new">
-    <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">air</span></span>
+    <span class="row-icon row-icon--lueftung"><span class="material-symbols-rounded" aria-hidden="true">air</span></span>
     <span class="row-text"><span class="row-title">RLT- und KWL-Anlage</span><span class="row-sub">Protokoll nach VDMA 24186-1 starten</span></span>
     ${chev}
   </button>

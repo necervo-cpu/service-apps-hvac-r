@@ -1,5 +1,5 @@
-const APP_VERSION = '3.0.1';
-const BUILD_DATE = '2026-11-22';
+const APP_VERSION = '3.0.2';
+const BUILD_DATE = '2026-11-23';
 
 function normText(s) {
   return String(s || '')

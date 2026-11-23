@@ -555,8 +555,8 @@ function wizardHtml(p, i) {
     <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '3.0.1';
-const BUILD_DATE = '2026-11-22';
+const APP_VERSION = '3.0.2';
+const BUILD_DATE = '2026-11-23';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

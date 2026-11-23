@@ -81,6 +81,14 @@
   --status-neutral-bg: #f2f3f4;
   --status-neutral-border: #64748b;
   --status-neutral-fg: #334155;
+
+  /* Kategorie-Farben je Gewerk (Design-Guideline-1, Stufe 1: nur Zeilen-Icon) */
+  --cat-heizung: #be123c;
+  --cat-wp: #a21caf;
+  --cat-klima: #0369a1;
+  --cat-lueftung: #0f766e;
+  --cat-elektro: #4338ca;
+  --cat-allgemein: #475569;
 }
 
 /* ==========================================================================
@@ -128,6 +136,13 @@
   --status-neutral-bg: #1c1c1c;
   --status-neutral-border: #404040;
   --status-neutral-fg: #d4d4d4;
+
+  --cat-heizung: #fb7185;
+  --cat-wp: #e879f9;
+  --cat-klima: #38bdf8;
+  --cat-lueftung: #2dd4bf;
+  --cat-elektro: #818cf8;
+  --cat-allgemein: #a3a3a3;
 }
 
 /* ==========================================================================

@@ -28,7 +28,7 @@ ${
 <h2 class="section-title">Neues Protokoll</h2>
 <div class="group">
   <button type="button" class="row" data-act="new">
-    <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">ac_unit</span></span>
+    <span class="row-icon row-icon--klima"><span class="material-symbols-rounded" aria-hidden="true">ac_unit</span></span>
     <span class="row-text"><span class="row-title">Split-Klimaanlage</span><span class="row-sub">Inbetriebnahmeprotokoll starten</span></span>
     ${chev}
   </button>

@@ -268,6 +268,12 @@ header .icon-btn .material-symbols-rounded,
 .row-icon--green,
 .row-icon--ok { color: var(--status-ok-fg); }
 .row-icon--cyan { color: var(--color-secondary); }
+.row-icon--heizung { color: var(--cat-heizung); } /* Kategorie-Farben: nur App-Icon, nie Status */
+.row-icon--wp { color: var(--cat-wp); }
+.row-icon--klima { color: var(--cat-klima); }
+.row-icon--lueftung { color: var(--cat-lueftung); }
+.row-icon--elektro { color: var(--cat-elektro); }
+.row-icon--allgemein { color: var(--cat-allgemein); }
 
 /* ==========================================================================
    3. KARTEN, HAUPTWERT (.hero), FORTSCHRITT & STATUS-PILLS

@@ -18,7 +18,7 @@ const Views = {
       '<span class="material-symbols-rounded row-chevron" aria-hidden="true">chevron_right</span>';
     const neu = (typ, icon, titel) => `
   <button type="button" class="row" data-act="new" data-typ="${typ}">
-    <span class="row-icon row-icon--orange"><span class="material-symbols-rounded" aria-hidden="true">${icon}</span></span>
+    <span class="row-icon row-icon--heizung"><span class="material-symbols-rounded" aria-hidden="true">${icon}</span></span>
     <span class="row-text"><span class="row-title">${titel}</span><span class="row-sub">Neue Wartung starten</span></span>
     ${chev}
   </button>`;
