@@ -1,5 +1,5 @@
 {
-  "version": "3.0.12",
+  "version": "3.0.13",
   "buildDate": "2026-11-23",
-  "changelog": "±-Button als Text in den Messwert-Feldern, Tab-Leiste ohne Verlauf"
+  "changelog": "Toast als Banner in voller Breite, bündig zu den Karten"
 }

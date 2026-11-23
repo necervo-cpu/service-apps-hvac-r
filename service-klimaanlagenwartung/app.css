@@ -316,6 +316,40 @@ body::before {
   background: var(--color-muted);
 }
 
+/* Toast: volle Breite bündig zu den Karten, Banner statt Pille (Basis: shared/css/components.css, Abschnitt 6) */
+.toast-pill {
+  left: 16px;
+  right: 16px;
+  width: auto;
+  max-width: 560px;
+  margin-inline: auto;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: 12px 16px;
+  border-radius: 14px;
+  text-align: left;
+  hyphens: none;
+  white-space: normal;
+  transform: translateY(16px);
+}
+
+.toast-pill.is-visible {
+  transform: none;
+}
+
+.toast-pill > .material-symbols-rounded {
+  flex-shrink: 0;
+}
+
+.toast-pill > #toastText {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+body:has(.bar:not([hidden])) .toast-pill {
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
 .panel {
   display: flex;
   flex-direction: column;
