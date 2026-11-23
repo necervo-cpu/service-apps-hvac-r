@@ -1,5 +1,5 @@
 {
-  "version": "3.0.8",
+  "version": "3.0.9",
   "buildDate": "2026-11-23",
-  "changelog": "Aktionsleiste wieder unten fixiert und bei Tastatur ausgeblendet, Einstellungs-Dialog kompakter und im sichtbaren Bereich"
+  "changelog": "Aktionsleiste fixiert, Schritt-Leiste bündig zur Karte, Seiten-Scrollbar ausgeblendet, Einstellungs-Dialog kompakter"
 }

@@ -181,6 +181,17 @@ body:has(input:focus, textarea:focus, select:focus) .bar {
   min-height: 52px;
 }
 
+/* Vertikale Scrollbar ausblenden (Scrollverhalten bleibt unverändert) */
+html,
+body {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 /* Platz unten, damit die fixierte Aktionsleiste keine Inhalte verdeckt (Klasse hasbar wie beim Toast). */
 body:has(.bar:not([hidden])) {
   padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
@@ -292,9 +303,15 @@ body::before {
   margin-bottom: var(--space-xs);
 }
 
+/* Schritt-Leiste: bündig mit der Formular-Karte (kein Negativ-Rand bis zum Viewport-Rand),
+   rechts weich ausgeblendet, damit kein angeschnittener Tab unter dem Rand liegt. */
 #stepwrap .tab-strip {
   margin-top: 14px;
   margin-bottom: var(--space-md);
+  margin-inline: 0;
+  padding-inline: 0 var(--space-md);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
 }
 
 .allok-btn {
