@@ -1,5 +1,5 @@
 {
-  "version": "3.0.19",
+  "version": "3.0.20",
   "buildDate": "2026-11-23",
-  "changelog": "Kopf ohne Maske, um Zittern beim Scrollen der Übersicht zu beheben"
+  "changelog": "Kopf ohne erzwungene Ebene, Test gegen Zittern beim Scrollen"
 }
