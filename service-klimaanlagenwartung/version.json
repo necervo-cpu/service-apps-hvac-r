@@ -1,5 +1,5 @@
 {
-  "version": "3.0.13",
+  "version": "3.0.14",
   "buildDate": "2026-11-23",
-  "changelog": "Toast als Banner in voller Breite, bündig zu den Karten"
+  "changelog": "Smoked-Glas-Effekt für Aktionsleiste, Toast und Dialog"
 }
