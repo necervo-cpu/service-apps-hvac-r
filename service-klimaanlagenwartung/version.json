@@ -1,5 +1,5 @@
 {
-  "version": "3.0.4",
+  "version": "3.0.5",
   "buildDate": "2026-11-23",
-  "changelog": "Prüfpunkte als Variante A (Frage oben, 3er-Leiste mit Text), Safe-Area oben auf iOS"
+  "changelog": "Prüfpunkte Variante A zentral in shared/css, Mangel-Fokus in Warnfarbe, Safe-Area oben auf iOS"
 }

@@ -730,6 +730,75 @@ input[type='datetime-local'] {
   min-height: 46px;
 }
 
+/* ==========================================================================
+   6. PRÜFPUNKTE, VARIANTE A: Frage über volle Breite, 3er-Antwortleiste darunter.
+      Gilt für alle Wartungs-Apps (gleiche Klassen: .check, .tri, .note-input).
+      Mit Icon und Text (.tri-label) oder nur mit Icons.
+   ========================================================================== */
+.check .check-main {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+  min-height: 0;
+  padding: var(--space-sm) 0;
+}
+
+.check .check-label {
+  display: block;
+  width: 100%;
+  font-size: var(--text-sub);
+  line-height: 1.35;
+  hyphens: none;
+  overflow-wrap: break-word;
+}
+
+.check .tri {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+}
+
+.check .tri button {
+  width: 100%;
+  height: auto;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: var(--text-sub);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.check .tri .material-symbols-rounded {
+  font-size: 20px;
+}
+
+.check .tri-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mangel-Eingabe: Warnfarbe statt grünem Fokus-Ring. Tokens aus tokens.css (Hell und OLED-Dunkel). */
+.check .field-box--note:focus-within {
+  border-color: var(--status-warn-border);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
+}
+
+.check .note-input:focus,
+.check .note-input:focus-visible {
+  outline: none;
+  border-color: var(--status-warn-border);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
+  caret-color: var(--status-warn-border);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .tab-pill:not(.active):not([aria-selected='true']):hover,
   .stepper:hover {
