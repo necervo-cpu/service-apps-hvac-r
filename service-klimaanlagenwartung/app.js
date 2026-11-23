@@ -121,6 +121,20 @@ window.addEventListener('resize', () => {
 });
 
 /* ---------- Start ---------- */
+// Höhe des fixierten Kopfs als CSS-Variable, damit der Inhalt darunter beginnt
+{
+  const kopf = document.querySelector('.app-header');
+  const misst = () => {
+    if (kopf) {
+      document.documentElement.style.setProperty('--kopf-hoehe', kopf.offsetHeight + 'px');
+    }
+  };
+  misst();
+  window.addEventListener('resize', misst);
+  if ('ResizeObserver' in window && kopf) {
+    new ResizeObserver(misst).observe(kopf);
+  }
+}
 // Gespeicherte Protokolle (auch ältere): „Mangel“ → „n.i.O.“, fehlende Anzahl Verdampfer ergänzen – sonst bleibt alles unverändert
 {
   let ch = false;

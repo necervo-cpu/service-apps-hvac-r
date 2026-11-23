@@ -212,12 +212,15 @@ body::-webkit-scrollbar {
 /* Kopfbereich: bleibt beim Scrollen oben stehen und reicht bis zur oberen Bildschirmkante (Smoked Glass).
    Das Safe-Area-Padding oben hält die Schrift auf der bisherigen Höhe. */
 .app-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 40;
-  margin-inline: calc(var(--space-md) * -1);
-  margin-bottom: 0;
+  margin: 0;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Glas ohne harte Kante: weicher Blur-Verlauf, der nach unten ausläuft */
@@ -235,6 +238,8 @@ body::-webkit-scrollbar {
   );
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
+  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
 }
 
 /* Theme- und Einstellungs-Icon als runde Glas-Kreise */
@@ -249,7 +254,6 @@ body::-webkit-scrollbar {
 
 @media (min-width: 768px) {
   .app-header {
-    margin-inline: calc(var(--space-lg) * -1);
     padding-inline: var(--space-lg);
   }
 }
@@ -322,10 +326,9 @@ body:has(.bar:not([hidden])) {
   hyphens: none;
 }
 
-/* Die frühere deckende Abdeckung der Statusleiste (body::before) entfällt: der Kopfbereich reicht bis zur oberen Kante
-   und übernimmt das mit seinem Glas-Effekt. */
+/* Der Kopf ist fixiert und reicht bis zur oberen Kante. Der Abstand oben entspricht seiner gemessenen Höhe (app.js). */
 .app-shell {
-  padding-top: 0;
+  padding-top: var(--kopf-hoehe, 180px);
 }
 
 /* Prüfpunkt-Layout (Variante A) und Mangel-Fokus liegen zentral in shared/css/forms.css */

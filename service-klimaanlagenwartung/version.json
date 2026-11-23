@@ -1,5 +1,5 @@
 {
-  "version": "3.0.20",
+  "version": "3.0.21",
   "buildDate": "2026-11-23",
-  "changelog": "Kopf ohne erzwungene Ebene, Test gegen Zittern beim Scrollen"
+  "changelog": "Kopf fixiert statt sticky, Zittern beim Scrollen behoben"
 }
