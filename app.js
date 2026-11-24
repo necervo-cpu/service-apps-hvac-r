@@ -1,5 +1,6 @@
-const APP_VERSION = '3.0.6';
-const BUILD_DATE = '2026-11-23';
+const APP_VERSION = '3.0.7';
+const BUILD_DATE = '2026-11-24';
+const VERSIONS_KEY = 'ag-suite-versions';
 
 function normText(s) {
   return String(s || '')
@@ -154,47 +155,153 @@ function isNewerVersion(remote, local) {
   return false;
 }
 
-async function clearCachesAndReload() {
+function readSavedVersions() {
   try {
-    if ('caches' in window) {
-      const keys = await caches.keys();
+    const raw = localStorage.getItem(VERSIONS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function writeSavedVersions(map) {
+  if (!map || typeof map !== 'object') return;
+  try {
+    localStorage.setItem(VERSIONS_KEY, JSON.stringify(map));
+  } catch (e) {}
+}
+
+function renderTileVersions(map) {
+  if (!map || typeof map !== 'object') return;
+  document.querySelectorAll('[data-app-version]').forEach((el) => {
+    const path = el.dataset.appVersion;
+    const ver = map[path];
+    el.textContent = ver ? 'v' + ver : '';
+  });
+}
+
+let pendingVersionsMap = null;
+let lastRemoteVersionsMap = null;
+let updateInFlight = false;
+
+async function updateAllApps() {
+  if (updateInFlight) return;
+  if (navigator.onLine === false) {
+    toast('Offline – Aktualisierung nicht möglich.');
+    return;
+  }
+  updateInFlight = true;
+  const btn = $('#btnBannerReload');
+  const btnLabel = $('#btnBannerReloadLabel');
+  const btnForce = $('#btnForceReload');
+  const bannerTxt = $('#updateBannerText');
+  const bannerSub = $('#updateBannerSub');
+  if (btn) btn.disabled = true;
+  if (btnForce) btnForce.disabled = true;
+  if (btnLabel) btnLabel.textContent = 'Aktualisiere…';
+  if (bannerTxt) bannerTxt.textContent = 'Aktualisiere Apps…';
+  if (bannerSub) bannerSub.textContent = 'Service Worker und Caches werden aktualisiert…';
+
+  try {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+      const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(
-        keys
-          .filter((k) => k.startsWith('startseite-') || k.startsWith('workbox-'))
-          .map((k) => caches.delete(k)),
+        regs.map(async (reg) => {
+          try {
+            await reg.update();
+          } catch (e) {}
+          if (reg.waiting) {
+            try {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch (e) {}
+          }
+        }),
       );
     }
-    if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg) await reg.update().catch(() => {});
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if (pendingVersionsMap) {
+      writeSavedVersions(pendingVersionsMap);
+    } else if (lastRemoteVersionsMap) {
+      writeSavedVersions(lastRemoteVersionsMap);
     }
   } catch (e) {}
   window.location.reload();
 }
 
-async function checkUpdate(manual) {
+async function checkSuiteUpdates(manual) {
+  if (updateInFlight) return;
   const btn = $('#btnCheckUpdate');
   if (manual && btn) btn.disabled = true;
   try {
-    const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+    const res = await fetch('./versions.json?t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const remote = String(data.version || '').trim();
-    const newer = isNewerVersion(remote, APP_VERSION);
+    const list = Array.isArray(data.apps) ? data.apps : [];
+    const remoteMap = {};
+    list.forEach((item) => {
+      if (item && item.path && item.version) {
+        remoteMap[String(item.path)] = String(item.version).trim();
+      }
+    });
+    lastRemoteVersionsMap = remoteMap;
+    renderTileVersions(remoteMap);
+
+    let saved = readSavedVersions();
+    const firstVisit = saved === null;
+    if (firstVisit) {
+      writeSavedVersions(remoteMap);
+      saved = remoteMap;
+    }
+
+    const changed = list.filter((item) => {
+      if (!item || !item.path || !item.version) return false;
+      const ver = String(item.version).trim();
+      if (item.path === './' && isNewerVersion(ver, APP_VERSION)) return true;
+      if (firstVisit) return false;
+      return !saved[item.path] || saved[item.path] !== ver;
+    });
+
     const dot = $('#app-update-dot');
     const row = $('#updateRow');
     const remEl = $('#updateRemote');
     const banner = $('#updateBanner');
     const bannerTxt = $('#updateBannerText');
-    if (newer) {
+    const bannerSub = $('#updateBannerSub');
+    const btnLabel = $('#btnBannerReloadLabel');
+
+    if (changed.length > 0) {
+      pendingVersionsMap = remoteMap;
+      const preview = changed
+        .slice(0, 3)
+        .map((a) => `${a.name} v${a.version}`)
+        .join(', ');
+      const suffix = changed.length > 3 ? ` … und ${changed.length - 3} weitere` : '';
       if (dot) dot.hidden = false;
       if (row) row.hidden = false;
-      if (remEl) remEl.textContent = 'v' + remote;
-      if (bannerTxt) bannerTxt.textContent = `Neue Startseiten-Version v${remote} verfügbar`;
+      if (remEl) {
+        remEl.textContent =
+          remoteMap['./'] && isNewerVersion(remoteMap['./'], APP_VERSION)
+            ? 'v' + remoteMap['./']
+            : `${changed.length} ${changed.length === 1 ? 'App' : 'Apps'}`;
+      }
+      if (bannerTxt) bannerTxt.textContent = `Updates verfügbar (${preview}${suffix})`;
+      if (bannerSub) {
+        bannerSub.textContent = 'Mit einem Klick werden alle Apps auf den neuesten Stand gebracht.';
+      }
+      if (btnLabel) btnLabel.textContent = 'Alle aktualisieren';
       if (banner) banner.hidden = false;
-      if (manual) toast(`Neue Version v${remote} verfügbar.`);
-    } else if (manual) {
-      toast('Startseite ist auf dem neuesten Stand.');
+      if (manual) toast(`Updates verfügbar (${changed.length} Apps).`);
+    } else {
+      pendingVersionsMap = null;
+      if (dot) dot.hidden = true;
+      if (row) row.hidden = true;
+      if (banner) banner.hidden = true;
+      if (manual) toast('Alle Apps sind auf dem neuesten Stand.');
     }
   } catch (e) {
     if (manual) toast('Update-Prüfung fehlgeschlagen (offline?).');
@@ -206,11 +313,16 @@ async function checkUpdate(manual) {
 const btnCheckUpdate = $('#btnCheckUpdate');
 const btnForceReload = $('#btnForceReload');
 const btnBannerReload = $('#btnBannerReload');
-if (btnCheckUpdate) btnCheckUpdate.addEventListener('click', () => checkUpdate(true));
-if (btnForceReload) btnForceReload.addEventListener('click', clearCachesAndReload);
-if (btnBannerReload) btnBannerReload.addEventListener('click', clearCachesAndReload);
+if (btnCheckUpdate) btnCheckUpdate.addEventListener('click', () => checkSuiteUpdates(true));
+if (btnForceReload) btnForceReload.addEventListener('click', updateAllApps);
+if (btnBannerReload) btnBannerReload.addEventListener('click', updateAllApps);
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
-checkUpdate(false);
+renderTileVersions(readSavedVersions());
+checkSuiteUpdates(false);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkSuiteUpdates(false);
+});
+window.addEventListener('online', () => checkSuiteUpdates(false));

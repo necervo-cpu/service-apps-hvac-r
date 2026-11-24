@@ -103,12 +103,12 @@
       <div class="notice notice--update" id="updateBanner" hidden>
         <div class="notice-text">
           <strong id="updateBannerText">Neue Version verfügbar</strong>
-          <span>Nach dem Laden startet die aktualisierte Startseite.</span>
+          <span id="updateBannerSub">Mit einem Klick werden alle Apps auf den neuesten Stand gebracht.</span>
         </div>
         <div class="btn-row">
           <button type="button" class="btn-primary" id="btnBannerReload">
             <span class="material-symbols-rounded" aria-hidden="true">system_update_alt</span>
-            <span>Jetzt aktualisieren</span>
+            <span id="btnBannerReloadLabel">Alle aktualisieren</span>
           </button>
         </div>
       </div>
@@ -141,6 +141,7 @@
                   <span class="row-head">
                     <span class="row-title">Anlagenlogbuch</span>
                     <span class="status-pill status-pill--orange">F-Gase</span>
+                    <span class="row-version numeric" data-app-version="anlagenlogbuch/"></span>
                   </span>
                   <span class="row-sub">
                     F-Gase-Logbuch, Dichtheitskontrollen &amp; Betreiber-Protokolle (EU 2024/573)
@@ -160,7 +161,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">heat_pump</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Wärmepumpen-Wartung</span>
+                  <span class="row-head">
+                    <span class="row-title">Wärmepumpen-Wartung</span>
+                    <span class="row-version numeric" data-app-version="service-waermepumpe/"></span>
+                  </span>
                   <span class="row-sub">
                     Wartungsprotokoll Sole-, Wasser- &amp; Luft-Wasser-Wärmepumpen
                   </span>
@@ -181,7 +185,10 @@
                   </span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Gas-/Öl-Heizungswartung</span>
+                  <span class="row-head">
+                    <span class="row-title">Gas-/Öl-Heizungswartung</span>
+                    <span class="row-version numeric" data-app-version="gas-oel-heizungswartung/"></span>
+                  </span>
                   <span class="row-sub">
                     Prüfprotokoll DIN EN 12828 / DIN 4755 inkl. Abgasanalyse
                   </span>
@@ -200,7 +207,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">ac_unit</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Klima-/Kälte-Wartung</span>
+                  <span class="row-head">
+                    <span class="row-title">Klima-/Kälte-Wartung</span>
+                    <span class="row-version numeric" data-app-version="service-klimaanlagenwartung/"></span>
+                  </span>
                   <span class="row-sub">
                     Inspektion &amp; Wartung nach VDMA 24186-3 inkl. Drucklagen
                   </span>
@@ -219,7 +229,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">air</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">RLT- &amp; KWL-Wartung</span>
+                  <span class="row-head">
+                    <span class="row-title">RLT- &amp; KWL-Wartung</span>
+                    <span class="row-version numeric" data-app-version="service-rlt-kwl-anlagen/"></span>
+                  </span>
                   <span class="row-sub">Hygieneinspektion &amp; Wartung nach VDI 6022</span>
                 </span>
                 <span class="material-symbols-rounded row-chevron" aria-hidden="true">
@@ -236,7 +249,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">build_circle</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Split-Klima Inbetriebnahme</span>
+                  <span class="row-head">
+                    <span class="row-title">Split-Klima Inbetriebnahme</span>
+                    <span class="row-version numeric" data-app-version="service-inbetriebnahme-split-klimaanlage/"></span>
+                  </span>
                   <span class="row-sub">
                     Druckprobe, Vakuumierung, Kältemittelfüllung &amp; Messwerte
                   </span>
@@ -263,7 +279,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">calculate</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Kalkulation Klima</span>
+                  <span class="row-head">
+                    <span class="row-title">Kalkulation Klima</span>
+                    <span class="row-version numeric" data-app-version="kalkulation-service-klimaanlage/"></span>
+                  </span>
                   <span class="row-sub">Wartungskalkulation Split- &amp; Multisplit-Klimaanlagen</span>
                 </span>
                 <span class="material-symbols-rounded row-chevron" aria-hidden="true">
@@ -280,7 +299,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">payments</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Kalkulation Wärmepumpe</span>
+                  <span class="row-head">
+                    <span class="row-title">Kalkulation Wärmepumpe</span>
+                    <span class="row-version numeric" data-app-version="kalkulation-service-waermepumpe/"></span>
+                  </span>
                   <span class="row-sub">
                     Wartungskalkulation Wärmepumpen inkl. R290-Prüfung
                   </span>
@@ -299,7 +321,10 @@
                   <span class="material-symbols-rounded" aria-hidden="true">device_hub</span>
                 </span>
                 <span class="row-text">
-                  <span class="row-title">Daikin Multisplit-Auslegung</span>
+                  <span class="row-head">
+                    <span class="row-title">Daikin Multisplit-Auslegung</span>
+                    <span class="row-version numeric" data-app-version="auslegungstool-daikin-split-klimaanlage/"></span>
+                  </span>
                   <span class="row-sub">
                     Auslegung &amp; Kombinationsprüfung R32 nach EN 378
                   </span>
@@ -371,7 +396,7 @@
               <div class="info-row">
                 <span class="info-row-label">Installierte Version</span>
                 <span class="info-row-value numeric">
-                  <span class="status-pill status-pill--green" id="app-version-label">v3.0.6</span>
+                  <span class="status-pill status-pill--green" id="app-version-label">v3.0.7</span>
                 </span>
               </div>
               <div class="info-row">
