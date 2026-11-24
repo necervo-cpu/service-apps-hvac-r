@@ -1,5 +1,5 @@
 {
-  "version": "3.0.21",
-  "buildDate": "2026-11-23",
-  "changelog": "Kopf fixiert statt sticky, Zittern beim Scrollen behoben"
+  "version": "3.0.22",
+  "buildDate": "2026-11-24",
+  "changelog": "Vorzeichen-Schalter (±) auf 44 px vergrößert"
 }

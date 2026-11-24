@@ -1,5 +1,5 @@
 {
-  "version": "3.0.5",
-  "buildDate": "2026-11-23",
-  "changelog": "Abstand am Knopf Material hinzufügen angepasst"
+  "version": "3.0.6",
+  "buildDate": "2026-11-24",
+  "changelog": "Vorzeichen-Schalter (±) auf 44 px vergrößert"
 }

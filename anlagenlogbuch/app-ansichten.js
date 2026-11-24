@@ -269,7 +269,7 @@ function fieldHtml(f, c) {
     case 'number': {
       const neg = f.min != null && f.min < 0;
       return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}${hint}</label>
-    <div class="field-box input-wrapper"><input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
+    <div class="field-box input-wrapper">${neg ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
     }
     case 'auto': {
       const datum = f.input === 'date';

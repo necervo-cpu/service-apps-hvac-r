@@ -181,9 +181,9 @@ body.hasbar #app {
 }
 
 .sign-btn {
-  flex: 0 0 34px;
+  flex: 0 0 44px;
   align-self: stretch;
-  width: 34px;
+  width: 44px;
   min-height: 44px;
   margin: 0 8px 0 0;
   padding: 0;

@@ -255,12 +255,13 @@ function fieldHtml(f, p) {
     }
     case 'number': {
       const modus = f.min != null && f.min < 0 ? 'text' : 'decimal';
+      const negativ = f.min != null && f.min < 0; // Felder mit negativen Werten bekommen den ±-Umschalter
       const notizen = [f.hint, sollText(f)]
         .filter(Boolean)
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap">${negativ ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }

@@ -320,8 +320,9 @@ function fieldHtml(f, p) {
         .filter(Boolean)
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
+      const negativ = m != null && m.min < 0; // Messwerte mit negativem Bereich (z. B. Unterdruck, Zug) bekommen den ±-Umschalter
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${f.regel ? messPill(f, v) : ''}<span class="vwrap"><input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${f.regel ? messPill(f, v) : ''}<span class="vwrap">${negativ ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="value-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${modus}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }

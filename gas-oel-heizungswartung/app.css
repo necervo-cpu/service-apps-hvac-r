@@ -435,3 +435,35 @@ canvas.sig {
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF,
     U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* ±-Umschalter für Messwerte mit möglichem Minus (Temperaturen, Drücke): iOS-Ziffernblock hat keine Minustaste.
+   Textzeichen ±, keine Material-Ligatur. Links im Feld, Feld schneidet ihn sauber ab. */
+.vwrap:has(.sign-btn) {
+  padding-left: 0;
+  overflow: hidden;
+}
+
+.sign-btn {
+  flex: 0 0 44px;
+  align-self: stretch;
+  width: 44px;
+  min-height: 44px;
+  margin: 0 8px 0 0;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--color-separator);
+  background: transparent;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.sign-btn:active {
+  background: var(--color-muted);
+}
