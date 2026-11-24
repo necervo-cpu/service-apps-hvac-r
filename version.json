@@ -1,5 +1,5 @@
 {
-  "version": "3.0.7",
+  "version": "3.0.8",
   "buildDate": "2026-11-24",
-  "changelog": "Zentrale Update-Steuerung über versions.json und 1-Klick-Update für alle Apps ergänzt"
+  "changelog": "HVAC-R Rechner v2 (v1.27.0) auf Startseite und in versions.json eingebunden"
 }

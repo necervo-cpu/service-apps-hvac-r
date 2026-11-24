@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-24T20:35:18Z",
+  "updatedAt": "2026-11-24T21:36:41Z",
   "apps": [
     {
       "id": "startseite",
       "name": "Startseite",
       "path": "./",
-      "version": "3.0.7"
+      "version": "3.0.8"
     },
     {
       "id": "anlagenlogbuch",
@@ -60,6 +60,12 @@
       "name": "Daikin-Auslegung",
       "path": "auslegungstool-daikin-split-klimaanlage/",
       "version": "3.0.5"
+    },
+    {
+      "id": "hvac-r-rechner",
+      "name": "HVAC-R Rechner",
+      "path": "/HVAC-rechner-v2/",
+      "version": "1.27.0"
     }
   ]
 }
