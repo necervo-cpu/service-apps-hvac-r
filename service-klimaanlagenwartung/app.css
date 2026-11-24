@@ -223,23 +223,22 @@ body::-webkit-scrollbar {
   will-change: transform;
 }
 
-/* Glas ohne harte Kante: weicher Blur-Verlauf, der nach unten ausläuft */
+/* Kopf: bis zur Unterkante (inkl. Statuszeile) deckend, danach 22 px weicher Auslauf */
 .app-header::before {
   content: '';
   position: absolute;
   inset: 0 0 -22px 0;
   z-index: -1;
   pointer-events: none;
+  -webkit-mask-image: none;
+  mask-image: none;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
-    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
-    transparent 100%
+    var(--color-background) 0,
+    var(--color-background) var(--kopf-hoehe, 180px),
+    color-mix(in srgb, var(--color-background) 52%, transparent) calc(var(--kopf-hoehe, 180px) + 8px),
+    transparent calc(var(--kopf-hoehe, 180px) + 22px)
   );
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
 }
 
 /* Theme- und Einstellungs-Icon als runde Glas-Kreise */
@@ -326,9 +325,17 @@ body:has(.bar:not([hidden])) {
   hyphens: none;
 }
 
-/* Der Kopf ist fixiert und reicht bis zur oberen Kante. Der Abstand oben entspricht seiner gemessenen Höhe (app.js). */
+/* Der Kopf ist fixiert und reicht bis zur oberen Kante. Der Abstand oben entspricht seiner gemessenen Höhe plus 22 px Auslauf-Puffer. */
 .app-shell {
-  padding-top: var(--kopf-hoehe, 180px);
+  padding-top: calc(var(--kopf-hoehe, 180px) + 22px);
+}
+
+html {
+  scroll-padding-top: calc(var(--kopf-hoehe, 180px) + 22px);
+}
+
+.section-title {
+  scroll-margin-top: calc(var(--kopf-hoehe, 180px) + 22px);
 }
 
 /* Prüfpunkt-Layout (Variante A) und Mangel-Fokus liegen zentral in shared/css/forms.css */

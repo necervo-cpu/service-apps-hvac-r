@@ -1,5 +1,5 @@
 {
-  "version": "3.0.4",
+  "version": "3.0.5",
   "buildDate": "2026-11-24",
-  "changelog": "Glas-Module für Kopf und Leiste auch offline im Cache"
+  "changelog": "Tab-Overflow auf Smartphone behoben und Kopf deckend mit 22 px Auslauf-Abstand"
 }

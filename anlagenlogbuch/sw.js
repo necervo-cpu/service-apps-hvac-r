@@ -1,7 +1,7 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder shared/ die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
 // Die Handler (install, activate, fetch) stehen in shared/sw-vorlage.js; hier nur Cache-Name und Dateiliste.
-const CACHE = 'anlagenlogbuch-v306';
+const CACHE = 'anlagenlogbuch-v307';
 const ASSETS = [
   './',
   './index.html',
@@ -23,6 +23,8 @@ const ASSETS = [
   './shared/css/base.css',
   './shared/css/components.css',
   './shared/css/forms.css',
+  './shared/css/glas.css',
+  './shared/glas.js',
   './shared/choice-dropdown.js',
   './shared/pdf.css',
   './shared/sw-vorlage.js',

@@ -1,5 +1,5 @@
 {
-  "version": "3.0.25",
+  "version": "3.0.26",
   "buildDate": "2026-11-24",
-  "changelog": "Zahlenfelder ohne −/+, Messwert-Zeilen wie vorher"
+  "changelog": "Tab-Overflow auf Smartphone behoben, Kopf deckend mit 22 px Auslauf-Abstand"
 }

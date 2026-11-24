@@ -467,16 +467,3 @@ canvas.sig {
 .sign-btn:active {
   background: var(--color-muted);
 }
-
-/* Kopf: bis zur Unterkante (inkl. Statuszeile) deckend, danach weicher Auslauf. Gescrollter Inhalt scheint nicht mehr durch die Statuszeile. */
-.app-header::before {
-  -webkit-mask-image: none;
-  mask-image: none;
-  background: linear-gradient(
-    to bottom,
-    var(--color-background) 0,
-    var(--color-background) var(--kopf-hoehe, 180px),
-    color-mix(in srgb, var(--color-background) 52%, transparent) calc(var(--kopf-hoehe, 180px) + 8px),
-    transparent calc(var(--kopf-hoehe, 180px) + 22px)
-  );
-}

@@ -1,5 +1,5 @@
 {
-  "version": "3.0.9",
+  "version": "3.0.10",
   "buildDate": "2026-11-24",
-  "changelog": "Zahlenfelder ohne −/+, Messwert-Zeilen wie vorher"
+  "changelog": "Tab-Overflow auf Smartphone behoben, Kopf deckend mit Auslauf-Abstand und Glas-Module im Offline-Cache"
 }
