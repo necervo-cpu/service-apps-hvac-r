@@ -1,5 +1,5 @@
 {
-  "version": "3.0.8",
+  "version": "3.0.9",
   "buildDate": "2026-11-24",
-  "changelog": "−/+ und Feld als Gruppe in Messwert-Zeilen"
+  "changelog": "Zahlenfelder ohne −/+, Messwert-Zeilen wie vorher"
 }

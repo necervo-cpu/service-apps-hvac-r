@@ -1,5 +1,5 @@
 {
-  "version": "3.0.5",
+  "version": "3.0.6",
   "buildDate": "2026-11-24",
-  "changelog": "−/+-Schritttasten neben Zahlenfeldern"
+  "changelog": "Zahlenfelder ohne −/+"
 }

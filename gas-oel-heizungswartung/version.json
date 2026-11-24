@@ -1,5 +1,5 @@
 {
-  "version": "3.0.7",
+  "version": "3.0.8",
   "buildDate": "2026-11-24",
-  "changelog": "Kopf deckend bis zur Statuszeile, −/+ und Feld als Gruppe"
+  "changelog": "Zahlenfelder ohne −/+, Kopf deckend bis zur Statuszeile"
 }

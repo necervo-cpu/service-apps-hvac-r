@@ -244,13 +244,6 @@ function wizardHtml(c, i) {
     <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-/* Zahlenfelder: − und + links und rechts vom Feld, Schritt je Einheit (KOMPONENTEN.md, Regel 1.4) */
-const SCHRITT_JE_EINHEIT = { '°C': 0.5, K: 0.5, bar: 0.1, 'µS/cm': 10, pH: 0.1, Pa: 10, hPa: 5, V: 1, A: 0.5, kg: 0.1, l: 0.1, '%': 1, mm: 1 };
-function stepBtn(f, richtung) {
-  const schritt = f.step ?? SCHRITT_JE_EINHEIT[f.unit] ?? 1;
-  const bezeichnung = richtung < 0 ? 'Verringern' : 'Erhöhen';
-  return `<button type="button" class="step-btn" data-stepf="${f.id}" data-dir="${richtung}" data-step="${schritt}" tabindex="-1" aria-label="${bezeichnung}: ${esc(f.label)}">${richtung < 0 ? '−' : '+'}</button>`;
-}
 function fieldHtml(f, c) {
   const v = c.obj.values;
   const x = v[f.id] ?? '';
@@ -276,7 +269,7 @@ function fieldHtml(f, c) {
     case 'number': {
       const neg = f.min != null && f.min < 0;
       return `<div class="field${fehler}"><label class="field-label" for="in-${f.id}">${esc(f.label)}${hint}</label>
-    <div class="field-box input-wrapper">${stepBtn(f, -1)}${neg ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}${stepBtn(f, 1)}</div>${errHtml}</div>`;
+    <div class="field-box input-wrapper">${neg ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="glass-input numeric" id="in-${f.id}" data-f="${f.id}" inputmode="${neg ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}">${f.unit ? `<span class="input-unit-addon">${esc(f.unit)}</span>` : ''}</div>${errHtml}</div>`;
     }
     case 'auto': {
       const datum = f.input === 'date';
