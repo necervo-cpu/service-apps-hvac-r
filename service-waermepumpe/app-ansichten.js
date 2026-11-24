@@ -242,6 +242,13 @@ function mangelNote(f, v, offen) {
   return `<div class="check-note"><div><span class="field-box field-box--note"><input class="note-input" type="text" data-f="${kind.id}" value="${esc(v[kind.id] ?? '')}" aria-label="Mangel beschreiben: ${esc(f.label)}" autocomplete="off"${offen ? '' : ' tabindex="-1"'}></span></div></div>`;
 }
 
+/* Zahlenfelder: − und + links und rechts vom Feld, Schritt je Einheit (KOMPONENTEN.md, Regel 1.4) */
+const SCHRITT_JE_EINHEIT = { '°C': 0.5, K: 0.5, bar: 0.1, 'µS/cm': 10, pH: 0.1, Pa: 10, hPa: 5, V: 1, A: 0.5, kg: 0.1, l: 0.1, '%': 1, mm: 1 };
+function stepBtn(f, richtung) {
+  const schritt = f.step ?? SCHRITT_JE_EINHEIT[f.unit] ?? 1;
+  const bezeichnung = richtung < 0 ? 'Verringern' : 'Erhöhen';
+  return `<button type="button" class="step-btn" data-stepf="${f.id}" data-dir="${richtung}" data-step="${schritt}" tabindex="-1" aria-label="${bezeichnung}: ${esc(f.label)}">${richtung < 0 ? '−' : '+'}</button>`;
+}
 function fieldHtml(f, p) {
   const v = p.values;
   const x = v[f.id] ?? '';
@@ -312,7 +319,7 @@ function fieldHtml(f, p) {
         .map((t) => `<div>${esc(t)}</div>`)
         .join('');
       return `<div class="meas-wrap${fehler}">
-    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}<span class="vwrap">${negativ ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="value-input numeric" type="text" id="in-${f.id}" data-f="${f.id}" inputmode="decimal" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span></label>
+    <label class="meas-row" for="in-${f.id}"><span class="meas-label">${esc(f.label)}</span>${messPill(f, v)}${stepBtn(f, -1)}<span class="vwrap">${negativ ? `<button type="button" class="sign-btn" data-sign="${f.id}" tabindex="-1" aria-label="Vorzeichen wechseln: ${esc(f.label)}">±</button>` : ''}<input class="value-input numeric" type="text" id="in-${f.id}" data-f="${f.id}" inputmode="${negativ ? 'text' : 'decimal'}" autocomplete="off" value="${esc(x)}"><span class="input-unit-addon">${esc(f.unit || '')}</span></span>${stepBtn(f, 1)}</label>
     ${notizen ? `<div class="meas-notes">${notizen}</div>` : ''}${errHtml}
   </div>`;
     }

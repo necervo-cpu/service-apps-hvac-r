@@ -106,3 +106,23 @@ document.addEventListener('click', (e) => {
   el.value = wert.startsWith('-') ? wert.slice(1) : '-' + wert;
   el.dispatchEvent(new Event('input', { bubbles: true }));
 });
+
+/* −/+ neben Zahlenfeldern: Schritt addieren, Komma als Dezimaltrennzeichen, input-Event löst Speichern und Berechnung aus */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-stepf]');
+  if (!b) {
+    return;
+  }
+  e.preventDefault();
+  const el = document.getElementById('in-' + b.dataset.stepf);
+  if (!el) {
+    return;
+  }
+  const schritt = Number(b.dataset.step);
+  const dez = (String(schritt).split('.')[1] || '').length;
+  const faktor = 10 ** dez;
+  const basis = parseFloat(String(el.value).trim().replace(',', '.'));
+  const neu = Math.round((Number.isFinite(basis) ? basis * faktor : 0) + Number(b.dataset.dir) * schritt * faktor) / faktor;
+  el.value = neu.toFixed(dez).replace('.', ',');
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+});
