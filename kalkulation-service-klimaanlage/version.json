@@ -1,5 +1,5 @@
 {
-  "version": "3.0.4",
+  "version": "3.0.5",
   "buildDate": "2026-11-24",
-  "changelog": "Smoked Liquid Glass mit weichem Fade für Kopf- und Fußleiste wiederhergestellt"
+  "changelog": "Messwertzeilen und Ja/Nein-Schalter auf vertikales Vollbreiten-Layout umgestellt"
 }

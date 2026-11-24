@@ -316,11 +316,6 @@ textarea.text-input {
   margin-bottom: var(--space-sm);
 }
 
-.segmented-inline {
-  flex: none;
-  width: 9.5rem;
-}
-
 .num-field .meas-notes {
   padding: var(--space-sm) 0 0;
 }

@@ -321,11 +321,6 @@ textarea.text-input {
   padding-bottom: var(--space-sm);
 }
 
-.segmented-inline {
-  flex: none;
-  width: 9.5rem;
-}
-
 .check-label .status-pill {
   margin-top: 6px;
 }

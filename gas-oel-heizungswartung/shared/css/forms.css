@@ -435,6 +435,16 @@ textarea.text-input {
   padding: var(--space-sm) 0;
 }
 
+.meas-row:not(.matrow) {
+  gap: 8px var(--space-sm);
+  min-height: 0;
+}
+
+.meas-row.matrow {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
 .calc-row {
   display: flex;
   flex-wrap: wrap;
@@ -455,6 +465,14 @@ textarea.text-input {
   min-width: 110px;
   font-size: var(--text-sub);
   font-weight: 600;
+}
+
+.meas-row:not(.matrow) > .meas-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
+  hyphens: none;
+  overflow-wrap: break-word;
 }
 
 .meas-label small {
@@ -742,12 +760,14 @@ input[type='datetime-local'] {
   min-width: 0;
 }
 
-.meas-row:has(> .meas-meta) > .vwrap {
-  flex: 0 0 min(180px, 54%);
-  width: auto;
-  max-width: none;
-  height: 46px;
-  min-height: 46px;
+.meas-row:has(> .meas-meta) > .vwrap,
+.meas-row:not(.matrow) > .vwrap {
+  flex: 1 0 100%;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: 48px;
+  padding: 0 12px;
 }
 
 /* ==========================================================================
@@ -803,6 +823,32 @@ input[type='datetime-local'] {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Ja/Nein-Schalterzeilen: Frage + Hinweis über volle Breite, Button-Leiste (100 %) darunter */
+.check-main:has(> .segmented-inline) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+  min-height: 0;
+  padding: var(--space-sm) 0;
+}
+
+.check-main:has(> .segmented-inline) > .check-label {
+  display: block;
+  width: 100%;
+  line-height: 1.35;
+  hyphens: none;
+  overflow-wrap: break-word;
+}
+
+.check-main > .segmented-control.segmented-inline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Mangel-Eingabe: Warnfarbe statt grünem Fokus-Ring. Tokens aus tokens.css (Hell und OLED-Dunkel). */
