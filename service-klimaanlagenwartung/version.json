@@ -1,5 +1,5 @@
 {
-  "version": "3.0.26",
+  "version": "3.0.27",
   "buildDate": "2026-11-24",
-  "changelog": "Tab-Overflow auf Smartphone behoben, Kopf deckend mit 22 px Auslauf-Abstand"
+  "changelog": "Smoked Liquid Glass mit weichem Fade für Kopf- und Fußleiste wiederhergestellt"
 }

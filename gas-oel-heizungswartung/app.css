@@ -152,11 +152,6 @@ a.btn-secondary {
 
 /* Untere Leiste (Zurück / Weiter / Abschließen / PDF) */
 .bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
   padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
     max(1rem, env(safe-area-inset-left, 0px));
 }

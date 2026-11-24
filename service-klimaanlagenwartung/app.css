@@ -154,6 +154,10 @@ a.btn-secondary {
   left: 0;
   right: 0;
   z-index: 40;
+  background: transparent;
+  isolation: isolate;
+  transform: translateZ(0);
+  will-change: transform;
   padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
     max(1rem, env(safe-area-inset-left, 0px));
 }
@@ -217,28 +221,30 @@ body::-webkit-scrollbar {
   left: 0;
   right: 0;
   z-index: 40;
+  isolation: isolate;
   margin: 0;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
   transform: translateZ(0);
   will-change: transform;
 }
 
-/* Kopf: bis zur Unterkante (inkl. Statuszeile) deckend, danach 22 px weicher Auslauf */
+/* Glas ohne harte Kante: weicher Blur-Verlauf, der nach unten ausläuft */
 .app-header::before {
   content: '';
   position: absolute;
   inset: 0 0 -22px 0;
   z-index: -1;
   pointer-events: none;
-  -webkit-mask-image: none;
-  mask-image: none;
   background: linear-gradient(
     to bottom,
-    var(--color-background) 0,
-    var(--color-background) var(--kopf-hoehe, 180px),
-    color-mix(in srgb, var(--color-background) 52%, transparent) calc(var(--kopf-hoehe, 180px) + 8px),
-    transparent calc(var(--kopf-hoehe, 180px) + 22px)
+    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
+    transparent 100%
   );
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
 }
 
 /* Theme- und Einstellungs-Icon als runde Glas-Kreise */
