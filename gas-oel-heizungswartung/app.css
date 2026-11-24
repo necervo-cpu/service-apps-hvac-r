@@ -488,3 +488,30 @@ canvas.sig {
 .step-btn:active {
   background: var(--color-muted);
 }
+
+/* −/+ und Feld als Gruppe in einer Zeile: Feld füllt den Rest, Name steht auf dem Telefon über der Zeile */
+.meas-row > .vwrap {
+  flex: 1 1 140px;
+  width: auto;
+  max-width: 240px;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .meas-row > .meas-label {
+    flex: 1 0 100%;
+  }
+}
+
+/* Kopf: bis zur Unterkante (inkl. Statuszeile) deckend, danach weicher Auslauf. Gescrollter Inhalt scheint nicht mehr durch die Statuszeile. */
+.app-header::before {
+  -webkit-mask-image: none;
+  mask-image: none;
+  background: linear-gradient(
+    to bottom,
+    var(--color-background) 0,
+    var(--color-background) var(--kopf-hoehe, 180px),
+    color-mix(in srgb, var(--color-background) 52%, transparent) calc(var(--kopf-hoehe, 180px) + 8px),
+    transparent calc(var(--kopf-hoehe, 180px) + 22px)
+  );
+}

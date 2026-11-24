@@ -1,5 +1,5 @@
 {
-  "version": "3.0.23",
+  "version": "3.0.24",
   "buildDate": "2026-11-24",
-  "changelog": "−/+-Schritttasten neben Zahlenfeldern, Negativfelder mit Textmodus"
+  "changelog": "−/+ und Feld als Gruppe in Messwert-Zeilen"
 }

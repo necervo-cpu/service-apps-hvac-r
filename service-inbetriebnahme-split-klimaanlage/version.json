@@ -1,5 +1,5 @@
 {
-  "version": "3.0.6",
+  "version": "3.0.7",
   "buildDate": "2026-11-24",
-  "changelog": "Prüfpunkte mit sichtbaren Labels i.O. / Mangel / entfällt"
+  "changelog": "−/+ und Feld als Gruppe in Messwert-Zeilen"
 }
