@@ -439,22 +439,25 @@ function finalHtml(p, felder) {
             }
             (isCheck(x) ? e.chk : e.rows).push(x);
           });
-          let body = '';
+          const secParts = [];
           if (s.table && s.table.body && s.table.body.length) {
             const t = s.table;
-            body += B.nMatrix(
-              t.head.slice(1).map((h) => ({ titel: h })),
-              t.body.map((b) => ({
-                label: b.label,
-                zellen: b.cells.map((c) => {
-                  const k = c.eval && c.eval !== 'none' ? c.eval : '';
-                  return k === 'ok' || k === 'bad' || k === 'na' ? B.nRes(k) : B.nWert(c.value);
-                }),
-              })),
+            secParts.push(
+              B.nMatrix(
+                t.head.slice(1).map((h) => ({ titel: h })),
+                t.body.map((b) => ({
+                  label: b.label,
+                  zellen: b.cells.map((c) => {
+                    const k = c.eval && c.eval !== 'none' ? c.eval : '';
+                    return k === 'ok' || k === 'bad' || k === 'na' ? B.nRes(k) : B.nWert(c.value);
+                  }),
+                })),
+              ),
             );
           }
           let count = 0,
             kopfZeigen = true;
+          const CHUNK = 12;
           groups.forEach((e) => {
             const items = e.chk.map((x) => ({
               label: x.label,
@@ -468,22 +471,39 @@ function finalHtml(p, felder) {
               }
             });
             const kopf = groups.length > 1 && e.g ? B.nSub(e.g) : '';
-            const zeilen = e.rows.length ? B.nZeilen(e.rows) : '';
-            const pruef = items.length ? B.nPruef(items, nr, count, kopfZeigen) : '';
-            count += items.length;
-            if (items.length) {
+            let needSub = !!kopf;
+            for (let i = 0; i < items.length; i += CHUNK) {
+              const part = items.slice(i, i + CHUNK);
+              secParts.push((needSub ? kopf : '') + B.nPruef(part, nr, count + i, kopfZeigen));
+              needSub = false;
               kopfZeigen = false;
             }
-            body += kopf + pruef + zeilen;
+            count += items.length;
+            for (let i = 0; i < e.rows.length; i += CHUNK) {
+              const part = e.rows.slice(i, i + CHUNK);
+              secParts.push((needSub ? kopf : '') + B.nZeilen(part));
+              needSub = false;
+            }
           });
-          blocks.push({
-            html: B.nAbschnitt(
-              String(nr),
-              titel,
-              body || '<div class="n-sub">Keine Angaben</div>',
-              tm ? tm[2] : '',
-            ),
-          });
+          if (!secParts.length) {
+            blocks.push({
+              html: B.nAbschnitt(
+                String(nr),
+                titel,
+                '<div class="n-sub">Keine Angaben</div>',
+                tm ? tm[2] : '',
+              ),
+            });
+          } else {
+            secParts.forEach((partHtml, idx) => {
+              blocks.push({
+                html:
+                  idx === 0
+                    ? B.nAbschnitt(String(nr), titel, partHtml, tm ? tm[2] : '')
+                    : `<div class="n-sec n-sec--teil">${partHtml}</div>`,
+              });
+            });
+          }
         });
 
         // Auffälligkeiten: mit Nummer; weicht die Zahl von den Daten der App ab, gelten die Texte der App

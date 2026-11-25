@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-24T21:36:41Z",
+  "updatedAt": "2026-11-25T17:38:23Z",
   "apps": [
     {
       "id": "startseite",
@@ -35,7 +35,7 @@
       "id": "rlt-kwl",
       "name": "RLT- & KWL-Wartung",
       "path": "service-rlt-kwl-anlagen/",
-      "version": "3.0.11"
+      "version": "3.0.12"
     },
     {
       "id": "split-klima-ibn",
@@ -59,7 +59,7 @@
       "id": "daikin-auslegung",
       "name": "Daikin-Auslegung",
       "path": "auslegungstool-daikin-split-klimaanlage/",
-      "version": "3.0.5"
+      "version": "3.0.6"
     },
     {
       "id": "hvac-r-rechner",

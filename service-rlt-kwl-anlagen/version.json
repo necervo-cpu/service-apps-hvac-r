@@ -1,5 +1,5 @@
 {
-  "version": "3.0.11",
-  "buildDate": "2026-11-24",
-  "changelog": "Messwertzeilen und Ja/Nein-Schalter auf vertikales Vollbreiten-Layout umgestellt"
+  "version": "3.0.12",
+  "buildDate": "2026-11-25",
+  "changelog": "PDF-Seitenumbruch in langen Abschnitten ohne Abschneiden korrigiert"
 }

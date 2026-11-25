@@ -1,5 +1,5 @@
 {
-  "version": "3.0.5",
-  "buildDate": "2026-11-24",
-  "changelog": "Messwertzeilen und Ja/Nein-Schalter auf vertikales Vollbreiten-Layout umgestellt"
+  "version": "3.0.6",
+  "buildDate": "2026-11-25",
+  "changelog": "PDF-Export auf einheitliches Papier-Design (page.neu, mind. 12 px) umgestellt"
 }
