@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-25T17:38:23Z",
+  "updatedAt": "2026-11-25T18:38:29Z",
   "apps": [
     {
       "id": "startseite",
@@ -65,7 +65,7 @@
       "id": "hvac-r-rechner",
       "name": "HVAC-R Rechner",
       "path": "/HVAC-rechner-v2/",
-      "version": "1.27.0"
+      "version": "1.27.1"
     }
   ]
 }
