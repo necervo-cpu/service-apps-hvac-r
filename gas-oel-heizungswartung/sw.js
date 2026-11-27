@@ -1,4 +1,4 @@
-const CACHE = 'heizung-v3011';
+const CACHE = 'heizung-v3012';
 const ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,10 @@ const ASSETS = [
   './shared/css/base.css',
   './shared/css/components.css',
   './shared/css/forms.css',
+  './shared/css/layout.css',
+  './shared/css/checklists.css',
+  './shared/css/charts.css',
+  './shared/css/animations.css',
   './shared/css/glas.css',
   './shared/glas.js',
   './shared/choice-dropdown.js',

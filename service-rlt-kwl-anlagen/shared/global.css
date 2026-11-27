@@ -1,9 +1,14 @@
 /**
  * Modul: Gemeinsames Stylesheet (shared/global.css)
- * Design-System: ui-ux-pro-max (Industrial / Field-Utility), siehe DESIGN.md & MASTER.md.
- * Modularisiert in vier Teilmodule unter shared/css/ (je deutlich < 1.000 Zeilen).
+ * Design-System: ios27-design-system (Smoked Liquid Glass, Dark Standard + Light).
+ * Modularisiert in Teilmodule unter shared/css/ (je <= 300 Zeilen).
+ * glas.css (fixierter Kopf, Aktionsleiste, Toast) wird von den Apps separat eingebunden.
  */
 @import url('./css/tokens.css');
 @import url('./css/base.css');
+@import url('./css/layout.css');
 @import url('./css/components.css');
 @import url('./css/forms.css');
+@import url('./css/checklists.css');
+@import url('./css/charts.css');
+@import url('./css/animations.css');

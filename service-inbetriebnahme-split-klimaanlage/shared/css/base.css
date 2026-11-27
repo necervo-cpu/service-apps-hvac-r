@@ -1,6 +1,6 @@
 /**
  * Modul: Basis-Styles & Barrierefreiheit (shared/css/base.css)
- * Reset, Typografie-Basis, Touch-Targets, Icons und Legacy-Flächen-Neutralisierung.
+ * Reset, Apple-Font-Stack, Touch-Targets, Fokus-Ring, freistehende Icons, Legacy-Neutralisierung.
  */
 
 *,
@@ -19,12 +19,18 @@ html {
   overflow-x: clip;
   overscroll-behavior: none;
   touch-action: manipulation;
-  background-color: var(--color-background);
+  background-color: var(--bg-canvas);
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.5;
@@ -39,14 +45,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   padding-bottom: max(2rem, calc(32px + env(safe-area-inset-bottom, 0px)));
+  scrollbar-width: none;
 }
 
+/* Tabellarische Ziffern für alle Mess-, Rechen- und Kennzahlen */
 .numeric,
 table,
 code,
 input[type='number'],
-.value {
+.value,
+.calc-value,
+.row-version,
+.section-count,
+.metric-value,
+.hero-value,
+.info-row-value {
   font-variant-numeric: tabular-nums;
+}
+
+code {
+  font-family: var(--font-mono);
 }
 
 button,
@@ -74,6 +92,7 @@ textarea {
   touch-action: manipulation;
 }
 
+/* Touch-Targets >= 44px */
 button,
 [role='button'],
 input,
@@ -96,9 +115,11 @@ textarea {
   -webkit-appearance: none;
 }
 
+/* Fokus: ios27-Ring statt Outline (Outline transparent bleibt im Kontrast-Modus sichtbar) */
 :focus-visible {
-  outline: 3px solid var(--color-ring);
+  outline: 2px solid transparent;
   outline-offset: 2px;
+  box-shadow: var(--focus-ring);
 }
 
 [hidden] {
@@ -106,7 +127,8 @@ textarea {
 }
 
 /* ==========================================================================
-   GOOGLE MATERIAL SYMBOLS ROUNDED
+   GOOGLE MATERIAL SYMBOLS ROUNDED – verbindlich freistehend:
+   keine farbigen Container, Kreise oder Kacheln um Icons. Nur color färbt das Symbol.
    ========================================================================== */
 .material-symbols-rounded {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -118,6 +140,9 @@ textarea {
   align-items: center;
   justify-content: center;
   flex: none;
+  background: transparent !important;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .active .material-symbols-rounded,
@@ -131,16 +156,16 @@ html.icons-pending .material-symbols-rounded {
 }
 
 /* ==========================================================================
-   ALT-FLÄCHEN NEUTRALISIEREN (KEIN BLUR, KEIN GLAS-BALLAST)
+   ALT-FLÄCHEN NEUTRALISIEREN (kein Glas-Ballast auf Inhaltskarten)
    ========================================================================== */
 .ambient-canvas {
   display: none;
 }
 
 .liquid-glass {
-  background: var(--color-card);
-  border: 1px solid var(--color-separator);
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--card-shadow);
   border-radius: var(--radius-card);
 }
 
@@ -150,14 +175,14 @@ html.icons-pending .material-symbols-rounded {
 }
 
 .liquid-surface-inner {
-  background: var(--color-surface-input);
-  border: 1.5px solid var(--color-border-control);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-control);
 }
 
 .liquid-surface-inner:focus-within {
-  border-color: var(--color-ring);
-  box-shadow: 0 0 0 3px var(--color-focus-halo);
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 .liquid-glass.group,
@@ -174,8 +199,8 @@ html.icons-pending .material-symbols-rounded {
 }
 
 .search.liquid-glass {
-  background: var(--color-surface-input);
-  border: 1.5px solid var(--color-border-control);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
 }
 
 /* ==========================================================================
@@ -188,8 +213,10 @@ html.icons-pending .material-symbols-rounded {
   .choice-select-input,
   .text-input,
   .modal-card,
+  .ios27-card,
   .liquid-surface-inner {
     border-width: 2px;
+    border-color: var(--border-glass-rim);
   }
 }
 

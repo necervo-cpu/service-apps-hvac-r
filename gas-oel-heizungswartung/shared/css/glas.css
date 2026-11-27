@@ -1,117 +1,95 @@
 /**
  * Modul: Smoked Liquid Glass für schwebende Ebenen (shared/css/glas.css)
- * Kopfbereich (fixiert), untere Aktionsleiste, Toast-Banner, Dialog.
- * Opt-in: nur Apps, die diese Datei einbinden, bekommen den Effekt.
- * Farben ausschließlich über Tokens. Die Kopfhöhe misst shared/glas.js.
+ * Fixierter Kopf, untere Aktionsleiste, Toast-Banner. Opt-in: nur Apps, die diese Datei einbinden.
+ * Glas = --bg-glass + blur(20px) saturate(140%) + 1px-Kante. Die Kopfhöhe misst shared/glas.js (--kopf-hoehe).
+ * Dialog/Karten bleiben deckend (components.css).
  */
 
-/* Der Kopf ist fixiert. Der Inhalt beginnt unter seiner gemessenen Höhe plus 22 px Auslauf-Puffer. */
-.app-shell {
-  padding-top: calc(var(--kopf-hoehe, 180px) + 22px);
-}
+/* Der Kopf ist fixiert: Inhalt beginnt unter seiner gemessenen Höhe plus Puffer. */
+.app-shell { padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
+html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
+.section-title { scroll-margin-top: calc(var(--kopf-hoehe, 96px) + 16px); }
 
-html {
-  scroll-padding-top: calc(var(--kopf-hoehe, 180px) + 22px);
-}
-
-.section-title {
-  scroll-margin-top: calc(var(--kopf-hoehe, 180px) + 22px);
-}
-
+/* ==========================================================================
+   1. FIXIERTER KOPF
+   ========================================================================== */
 .app-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 40;
-  isolation: isolate;
+  min-height: var(--header-height);
+  align-items: center;
   margin: 0;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
-  transform: translateZ(0);
-  will-change: transform;
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: border-color var(--t-fast), background-color var(--t-fast);
 }
+
+/* Scroll-Fade: ab scrollY > 8 deutlichere Kante und etwas mehr Deckkraft */
+.app-header.is-scrolled {
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+  border-bottom-color: var(--border-glass-rim);
+}
+
+/* Freistehende Icons: keine Glas-Kreise, keine Rahmen */
+.app-header .icon-btn {
+  background: transparent;
+  border-color: transparent;
+}
+
+.app-header .icon-btn:active { background: transparent; }
+
+.app-header .ios27-menu-btn { margin-left: -10px; }
+.app-header .brand-title { font-size: var(--text-h1); }
+.app-header .brand-subtitle,
+.app-header .net { margin-top: 2px; }
 
 @media (min-width: 768px) {
-  .app-header {
-    padding-inline: var(--space-lg);
-  }
+  .app-header { padding-inline: var(--space-lg); }
 }
 
-/* Glas ohne harte Kante: weicher Blur-Verlauf, der nach unten ausläuft */
-.app-header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 -22px 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
-    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
-    transparent 100%
-  );
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 68%, transparent 100%);
-}
-
-/* Theme- und Einstellungs-Icon als runde Glas-Kreise */
-.app-header .icon-btn {
-  background: color-mix(in srgb, var(--color-card) 75%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
-}
-
-.app-header .icon-btn:active {
-  background: var(--color-muted);
-}
-
-.app-header .brand-subtitle,
-.app-header .net {
-  margin-top: 2px;
-}
-
-/* Untere Aktionsleiste: fixiert, Glas-Auslauf nach oben, keine harte Kante */
+/* ==========================================================================
+   2. UNTERE AKTIONSLEISTE (Formulare)
+   ========================================================================== */
 .bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 40;
-  background: transparent;
-  isolation: isolate;
-  transform: translateZ(0);
-  will-change: transform;
+  padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-top: 1px solid var(--border-subtle);
 }
 
-.bar::before {
-  content: '';
-  position: absolute;
-  inset: -22px 0 0 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--color-background) 82%, transparent) 0%,
-    color-mix(in srgb, var(--color-background) 52%, transparent) 68%,
-    transparent 100%
-  );
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-mask-image: linear-gradient(to top, black 68%, transparent 100%);
-  mask-image: linear-gradient(to top, black 68%, transparent 100%);
+.bar > div {
+  display: flex;
+  gap: 10px;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
 }
 
-body:has(input:focus, textarea:focus, select:focus) .bar {
-  display: none;
-}
+.bar > div > * { flex: 1; min-width: 0; }
+.bar .btn-primary,
+.bar .btn-secondary { min-height: 52px; }
+
+/* Bei geöffneter Tastatur (Feld hat Fokus) ausblenden, damit die Leiste nicht über das Feld springt */
+body:has(input:focus, textarea:focus, select:focus) .bar { display: none; }
 
 /* Platz unten, damit die fixierte Leiste keine Inhalte verdeckt */
-body:has(.bar:not([hidden])) {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-}
+body:has(.bar:not([hidden])) { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
-/* Toast als Banner in voller Breite */
+/* ==========================================================================
+   3. TOAST ALS SMOKED-GLASS-BANNER
+   ========================================================================== */
 .toast-pill {
   left: 16px;
   right: 16px;
@@ -120,94 +98,46 @@ body:has(.bar:not([hidden])) {
   margin-inline: auto;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   padding: 12px 16px;
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   text-align: left;
   hyphens: none;
   white-space: normal;
   transform: translateY(16px);
-  background: color-mix(in srgb, var(--color-card) 72%, transparent);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid color-mix(in srgb, var(--color-foreground) 14%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--color-foreground) 8%, transparent),
-    var(--shadow-lg);
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--border-glass-rim);
+  box-shadow: var(--card-shadow);
 }
 
-.toast-pill.is-visible {
-  transform: none;
+.toast-pill.is-visible { transform: none; }
+.toast-pill > .material-symbols-rounded { flex-shrink: 0; }
+.toast-pill > #toastText { flex: 1; min-width: 0; overflow-wrap: break-word; }
+body:has(.bar:not([hidden])) .toast-pill { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+/* ==========================================================================
+   4. DESKTOP (>= 1024px): Kopf, Leiste und Toast rechts neben der Sidebar
+   ========================================================================== */
+@media (min-width: 1024px) {
+  body.ios27-has-nav .app-header,
+  body.ios27-has-nav .bar {
+    left: 252px;
+    padding-inline: max(var(--space-lg), calc((100vw - var(--sidebar-width) - var(--app-max-width)) / 2));
+  }
+
+  body.ios27-has-nav .toast-pill { left: calc(252px + 16px); }
 }
 
-.toast-pill > .material-symbols-rounded {
-  flex-shrink: 0;
-}
-
-.toast-pill > #toastText {
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-body:has(.bar:not([hidden])) .toast-pill {
-  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-}
-
-/* Dialog: Abstand zu Statusleiste und Home-Indikator, scrollbar bei Bedarf, leichte Unschärfe, Lichtkante.
-   Die Karte bleibt deckend, damit die Eingabefelder gut lesbar sind. */
-.modal-overlay {
-  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-.modal-card {
-  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
-  overflow-y: auto;
-  padding: var(--space-md);
-  gap: var(--space-sm);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--color-foreground) 10%, transparent),
-    var(--shadow-lg);
-}
-
-.modal-card .btn-primary,
-.modal-card .btn-secondary {
-  hyphens: none;
-}
-
-/* Seiten-Scrollbar ausblenden (Scrollverhalten bleibt unverändert) */
-html,
-body {
-  scrollbar-width: none;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
-}
-
-/* Bei erhöhtem Kontrast ohne Glas: volle Flächen */
+/* ==========================================================================
+   5. ERHÖHTER KONTRAST: volle Flächen statt Glas
+   ========================================================================== */
 @media (prefers-contrast: more) {
-  .bar {
-    background: var(--color-card);
-    border-top: 1px solid var(--color-separator);
-  }
-
-  .bar::before {
-    display: none;
-  }
-
+  .app-header,
+  .bar,
   .toast-pill {
-    background: var(--color-card);
+    background: var(--bg-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-  }
-
-  .app-header::before {
-    background: var(--color-background);
-    -webkit-mask-image: none;
-    mask-image: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    border-color: var(--border-glass-rim);
   }
 }

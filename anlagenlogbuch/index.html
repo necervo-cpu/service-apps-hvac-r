@@ -11,8 +11,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Anlagenlogbuch" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F8FAFC" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B0C0E" />
     <title>Anlagenlogbuch</title>
 
     <script>
@@ -22,11 +22,12 @@
         try {
           saved = localStorage.getItem('ag-theme');
         } catch (e) {}
-        var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-        root.setAttribute(
-          'data-theme',
-          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
-        );
+        var theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+        root.setAttribute('data-theme', theme);
+        var metas = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].setAttribute('content', theme === 'light' ? '#F2F2F7' : '#0B0C0E');
+        }
       })();
     </script>
 

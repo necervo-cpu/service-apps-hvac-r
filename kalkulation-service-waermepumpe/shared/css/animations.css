@@ -1,0 +1,146 @@
+/**
+ * Modul: Bewegung (shared/css/animations.css)
+ * Apple-Motion: nur GPU-freundliche Eigenschaften (transform, opacity, backdrop-filter, color, border-color).
+ * Easing: --ease-apple-fluid (Standard), --ease-apple-spring (Einblenden von Dialogen).
+ * Drawer, Sidebar-Fade und Bottom-Fade bringen ihre Übergänge in layout.css mit.
+ */
+
+/* ==========================================================================
+   1. DRUCK- & HOVER-RÜCKMELDUNG
+   ========================================================================== */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-tonal,
+.icon-btn,
+.back-btn,
+.tab-pill,
+.segmented-option,
+.stepper,
+.tri button,
+.sign-btn {
+  transition:
+    transform var(--t-press),
+    opacity var(--t-press),
+    color var(--t-fast),
+    background-color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.row,
+.menu-item,
+.acc-head,
+.ios27-nav-item,
+.ios27-theme-btn,
+.choice-select-input,
+.search,
+.field-box,
+.input-wrapper,
+.vwrap,
+.value-input,
+.note-input {
+  transition:
+    color var(--t-fast),
+    background-color var(--t-fast),
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+
+.progress-bar > i { transition: transform var(--t-panel); transform-origin: left; }
+
+/* ==========================================================================
+   2. EINBLENDEN: DIALOG, TOAST, AKKORDEON
+   ========================================================================== */
+.modal-overlay {
+  transition: opacity var(--t-fast), visibility 0s linear 150ms;
+}
+
+.modal-overlay.is-open {
+  transition: opacity var(--t-fast), visibility 0s;
+}
+
+.modal-overlay.is-open .modal-card {
+  animation: ios27-pop 320ms var(--ease-apple-spring) both;
+}
+
+.toast-pill {
+  transition: transform var(--t-panel), opacity var(--t-fast);
+}
+
+.expander-knob .material-symbols-rounded,
+.acc-chevron {
+  transition: transform var(--t-panel), color var(--t-fast);
+}
+
+.acc-body > div,
+.expander-body > div,
+.check-note > div {
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.expander.is-open .expander-body > div,
+.acc.is-open .acc-body > div,
+.check.has-defect .check-note > div {
+  opacity: 1;
+}
+
+.ios27-enter {
+  animation: ios27-fade-up 320ms var(--ease-apple-fluid) both;
+}
+
+@keyframes ios27-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ios27-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   3. HOVER NUR FÜR MAUS/TRACKPAD
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .row:hover,
+  .menu-item:hover {
+    background: var(--bg-surface-elevated);
+  }
+}
+
+/* ==========================================================================
+   4. REDUCED MOTION: keine Bewegung, Zustände wechseln sofort
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-danger:active,
+  .btn-tonal:active,
+  .icon-btn:active,
+  .stepper:active {
+    transform: none;
+  }
+}

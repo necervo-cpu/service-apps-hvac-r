@@ -1,12 +1,15 @@
 /**
  * Modul: Design-Tokens (shared/css/tokens.css)
- * Quelle: design-system/service-apps-hvac-r/MASTER.md + DESIGN.md (Industrial / Field-Utility)
+ * Design-System: ios27-design-system (Dark Standard + Light, Smoked Liquid Glass).
  * Alle konkreten Farbwerte stehen ausschließlich hier; Komponenten nutzen nur var(--...).
  */
 
+/* ==========================================================================
+   1. THEME-UNABHÄNGIGE TOKENS (Typografie, Radien, Abstände, Motion)
+   ========================================================================== */
 :root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
 
   --text-display: clamp(1.75rem, 1.35rem + 1.8vw, 2.35rem);
   --text-h1: clamp(1.375rem, 1.2rem + 0.8vw, 1.65rem);
@@ -15,206 +18,229 @@
   --text-sub: 0.9375rem;
   --text-caption: 0.8125rem;
 
+  /* 8px-Raster (4px nur für Feinabstände) */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
+  --space-2xl: 48px;
 
-  --radius-control: 10px;
-  --radius-card: 14px;
-  --radius-modal: 18px;
-  --radius-icon: 10px;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-segmented: 10px;
+  --radius-modal: 20px;
+  --radius-icon: 12px;
   --radius-pill: 9999px;
 
   --shadow-sm: none;
-  --shadow-lg: 0 14px 32px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.18);
 
-  --t-fast: 150ms ease;
-  --t-press: 110ms ease-out;
-  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --sidebar-width: 252px;
+  --drawer-width: 280px;
+  --app-max-width: 1000px;
+  --header-height: 56px;
+
+  --ease-apple-fluid: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-apple-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --ease-spring: var(--ease-apple-fluid);
+  --t-fast: 150ms var(--ease-apple-fluid);
+  --t-press: 120ms var(--ease-apple-fluid);
+  --t-panel: 320ms var(--ease-apple-fluid);
 }
 
 /* ==========================================================================
-   1A. LIGHT MODE (STANDARD & [data-theme="light"] — ui-ux-pro-max)
+   2. DARK MODE (Standard)
    ========================================================================== */
 :root,
-[data-theme='light'] {
-  --color-background: #f8fafc;
-  --color-foreground: #0f172a;
-  --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
-  --color-primary: #334155;
-  --color-on-primary: #ffffff;
-  --color-secondary: #475569;
-  --color-on-secondary: #ffffff;
-  --color-accent: #059669;
-  --color-on-accent: #000000;
-  --color-muted: #f2f3f4;
-  --color-muted-foreground: #475569;
-  --color-surface-hover: #e6e8ea;
-  --color-surface-input: #ffffff;
-  --color-border: #e6e8ea;
-  --color-border-control: #64748b;
-  --color-separator: #e6e8ea;
-  --color-destructive: #dc2626;
-  --color-on-destructive: #ffffff;
-  --color-destructive-text: #dc2626;
-  --color-ring: #334155;
-  --color-focus-halo: rgba(51, 65, 85, 0.2);
-  --color-scrim: rgba(15, 23, 42, 0.52);
-  --color-progress-track: var(--color-separator);
-  --chart-grid: rgba(15, 23, 42, 0.12);
-
-  --status-ok-bg: #ecfdf5;
-  --status-ok-border: #059669;
-  --status-ok-fg: #065f46;
-  --status-warn-bg: #fffbeb;
-  --status-warn-border: #b45309;
-  --status-warn-fg: #78350f;
-  --status-danger-bg: #fef2f2;
-  --status-danger-border: #dc2626;
-  --status-danger-fg: #991b1b;
-  --status-info-bg: #f2f3f4;
-  --status-info-border: #475569;
-  --status-info-fg: #0f172a;
-  --status-neutral-bg: #f2f3f4;
-  --status-neutral-border: #64748b;
-  --status-neutral-fg: #334155;
-
-  /* Kategorie-Farben je Gewerk (Design-Guideline-1, Stufe 1: nur Zeilen-Icon) */
-  --cat-heizung: #be123c;
-  --cat-wp: #a21caf;
-  --cat-klima: #0369a1;
-  --cat-lueftung: #0f766e;
-  --cat-elektro: #4338ca;
-  --cat-allgemein: #475569;
-}
-
-/* ==========================================================================
-   1B. OLED DARK MODE ([data-theme="dark"] — ui-ux-pro-max, ohne Blaustich)
-   ========================================================================== */
 [data-theme='dark'] {
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-card: #121212;
-  --color-card-foreground: #ffffff;
-  --color-primary: #e0e0e0;
-  --color-on-primary: #000000;
-  --color-secondary: #a3a3a3;
-  --color-on-secondary: #000000;
-  --color-accent: #10b981;
-  --color-on-accent: #000000;
-  --color-muted: #1c1c1c;
-  --color-muted-foreground: #a3a3a3;
-  --color-surface-hover: #262626;
-  --color-surface-input: #181818;
-  --color-border: #262626;
-  --color-border-control: #737373;
-  --color-separator: #262626;
-  --color-destructive: #ef4444;
-  --color-on-destructive: #000000;
-  --color-destructive-text: #fca5a5;
-  --color-ring: #10b981;
-  --color-focus-halo: rgba(16, 185, 129, 0.28);
-  --color-scrim: rgba(0, 0, 0, 0.78);
-  --color-progress-track: var(--color-separator);
-  --chart-grid: rgba(255, 255, 255, 0.14);
+  color-scheme: dark;
+  --bg-canvas: #0b0c0e;
+  --bg-surface: #15171b;
+  --bg-surface-elevated: #1c1f25;
+  --bg-glass: rgba(21, 23, 27, 0.78);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glass-rim: rgba(255, 255, 255, 0.14);
+  --card-shadow: none;
+  --text-primary: #f5f5f7;
+  --text-secondary: #98989f;
+  --text-muted: #63636a;
+  --accent: #0a84ff;
+  --accent-hover: #2a94ff;
+  --accent-soft: rgba(10, 132, 255, 0.16);
+  --success: #30d158;
+  --warning: #ff9f0a;
+  --danger: #ff453a;
+  --focus-ring: 0 0 0 3px rgba(10, 132, 255, 0.25);
 
-  --status-ok-bg: rgba(16, 185, 129, 0.16);
-  --status-ok-border: rgba(52, 211, 153, 0.55);
-  --status-ok-fg: #6ee7b7;
-  --status-warn-bg: rgba(245, 158, 11, 0.16);
-  --status-warn-border: rgba(251, 191, 36, 0.55);
-  --status-warn-fg: #fde68a;
-  --status-danger-bg: rgba(239, 68, 68, 0.16);
-  --status-danger-border: rgba(248, 113, 113, 0.55);
-  --status-danger-fg: #fca5a5;
-  --status-info-bg: #1c1c1c;
-  --status-info-border: #525252;
-  --status-info-fg: #e0e0e0;
-  --status-neutral-bg: #1c1c1c;
-  --status-neutral-border: #404040;
-  --status-neutral-fg: #d4d4d4;
+  --color-focus-halo: rgba(10, 132, 255, 0.25);
+  --color-scrim: rgba(0, 0, 0, 0.56);
+  --chart-grid: rgba(255, 255, 255, 0.1);
 
-  --cat-heizung: #fb7185;
-  --cat-wp: #e879f9;
-  --cat-klima: #38bdf8;
-  --cat-lueftung: #2dd4bf;
-  --cat-elektro: #818cf8;
-  --cat-allgemein: #a3a3a3;
+  --status-ok-bg: rgba(48, 209, 88, 0.16);
+  --status-ok-border: rgba(48, 209, 88, 0.4);
+  --status-ok-fg: #30d158;
+  --status-warn-bg: rgba(255, 159, 10, 0.16);
+  --status-warn-border: rgba(255, 159, 10, 0.45);
+  --status-warn-fg: #ff9f0a;
+  --status-danger-bg: rgba(255, 69, 58, 0.16);
+  --status-danger-border: rgba(255, 69, 58, 0.45);
+  --status-danger-fg: #ff6961;
+  --status-info-bg: rgba(10, 132, 255, 0.16);
+  --status-info-border: rgba(10, 132, 255, 0.4);
+  --status-info-fg: #64a8ff;
+  --status-neutral-bg: #1c1f25;
+  --status-neutral-border: rgba(255, 255, 255, 0.14);
+  --status-neutral-fg: #98989f;
+
+  --cat-heizung: #ff6482;
+  --cat-wp: #bf5af2;
+  --cat-klima: #64d2ff;
+  --cat-lueftung: #63e6be;
+  --cat-elektro: #7d7aff;
+  --cat-allgemein: #98989f;
 }
 
 /* ==========================================================================
-   1C. KOMPATIBILITÄTS-ALIASE FÜR BESTEHENDE APPS (BIS ETAPPE 3 & 4)
+   3. LIGHT MODE
    ========================================================================== */
-:root {
-  --bg-canvas: var(--color-background);
-  --bg-elevated: var(--color-card);
-  --text-primary: var(--color-foreground);
-  --text-secondary: var(--color-muted-foreground);
-  --text-tertiary: var(--color-muted-foreground);
-  --border-separator: var(--color-separator);
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-canvas: #f2f2f7;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f5f5f7;
+  --bg-glass: rgba(242, 242, 247, 0.8);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-glass-rim: rgba(0, 0, 0, 0.12);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --text-primary: #1c1c1e;
+  --text-secondary: #636366;
+  --text-muted: #8e8e93;
+  --accent: #007aff;
+  --accent-hover: #0066d6;
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --success: #28cd41;
+  --warning: #ff9500;
+  --danger: #ff3b30;
+  --focus-ring: 0 0 0 3px rgba(0, 122, 255, 0.22);
 
-  --glass-bg: var(--color-card);
-  --glass-border: var(--color-separator);
-  --glass-border-highlight: var(--color-separator);
-  --glass-shadow: var(--shadow-lg);
+  --color-focus-halo: rgba(0, 122, 255, 0.22);
+  --color-scrim: rgba(0, 0, 0, 0.4);
+  --chart-grid: rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
-  --surface-inner-bg: var(--color-muted);
-  --surface-inner-hover: var(--color-surface-hover);
-  --surface-inner-border: var(--color-border-control);
+  --status-ok-bg: rgba(40, 205, 65, 0.14);
+  --status-ok-border: rgba(40, 205, 65, 0.45);
+  --status-ok-fg: #1d8a32;
+  --status-warn-bg: rgba(255, 149, 0, 0.14);
+  --status-warn-border: rgba(255, 149, 0, 0.5);
+  --status-warn-fg: #a35c00;
+  --status-danger-bg: rgba(255, 59, 48, 0.12);
+  --status-danger-border: rgba(255, 59, 48, 0.45);
+  --status-danger-fg: #d70015;
+  --status-info-bg: rgba(0, 122, 255, 0.12);
+  --status-info-border: rgba(0, 122, 255, 0.35);
+  --status-info-fg: #0062cc;
+  --status-neutral-bg: #f5f5f7;
+  --status-neutral-border: rgba(0, 0, 0, 0.12);
+  --status-neutral-fg: #636366;
 
-  --accent: var(--color-primary);
-  --on-accent: var(--color-on-primary);
-  --accent-border: var(--color-primary);
-  --tonal: var(--status-info-bg);
-  --on-tonal: var(--status-info-fg);
+  --cat-heizung: #d30f45;
+  --cat-wp: #a23ad0;
+  --cat-klima: #0a7bbd;
+  --cat-lueftung: #12877a;
+  --cat-elektro: #5856d6;
+  --cat-allgemein: #636366;
+}
 
-  --segmented-active-bg: var(--color-primary);
-  --segmented-active-text: var(--color-on-primary);
-  --segmented-active-border: var(--color-primary);
+/* ==========================================================================
+   4. KOMPATIBILITÄTS-ALIASE (bestehende Apps, Etappe 3 und 4)
+      Auf :root UND [data-theme], damit sie bei lokalem Theme neu aufgelöst werden.
+   ========================================================================== */
+:root,
+[data-theme] {
+  --color-background: var(--bg-canvas);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
+  --color-primary: var(--accent);
+  --color-on-primary: #ffffff;
+  --color-secondary: var(--text-secondary);
+  --color-on-secondary: #ffffff;
+  --color-accent: var(--accent);
+  --color-on-accent: #ffffff;
+  --color-muted: var(--bg-surface-elevated);
+  --color-muted-foreground: var(--text-secondary);
+  --color-surface-hover: var(--bg-surface-elevated);
+  --color-surface-input: var(--bg-surface-elevated);
+  --color-border: var(--border-subtle);
+  --color-border-control: var(--border-subtle);
+  --color-separator: var(--border-subtle);
+  --color-destructive: var(--danger);
+  --color-on-destructive: #ffffff;
+  --color-destructive-text: var(--danger);
+  --color-ring: var(--accent);
+  --color-progress-track: var(--border-subtle);
+
+  --bg-elevated: var(--bg-surface);
+  --text-tertiary: var(--text-muted);
+  --border-separator: var(--border-subtle);
+
+  --glass-bg: var(--bg-glass);
+  --glass-border: var(--border-subtle);
+  --glass-border-highlight: var(--border-glass-rim);
+  --glass-shadow: var(--card-shadow);
+
+  --surface-inner-bg: var(--bg-surface-elevated);
+  --surface-inner-hover: var(--bg-surface-elevated);
+  --surface-inner-border: var(--border-subtle);
+
+  --on-accent: #ffffff;
+  --accent-border: var(--accent);
+  --tonal: var(--accent-soft);
+  --on-tonal: var(--accent);
+
+  --segmented-active-bg: var(--accent);
+  --segmented-active-text: #ffffff;
+  --segmented-active-border: var(--accent);
   --segmented-active-shadow: none;
 
   --scrim: var(--color-scrim);
+}
 
-  --system-blue: var(--status-info-fg);
-  --system-blue-tint: var(--status-info-bg);
+:root,
+[data-theme] {
+  --system-blue: var(--accent);
+  --system-blue-tint: var(--accent-soft);
   --system-blue-border: var(--status-info-border);
-
-  --system-cyan: var(--color-secondary);
+  --system-cyan: var(--cat-klima);
   --system-cyan-tint: var(--status-info-bg);
   --system-cyan-border: var(--status-info-border);
-
   --system-green: var(--status-ok-fg);
   --system-green-tint: var(--status-ok-bg);
   --system-green-border: var(--status-ok-border);
-
   --system-orange: var(--status-warn-fg);
   --system-orange-tint: var(--status-warn-bg);
   --system-orange-border: var(--status-warn-border);
-
   --system-yellow: var(--status-warn-fg);
   --system-yellow-tint: var(--status-warn-bg);
   --system-yellow-border: var(--status-warn-border);
-
   --system-red: var(--status-danger-fg);
   --system-red-tint: var(--status-danger-bg);
   --system-red-border: var(--status-danger-border);
-
-  --system-purple: var(--color-primary);
+  --system-purple: var(--cat-wp);
   --system-purple-tint: var(--status-info-bg);
   --system-purple-border: var(--status-info-border);
 }
 
 /* ==========================================================================
-   1D. REDUCED MOTION (Design-Guideline-1: alle Übergänge aus)
+   5. REDUCED MOTION
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   :root,
-  [data-theme='light'],
-  [data-theme='dark'] {
+  [data-theme] {
     --t-press: 0ms;
     --t-fast: 0ms;
+    --t-panel: 0ms;
   }
 }

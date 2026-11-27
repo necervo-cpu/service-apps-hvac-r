@@ -1,0 +1,292 @@
+/**
+ * Modul: Listen, Prüfpunkte, Messwerte & Akkordeons (shared/css/checklists.css)
+ * Deckende Karten (.group/.ios27-card: --bg-surface, 16px, 1px --border-subtle), Listenzeilen (.row),
+ * Tri-State-Prüfpunkte, Mangel-Notiz, Messwert-/Rechenzeilen, Zusammenfassung, Expander/Akkordeon.
+ * Ausschließlich CSS-Variablen. Icons freistehend (nur color, keine Hintergrundboxen).
+ */
+
+/* ==========================================================================
+   0. KARTEN & LISTENZEILEN
+   ========================================================================== */
+.group,
+.ios27-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+}
+
+.group { padding: 0 12px; margin-bottom: var(--space-xl); }
+.ios27-card { padding: var(--space-md); margin-bottom: var(--space-md); }
+.group > * + * { border-top: 1px solid var(--border-subtle); }
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  min-height: 64px;
+  padding: 0.6875rem 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.row:active,
+.proto-open:active { background: var(--bg-surface-elevated); }
+.jump-link:active { opacity: 0.78; }
+.row[hidden] { display: none; }
+.row-text { flex: 1; min-width: 0; }
+.row-title { display: block; font-size: var(--text-body); font-weight: 600; letter-spacing: -0.01em; }
+.row-sub { display: block; margin-top: 2px; color: var(--text-secondary); font-size: var(--text-caption); }
+.row-chevron { color: var(--text-muted); }
+.row-version { color: var(--text-muted); font-size: var(--text-caption); }
+
+/* Freistehendes Icon: keine Hintergrundbox, nur Farbe */
+.row-icon { width: 30px; height: 40px; flex: none; display: grid; place-items: center; background: transparent; }
+
+.row-icon--info,
+.row-icon--blue { color: var(--accent); }
+.row-icon--warn,
+.row-icon--orange { color: var(--status-warn-fg); }
+.row-icon--ok,
+.row-icon--green { color: var(--status-ok-fg); }
+.row-icon--cyan { color: var(--cat-klima); }
+.row-icon--heizung { color: var(--cat-heizung); } /* Kategorie-Farben: nur App-Icon, nie Status */
+.row-icon--wp { color: var(--cat-wp); }
+.row-icon--klima { color: var(--cat-klima); }
+.row-icon--lueftung { color: var(--cat-lueftung); }
+.row-icon--elektro { color: var(--cat-elektro); }
+.row-icon--allgemein { color: var(--cat-allgemein); }
+
+@media (min-width: 768px) { .group { padding: 0 var(--space-md); } }
+
+/* ==========================================================================
+   1. PRÜFPUNKTE (TRI-STATE), Variante A: Frage volle Breite, 3er-Leiste darunter
+   ========================================================================== */
+.check-main { display: flex; align-items: center; gap: var(--space-sm); min-height: 64px; padding: var(--space-sm) 0; }
+.check-label { flex: 1; min-width: 0; font-size: var(--text-sub); font-weight: 500; }
+
+.tri {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-segmented);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.tri button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-segmented) - 2px);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.tri button:hover:not([aria-pressed='true']) { color: var(--text-primary); }
+.tri button:active { transform: scale(0.97); }
+
+.tri button[aria-pressed='true'][data-value='ok'] { background: var(--status-ok-bg); border-color: var(--status-ok-border); color: var(--status-ok-fg); }
+.tri button[aria-pressed='true'][data-value='mangel'] { background: var(--status-warn-bg); border-color: var(--status-warn-border); color: var(--status-warn-fg); }
+.tri button[aria-pressed='true'][data-value='na'] { background: var(--status-neutral-bg); border-color: var(--status-neutral-border); color: var(--status-neutral-fg); }
+
+.check .check-main { flex-direction: column; align-items: stretch; min-height: 0; }
+.check .check-label { display: block; width: 100%; line-height: 1.35; hyphens: none; overflow-wrap: break-word; }
+.check .tri { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; padding: 4px; }
+
+.check .tri button {
+  width: 100%;
+  height: auto;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: var(--text-sub);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.check .tri .material-symbols-rounded { font-size: 20px; }
+.check .tri-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Ja/Nein-Schalterzeilen */
+.check-main:has(> .segmented-inline) { flex-direction: column; align-items: stretch; min-height: 0; }
+.check-main:has(> .segmented-inline) > .check-label { display: block; width: 100%; line-height: 1.35; hyphens: none; overflow-wrap: break-word; }
+.check-main > .segmented-control.segmented-inline { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; max-width: 100%; }
+
+/* Mangel-Notiz: klappt per grid-rows auf; Innenabstand + negativer Rand geben dem Fokus-Ring Platz */
+.check-note { display: grid; grid-template-rows: 0fr; visibility: hidden; }
+.check.has-defect .check-note { grid-template-rows: 1fr; visibility: visible; }
+.check-note > div { overflow: hidden; min-height: 0; padding: 4px; margin: -4px; }
+
+.note-input {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  margin: 0 0 12px;
+  padding: 0 12px;
+  border: 1px solid var(--status-warn-border);
+  border-radius: var(--radius-control);
+  background: var(--status-warn-bg);
+  outline: none;
+  color: var(--status-warn-fg);
+  font-size: var(--text-body);
+}
+
+.note-input::placeholder { color: var(--text-secondary); }
+.note-input:focus-visible { border-color: var(--warning); }
+
+/* Mangel-Eingabe: Warnfarbe statt Akzent-Ring; Ring nur auf dem Wrapper */
+.check .field-box--note:focus-within { border-color: var(--status-warn-border); box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 28%, transparent); }
+.check .note-input:focus,
+.check .note-input:focus-visible { outline: none; box-shadow: none; caret-color: var(--warning); }
+
+.form-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0.25rem var(--space-md); color: var(--text-secondary); font-size: var(--text-caption); }
+
+/* ==========================================================================
+   2. MESSWERTE, RECHENZEILEN & ZUSAMMENFASSUNG
+   ========================================================================== */
+.group--form > .calc-row + :not(.calc-row) { margin-top: 12px; }
+
+.meas-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-sm); min-height: 60px; padding: var(--space-sm) 0; }
+.meas-row:not(.matrow) { gap: 8px var(--space-sm); min-height: 0; }
+.meas-row.matrow { flex-wrap: nowrap; align-items: center; }
+
+.calc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 56px;
+  margin: var(--space-sm) 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--bg-surface-elevated);
+  border-top: 0;
+}
+
+.meas-label,
+.calc-label { flex: 1 1 0; min-width: 110px; font-size: var(--text-sub); font-weight: 600; }
+.meas-row:not(.matrow) > .meas-label { flex: 1 1 auto; min-width: 0; line-height: 1.35; hyphens: none; overflow-wrap: break-word; }
+.meas-label small { display: block; font-weight: 400; color: var(--text-secondary); font-size: var(--text-caption); }
+
+.meas-hint,
+.meas-error { flex: 1 0 100%; font-size: var(--text-caption); }
+.meas-hint { color: var(--text-secondary); }
+.meas-error { color: var(--danger); font-weight: 600; }
+.meas-row:focus-within .meas-label { color: var(--accent); }
+
+.calc-value { font-variant-numeric: tabular-nums; font-size: 1.0625rem; font-weight: 700; white-space: nowrap; }
+
+.vwrap { flex: none; width: 180px; max-width: 56%; min-height: 46px; padding: 0 10px; }
+
+.value-input {
+  width: 84px;
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface-elevated);
+  outline: none;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-body);
+  font-weight: 600;
+  text-align: center;
+}
+
+.value-input:focus-visible { border-color: var(--accent); }
+
+.vwrap .value-input,
+.field-box .value-input { flex: 1; width: auto; min-width: 0; padding: 0 6px 0 0; border: 0; background: transparent; }
+
+.vwrap .value-input { text-align: right; }
+.vwrap .input-unit-addon { padding-left: 0; }
+.meas-row > .input-unit-addon { min-width: 3.2em; padding-left: 0; }
+
+/* Messwertzeile 375px: Label-Block oben, Eingabe volle Breite darunter (nur mit .meas-meta) */
+.meas-row:has(> .meas-meta) { align-items: flex-start; }
+.meas-row > .meas-meta { display: flex; flex: 1 1 0; min-width: 110px; flex-direction: column; align-items: flex-start; gap: 4px; }
+.meas-row > .meas-meta > .meas-label { flex: none; min-width: 0; }
+
+@media (min-width: 481px) {
+  .meas-row > .meas-meta { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px var(--space-sm); }
+}
+
+.meas-row:has(> .meas-meta) > .vwrap,
+.meas-row:not(.matrow) > .vwrap { flex: 1 0 100%; width: 100%; max-width: 100%; height: auto; min-height: 48px; padding: 0 12px; }
+
+.defect { padding: 12px 0; font-size: var(--text-sub); }
+.defect small { display: block; margin-top: 2px; color: var(--text-secondary); font-size: var(--text-caption); }
+.summary-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); padding: 14px 0; }
+
+/* ==========================================================================
+   3. EXPANDER, AKKORDEON & MENÜ-ZEILEN
+   ========================================================================== */
+.expander-head,
+.acc-head { display: flex; align-items: center; gap: var(--space-sm); width: 100%; background: transparent; border: 0; color: inherit; text-align: left; }
+.expander-head { padding: 0; }
+.expander-text,
+.acc-name { flex: 1; min-width: 0; }
+.expander-title { display: block; font-size: var(--text-h1); font-weight: 700; }
+
+.expander-knob { width: 44px; height: 44px; flex: none; display: grid; place-items: center; background: transparent; color: var(--text-secondary); }
+
+.expander.is-open .expander-knob .material-symbols-rounded,
+.acc.is-open .acc-chevron { transform: rotate(180deg); }
+
+.expander-body,
+.acc-body { display: grid; grid-template-rows: 0fr; visibility: hidden; }
+
+.expander-body > div,
+.acc-body > div { overflow: hidden; min-height: 0; }
+
+.expander.is-open .expander-body,
+.acc.is-open .acc-body { grid-template-rows: 1fr; visibility: visible; }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  color: inherit;
+  font-size: var(--text-body);
+  text-align: left;
+  text-decoration: none;
+}
+
+.expander-body .menu-item:first-child { margin-top: var(--space-sm); }
+.acc-head { min-height: 64px; padding: 0 var(--space-xs); border-radius: var(--radius-control); }
+.acc-head:active { background: var(--bg-surface-elevated); }
+
+.acc-badge {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sub);
+  font-weight: 600;
+}
+
+.acc-badge--orange { color: var(--status-warn-fg); font-size: var(--text-caption); }
+.acc-chevron { color: var(--text-muted); }
+.acc-text { padding: 0 var(--space-xs) 12px 3.25rem; color: var(--text-secondary); font-size: var(--text-sub); }
+.acc-body .info-list { margin-left: 3.25rem; border-top: 1px solid var(--border-subtle); }

@@ -11,8 +11,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Service Apps" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F8FAFC" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B0C0E" />
     <title>Service Apps HVAC-R</title>
 
     <script>
@@ -22,11 +22,12 @@
         try {
           saved = localStorage.getItem('ag-theme');
         } catch (e) {}
-        var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-        root.setAttribute(
-          'data-theme',
-          saved === 'light' || saved === 'dark' ? saved : light ? 'light' : 'dark',
-        );
+        var theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+        root.setAttribute('data-theme', theme);
+        var metas = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].setAttribute('content', theme === 'light' ? '#F2F2F7' : '#0B0C0E');
+        }
       })();
     </script>
 
@@ -122,6 +123,53 @@
       </div>
 
       <main id="app">
+        <section class="ios27-card suite-analytics-card" id="suiteAnalytics" aria-labelledby="suiteAnalyticsTitle">
+          <div class="suite-analytics-head">
+            <div class="suite-analytics-text">
+              <h2 class="suite-analytics-title" id="suiteAnalyticsTitle">
+                Suite-Aktivität &amp; Normen-Abdeckung (10 Module)
+              </h2>
+              <p class="suite-analytics-sub" id="suiteKpiActiveLabel">Richtwerte je Modul</p>
+            </div>
+            <div class="suite-kpis">
+              <div class="suite-kpi">
+                <span class="suite-kpi-value" id="suiteKpiActive">–</span>
+                <span class="suite-kpi-label">Auswahl</span>
+              </div>
+              <div class="suite-kpi">
+                <span class="suite-kpi-value" id="suiteKpiAvg">–</span>
+                <span class="suite-kpi-label">Ø Suite</span>
+              </div>
+            </div>
+          </div>
+          <div class="suite-chart">
+            <svg
+              id="suiteChart"
+              viewBox="0 0 600 180"
+              role="slider"
+              tabindex="0"
+              aria-label="Normen-Abdeckung je Modul in Prozent"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <defs>
+                <linearGradient id="suiteGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" class="suite-stop" stop-opacity="0.2" />
+                  <stop offset="100%" class="suite-stop" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <g id="suiteGrid"></g>
+              <path id="suiteArea" class="suite-area" fill="url(#suiteGradient)" d="" />
+              <path id="suiteLine" class="suite-line" fill="none" d="" />
+              <g id="suiteCursor"></g>
+            </svg>
+            <div class="suite-tooltip" id="suiteTip" role="status" hidden>
+              <span id="suiteTipLabel"></span>
+              <strong id="suiteTipValue"></strong>
+            </div>
+          </div>
+        </section>
+
         <div class="hub-grid">
           <section class="hub-section" id="secService" aria-labelledby="titleService">
             <h2 class="section-title" id="titleService">
@@ -407,7 +455,7 @@
                 data-theme-choice="system"
                 aria-pressed="false"
               >
-                System
+                Standard
               </button>
             </div>
           </div>

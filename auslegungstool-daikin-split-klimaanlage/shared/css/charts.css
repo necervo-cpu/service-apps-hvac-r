@@ -1,0 +1,144 @@
+/**
+ * Modul: Kennzahlen, Info-Listen & Diagramme (shared/css/charts.css)
+ * Hauptwerte (.hero/.metric-*), Fortschritt, Info-Listen, Legenden und Inline-SVG-Diagramme
+ * im Apple-Analytics-Stil: ruhige Hilfslinien, glatte Linie, Verlaufsfläche. tabular-nums.
+ */
+
+/* ==========================================================================
+   1. KENNZAHLEN (.metric-*, .hero) & FORTSCHRITT
+   ========================================================================== */
+.metric-value {
+  margin-top: 2px;
+  font-size: var(--text-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.metric-unit {
+  font-size: max(12px, 0.65em);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  margin-left: 0.22em;
+}
+
+.metric-sub { margin-top: var(--space-xs); min-height: 1.4em; color: var(--text-secondary); font-size: var(--text-sub); }
+
+.hero { color: var(--text-primary); padding: 0; margin-bottom: var(--space-sm); min-width: 0; }
+.hero-caption { color: var(--text-secondary); font-size: var(--text-sub); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero-value { font-size: clamp(2.5rem, 2.1rem + 2.5vw, 3.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+.hero-value--compact { font-variant-numeric: tabular-nums; font-size: var(--text-h1); letter-spacing: -0.02em; }
+.hero .metric-unit { font-size: 0.42em; }
+.hero-value--compact .metric-unit { font-size: 0.58em; }
+.hero-line { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-sm); }
+.hero-note { margin-top: var(--space-sm); font-size: var(--text-caption); }
+.hero
+
+/* ==========================================================================
+   2. INFO-LISTEN, HINWEISE & LEGENDE
+   ========================================================================== */
+.info-list { display: flex; flex-direction: column; }
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px var(--space-sm);
+  min-height: 48px;
+  padding: 6px 0;
+}
+
+.info-row + .info-row { border-top: 1px solid var(--border-subtle); }
+
+.info-row-label {
+  display: flex;
+  flex: 1 0 min(140px, 100%);
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sub);
+}
+
+.info-row-value {
+  flex: 0 1 auto;
+  max-width: 100%;
+  margin-left: auto;
+  text-align: right;
+  font-weight: 600;
+  font-size: var(--text-body);
+  overflow-wrap: anywhere;
+}
+
+.hint { margin: 0 0.25rem; color: var(--text-secondary); font-size: var(--text-caption); }
+.group + .hint { margin-top: calc(var(--space-md) * -1); margin-bottom: var(--space-lg); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 8px; height: 8px; flex: none; border-radius: var(--radius-pill); }
+
+/* ==========================================================================
+   3. DIAGRAMME (Inline-SVG)
+   ========================================================================== */
+.chart-container { width: 100%; height: 120px; position: relative; }
+.chart-container--auto { height: auto; }
+
+.chart-svg { width: 100%; height: 100%; overflow: visible; }
+.chart-svg--fit { height: auto; overflow: hidden; }
+
+.chart-svg text {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-secondary);
+}
+
+.chart-svg--drag { touch-action: pan-y; cursor: ew-resize; user-select: none; }
+
+.chart-grid-line { stroke: var(--chart-grid); stroke-width: 1; }
+
+.chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-line--red { stroke: var(--danger); }
+
+/* Verlauf: Akzent 20 % -> 0 % (vertikal) */
+.chart-fill-top { stop-color: var(--accent); stop-opacity: 0.2; }
+.chart-fill-bottom { stop-color: var(--accent); stop-opacity: 0; }
+
+.chart-ref { fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-dasharray: 5 5; stroke-linecap: round; }
+.chart-guide { stroke: var(--text-secondary); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart-dot { fill: var(--accent); stroke: var(--bg-surface); stroke-width: 2; }
+
+.chart-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-glass-rim);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}

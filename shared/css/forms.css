@@ -1,6 +1,7 @@
 /**
- * Modul: Formulare, Protokolle & Regler (shared/css/forms.css)
- * Industrial / Field-Utility Bedienelemente. Ausschließlich CSS-Variablen (keine Hex-Werte).
+ * Modul: Formularfelder & Regler (shared/css/forms.css)
+ * Tabs, Segmented Control, Eingabefelder, Dropdowns, Stepper, Slider, Datum.
+ * Prüfpunkte/Messwerte/Akkordeons: checklists.css. Ausschließlich CSS-Variablen.
  */
 
 /* ==========================================================================
@@ -21,25 +22,14 @@
   scroll-snap-type: x proximity;
 }
 
+.tab-strip::-webkit-scrollbar { display: none; }
+
 #stepwrap,
 .stage,
-.stage > main {
-  min-width: 0;
-  max-width: 100%;
-}
+.stage > main { min-width: 0; max-width: 100%; }
 
-#stepwrap {
-  overflow-x: clip;
-}
-
-#stepwrap .tab-strip {
-  margin-top: 8px;
-  margin-bottom: 12px;
-}
-
-.tab-strip::-webkit-scrollbar {
-  display: none;
-}
+#stepwrap { overflow-x: clip; }
+#stepwrap .tab-strip { margin-top: 8px; margin-bottom: 12px; }
 
 .tab-pill {
   flex: none;
@@ -50,38 +40,23 @@
   align-items: center;
   gap: 6px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--color-separator);
-  background: var(--color-card);
-  color: var(--color-muted-foreground);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   font-size: var(--text-sub);
   font-weight: 600;
-  transition: transform var(--t-press);
 }
 
-.tab-pill:active {
-  transform: scale(0.97);
-}
-
-.tab-pill .material-symbols-rounded {
-  display: none;
-  color: var(--status-ok-fg);
-}
-
-.tab-pill.is-done .material-symbols-rounded {
-  display: inline-flex;
-}
+.tab-pill:hover:not(.active):not([aria-selected='true']) { color: var(--text-primary); border-color: var(--border-glass-rim); }
+.tab-pill:active { transform: scale(0.97); }
+.tab-pill .material-symbols-rounded { display: none; color: var(--status-ok-fg); }
+.tab-pill.is-done .material-symbols-rounded { display: inline-flex; }
 
 .tab-pill.active,
-.tab-pill[aria-selected='true'] {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-on-primary);
-}
+.tab-pill[aria-selected='true'] { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .tab-pill.active .material-symbols-rounded,
-.tab-pill[aria-selected='true'] .material-symbols-rounded {
-  color: var(--color-on-primary);
-}
+.tab-pill[aria-selected='true'] .material-symbols-rounded { color: #fff; }
 
 .segmented-control {
   display: grid;
@@ -89,9 +64,9 @@
   grid-auto-columns: 1fr;
   gap: 4px;
   padding: 4px;
-  border-radius: var(--radius-control);
-  background: var(--color-muted);
-  border: 1px solid var(--color-separator);
+  border-radius: var(--radius-segmented);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
 }
 
 .segmented-option {
@@ -100,35 +75,26 @@
   padding: 0 var(--space-sm);
   border: 1px solid transparent;
   background: transparent;
-  color: var(--color-muted-foreground);
+  color: var(--text-secondary);
   font-size: var(--text-sub);
   font-weight: 600;
-  border-radius: calc(var(--radius-control) - 4px);
+  border-radius: calc(var(--radius-segmented) - 2px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: transform var(--t-press);
 }
 
-.segmented-option:active {
-  transform: scale(0.97);
-}
+.segmented-option:hover:not(.active):not([aria-pressed='true']) { color: var(--text-primary); }
+.segmented-option:active { transform: scale(0.97); }
 
 .segmented-option.active,
-.segmented-option[aria-pressed='true'] {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
+.segmented-option[aria-pressed='true'] { background: var(--accent); color: #fff; }
 
 /* ==========================================================================
    2. EINGABEFELDER & DROPDOWNS
    ========================================================================== */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
+.form-group { display: flex; flex-direction: column; gap: var(--space-sm); }
 
 .form-label,
 .field-label {
@@ -137,32 +103,16 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 2px var(--space-sm);
-  color: var(--color-muted-foreground);
+  color: var(--text-secondary);
   font-size: var(--text-caption);
   font-weight: 600;
   hyphens: none;
 }
 
-.field-label .field-hint {
-  font-weight: 400;
-  max-width: 100%;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 0;
-}
-
-.field:focus-within .field-label {
-  color: var(--color-primary);
-}
-
-.field-required {
-  margin-left: 2px;
-  color: var(--status-warn-fg);
-}
+.field-label .field-hint { font-weight: 400; max-width: 100%; }
+.field { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; }
+.field:focus-within .field-label { color: var(--accent); }
+.field-required { margin-left: 2px; color: var(--status-warn-fg); }
 
 .field-box,
 .input-wrapper,
@@ -173,23 +123,18 @@
   min-width: 0;
   min-height: 48px;
   padding: 0 12px;
-  border: 1.5px solid var(--color-border-control);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-control);
-  background: var(--color-surface-input);
+  background: var(--bg-surface-elevated);
 }
 
 .field-box:focus-within,
 .input-wrapper:focus-within,
-.vwrap:focus-within {
-  border-color: var(--color-ring);
-  box-shadow: 0 0 0 3px var(--color-focus-halo);
-}
+.vwrap:focus-within { border-color: var(--accent); box-shadow: var(--focus-ring); }
 
 .has-error .vwrap,
 .has-error .field-box,
-.has-error .input-wrapper {
-  border-color: var(--color-destructive);
-}
+.has-error .input-wrapper { border-color: var(--danger); }
 
 .text-input,
 .glass-input {
@@ -200,414 +145,82 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: var(--color-foreground);
+  color: var(--text-primary);
   font-size: var(--text-body);
 }
 
-.glass-input {
-  font-family: var(--font-mono);
-}
-
+.glass-input { font-variant-numeric: tabular-nums; }
 .text-input::placeholder,
-.glass-input::placeholder {
-  color: var(--color-muted-foreground);
-}
+.glass-input::placeholder { color: var(--text-muted); }
 
-textarea.text-input {
-  min-height: 88px;
-  padding: 10px 0;
-  line-height: 1.4;
-  resize: vertical;
-}
-
-.field-box textarea.text-input {
-  min-height: 88px;
-  padding: 10px 0;
-}
-
+textarea.text-input { min-height: 88px; padding: 10px 0; line-height: 1.4; resize: vertical; }
 .field .field-box,
 .field > .choice-select,
-.field .segmented-control {
-  margin-top: 2px;
-}
+.field .segmented-control { margin-top: 2px; }
 
-.field-box--menge {
-  flex: none;
-  width: 96px;
-  padding: 0 var(--space-sm);
-}
-
-.field-box--menge .value-input {
-  text-align: center;
-}
+.field-box--menge { flex: none; width: 96px; padding: 0 var(--space-sm); }
+.field-box--menge .value-input { text-align: center; }
 
 .field-box--note,
-.field-box--note:focus-within {
-  margin: 0 0 12px;
-  padding: 0;
-  background: var(--status-warn-bg);
-  border-color: var(--status-warn-border);
-}
+.field-box--note:focus-within { margin: 0 0 12px; padding: 0; background: var(--status-warn-bg); border-color: var(--status-warn-border); }
+.field-box--note .note-input { width: 100%; margin: 0; padding: 0 12px; border: 0; background: transparent; }
 
-.field-box--note .note-input {
-  width: 100%;
-  margin: 0;
-  padding: 0 12px;
-  border: 0;
-  background: transparent;
-}
-
-.input-wrapper .glass-input {
-  text-align: center;
-  padding-inline: 3rem;
-}
-
-.input-wrapper .input-unit-addon {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
+.input-wrapper .glass-input { text-align: center; padding-inline: 3rem; }
+.input-wrapper .input-unit-addon { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); pointer-events: none; }
 
 .input-unit-addon {
   flex: none;
   white-space: nowrap;
-  font-family: var(--font-sans);
   font-size: var(--text-caption);
   font-weight: 600;
-  color: var(--color-muted-foreground);
+  color: var(--text-secondary);
   padding-left: var(--space-sm);
 }
 
-.choice-select {
-  position: relative;
-  margin-bottom: var(--space-md);
-}
-
-.choice-select--action {
-  margin-top: var(--space-sm);
-}
+.choice-select { position: relative; margin-bottom: var(--space-md); }
+.choice-select--action { margin-top: var(--space-sm); }
 
 .choice-select-input {
   width: 100%;
   min-height: 48px;
   padding: 0 44px 0 12px;
-  border: 1.5px solid var(--color-border-control);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-control);
-  background: var(--color-surface-input);
-  color: var(--color-foreground);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
   font-size: var(--text-body);
   font-weight: 500;
   text-overflow: ellipsis;
   cursor: pointer;
 }
 
+.choice-select-input:hover { border-color: var(--border-glass-rim); }
+.choice-select-input:focus-visible { border-color: var(--accent); }
+
 .choice-select .material-symbols-rounded {
   position: absolute;
   top: 50%;
   right: 12px;
   transform: translateY(-50%);
-  color: var(--color-muted-foreground);
+  color: var(--text-muted);
   pointer-events: none;
 }
 
-/* ==========================================================================
-   3. PRÜFPUNKTE (TRI-STATE), MESSWERTE & ZUSAMMENFASSUNG
-   ========================================================================== */
-.group--form > .calc-row + :not(.calc-row) {
-  margin-top: 12px;
-}
-
-.check-main {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  min-height: 64px;
-  padding: var(--space-sm) 0;
-}
-
-.check-label {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--text-sub);
-  font-weight: 500;
-}
-
-.tri {
-  display: flex;
-  flex: none;
-  gap: 4px;
-  padding: 3px;
-  border-radius: var(--radius-control);
-  background: var(--color-muted);
-  border: 1px solid var(--color-separator);
-}
-
-.tri button {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 1.5px solid transparent;
-  border-radius: calc(var(--radius-control) - 3px);
-  background: transparent;
-  color: var(--color-muted-foreground);
-  transition: transform var(--t-press);
-}
-
-.tri button:active {
-  transform: scale(0.97);
-}
-
-.tri button[aria-pressed='true'][data-value='ok'] {
-  background: var(--status-ok-bg);
-  border-color: var(--status-ok-border);
-  color: var(--status-ok-fg);
-}
-
-.tri button[aria-pressed='true'][data-value='mangel'] {
-  background: var(--status-warn-bg);
-  border-color: var(--status-warn-border);
-  color: var(--status-warn-fg);
-}
-
-.tri button[aria-pressed='true'][data-value='na'] {
-  background: var(--status-neutral-bg);
-  border-color: var(--status-neutral-border);
-  color: var(--status-neutral-fg);
-}
-
-.check-note {
-  display: grid;
-  grid-template-rows: 0fr;
-  visibility: hidden;
-}
-
-.check.has-defect .check-note {
-  grid-template-rows: 1fr;
-  visibility: visible;
-}
-
-/* overflow: hidden ist für das Aufklappen nötig. Der Innenabstand mit gleich großem negativem Rand
-   gibt dem Fokus-Schatten (3 px) Platz, ohne das Layout zu verschieben. */
-.check-note > div {
-  overflow: hidden;
-  min-height: 0;
-  padding: 4px;
-  margin: -4px;
-}
-
-.note-input {
-  display: block;
-  width: 100%;
-  min-height: 46px;
-  margin: 0 0 12px;
-  padding: 0 12px;
-  border: 1.5px solid var(--status-warn-border);
-  border-radius: var(--radius-control);
-  background: var(--status-warn-bg);
-  outline: none;
-  color: var(--status-warn-fg);
-  font-size: var(--text-body);
-}
-
-.note-input::placeholder {
-  color: var(--color-muted-foreground);
-}
-
-.form-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 0 0.25rem var(--space-md);
-  color: var(--color-muted-foreground);
-  font-size: var(--text-caption);
-}
-
-.meas-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs) var(--space-sm);
-  min-height: 60px;
-  padding: var(--space-sm) 0;
-}
-
-.meas-row:not(.matrow) {
-  gap: 8px var(--space-sm);
-  min-height: 0;
-}
-
-.meas-row.matrow {
-  flex-wrap: nowrap;
-  align-items: center;
-}
-
-.calc-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  min-height: 56px;
-  margin: var(--space-sm) 0;
-  padding: 10px 12px;
-  border-radius: var(--radius-control);
-  background: var(--color-muted);
-  border-top: 0;
-}
-
-.meas-label,
-.calc-label {
-  flex: 1 1 0;
-  min-width: 110px;
-  font-size: var(--text-sub);
-  font-weight: 600;
-}
-
-.meas-row:not(.matrow) > .meas-label {
-  flex: 1 1 auto;
-  min-width: 0;
-  line-height: 1.35;
-  hyphens: none;
-  overflow-wrap: break-word;
-}
-
-.meas-label small {
-  display: block;
-  font-weight: 400;
-  color: var(--color-muted-foreground);
-  font-size: var(--text-caption);
-}
-
-.meas-hint,
-.meas-error {
-  flex: 1 0 100%;
-  font-size: var(--text-caption);
-}
-
-.meas-hint {
-  color: var(--color-muted-foreground);
-}
-
-.meas-error {
-  color: var(--color-destructive-text);
-  font-weight: 600;
-}
-
-.meas-row:focus-within .meas-label {
-  color: var(--color-primary);
-}
-
-.calc-value {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.vwrap {
-  flex: none;
-  width: 180px;
-  max-width: 56%;
-  min-height: 46px;
-  padding: 0 10px;
-}
-
-.value-input {
-  width: 84px;
-  font-variant-numeric: tabular-nums;
-  min-height: 44px;
-  padding: 0 var(--space-sm);
-  border: 1.5px solid var(--color-border-control);
-  border-radius: var(--radius-control);
-  background: var(--color-surface-input);
-  outline: none;
-  color: var(--color-foreground);
-  font-family: var(--font-mono);
-  font-size: var(--text-body);
-  font-weight: 600;
-  text-align: center;
-}
-
-.vwrap .value-input,
-.field-box .value-input {
-  flex: 1;
-  width: auto;
-  min-width: 0;
-  padding: 0 6px 0 0;
-  border: 0;
-  background: transparent;
-}
-
-.vwrap .value-input {
-  text-align: right;
-}
-
-.vwrap .input-unit-addon {
-  padding-left: 0;
-}
-
-.meas-row > .input-unit-addon {
-  min-width: 3.2em;
-  padding-left: 0;
-}
-
-.defect {
-  padding: 12px 0;
-  font-size: var(--text-sub);
-}
-
-.defect small {
-  display: block;
-  margin-top: 2px;
-  color: var(--color-muted-foreground);
-  font-size: var(--text-caption);
-}
-
-.summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding: 14px 0;
-}
+/* Fokus-Ring liegt auf dem Wrapper, nicht auf dem inneren Feld */
+.field-box .text-input:focus-visible,
+.field-box .value-input:focus-visible,
+.vwrap .value-input:focus-visible,
+.input-wrapper .glass-input:focus-visible,
+.field-box--note .note-input:focus-visible { outline: none; box-shadow: none; }
 
 /* ==========================================================================
-   4. REGLER, STEPPER & DATUMSFELDER
+   3. REGLER, STEPPER & DATUMSFELDER
    ========================================================================== */
-.control {
-  padding: 12px 0;
-}
-
-.control-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.control-label {
-  flex: 1;
-  min-width: 140px;
-  font-size: var(--text-sub);
-  font-weight: 600;
-}
-
-.control-head .input-unit-addon {
-  min-width: 1.75em;
-  padding-left: var(--space-xs);
-}
-
-.control-slide {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
-}
+.control { padding: 12px 0; }
+.control-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); }
+.control-label { flex: 1; min-width: 140px; font-size: var(--text-sub); font-weight: 600; }
+.control-head .input-unit-addon { min-width: 1.75em; padding-left: var(--space-xs); }
+.control-slide { display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm); }
 
 .stepper {
   width: 44px;
@@ -616,75 +229,35 @@ textarea.text-input {
   padding: 0;
   display: grid;
   place-items: center;
-  border: 1.5px solid var(--color-border-control);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-control);
-  background: var(--color-muted);
-  color: var(--color-primary);
-  transition: transform var(--t-press);
+  background: var(--bg-surface-elevated);
+  color: var(--accent);
 }
 
-.stepper:active {
-  background: var(--color-surface-hover);
-  transform: scale(0.94);
-}
+.stepper:hover { border-color: var(--border-glass-rim); color: var(--accent-hover); }
+.stepper:active { transform: scale(0.94); }
 
-input[type='range'] {
-  flex: 1;
-  min-width: 0;
-  height: 44px;
-  margin: 0;
-  background: transparent;
-  accent-color: var(--color-primary);
-}
+input[type='range'] { flex: 1; min-width: 0; height: 44px; margin: 0; background: transparent; accent-color: var(--accent); }
 
-input[type='range']::-webkit-slider-runnable-track {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--color-progress-track);
-}
-
-input[type='range']::-moz-range-track {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--color-progress-track);
-}
+input[type='range']::-webkit-slider-runnable-track,
+input[type='range']::-moz-range-track { height: 6px; border-radius: 3px; background: var(--bg-surface-elevated); }
 
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 26px;
   height: 26px;
   margin-top: -10px;
-  border: 3px solid var(--color-card);
+  border: 3px solid var(--bg-surface);
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--accent);
 }
 
-input[type='range']::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border: 3px solid var(--color-card);
-  border-radius: 50%;
-  background: var(--color-primary);
-}
-
-.field-box .text-input:focus-visible,
-.field-box .value-input:focus-visible,
-.vwrap .value-input:focus-visible,
-.input-wrapper .glass-input:focus-visible,
-.search input:focus-visible,
-.field-box--note .note-input:focus-visible {
-  outline: none;
-}
-
-.value-input:focus-visible,
-.note-input:focus-visible {
-  border-color: var(--color-ring);
-}
+input[type='range']::-moz-range-thumb { width: 22px; height: 22px; border: 3px solid var(--bg-surface); border-radius: 50%; background: var(--accent); }
 
 input[type='date'] {
   -webkit-appearance: none;
   appearance: none;
-  font-size: var(--text-body);
   position: relative;
   display: flex;
   align-items: center;
@@ -693,25 +266,14 @@ input[type='date'] {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  text-align: left;
   margin: 0;
-}
-
-input[type='date']::-webkit-date-and-time-value {
   text-align: left;
-  min-width: 0;
-  margin: 0;
+  font-size: var(--text-body);
 }
 
-input[type='date']::-webkit-datetime-edit-fields-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-input[type='date']::-webkit-datetime-edit {
-  padding: 0;
-  text-align: left;
-}
+input[type='date']::-webkit-date-and-time-value { text-align: left; min-width: 0; margin: 0; }
+input[type='date']::-webkit-datetime-edit-fields-wrapper { display: flex; align-items: center; }
+input[type='date']::-webkit-datetime-edit { padding: 0; text-align: left; }
 
 input[type='date']::-webkit-calendar-picker-indicator {
   position: absolute;
@@ -725,149 +287,4 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 
 input[type='time'],
-input[type='datetime-local'] {
-  font-size: var(--text-body);
-}
-
-/* ==========================================================================
-   5. MESSWERTZEILE 375 PX (Design-Guideline-1). Nur für Zeilen mit .meas-meta;
-      Alt-Apps ohne .meas-meta behalten die Regeln oben unverändert.
-   ========================================================================== */
-.meas-row:has(> .meas-meta) {
-  align-items: flex-start;
-}
-
-.meas-row > .meas-meta {
-  display: flex;
-  flex: 1 1 0;
-  min-width: 110px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-@media (min-width: 481px) {
-  .meas-row > .meas-meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px var(--space-sm);
-  }
-}
-
-.meas-row > .meas-meta > .meas-label {
-  flex: none;
-  min-width: 0;
-}
-
-.meas-row:has(> .meas-meta) > .vwrap,
-.meas-row:not(.matrow) > .vwrap {
-  flex: 1 0 100%;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  min-height: 48px;
-  padding: 0 12px;
-}
-
-/* ==========================================================================
-   6. PRÜFPUNKTE, VARIANTE A: Frage über volle Breite, 3er-Antwortleiste darunter.
-      Gilt für alle Wartungs-Apps (gleiche Klassen: .check, .tri, .note-input).
-      Mit Icon und Text (.tri-label) oder nur mit Icons.
-   ========================================================================== */
-.check .check-main {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-sm);
-  min-height: 0;
-  padding: var(--space-sm) 0;
-}
-
-.check .check-label {
-  display: block;
-  width: 100%;
-  font-size: var(--text-sub);
-  line-height: 1.35;
-  hyphens: none;
-  overflow-wrap: break-word;
-}
-
-.check .tri {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  width: 100%;
-  padding: 4px;
-}
-
-.check .tri button {
-  width: 100%;
-  height: auto;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 6px;
-  font-size: var(--text-sub);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.check .tri .material-symbols-rounded {
-  font-size: 20px;
-}
-
-.check .tri-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Ja/Nein-Schalterzeilen: Frage + Hinweis über volle Breite, Button-Leiste (100 %) darunter */
-.check-main:has(> .segmented-inline) {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-sm);
-  min-height: 0;
-  padding: var(--space-sm) 0;
-}
-
-.check-main:has(> .segmented-inline) > .check-label {
-  display: block;
-  width: 100%;
-  line-height: 1.35;
-  hyphens: none;
-  overflow-wrap: break-word;
-}
-
-.check-main > .segmented-control.segmented-inline {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Mangel-Eingabe: Warnfarbe statt grünem Fokus-Ring. Tokens aus tokens.css (Hell und OLED-Dunkel). */
-.check .field-box--note:focus-within {
-  border-color: var(--status-warn-border);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-warn-border) 28%, transparent);
-}
-
-/* Der Fokus-Ring liegt nur auf dem Wrapper (.field-box--note). Das Eingabefeld selbst bleibt ohne Schatten. */
-.check .note-input:focus,
-.check .note-input:focus-visible {
-  outline: none;
-  box-shadow: none;
-  caret-color: var(--status-warn-border);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .tab-pill:not(.active):not([aria-selected='true']):hover,
-  .stepper:hover {
-    background: var(--color-surface-hover);
-  }
-}
+input[type='datetime-local'] { font-size: var(--text-body); }

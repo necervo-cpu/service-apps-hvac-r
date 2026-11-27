@@ -1,7 +1,7 @@
 // Service Worker: hält die App offline verfügbar.
 // Bei Änderungen an index.html oder shared/ die Versionsnummer erhöhen, damit das iPad die neue Version lädt.
 // Die Handler (install, activate, fetch) stehen in shared/sw-vorlage.js; hier nur Cache-Name und Dateiliste.
-const CACHE = 'klima-wartung-v3028';
+const CACHE = 'klima-wartung-v3029';
 const ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,12 @@ const ASSETS = [
   './shared/css/base.css',
   './shared/css/components.css',
   './shared/css/forms.css',
+  './shared/css/layout.css',
+  './shared/css/checklists.css',
+  './shared/css/charts.css',
+  './shared/css/animations.css',
+  './shared/css/glas.css',
+  './shared/glas.js',
   './shared/choice-dropdown.js',
   './shared/sw-vorlage.js',
   './shared/lib/jspdf.umd.min.js',

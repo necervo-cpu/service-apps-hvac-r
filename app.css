@@ -112,3 +112,39 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+/* ===== Suite-Analytics-Karte (ios27) ===== */
+.suite-analytics-card {
+  display: flex; flex-direction: column; gap: var(--space-md);
+  margin-bottom: var(--space-lg); padding: var(--space-md);
+  border: 1px solid var(--border-subtle, var(--color-separator));
+  border-radius: var(--radius-card, 16px);
+  background: var(--bg-surface, var(--color-card));
+  box-shadow: var(--card-shadow, none);
+}
+.suite-analytics-card[hidden], .suite-tooltip[hidden] { display: none; }
+.suite-analytics-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-md); }
+.suite-analytics-text { min-width: 0; }
+.suite-analytics-title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text-primary, var(--color-foreground)); }
+.suite-analytics-sub { margin: 2px 0 0; font-size: 13px; color: var(--text-secondary, var(--color-muted-foreground)); }
+.suite-kpis { display: flex; gap: var(--space-lg); }
+.suite-kpi { display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
+.suite-kpi-value { font-size: 22px; font-weight: 600; line-height: 1.1; color: var(--text-primary, var(--color-foreground)); }
+.suite-kpi-label { font-size: 12px; color: var(--text-muted, var(--color-muted-foreground)); }
+.suite-chart { position: relative; }
+#suiteChart { display: block; width: 100%; height: auto; touch-action: pan-y; outline: none; cursor: crosshair; }
+#suiteChart:focus-visible { border-radius: 8px; box-shadow: var(--focus-ring, 0 0 0 3px rgba(10, 132, 255, 0.25)); }
+.suite-stop { stop-color: var(--accent, #0a84ff); }
+.suite-line { stroke: var(--accent, #0a84ff); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.suite-gridline { stroke: var(--border-subtle, var(--color-separator)); stroke-width: 1; }
+.suite-guide { stroke: var(--border-glass-rim, var(--color-separator)); stroke-width: 1; }
+.suite-dot { fill: var(--accent, #0a84ff); stroke: var(--bg-surface, var(--color-card)); stroke-width: 2.5; }
+.suite-axis { fill: var(--text-muted, var(--color-muted-foreground)); font-size: 10px; font-variant-numeric: tabular-nums; }
+.suite-tooltip {
+  position: absolute; z-index: 2; display: flex; flex-direction: column; gap: 1px;
+  padding: 6px 10px; border: 1px solid var(--border-glass-rim, var(--color-separator)); border-radius: 10px;
+  background: var(--bg-glass, var(--color-card));
+  -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+  color: var(--text-primary, var(--color-foreground)); font-size: 12px; font-variant-numeric: tabular-nums;
+  white-space: nowrap; pointer-events: none; transform: translateX(-50%);
+}

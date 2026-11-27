@@ -1,0 +1,143 @@
+/**
+ * Modul: Smoked Liquid Glass für schwebende Ebenen (shared/css/glas.css)
+ * Fixierter Kopf, untere Aktionsleiste, Toast-Banner. Opt-in: nur Apps, die diese Datei einbinden.
+ * Glas = --bg-glass + blur(20px) saturate(140%) + 1px-Kante. Die Kopfhöhe misst shared/glas.js (--kopf-hoehe).
+ * Dialog/Karten bleiben deckend (components.css).
+ */
+
+/* Der Kopf ist fixiert: Inhalt beginnt unter seiner gemessenen Höhe plus Puffer. */
+.app-shell { padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
+html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
+.section-title { scroll-margin-top: calc(var(--kopf-hoehe, 96px) + 16px); }
+
+/* ==========================================================================
+   1. FIXIERTER KOPF
+   ========================================================================== */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  min-height: var(--header-height);
+  align-items: center;
+  margin: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: border-color var(--t-fast), background-color var(--t-fast);
+}
+
+/* Scroll-Fade: ab scrollY > 8 deutlichere Kante und etwas mehr Deckkraft */
+.app-header.is-scrolled {
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+  border-bottom-color: var(--border-glass-rim);
+}
+
+/* Freistehende Icons: keine Glas-Kreise, keine Rahmen */
+.app-header .icon-btn {
+  background: transparent;
+  border-color: transparent;
+}
+
+.app-header .icon-btn:active { background: transparent; }
+
+.app-header .ios27-menu-btn { margin-left: -10px; }
+.app-header .brand-title { font-size: var(--text-h1); }
+.app-header .brand-subtitle,
+.app-header .net { margin-top: 2px; }
+
+@media (min-width: 768px) {
+  .app-header { padding-inline: var(--space-lg); }
+}
+
+/* ==========================================================================
+   2. UNTERE AKTIONSLEISTE (Formulare)
+   ========================================================================== */
+.bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding: 10px max(1rem, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.bar > div {
+  display: flex;
+  gap: 10px;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+}
+
+.bar > div > * { flex: 1; min-width: 0; }
+.bar .btn-primary,
+.bar .btn-secondary { min-height: 52px; }
+
+/* Bei geöffneter Tastatur (Feld hat Fokus) ausblenden, damit die Leiste nicht über das Feld springt */
+body:has(input:focus, textarea:focus, select:focus) .bar { display: none; }
+
+/* Platz unten, damit die fixierte Leiste keine Inhalte verdeckt */
+body:has(.bar:not([hidden])) { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+/* ==========================================================================
+   3. TOAST ALS SMOKED-GLASS-BANNER
+   ========================================================================== */
+.toast-pill {
+  left: 16px;
+  right: 16px;
+  width: auto;
+  max-width: 560px;
+  margin-inline: auto;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
+  text-align: left;
+  hyphens: none;
+  white-space: normal;
+  transform: translateY(16px);
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--border-glass-rim);
+  box-shadow: var(--card-shadow);
+}
+
+.toast-pill.is-visible { transform: none; }
+.toast-pill > .material-symbols-rounded { flex-shrink: 0; }
+.toast-pill > #toastText { flex: 1; min-width: 0; overflow-wrap: break-word; }
+body:has(.bar:not([hidden])) .toast-pill { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+/* ==========================================================================
+   4. DESKTOP (>= 1024px): Kopf, Leiste und Toast rechts neben der Sidebar
+   ========================================================================== */
+@media (min-width: 1024px) {
+  body.ios27-has-nav .app-header,
+  body.ios27-has-nav .bar {
+    left: 252px;
+    padding-inline: max(var(--space-lg), calc((100vw - var(--sidebar-width) - var(--app-max-width)) / 2));
+  }
+
+  body.ios27-has-nav .toast-pill { left: calc(252px + 16px); }
+}
+
+/* ==========================================================================
+   5. ERHÖHTER KONTRAST: volle Flächen statt Glas
+   ========================================================================== */
+@media (prefers-contrast: more) {
+  .app-header,
+  .bar,
+  .toast-pill {
+    background: var(--bg-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--border-glass-rim);
+  }
+}

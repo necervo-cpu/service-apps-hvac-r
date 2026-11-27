@@ -52,6 +52,8 @@ function applyFilter() {
     total += visible;
   });
   if (emptyState) emptyState.hidden = total > 0;
+  const analytics = $('#suiteAnalytics');
+  if (analytics) analytics.hidden = !!query;
 }
 
 if (qInput) qInput.addEventListener('input', applyFilter);
@@ -64,7 +66,8 @@ if (qClear) {
 }
 
 /* ===== Darstellung ===== */
-const systemLight = window.matchMedia('(prefers-color-scheme: light)');
+const THEME_COLORS = { dark: '#0B0C0E', light: '#F2F2F7' };
+
 function getSavedTheme() {
   try {
     const v = localStorage.getItem('ag-theme');
@@ -79,7 +82,7 @@ function syncThemeSegment() {
   document
     .querySelectorAll('[data-theme-choice]')
     .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === choice)));
-  const color = document.documentElement.getAttribute('data-theme') === 'light' ? '#F8FAFC' : '#000000';
+  const color = document.documentElement.getAttribute('data-theme') === 'light' ? THEME_COLORS.light : THEME_COLORS.dark;
   document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', color));
 }
 
@@ -88,12 +91,17 @@ function setThemeChoice(choice) {
     if (choice === 'system') localStorage.removeItem('ag-theme');
     else localStorage.setItem('ag-theme', choice);
   } catch (e) {}
-  const effective = choice === 'system' ? (systemLight.matches ? 'light' : 'dark') : choice;
+  /* 'system' = Standard der Suite (Dunkel); kein automatisches Umschalten per prefers-color-scheme. */
+  const effective = choice === 'light' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', effective);
   const btn = $('#themeToggleBtn');
   if (btn) {
     const isDark = effective !== 'light';
-    btn.innerHTML = `<span class="material-symbols-rounded" aria-hidden="true">${isDark ? 'light_mode' : 'dark_mode'}</span>`;
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-rounded';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    btn.replaceChildren(icon);
     const label = isDark ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren';
     btn.title = label;
     btn.setAttribute('aria-label', label);
@@ -326,3 +334,113 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') checkSuiteUpdates(false);
 });
 window.addEventListener('online', () => checkSuiteUpdates(false));
+
+/* ===== Suite-Aktivität & Normen-Abdeckung (interaktives SVG, nur DOM-APIs) ===== */
+(function initSuiteAnalytics() {
+  const svg = $('#suiteChart');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  /* Richtwerte je Modul (Normen-Abdeckung in %); Reihenfolge wie in der Navigation. */
+  const DATA = [
+    { label: 'Anlagenlogbuch', short: 'Logbuch', value: 62 },
+    { label: 'Wärmepumpen-Wartung', short: 'WP', value: 68 },
+    { label: 'Heizungswartung', short: 'Heizung', value: 66 },
+    { label: 'Klima-/Kälte-Wartung', short: 'Klima', value: 74 },
+    { label: 'RLT- & KWL-Wartung', short: 'RLT', value: 79 },
+    { label: 'Split-Klima Inbetriebnahme', short: 'IBN', value: 76 },
+    { label: 'Kalkulation Klima', short: 'Kalk. K', value: 84 },
+    { label: 'Kalkulation Wärmepumpe', short: 'Kalk. WP', value: 88 },
+    { label: 'Daikin-Auslegung', short: 'Daikin', value: 91 },
+    { label: 'HVAC-R Rechner', short: 'Rechner', value: 95 },
+  ];
+  const W = 600;
+  const H = 180;
+  const PAD = { l: 30, r: 30, t: 12, b: 26 };
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+  const xAt = (i) => PAD.l + (plotW * i) / (DATA.length - 1);
+  const yAt = (v) => PAD.t + plotH * (1 - v / 100);
+
+  const make = (tag, attrs, text) => {
+    const n = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach((k) => n.setAttribute(k, attrs[k]));
+    if (text != null) n.textContent = text;
+    return n;
+  };
+
+  /* Hilfslinien + Achsenbeschriftung */
+  const grid = $('#suiteGrid');
+  [0, 50, 100].forEach((v) => {
+    grid.appendChild(make('line', { x1: PAD.l, x2: W - PAD.r, y1: yAt(v), y2: yAt(v), class: 'suite-gridline' }));
+    grid.appendChild(make('text', { x: PAD.l - 6, y: yAt(v) + 3, 'text-anchor': 'end', class: 'suite-axis' }, v + ''));
+  });
+  DATA.forEach((d, i) => {
+    grid.appendChild(make('text', { x: xAt(i), y: H - 8, 'text-anchor': 'middle', class: 'suite-axis' }, d.short));
+  });
+
+  /* Glatte Bézier-Kurve (horizontale Kontrollpunkte, ohne Überschwingen) */
+  let line = 'M' + xAt(0) + ',' + yAt(DATA[0].value);
+  for (let i = 1; i < DATA.length; i++) {
+    const mx = (xAt(i - 1) + xAt(i)) / 2;
+    line += ` C${mx},${yAt(DATA[i - 1].value)} ${mx},${yAt(DATA[i].value)} ${xAt(i)},${yAt(DATA[i].value)}`;
+  }
+  $('#suiteLine').setAttribute('d', line);
+  $('#suiteArea').setAttribute('d', `${line} L${xAt(DATA.length - 1)},${yAt(0)} L${xAt(0)},${yAt(0)} Z`);
+
+  /* Kennzahlen */
+  const avg = Math.round(DATA.reduce((s, d) => s + d.value, 0) / DATA.length);
+  const kpiAvg = $('#suiteKpiAvg');
+  if (kpiAvg) kpiAvg.textContent = avg + ' %';
+
+  /* Cursor, Punkt und Tooltip */
+  const cursor = $('#suiteCursor');
+  const guide = make('line', { class: 'suite-guide', y1: PAD.t, y2: yAt(0) });
+  const dot = make('circle', { class: 'suite-dot', r: 5 });
+  cursor.append(guide, dot);
+  const tip = $('#suiteTip');
+  const wrap = svg.parentElement;
+  let active = DATA.length - 1;
+
+  function show(i, withTip) {
+    active = Math.max(0, Math.min(DATA.length - 1, i));
+    const d = DATA[active];
+    guide.setAttribute('x1', xAt(active));
+    guide.setAttribute('x2', xAt(active));
+    dot.setAttribute('cx', xAt(active));
+    dot.setAttribute('cy', yAt(d.value));
+    const kpi = $('#suiteKpiActive');
+    if (kpi) kpi.textContent = d.value + ' %';
+    const kpiLabel = $('#suiteKpiActiveLabel');
+    if (kpiLabel) kpiLabel.textContent = d.label;
+    svg.setAttribute('aria-valuenow', String(d.value));
+    svg.setAttribute('aria-valuetext', d.label + ': ' + d.value + ' Prozent');
+    if (!tip) return;
+    tip.hidden = !withTip;
+    if (!withTip) return;
+    $('#suiteTipLabel').textContent = d.label;
+    $('#suiteTipValue').textContent = d.value + ' %';
+    const scale = wrap.clientWidth / W;
+    const half = tip.offsetWidth / 2;
+    const left = Math.max(half, Math.min(wrap.clientWidth - half, xAt(active) * scale));
+    tip.style.left = left + 'px';
+    tip.style.top = Math.max(0, yAt(d.value) * scale - tip.offsetHeight - 12) + 'px';
+  }
+
+  function indexAt(clientX) {
+    const rect = svg.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * W;
+    return Math.round(((x - PAD.l) / plotW) * (DATA.length - 1));
+  }
+
+  svg.addEventListener('pointermove', (e) => show(indexAt(e.clientX), true));
+  svg.addEventListener('pointerdown', (e) => show(indexAt(e.clientX), true));
+  svg.addEventListener('pointerleave', () => show(active, false));
+  svg.addEventListener('pointercancel', () => show(active, false));
+  svg.addEventListener('blur', () => show(active, false));
+  svg.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    show(active + (e.key === 'ArrowRight' ? 1 : -1), true);
+  });
+  show(active, false);
+})();
