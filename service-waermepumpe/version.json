@@ -1,5 +1,5 @@
 {
-  "version": "3.0.15",
+  "version": "3.0.16",
   "buildDate": "2026-11-27",
-  "changelog": "Audit-Fixes #1-#13: SW-Caching, Offline-Sync, Validierungen, Print-CSS, Sicherheit"
+  "changelog": "Hotfix: Material Symbols Rounded vollständig über Google Fonts laden"
 }

@@ -1,4 +1,4 @@
-const APP_VERSION = '3.0.12';
+const APP_VERSION = '3.0.13';
 const BUILD_DATE = '2026-11-27';
 const VERSIONS_KEY = 'ag-suite-versions';
 

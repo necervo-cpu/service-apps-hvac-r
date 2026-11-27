@@ -33,7 +33,7 @@ const E = window.Engine;
 /* ====== Zustand ====== */
 let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
 delete settings.sheetId;
-const APP_VERSION = '3.0.9';
+const APP_VERSION = '3.0.10';
 const BUILD_DATE = '2026-11-27';
 
 /* Zahlenfelder: beim Antippen alles markieren */

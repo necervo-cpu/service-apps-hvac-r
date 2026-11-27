@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-11-27T19:40:00Z",
+  "updatedAt": "2026-11-27T20:51:00Z",
   "apps": [
     {
       "id": "startseite",
       "name": "Startseite",
       "path": "./",
-      "version": "3.0.12"
+      "version": "3.0.13"
     },
     {
       "id": "anlagenlogbuch",
       "name": "Anlagenlogbuch",
       "path": "anlagenlogbuch/",
-      "version": "3.0.12"
+      "version": "3.0.13"
     },
     {
       "id": "waermepumpe-wartung",
       "name": "Wärmepumpen-Wartung",
       "path": "service-waermepumpe/",
-      "version": "3.0.15"
+      "version": "3.0.16"
     },
     {
       "id": "heizung-wartung",
       "name": "Heizungswartung",
       "path": "gas-oel-heizungswartung/",
-      "version": "3.0.14"
+      "version": "3.0.15"
     },
     {
       "id": "klima-wartung",
       "name": "Klimawartung",
       "path": "service-klimaanlagenwartung/",
-      "version": "3.0.31"
+      "version": "3.0.32"
     },
     {
       "id": "rlt-kwl",
       "name": "RLT- & KWL-Wartung",
       "path": "service-rlt-kwl-anlagen/",
-      "version": "3.0.15"
+      "version": "3.0.16"
     },
     {
       "id": "split-klima-ibn",
       "name": "Split-Klima IBN",
       "path": "service-inbetriebnahme-split-klimaanlage/",
-      "version": "3.0.14"
+      "version": "3.0.15"
     },
     {
       "id": "kalkulation-klima",
       "name": "Kalkulation Klima",
       "path": "kalkulation-service-klimaanlage/",
-      "version": "3.0.8"
+      "version": "3.0.9"
     },
     {
       "id": "kalkulation-wp",
       "name": "Kalkulation Wärmepumpe",
       "path": "kalkulation-service-waermepumpe/",
-      "version": "3.0.8"
+      "version": "3.0.9"
     },
     {
       "id": "daikin-auslegung",
       "name": "Daikin-Auslegung",
       "path": "auslegungstool-daikin-split-klimaanlage/",
-      "version": "3.0.9"
+      "version": "3.0.10"
     },
     {
       "id": "hvac-r-rechner",
