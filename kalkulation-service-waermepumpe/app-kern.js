@@ -50,6 +50,7 @@ const PAGES = [
 ];
 
 /* ---------- Speicher ---------- */
+window.CACHE_PREFIX = C.ls === 'kalk.klima' ? 'kalk-klima-v' : 'kalk-wp-v';
 LS.fullMsg += ' Übertragene Kalkulationen löschen.';
 const K = (name) => C.ls + '.' + name;
 let settings = Object.assign(
@@ -67,16 +68,6 @@ function fmtDate(s) {
   if (!s) return '';
   const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s);
   return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE');
-}
-function num(v) {
-  return typeof v === 'number'
-    ? v
-    : Number(
-        String(v ?? '')
-          .trim()
-          .replace(/\s/g, '')
-          .replace(',', '.'),
-      );
 }
 function n0(v) {
   return isN(v) ? num(v) : 0;
@@ -206,6 +197,16 @@ function pruefung(v, S) {
       state: 'leer',
       text: 'GWP-Wert für dieses Kältemittel eintragen',
     });
+  if (gwp < 0)
+    return Object.assign(out, {
+      state: 'leer',
+      text: 'Ungültiger GWP-Wert (darf nicht negativ sein)',
+    });
+  if (menge < 0)
+    return Object.assign(out, {
+      state: 'leer',
+      text: 'Ungültige Füllmenge (darf nicht negativ sein)',
+    });
   if (!menge)
     return Object.assign(out, { state: 'leer', text: 'Füllmenge je Kältekreis eintragen' });
   const m = co2 >= 500 ? 3 : co2 >= 50 ? 6 : co2 >= grenze ? 12 : 0;
@@ -276,12 +277,13 @@ function calc(p) {
   };
   pausch('Anfahrtspauschale (An- und Abfahrt zum Objekt)', v.anfahrt);
   pausch(C.erschwernisLabel, v.erschwernis);
-  if (n0(v.sonderPreis) > 0 || String(v.sonderText || '').trim())
+  const sp = n0(v.sonderPreis);
+  if (sp !== 0 || String(v.sonderText || '').trim())
     material.push({
-      label: String(v.sonderText || '').trim() || 'Sonderposition',
+      label: String(v.sonderText || '').trim() || (sp < 0 ? 'Rabatt / Abzug' : 'Sonderposition'),
       menge: '1 Pauschale',
-      preis: n0(v.sonderPreis),
-      betrag: round(n0(v.sonderPreis), 2),
+      preis: sp,
+      betrag: round(sp, 2),
     });
   const minRicht = leistung.reduce((a, x) => a + x.min, 0);
   const dauer = minRicht,
@@ -293,7 +295,7 @@ function calc(p) {
     material.reduce((a, x) => a + x.betrag, 0),
     2,
   );
-  const netto = round(lohn + mat, 2),
+  const netto = Math.max(0, round(lohn + mat, 2)),
     mwst = round((netto * S.mwst) / 100, 2),
     brutto = round(netto + mwst, 2);
   return {
@@ -516,8 +518,8 @@ function buildCols(p) {
   return out;
 }
 
-const APP_VERSION = '3.0.5';
-const BUILD_DATE = '2026-11-22';
+const APP_VERSION = '3.0.8';
+const BUILD_DATE = '2026-11-27';
 
       /* @@quelle:reportParts */
       /* Bericht im neuen Papier-Design (Seitenklasse „neu“): Hauptwert, Projektdaten, Kennwerte, Positionen als Zeilen, Preisaufstellung, Hinweis.

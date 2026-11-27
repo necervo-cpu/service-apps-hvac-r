@@ -17,18 +17,19 @@ const _subList =
 // iOS 6-Connection-Schutz: maximal 6 Core-Assets sofort im install-Event laden.
 const _installAssets = _coreList.slice(0, 6);
 const _deferredAssets = _coreList.slice(6).concat(_subList);
-let _deferredScheduled = false;
 
 async function _cacheDeferredSequentially() {
   if (!_deferredAssets.length) return;
   const cache = await caches.open(CACHE);
-  for (const asset of _deferredAssets) {
-    try {
-      const hit = await cache.match(asset);
-      if (!hit) await cache.add(asset);
-    } catch (_) {
-      // Einzelne fehlgeschlagene Hintergrund-Assets überspringen.
-    }
+  const BATCH = 4;
+  for (let i = 0; i < _deferredAssets.length; i += BATCH) {
+    const slice = _deferredAssets.slice(i, i + BATCH);
+    await Promise.allSettled(
+      slice.map(async (asset) => {
+        const hit = await cache.match(asset);
+        if (!hit) await cache.add(asset);
+      }),
+    );
   }
 }
 
@@ -54,13 +55,10 @@ self.addEventListener('activate', (e) => {
             .filter((k) => k !== CACHE && k.startsWith(CACHE.replace(/\d+$/, '')))
             .map((k) => caches.delete(k)),
         ),
-      ),
+      )
+      .then(() => self.clients.claim())
+      .then(() => _cacheDeferredSequentially()),
   );
-  self.clients.claim();
-  if (_deferredAssets.length && !_deferredScheduled) {
-    _deferredScheduled = true;
-    setTimeout(_cacheDeferredSequentially, 3000);
-  }
 });
 
 // Erst aus dem Cache antworten (schnell & offline), im Hintergrund aktualisieren.
@@ -80,7 +78,9 @@ self.addEventListener('fetch', (e) => {
       const cached = await cache.match(e.request, { ignoreSearch: isOwn });
       const network = fetch(e.request)
         .then((res) => {
-          if (res.ok || res.type === 'opaque') cache.put(e.request, res.clone());
+          if (res.ok || res.type === 'opaque') {
+            cache.put(e.request, res.clone()).catch(() => {});
+          }
           return res;
         })
         .catch(() => null);

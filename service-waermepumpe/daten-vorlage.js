@@ -232,7 +232,8 @@ const TEMPLATE = {
           label: 'CO₂-Äquivalent',
           type: 'calc',
           unit: 't CO₂e',
-          calc: (v) => (isN(v.total) && isN(v.gwp) ? round((v.total * v.gwp) / 1000, 3) : ''),
+          calc: (v) =>
+            isN(v.total) && isN(v.gwp) ? round((num(v.total) * num(v.gwp)) / 1000, 3) : '',
         },
         {
           id: 'herm',
@@ -248,7 +249,7 @@ const TEMPLATE = {
           label: 'Dichtheitsprüfung vorgeschrieben',
           type: 'calc',
           calc: (v) =>
-            isN(v.co2) ? (v.co2 >= (v.herm === 'Ja' ? 10 : 5) ? 'Ja' : 'Nein') : '',
+            isN(v.co2) ? (num(v.co2) >= (v.herm === 'Ja' ? 10 : 5) ? 'Ja' : 'Nein') : '',
           note: (v) =>
             `Grenzwert ${v.herm === 'Ja' ? 10 : 5} t CO₂-Äq. (${v.herm === 'Ja' ? 'hermetisch' : 'nicht hermetisch'})`,
         },
@@ -257,7 +258,14 @@ const TEMPLATE = {
           col: 'Außeneinheit Dichtheitsprüfung (F-Gase)',
           label: 'Dichtheitsprüfung (F-Gase)',
           type: 'calc',
-          calc: (v) => (v.dpv === '' ? '' : v.dpv === 'Ja' ? 'Jährlich' : 'Nicht notwendig'),
+          calc: (v) => {
+            if (v.dpv === '') return '';
+            if (v.dpv !== 'Ja') return 'Nicht notwendig';
+            const co2 = isN(v.co2) ? num(v.co2) : 0;
+            if (co2 >= 500) return 'Alle 3 Monate';
+            if (co2 >= 50) return 'Alle 6 Monate';
+            return 'Alle 12 Monate';
+          },
         },
         {
           id: 'dpErg',

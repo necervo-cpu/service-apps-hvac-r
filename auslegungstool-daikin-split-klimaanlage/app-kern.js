@@ -33,8 +33,8 @@ const E = window.Engine;
 /* ====== Zustand ====== */
 let settings = Object.assign({ firma: '', bearbeiter: '' }, LS.get(KEY.settings, {}));
 delete settings.sheetId;
-const APP_VERSION = '3.0.6';
-const BUILD_DATE = '2026-11-22';
+const APP_VERSION = '3.0.9';
+const BUILD_DATE = '2026-11-27';
 
 /* Zahlenfelder: beim Antippen alles markieren */
 document.addEventListener('focusin', (e) => {
@@ -185,7 +185,7 @@ async function clearCachesAndReload() {
   try {
     if ('caches' in window) {
       const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
+      await Promise.all(keys.filter((k) => k.startsWith('daikin-multi-v')).map((k) => caches.delete(k)));
     }
     if ('serviceWorker' in navigator) {
       const reg = await navigator.serviceWorker.getRegistration();

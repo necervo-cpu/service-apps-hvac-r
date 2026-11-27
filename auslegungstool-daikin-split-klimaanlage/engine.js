@@ -138,9 +138,9 @@
   /* Bedarf in kW: manuell eingegeben oder aus Fläche × Richtwert × Zuschlag */
   function bedarfKw(room, DB) {
     const man = num(room.bedarf);
-    if (man != null) return man;
+    if (man != null) return man > 0 ? man : null;
     const f = num(room.flaeche);
-    if (f == null) return null;
+    if (f == null || f <= 0) return null;
     const rt = DB.raumtypen.find((x) => x.name === room.raumtyp) || DB.raumtypen[0];
     const zu = DB.zuschlaege.find((x) => x.name === room.zuschlag);
     if (!rt || rt.w == null) return null;
@@ -202,6 +202,7 @@
   }
 
   function minFlaeche(m, montage) {
+    if (!Number.isFinite(m) || m <= 0) return 0;
     const h = H0[montage] || H0.Wand;
     return m <= 4 * LFL ? 0 : Math.pow(m / (2.5 * Math.pow(LFL, 1.25) * h), 2);
   }

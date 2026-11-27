@@ -111,68 +111,80 @@ async function syncAll(silent) {
     )
   )
     return;
-  let okCount = 0,
-    err = null;
-  for (let pass = 0; pass < 2 && !err; pass++) {
-    for (const p of books.filter((x) => x.status === 'done' && !x.synced)) {
-      try {
-        recompute(p, STAMM);
-        const es = doneEntries(p);
-        es.forEach((e) => recompute(e, EINTRAG, p.values));
-        // Unterschriften: nur neue/geänderte Bilder hochladen; „have“ = Bilder, die dieses Gerät schon hat
-        const sigs = {},
-          have = [];
-        [['book', p], ...es.map((e) => [e.id, e])].forEach(([owner, o]) =>
-          Object.keys(o.sig || {}).forEach((k) => {
-            if (!safeImg(o.sig[k])) return;
-            have.push(owner + '.' + k);
-            if (!(o.sigF || {})[k]) sigs[owner + '.' + k] = o.sig[k];
-          }),
-        );
-        const j = await api('upsert', {
-          protocol: {
-            id: p.id,
-            templateId: STAMM.id,
-            values: p.values,
-            entries: es.map(plainEntry),
-            deleted: p.deleted || [],
-            kundeName: betrText(p.values),
-            completedAt: p.completedAt,
-            sourceKey: p.sourceKey || '',
-            pdf: await pdfBase64(p),
-            sigs,
-            sigDel: p.sigDel || [],
-            sigHave: have,
-          },
-          cols: buildCols(STAMM, p.values).concat(summaryCols(p)),
-          ecols: Object.fromEntries(es.map((e) => [e.id, buildCols(EINTRAG, e.values)])),
-        });
-        p.synced = true;
-        p.syncedAt = new Date().toISOString();
-        p.sourceKey = '';
-        // Einträge, die inzwischen von einem anderen iPad dazugekommen sind, übernehmen → PDF & Sheet im 2. Durchgang aktualisieren
-        const known = new Set(p.entries.map((e) => e.id)),
-          del = new Set(j.deleted || []);
-        p.deleted = j.deleted || [];
-        p.entries = p.entries.filter((e) => e.status === 'draft' || !del.has(e.id));
-        const extra = (j.entries || []).filter((e) => !known.has(e.id) && !del.has(e.id));
-        if (extra.length) {
-          extra.forEach((e) => p.entries.push(Object.assign({ page: 0, status: 'done' }, e)));
-          p.synced = false;
+  let okCount = 0;
+  const failed = [];
+  let netErr = null;
+  try {
+    for (let pass = 0; pass < 2 && !netErr; pass++) {
+      for (const p of books.filter((x) => x.status === 'done' && !x.synced)) {
+        try {
+          recompute(p, STAMM);
+          const es = doneEntries(p);
+          es.forEach((e) => recompute(e, EINTRAG, p.values));
+          // Unterschriften: nur neue/geänderte Bilder hochladen; „have“ = Bilder, die dieses Gerät schon hat
+          const sigs = {},
+            have = [];
+          [['book', p], ...es.map((e) => [e.id, e])].forEach(([owner, o]) =>
+            Object.keys(o.sig || {}).forEach((k) => {
+              if (!safeImg(o.sig[k])) return;
+              have.push(owner + '.' + k);
+              if (!(o.sigF || {})[k]) sigs[owner + '.' + k] = o.sig[k];
+            }),
+          );
+          const pdf = await pdfBase64(p);
+          if (window.jspdf && window.html2canvas && !pdf) {
+            throw new Error('PDF konnte nicht erzeugt werden');
+          }
+          const j = await api('upsert', {
+            protocol: {
+              id: p.id,
+              templateId: STAMM.id,
+              values: p.values,
+              entries: es.map(plainEntry),
+              deleted: p.deleted || [],
+              kundeName: betrText(p.values),
+              completedAt: p.completedAt,
+              sourceKey: p.sourceKey || '',
+              pdf,
+              sigs,
+              sigDel: p.sigDel || [],
+              sigHave: have,
+            },
+            cols: buildCols(STAMM, p.values).concat(summaryCols(p)),
+            ecols: Object.fromEntries(es.map((e) => [e.id, buildCols(EINTRAG, e.values)])),
+          });
+          p.synced = true;
+          p.syncedAt = new Date().toISOString();
+          p.sourceKey = '';
+          // Einträge, die inzwischen von einem anderen iPad dazugekommen sind, übernehmen → PDF & Sheet im 2. Durchgang aktualisieren
+          const known = new Set(p.entries.map((e) => e.id)),
+            del = new Set(j.deleted || []);
+          p.deleted = j.deleted || [];
+          p.entries = p.entries.filter((e) => e.status === 'draft' || !del.has(e.id));
+          const extra = (j.entries || []).filter((e) => !known.has(e.id) && !del.has(e.id));
+          if (extra.length) {
+            extra.forEach((e) => p.entries.push(Object.assign({ page: 0, status: 'done' }, e)));
+            p.synced = false;
+          }
+          applySigs(p, j.sigFiles, j.sigData);
+          p.sigDel = [];
+          if (save()) okCount++;
+        } catch (e) {
+          const msg = (e && e.message) || 'Unbekannter Fehler';
+          failed.push(msg);
+          if (!navigator.onLine || (e && (e.name === 'TypeError' || /Zeitüberschreitung/.test(msg)))) {
+            netErr = e;
+            break;
+          }
         }
-        applySigs(p, j.sigFiles, j.sigData);
-        p.sigDel = [];
-        save();
-        okCount++;
-      } catch (e) {
-        err = e;
-        break;
       }
     }
+  } finally {
+    syncEnd();
   }
-  syncEnd();
   pruneSynced();
-  if (err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
+  if (netErr) toast(`Übertragung unterbrochen (${okCount} übertragen): ${netErr.message}`);
+  else if (failed.length) toast(`${okCount} übertragen, ${failed.length} fehlgeschlagen: ${failed[0]}`);
   else if (okCount)
     toast('Logbuch in die Datenbank übertragen, PDF in Google Drive abgelegt.');
   if (['home', 'book', 'report'].includes(view.name)) render();

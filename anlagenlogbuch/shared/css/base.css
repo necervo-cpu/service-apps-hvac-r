@@ -126,11 +126,22 @@ textarea {
   display: none !important;
 }
 
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('../lib/fonts/material-symbols-rounded.woff2') format('woff2');
+}
+
 /* ==========================================================================
    GOOGLE MATERIAL SYMBOLS ROUNDED – verbindlich freistehend:
    keine farbigen Container, Kreise oder Kacheln um Icons. Nur color färbt das Symbol.
    ========================================================================== */
 .material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   font-size: 1.25em;
   line-height: 1;

@@ -1,6 +1,7 @@
 // Kern: Speicher, Helfer, Prüfung und Bewertung, Navigation, Rahmen (Meldung, Modal-Karte, Darstellung, Update).
 'use strict';
 
+window.CACHE_PREFIX = 'anlagenlogbuch-v';
 LS.fullMsg += ' Übertragene Logbücher aus der App entfernen.';
 
 /* ---------- Speicher ---------- */
@@ -33,9 +34,6 @@ function fmtDate(s) {
   return isNaN(d)
     ? String(s)
     : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-function num(v) {
-  return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
 }
 const isVis = (f, v) => !f.show || f.show(v);
 let calcSeen = {}; // zuletzt angezeigte Rechenwerte -> Aufleuchten nur bei echter Änderung
@@ -467,8 +465,8 @@ function nextSub(s) {
   return s.next && dueState(s.next) ? 'Nächste Prüfung ' + fmtDate(s.next) : '';
 }
 
-const APP_VERSION = '3.0.9';
-const BUILD_DATE = '2026-11-23';
+const APP_VERSION = '3.0.12';
+const BUILD_DATE = '2026-11-27';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

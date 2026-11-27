@@ -1,6 +1,7 @@
 // Kern: Speicher, Helfer, Prüfung und Bewertung, Navigation, Rahmen (Meldung, Modal-Karte, Darstellung, Update).
 'use strict';
 
+window.CACHE_PREFIX = 'heizung-v';
 LS.fullMsg += ' Übertragene Protokolle löschen.';
 const SETTINGS_FIELDS = [
   {
@@ -24,9 +25,6 @@ function fmtDate(s) {
   }
   const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s);
   return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE');
-}
-function num(v) {
-  return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
 }
 function safeImg(src) {
   const erlaubt = /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/;
@@ -431,8 +429,8 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '3.0.11';
-const BUILD_DATE = '2026-11-23';
+const APP_VERSION = '3.0.14';
+const BUILD_DATE = '2026-11-27';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

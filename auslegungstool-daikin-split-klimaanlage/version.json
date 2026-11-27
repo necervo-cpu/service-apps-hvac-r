@@ -1,5 +1,5 @@
 {
-  "version": "3.0.6",
-  "buildDate": "2026-11-25",
-  "changelog": "PDF-Export auf einheitliches Papier-Design (page.neu, mind. 12 px) umgestellt"
+  "version": "3.0.9",
+  "buildDate": "2026-11-27",
+  "changelog": "Audit-Fixes #1-#13: SW-Caching, Offline-Sync, Validierungen, Print-CSS, Sicherheit"
 }

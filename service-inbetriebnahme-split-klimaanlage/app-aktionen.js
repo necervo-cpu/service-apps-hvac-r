@@ -33,36 +33,48 @@ function pruneSynced() {
 async function syncAll(silent) {
   const list = protocols.filter((p) => p.status === 'done' && !p.synced);
   if (!syncCanStart(list.length > 0, silent)) return;
-  let okCount = 0,
-    err = null;
-  for (const p of list) {
-    try {
-      recompute(p);
-      await api('upsert', {
-        protocol: {
-          id: p.id,
-          templateId: TEMPLATE.id,
-          values: p.values,
-          kundeName: p.kundeName || '',
-          completedAt: p.completedAt,
-          sourceKey: p.sourceKey || '',
-          summary: { report: buildReport(p) },
-          pdf: await pdfBase64(p, reportOf(p), PDF_OPTS),
-        },
-        cols: buildCols(p),
-      });
-      p.synced = true;
-      p.syncedAt = new Date().toISOString();
-      save();
-      okCount++;
-    } catch (e) {
-      err = e;
-      break;
+  let okCount = 0;
+  const failed = [];
+  let netErr = null;
+  try {
+    for (const p of list) {
+      try {
+        recompute(p);
+        const pdf = await pdfBase64(p, reportOf(p), PDF_OPTS);
+        if (window.jspdf && window.html2canvas && !pdf) {
+          throw new Error('PDF konnte nicht erzeugt werden');
+        }
+        await api('upsert', {
+          protocol: {
+            id: p.id,
+            templateId: TEMPLATE.id,
+            values: p.values,
+            kundeName: p.kundeName || '',
+            completedAt: p.completedAt,
+            sourceKey: p.sourceKey || '',
+            summary: { report: buildReport(p) },
+            pdf,
+          },
+          cols: buildCols(p),
+        });
+        p.synced = true;
+        p.syncedAt = new Date().toISOString();
+        if (save()) okCount++;
+      } catch (e) {
+        const msg = (e && e.message) || 'Unbekannter Fehler';
+        failed.push(msg);
+        if (!navigator.onLine || (e && (e.name === 'TypeError' || /Zeitüberschreitung/.test(msg)))) {
+          netErr = e;
+          break;
+        }
+      }
     }
+  } finally {
+    syncEnd();
   }
-  syncEnd();
   pruneSynced();
-  if (err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
+  if (netErr) toast(`Übertragung unterbrochen (${okCount} übertragen): ${netErr.message}`);
+  else if (failed.length) toast(`${okCount} übertragen, ${failed.length} fehlgeschlagen: ${failed[0]}`);
   else if (okCount) toast(`${okCount} Protokoll(e) in die Datenbank übertragen.`);
   if (view.name === 'home' || view.name === 'report') render();
   else updateNet();

@@ -46,8 +46,16 @@ function fmtDateTime(s) {
     ? String(s)
     : d.toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
 }
+function num(v) {
+  if (typeof v === 'number') return v;
+  const s = String(v ?? '')
+    .trim()
+    .replace(/\s/g, '')
+    .replace(',', '.');
+  return s === '' ? NaN : Number(s);
+}
 function isN(v) {
-  return v !== '' && v != null && !isNaN(num(v));
+  return v !== '' && v != null && Number.isFinite(num(v));
 }
 function round(n, d) {
   const f = Math.pow(10, d);

@@ -4,11 +4,24 @@
 /* ---------- Google-Sheet-Schnittstelle ---------- */
 async function api(action, data) {
   if (!settings.url) throw new Error('Keine Web-App-URL in den Einstellungen.');
-  const res = await fetch(settings.url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // "simple request" → kein CORS-Preflight
-    body: JSON.stringify(Object.assign({ token: settings.token, action }, data || {})),
-  });
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), 30000) : null;
+  let res;
+  try {
+    res = await fetch(settings.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // "simple request" → kein CORS-Preflight
+      body: JSON.stringify(Object.assign({ token: settings.token, action }, data || {})),
+      signal: ctrl ? ctrl.signal : undefined,
+    });
+  } catch (e) {
+    if (e && e.name === 'AbortError') {
+      throw new Error('Zeitüberschreitung beim Übertragen (30 s) – bitte Verbindung prüfen.');
+    }
+    throw e;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
   let j;
   try {
     j = await res.json();
@@ -35,35 +48,47 @@ async function syncAll(silent) {
     return;
   }
   syncing = true;
-  let okCount = 0,
-    err = null;
-  for (const p of list) {
-    try {
-      await api('upsert', {
-        protocol: {
-          id: p.id,
-          templateId: C.id,
-          values: p.values,
-          manual: p.manual || {},
-          stamm: p.stamm,
-          completedAt: p.completedAt,
-          sourceKey: p.sourceKey || '',
-          summary: { report: buildReport(p) },
-          pdf: await pdfBase64(p),
-        },
-        cols: buildCols(p),
-      });
-      p.synced = true;
-      p.syncedAt = new Date().toISOString();
-      save();
-      okCount++;
-    } catch (e) {
-      err = e;
-      break;
+  let okCount = 0;
+  const failed = [];
+  let netErr = null;
+  try {
+    for (const p of list) {
+      try {
+        const pdf = await pdfBase64(p);
+        if (window.jspdf && window.html2canvas && !pdf) {
+          throw new Error('PDF konnte nicht erzeugt werden');
+        }
+        await api('upsert', {
+          protocol: {
+            id: p.id,
+            templateId: C.id,
+            values: p.values,
+            manual: p.manual || {},
+            stamm: p.stamm,
+            completedAt: p.completedAt,
+            sourceKey: p.sourceKey || '',
+            summary: { report: buildReport(p) },
+            pdf,
+          },
+          cols: buildCols(p),
+        });
+        p.synced = true;
+        p.syncedAt = new Date().toISOString();
+        if (save()) okCount++;
+      } catch (e) {
+        const msg = (e && e.message) || 'Unbekannter Fehler';
+        failed.push(msg);
+        if (!navigator.onLine || (e && (e.name === 'TypeError' || /Zeitüberschreitung/.test(msg)))) {
+          netErr = e;
+          break;
+        }
+      }
     }
+  } finally {
+    syncing = false;
   }
-  syncing = false;
-  if (err) toast(`Übertragung fehlgeschlagen: ${err.message}`);
+  if (netErr) toast(`Übertragung unterbrochen (${okCount} übertragen): ${netErr.message}`);
+  else if (failed.length) toast(`${okCount} übertragen, ${failed.length} fehlgeschlagen: ${failed[0]}`);
   else if (okCount) toast(`${okCount} Kalkulation(en) in die Datenbank übertragen.`);
   if (view.name === 'home' || view.name === 'report') render();
   else updateNet();

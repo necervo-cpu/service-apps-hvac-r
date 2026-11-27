@@ -6,11 +6,24 @@
 
 async function api(action, data) {
   if (!settings.url) throw new Error('Keine Web-App-URL in den Einstellungen.');
-  const res = await fetch(settings.url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // "simple request" → kein CORS-Preflight
-    body: JSON.stringify(Object.assign({ token: settings.token, action }, data || {})),
-  });
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), 30000) : null;
+  let res;
+  try {
+    res = await fetch(settings.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // "simple request" → kein CORS-Preflight
+      body: JSON.stringify(Object.assign({ token: settings.token, action }, data || {})),
+      signal: ctrl ? ctrl.signal : undefined,
+    });
+  } catch (e) {
+    if (e && e.name === 'AbortError') {
+      throw new Error('Zeitüberschreitung beim Übertragen (30 s) – bitte Verbindung prüfen.');
+    }
+    throw e;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
   let j;
   try {
     j = await res.json();
@@ -47,6 +60,7 @@ function syncEnd() {
 /* Anzeige oben: online/offline und Anzahl ausstehender Datensätze n */
 function netRender(n) {
   const el = $('#net');
+  if (!el) return;
   const on = navigator.onLine;
   el.className = 'net' + (on ? '' : ' off');
   el.innerHTML = `<i class="nd"></i><span class="nt">${on ? 'online' : 'offline'}</span>${n ? `<span class="sep"> · </span><span class="np">${n}</span><span class="nl">&nbsp;ausstehend</span>` : ''}`;

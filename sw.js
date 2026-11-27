@@ -1,6 +1,6 @@
 // Service Worker für die Startseite (Root).
 // Handhabt ausschließlich Dateien auf Root-Ebene und ./shared/* – alle 9 Unter-App-Ordner werden direkt durchgereicht.
-const CACHE = 'startseite-v311';
+const CACHE = 'startseite-v3012';
 const ASSETS = [
   './',
   './index.html',
@@ -35,11 +35,14 @@ async function cacheDeferred() {
   const rest = ASSETS.slice(6);
   if (!rest.length) return;
   const cache = await caches.open(CACHE);
-  for (const asset of rest) {
-    try {
-      const hit = await cache.match(asset);
-      if (!hit) await cache.add(asset);
-    } catch (_) {}
+  const BATCH = 4;
+  for (let i = 0; i < rest.length; i += BATCH) {
+    await Promise.allSettled(
+      rest.slice(i, i + BATCH).map(async (asset) => {
+        const hit = await cache.match(asset);
+        if (!hit) await cache.add(asset);
+      }),
+    );
   }
 }
 
@@ -54,16 +57,18 @@ self.addEventListener('message', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => (k !== CACHE && k.startsWith('startseite-')) || k.startsWith('workbox-'))
-          .map((k) => caches.delete(k)),
-      ),
-    ),
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((k) => (k !== CACHE && k.startsWith('startseite-')) || k.startsWith('workbox-'))
+            .map((k) => caches.delete(k)),
+        ),
+      )
+      .then(() => self.clients.claim())
+      .then(() => cacheDeferred()),
   );
-  self.clients.claim();
-  e.waitUntil(cacheDeferred());
 });
 
 self.addEventListener('fetch', (e) => {
@@ -80,7 +85,7 @@ self.addEventListener('fetch', (e) => {
       const cached = await cache.match(e.request, { ignoreSearch: true });
       const network = fetch(e.request)
         .then((res) => {
-          if (res.ok) cache.put(e.request, res.clone());
+          if (res.ok) cache.put(e.request, res.clone()).catch(() => {});
           return res;
         })
         .catch(() => null);

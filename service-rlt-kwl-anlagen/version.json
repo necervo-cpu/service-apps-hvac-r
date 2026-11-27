@@ -1,5 +1,5 @@
 {
-  "version": "3.0.12",
-  "buildDate": "2026-11-25",
-  "changelog": "PDF-Seitenumbruch in langen Abschnitten ohne Abschneiden korrigiert"
+  "version": "3.0.15",
+  "buildDate": "2026-11-27",
+  "changelog": "Audit-Fixes #1-#13: SW-Caching, Offline-Sync, Validierungen, Print-CSS, Sicherheit"
 }

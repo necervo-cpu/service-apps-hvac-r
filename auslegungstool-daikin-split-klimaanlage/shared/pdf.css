@@ -1089,3 +1089,82 @@
   padding: 0.7mm 0;
   border-top: 1px solid var(--n-line);
 }
+
+/* ===== Nativer Browserdruck (@media print) ===== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-header,
+  .topbar,
+  .bottom-bar,
+  .action-bar,
+  .tab-strip,
+  .sidebar,
+  .ios27-sidebar,
+  .ios27-drawer,
+  .toast-pill,
+  .modal-overlay,
+  .no-print,
+  #net,
+  #pdfbar,
+  #bar,
+  .pdf-bar,
+  button {
+    display: none !important;
+  }
+
+  .app-shell,
+  .app-main,
+  #app,
+  .report,
+  .report .page {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    max-width: none !important;
+    background: #ffffff !important;
+  }
+
+  .report .page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: 13mm 14mm 18mm !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .report .page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .report .sec,
+  .report .n-sec,
+  .report .box,
+  .report .n-row,
+  .report .n-lrow,
+  .report .n-hero,
+  .report .n-notice,
+  .report .sign,
+  .report .n-sign,
+  .report tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

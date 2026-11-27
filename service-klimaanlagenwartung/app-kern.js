@@ -46,6 +46,7 @@ function normVals(v) {
 
 /* ---------- Speicher ---------- */
 /* LS steht in shared/core.js */
+window.CACHE_PREFIX = 'klima-wartung-v';
 LS.fullMsg += ' Übertragene Protokolle löschen.';
 const SETTINGS_FIELDS = [
   {
@@ -72,9 +73,6 @@ function fmtDate(s) {
   return isNaN(d)
     ? String(s)
     : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-function num(v) {
-  return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
 }
 function safeImg(src) {
   return typeof src === 'string' &&
@@ -555,8 +553,8 @@ function wizardHtml(p, i) {
     <div class="page-error" id="pageerr" role="alert"></div>`;
 }
 
-const APP_VERSION = '3.0.28';
-const BUILD_DATE = '2026-11-23';
+const APP_VERSION = '3.0.31';
+const BUILD_DATE = '2026-11-27';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

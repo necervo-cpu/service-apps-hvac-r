@@ -1,5 +1,5 @@
 {
-  "version": "3.0.8",
-  "buildDate": "2026-11-24",
-  "changelog": "HVAC-R Rechner v2 (v1.27.0) auf Startseite und in versions.json eingebunden"
+  "version": "3.0.12",
+  "buildDate": "2026-11-27",
+  "changelog": "Audit-Fixes #1-#13: SW-Caching, Offline-Sync, Validierungen, Print-CSS, Sicherheit"
 }

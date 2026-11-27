@@ -3,6 +3,7 @@
 
 /* ---------- Speicher ---------- */
 /* LS steht in shared/core.js */
+window.CACHE_PREFIX = 'rlt-kwl-v';
 LS.fullMsg += ' Übertragene Protokolle löschen.';
 const SETTINGS_FIELDS = [
   {
@@ -26,9 +27,6 @@ function fmtDate(s) {
   if (!s) return '';
   const d = new Date(String(s).length === 10 ? s + 'T12:00:00' : s);
   return isNaN(d) ? String(s) : d.toLocaleDateString('de-DE');
-}
-function num(v) {
-  return typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
 }
 function safeImg(src) {
   return typeof src === 'string' &&
@@ -412,8 +410,8 @@ function updateNet() {
   netRender(protocols.filter((p) => p.status === 'done' && !p.synced).length);
 }
 
-const APP_VERSION = '3.0.12';
-const BUILD_DATE = '2026-11-23';
+const APP_VERSION = '3.0.15';
+const BUILD_DATE = '2026-11-27';
 
 /* ===== Rahmen: Meldung, Modal-Karte, Darstellung, Update ===== */
 let toastTimer2;

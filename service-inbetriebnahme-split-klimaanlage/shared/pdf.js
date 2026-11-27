@@ -152,7 +152,7 @@ function layoutReport(r, host) {
     });
   });
   pages.forEach((p, i) => {
-    p.querySelector('.pno').innerHTML = `${b.id} · Seite ${i + 1} von ${pages.length}`;
+    p.querySelector('.pno').textContent = `${b.id} · Seite ${i + 1} von ${pages.length}`;
   });
   return pages;
 }

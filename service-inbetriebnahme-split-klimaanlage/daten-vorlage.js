@@ -195,7 +195,8 @@ const TEMPLATE = {
           label: 'CO₂-Äquivalent',
           type: 'calc',
           unit: 't CO₂e',
-          calc: (v) => (isN(v.total) && isN(v.gwp) ? round((v.total * v.gwp) / 1000, 3) : ''),
+          calc: (v) =>
+            isN(v.total) && isN(v.gwp) ? round((num(v.total) * num(v.gwp)) / 1000, 3) : '',
         },
         {
           id: 'pruef',
@@ -203,7 +204,7 @@ const TEMPLATE = {
           label: 'Prüfpflicht (Dichtheitsprüfung)',
           pdf: 'Prüfpflicht F-Gase',
           type: 'calc',
-          calc: (v) => (isN(v.co2) ? (v.co2 >= 5 ? 'Ja' : 'Nein') : ''),
+          calc: (v) => (isN(v.co2) ? (num(v.co2) >= 5 ? 'Ja' : 'Nein') : ''),
           note: () => 'ab 5 t CO₂-Äquivalent (EU 2024/573)',
         },
         {
