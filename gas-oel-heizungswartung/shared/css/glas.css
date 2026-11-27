@@ -34,30 +34,21 @@ html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
 /* Vordergrund-Inhalte (Menü-Button, Titel, Actions) strikt vor dem Glas-Layer */
 .app-header > * {
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
-/* Getrennter Smoked-Liquid-Glass-Hintergrund: am Seitenanfang komplett unsichtbar */
-.app-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: var(--bg-glass);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  transition: opacity var(--t-fast);
-}
-
-/* Scroll-Fade: ab scrollY > 8 blendet der Glas-Hintergrund hinter dem scharfen Text ein */
+/* Scroll-Fade: ab scrollY > 8 blendet der Glas-Hintergrund ausschließlich hinter dem scharfen Text ein */
 .app-header.is-scrolled {
   border-bottom-color: var(--border-glass-rim);
 }
 
 .app-header.is-scrolled::before {
-  opacity: 1;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg-glass);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
 }
@@ -71,7 +62,19 @@ html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
 .app-header .icon-btn:active { background: transparent; }
 
 .app-header .ios27-menu-btn { margin-left: -10px; }
-.app-header .brand-title { font-size: var(--text-h1); }
+
+.app-header .brand-title,
+.app-header h1 {
+  position: relative;
+  z-index: 10;
+  font-size: var(--text-h1);
+  filter: none;
+  -webkit-filter: none;
+  text-shadow: none;
+  will-change: auto;
+  transform: none;
+  -webkit-font-smoothing: antialiased;
+}
 .app-header .brand-subtitle,
 .app-header .net { margin-top: 2px; }
 
@@ -158,7 +161,7 @@ body:has(.bar:not([hidden])) .toast-pill { bottom: calc(96px + env(safe-area-ins
    5. ERHÖHTER KONTRAST: volle Flächen statt Glas
    ========================================================================== */
 @media (prefers-contrast: more) {
-  .app-header::before,
+  .app-header.is-scrolled::before,
   .bar,
   .toast-pill {
     background: var(--bg-surface);

@@ -203,14 +203,20 @@ header .icon-btn .material-symbols-rounded,
   padding: max(var(--space-md), env(safe-area-inset-top, 0px)) max(var(--space-md), env(safe-area-inset-right, 0px))
     max(var(--space-md), env(safe-area-inset-bottom, 0px)) max(var(--space-md), env(safe-area-inset-left, 0px));
   background: var(--color-scrim);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
 
-.modal-overlay.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+.modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
 
 .modal-card {
   width: 100%;
