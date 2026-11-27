@@ -20,7 +20,8 @@
 
     /* ===== Top-Bar-Scroll-Fade ===== */
     var pruefeScroll = function () {
-      kopf.classList.toggle('is-scrolled', window.scrollY > 8);
+      var y = Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0);
+      kopf.classList.toggle('is-scrolled', y > 8);
     };
     pruefeScroll();
     window.addEventListener('scroll', pruefeScroll, { passive: true });

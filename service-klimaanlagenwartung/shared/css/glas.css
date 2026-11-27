@@ -11,7 +11,7 @@ html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
 .section-title { scroll-margin-top: calc(var(--kopf-hoehe, 96px) + 16px); }
 
 /* ==========================================================================
-   1. FIXIERTER KOPF
+   1. FIXIERTER KOPF (Vordergrund immer scharf, Glas-Layer erst ab scrollY > 8)
    ========================================================================== */
 .app-header {
   position: fixed;
@@ -19,21 +19,47 @@ html { scroll-padding-top: calc(var(--kopf-hoehe, 96px) + 16px); }
   left: 0;
   right: 0;
   z-index: 40;
-  min-height: var(--header-height);
+  isolation: isolate;
+  min-height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
   align-items: center;
   margin: 0;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) var(--space-md) 8px;
-  background: var(--bg-glass);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  backdrop-filter: blur(20px) saturate(140%);
-  border-bottom: 1px solid var(--border-subtle);
-  transition: border-color var(--t-fast), background-color var(--t-fast);
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--t-fast);
 }
 
-/* Scroll-Fade: ab scrollY > 8 deutlichere Kante und etwas mehr Deckkraft */
+/* Vordergrund-Inhalte (Menü-Button, Titel, Actions) strikt vor dem Glas-Layer */
+.app-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Getrennter Smoked-Liquid-Glass-Hintergrund: am Seitenanfang komplett unsichtbar */
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition: opacity var(--t-fast);
+}
+
+/* Scroll-Fade: ab scrollY > 8 blendet der Glas-Hintergrund hinter dem scharfen Text ein */
 .app-header.is-scrolled {
-  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
   border-bottom-color: var(--border-glass-rim);
+}
+
+.app-header.is-scrolled::before {
+  opacity: 1;
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
 }
 
 /* Freistehende Icons: keine Glas-Kreise, keine Rahmen */
@@ -132,7 +158,7 @@ body:has(.bar:not([hidden])) .toast-pill { bottom: calc(96px + env(safe-area-ins
    5. ERHÖHTER KONTRAST: volle Flächen statt Glas
    ========================================================================== */
 @media (prefers-contrast: more) {
-  .app-header,
+  .app-header::before,
   .bar,
   .toast-pill {
     background: var(--bg-surface);
